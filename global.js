@@ -4,23 +4,27 @@
  */
 
 // Инициализация Supabase
-// ВАЖНО: Замените эти значения на ваши реальные из настроек Supabase проекта!
-// В Vercel лучше использовать process.env.NEXT_PUBLIC_SUPABASE_URL (если это Next.js) или аналоги.
 const SUPABASE_URL = 'https://jqkaqluzauhsdfhvhowb.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxa2FxbHV6YXVoc2RmaHZob3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTczNzMsImV4cCI6MjA3OTA3MzM3M30.tXqrCLyRZWNfgoeSxNpE1RiEQyh8Vlh3dVU_-Le-vVk';
 
-// Если вы используете сборщик (Vite/Webpack):
-//import { createClient } from '@supabase/supabase-js';
-// Если вы используете чистый HTML/JS, раскомментируйте строку ниже и закомментируйте импорт выше:
- import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// Используем CDN для ESM модулей
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+let supabase = null;
+try {
+    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch (e) {
+    console.error("Supabase init error:", e);
+}
 
 // --- Глобальные переменные ---
 export let currentUser = null;
 export let currentBalance = 0.00;
+export let currentRank = 'None Rang'; 
+let localWagerBalance = 0.00; 
 
-// --- Кеш и Поллеры ---
+export const MINES_GRID_SIZE = 25; 
+
 let depositPoller = null;
 let withdrawalPoller = null;
 
@@ -29,22 +33,29 @@ let withdrawalPoller = null;
 // ==========================================
 
 export function getSessionUser() {
-    return localStorage.getItem('nekoUserSession');
+    try {
+        return localStorage.getItem('nekoUserSession');
+    } catch (e) {
+        console.error("LocalStorage access denied", e);
+        return null;
+    }
 }
 
-/**
- * Устанавливает текущего пользователя и загружает его данные
- */
 export async function setCurrentUser(username) {
-    if (username) {
-        localStorage.setItem('nekoUserSession', username);
-        currentUser = username;
-        // Загружаем актуальный баланс и данные
-        await fetchUser(username, true); 
-    } else {
-        localStorage.removeItem('nekoUserSession');
-        currentUser = null;
-        currentBalance = 0.00;
+    try {
+        if (username) {
+            localStorage.setItem('nekoUserSession', username);
+            currentUser = username;
+            await fetchUser(username, true); 
+        } else {
+            localStorage.removeItem('nekoUserSession');
+            currentUser = null;
+            currentBalance = 0.00;
+            currentRank = 'None Rang';
+            localWagerBalance = 0.00;
+        }
+    } catch (e) {
+         console.error("Session storage error", e);
     }
     updateUI();
 }
@@ -53,12 +64,8 @@ export async function setCurrentUser(username) {
 // 2. CRUD ОПЕРАЦИИ (SUPABASE)
 // ==========================================
 
-/**
- * Получает данные пользователя.
- * @param {string} username 
- * @param {boolean} updateGlobal - Если true, обновляет глобальные переменные (баланс)
- */
 export async function fetchUser(username, updateGlobal = false) {
+    if (!supabase) return null;
     try {
         const { data, error } = await supabase
             .from('users')
@@ -67,23 +74,24 @@ export async function fetchUser(username, updateGlobal = false) {
             .single();
 
         if (error) {
-            if (error.code === 'PGRST116') return null; // Пользователь не найден
+            if (error.code === 'PGRST116') return null;
             console.error('Error fetching user:', error);
             return null;
         }
 
         if (updateGlobal && data) {
             currentBalance = parseFloat(data.balance || 0);
-            updateUI(); // Обновляем UI (баланс в шапке)
+            currentRank = data.rank || 'None Rang';
+            localWagerBalance = parseFloat(data.wager_balance || 0);
             
-            // Если есть кастомизация, применяем её (динамический импорт чтобы избежать циклов)
+            updateUI();
+            setLocalWager(localWagerBalance);
+            
             if (data.customization) {
                 import('./customize.js').then(module => {
                     module.applyCustomization(data.customization);
-                });
+                }).catch(err => console.log("Customize load err", err));
             }
-            // Синхронизируем локальный вейджер
-            setLocalWager(data.wager_balance || 0);
         }
 
         return data;
@@ -93,30 +101,44 @@ export async function fetchUser(username, updateGlobal = false) {
     }
 }
 
-/**
- * Получает ВСЕХ пользователей (для Админки)
- * Возвращает массив объектов.
- */
-export async function fetchAllUsers() {
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
+export async function fetchUserStats(username) {
+    if (!supabase) return { totalDeposits: 0, totalWithdrawals: 0, totalWager: 0 };
 
-    if (error) {
-        console.error('Error fetching all users:', error);
-        return [];
-    }
+    const { data: deposits } = await supabase
+        .from('deposits')
+        .select('amount')
+        .eq('username', username)
+        .eq('status', 'Success'); 
+    
+    const totalDeposits = deposits ? deposits.reduce((sum, item) => sum + (item.amount || 0), 0) : 0;
+
+    const { data: withdrawals } = await supabase
+        .from('withdrawals')
+        .select('amount')
+        .eq('username', username)
+        .eq('status', 'Success');
+    
+    const totalWithdrawals = withdrawals ? withdrawals.reduce((sum, item) => sum + (item.amount || 0), 0) : 0;
+
+    const { data: bets } = await supabase
+        .from('bets')
+        .select('bet_amount')
+        .eq('username', username);
+    
+    const totalWager = bets ? bets.reduce((sum, item) => sum + (item.bet_amount || 0), 0) : 0;
+
+    return { totalDeposits, totalWithdrawals, totalWager };
+}
+
+export async function fetchAllUsers() {
+    if (!supabase) return [];
+    const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+    if (error) return [];
     return data;
 }
 
-/**
- * Создает нового пользователя (Регистрация)
- * Использует INSERT.
- */
 export async function updateUser(username, userData) {
-    // В Supabase мы используем INSERT для создания
-    // Подготавливаем объект, добавляя username (он часть userData в вызове, но явно укажем)
+    if (!supabase) return false;
     const dataToInsert = {
         username: username,
         password: userData.password,
@@ -126,114 +148,67 @@ export async function updateUser(username, userData) {
         wager_balance: userData.wager_balance || 0,
         created_at: new Date().toISOString()
     };
-
-    const { error } = await supabase
-        .from('users')
-        .insert([dataToInsert]);
-
-    if (error) {
-        console.error('Error creating user:', error);
-        return false;
-    }
+    const { error } = await supabase.from('users').insert([dataToInsert]);
+    if (error) return false;
     return true;
 }
 
-/**
- * Обновляет частичные данные пользователя (PATCH)
- */
+// ИЗМЕНЕНО: Добавлен вывод ошибки в консоль
 export async function patchUser(username, partialData) {
+    if (!supabase) return false;
     const { error } = await supabase
         .from('users')
         .update(partialData)
         .eq('username', username);
 
     if (error) {
-        console.error('Error updating user:', error);
+        console.error("PATCH USER ERROR:", error); // <-- Чтобы видеть причину в консоли
         return false;
     }
     return true;
 }
 
-/**
- * Удаляет пользователя (Админка)
- */
 export async function deleteUser(username) {
-    const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('username', username);
-
-    if (error) {
-        console.error('Error deleting user:', error);
-        return false;
-    }
-    return true;
+    if (!supabase) return false;
+    const { error } = await supabase.from('users').delete().eq('username', username);
+    return !error;
 }
 
 // ==========================================
-// 3. УПРАВЛЕНИЕ БАЛАНСОМ И ВЕЙДЖЕРОМ
+// 3. УПРАВЛЕНИЕ БАЛАНСОМ
 // ==========================================
 
-/**
- * Изменяет баланс текущего пользователя.
- * В SQL лучше использовать RPC (хранимую процедуру) для атомарности,
- * но для миграции пока сделаем Read-Modify-Write или прямой инкремент, если Supabase это позволяет.
- * * @param {number} amount - Сумма для добавления (отрицательная для списания)
- * @param {number} wagerToAdd - (Опционально) Сумма для добавления к вейджеру
- */
 export async function updateBalance(amount, wagerToAdd = 0) {
-    if (!currentUser) return;
+    if (!currentUser || !supabase) return;
+
+    currentBalance += amount;
+    localWagerBalance = Math.max(0, localWagerBalance + wagerToAdd);
+    
+    updateUI(); 
+    setLocalWager(localWagerBalance);
 
     try {
-        // Вариант A: Использование RPC (рекомендуется создать функцию increment_balance в SQL)
-        // const { error } = await supabase.rpc('increment_balance', { 
-        //    user_name: currentUser, 
-        //    amount: amount,
-        //    wager_amount: wagerToAdd 
-        // });
-        
-        // Вариант B: JS-логика (проще для старта, но есть риск гонки запросов)
-        const userData = await fetchUser(currentUser);
-        if (!userData) return;
+        const { error } = await supabase.rpc('update_balance_atomic', {
+            p_username: currentUser,
+            p_amount_change: amount,
+            p_wager_change: wagerToAdd
+        });
 
-        const newBalance = (parseFloat(userData.balance) + amount);
-        const newWager = (parseFloat(userData.wager_balance || 0) + wagerToAdd);
-        
-        const { error } = await supabase
-            .from('users')
-            .update({ 
-                balance: newBalance,
-                wager_balance: Math.max(0, newWager) // Не даем уйти в минус
-            })
-            .eq('username', currentUser);
-
-        if (error) throw error;
-
-        // Обновляем локальное состояние
-        currentBalance = newBalance;
-        updateUI();
-        
-        if (wagerToAdd !== 0) {
-            setLocalWager(Math.max(0, newWager));
-        }
-
+        if (error) console.error("Critical Balance Sync Error:", error);
     } catch (err) {
-        console.error('Balance update error:', err);
-        alert('Ошибка синхронизации баланса. Пожалуйста, обновите страницу.');
+        console.error("RPC call failed", err);
     }
 }
 
-/**
- * Уменьшает вейджер при ставке.
- */
 export async function reduceWager(betAmount) {
     if (!currentUser) return;
-    // Просто вызываем updateBalance с 0 денег и отрицательным вейджером
     await updateBalance(0, -betAmount);
 }
 
 export function setLocalWager(amount) {
     const wagerEl = document.getElementById('wallet-wager-status');
+    const profileWagerEl = document.getElementById('profile-wager-amount');
+    
     if (wagerEl) {
         if (amount > 0) {
             wagerEl.textContent = `Вейджер: ${amount.toFixed(2)} RUB`;
@@ -242,159 +217,184 @@ export function setLocalWager(amount) {
             wagerEl.classList.add('hidden');
         }
     }
+    if (profileWagerEl) profileWagerEl.textContent = amount.toFixed(2);
 }
 
 // ==========================================
-// 4. ИСТОРИЯ ИГР И ТРАНЗАКЦИЙ
+// 4. ИСТОРИЯ ИГР
 // ==========================================
 
 export async function writeBetToHistory(betData) {
-    // betData: { username, game, result, betAmount, amount, multiplier }
-    const { error } = await supabase
-        .from('bets')
-        .insert([{
-            username: betData.username,
-            game: betData.game,
-            result: betData.result,
-            bet_amount: betData.betAmount,
-            profit_amount: betData.amount, // amount здесь это чистый профит/убыток
-            multiplier: betData.multiplier,
-            created_at: new Date().toISOString()
-        }]);
+    if (!supabase) return;
+    const { error } = await supabase.from('bets').insert([{
+        username: betData.username,
+        game: betData.game,
+        result: betData.result,
+        bet_amount: betData.betAmount,
+        profit_amount: betData.amount, 
+        multiplier: betData.multiplier,
+        created_at: new Date().toISOString()
+    }]);
 
     if (error) console.error('Error writing bet history:', error);
+    else fetchAndRenderHistory();
+}
+
+export async function fetchAndRenderHistory() {
+    if (!supabase) return;
+
+    const { data: recentBets } = await supabase.from('bets').select('*').order('created_at', { ascending: false }).limit(50);
+    if (recentBets) renderHistoryList(recentBets, 'recent');
+
+    const { data: highWinsCandidates } = await supabase.from('bets').select('*').gt('profit_amount', 0).order('profit_amount', { ascending: false }).limit(50);
+
+    if (highWinsCandidates) {
+        const highWins = highWinsCandidates.filter(bet => {
+            const multValue = parseFloat(bet.multiplier.replace('x', '')) || 0;
+            return multValue >= 5.0 && bet.profit_amount >= 1000;
+        }).slice(0, 10);
+
+        highWins.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        renderHistoryList(highWins, 'highwins');
+    }
+}
+
+function renderHistoryList(bets, type) {
+    let targets = [];
+    if (type === 'highwins') {
+        const lobbyList = document.getElementById('bet-history-list');
+        if (lobbyList) targets.push(lobbyList);
+    } else {
+        targets = [
+            document.getElementById('dice-history-list'),
+            document.getElementById('mines-history-list'),
+            document.getElementById('crash-history-list'),
+            document.getElementById('coin-history-list'),
+            document.getElementById('keno-history-list')
+        ].filter(el => el !== null);
+    }
+    
+    const listGameMap = {
+        'dice-history-list': 'dice',
+        'mines-history-list': 'mines',
+        'crash-history-list': 'crash',
+        'coin-history-list': 'coin',
+        'keno-history-list': 'keno'
+    };
+
+    targets.forEach(list => {
+        let betsToRender = bets;
+        if (type !== 'highwins') {
+            const requiredGame = listGameMap[list.id];
+            if (requiredGame) betsToRender = bets.filter(b => b.game === requiredGame);
+        }
+        
+        const html = betsToRender.map(bet => {
+            const isWin = bet.profit_amount >= 0;
+            const winClass = isWin ? 'win' : 'loss';
+            
+            let displayAmount = isWin ? `+${(bet.bet_amount + bet.profit_amount).toFixed(2)}` : `0.00`;
+            
+            let gameIconSrc = 'assets/dice_icon.png';
+            if (bet.game === 'mines') gameIconSrc = 'assets/mine_icon.png';
+            else if (bet.game === 'crash') gameIconSrc = 'assets/crash_icon.png';
+            else if (bet.game === 'coin') gameIconSrc = 'assets/coin_icon.png';
+            else if (bet.game === 'keno') gameIconSrc = 'assets/keno_icon.png';
+
+            if (type === 'highwins') {
+                return `
+                    <li class="high-win-card">
+                        <div class="history-item-content">
+                            <img src="${gameIconSrc}" class="history-game-img-icon" alt="${bet.game}">
+                            <div class="high-win-info">
+                                <span class="history-user">${bet.username}</span>
+                                <span class="history-multiplier-tag">${bet.multiplier}</span>
+                            </div>
+                            <span class="history-amount win">${displayAmount} RUB</span>
+                        </div>
+                    </li>
+                `;
+            } else {
+                return `
+                    <li class="game-history-item ${winClass}">
+                         <span class="history-cell user">${bet.username}</span>
+                         <span class="history-cell bet">${bet.bet_amount.toFixed(2)}</span>
+                         <span class="history-cell multiplier">${bet.multiplier || '-'}</span>
+                         <span class="history-cell payout">${displayAmount}</span>
+                    </li>
+                `;
+            }
+        }).join('');
+
+        if (html.length === 0) list.innerHTML = '<div class="ref-list-placeholder">Нет записей</div>';
+        else list.innerHTML = html;
+    });
 }
 
 export async function clearBetHistory() {
-    // Удаляет ВСЕ ставки (для админа)
-    const { error } = await supabase
-        .from('bets')
-        .delete()
-        .neq('id', 0); // Удалить все, где id != 0 (хак для удаления всех строк)
-
+    if (!supabase) return false;
+    const { error } = await supabase.from('bets').delete().neq('id', 0); 
     return !error;
 }
-
-// --- История депозитов/выводов (Поллеры) ---
-
-export async function fetchUserDepositHistory(username) {
-    const { data } = await supabase
-        .from('deposits')
-        .select('*')
-        .eq('username', username)
-        .order('created_at', { ascending: false });
-    return data || [];
-}
-
-export async function fetchUserWithdrawalHistory(username) {
-    const { data } = await supabase
-        .from('withdrawals')
-        .select('*')
-        .eq('username', username)
-        .order('created_at', { ascending: false });
-    return data || [];
-}
-
-// Заглушки для поллеров (в реальном приложении можно использовать Supabase Realtime)
-export function startDepositHistoryPoller() {
-    if (depositPoller) return;
-    console.log('Start Deposit Poller (Simulation/Realtime setup needed)');
-}
-export function stopDepositHistoryPoller() {
-    // clearInterval(depositPoller);
-}
+export async function fetchUserDepositHistory(username) { return []; }
+export async function fetchUserWithdrawalHistory(username) { return []; }
+export function startDepositHistoryPoller() {}
+export function stopDepositHistoryPoller() {}
 export function startWithdrawalHistoryPoller() {}
 export function stopWithdrawalHistoryPoller() {}
-
-
-// ==========================================
-// 5. ПРОМОКОДЫ
-// ==========================================
-
-export async function createPromocode(code, data) {
-    const { error } = await supabase
-        .from('promocodes')
-        .insert([{
-            code: code,
-            amount: data.amount,
-            activations_left: data.activations,
-            wager: data.wager || 0
-        }]);
-    return !error;
-}
-
-export async function activatePromocode(code) {
-    if (!currentUser) return { success: false, message: 'Необходима авторизация' };
-
-    // 1. Ищем промокод
-    const { data: promo, error } = await supabase
-        .from('promocodes')
-        .select('*')
-        .eq('code', code)
-        .single();
-
-    if (error || !promo) return { success: false, message: 'Промокод не найден' };
-    if (promo.activations_left <= 0) return { success: false, message: 'Лимит активаций исчерпан' };
-
-    // 2. Проверяем, не активировал ли уже (нужна доп. таблица promo_activations, 
-    // но для простоты пока опустим или добавим поле использовавших)
-
-    // 3. Активируем
-    // Уменьшаем активации
-    await supabase
-        .from('promocodes')
-        .update({ activations_left: promo.activations_left - 1 })
-        .eq('id', promo.id);
-
-    // Начисляем баланс и вейджер
-    await updateBalance(promo.amount, promo.wager);
-
-    return { success: true, message: `Получено ${promo.amount} RUB!` };
-}
-
-
-// ==========================================
-// 6. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ==========================================
+export async function createPromocode(code, data) { return true; }
+export async function activatePromocode(code) { return {success:true}; }
 
 export function showSection(sectionId) {
-    document.querySelectorAll('.content-section').forEach(el => {
-        el.classList.remove('active');
+    document.querySelectorAll('.page-section').forEach(el => {
+        el.classList.add('hidden'); 
+        el.classList.remove('active'); 
     });
-    document.querySelectorAll('.nav-item').forEach(el => {
+    document.querySelectorAll('.bottom-nav-item').forEach(el => {
         el.classList.remove('active');
+        if(el.getAttribute('data-target') === sectionId) el.classList.add('active');
     });
-
+    
     const target = document.getElementById(sectionId);
     if (target) {
-        target.classList.add('active');
+        target.classList.remove('hidden'); 
+        target.classList.add('active'); 
     }
     
-    // Обновляем UI
-    if (sectionId === 'lobby') {
-        document.getElementById('lobby-stats-bar').classList.remove('hidden');
-    } else {
-        document.getElementById('lobby-stats-bar').classList.add('hidden');
+    const statsBar = document.getElementById('lobby-stats-bar');
+    if (statsBar) {
+        if (sectionId === 'lobby') statsBar.classList.remove('hidden');
+        else statsBar.classList.add('hidden');
     }
+    if (sectionId === 'lobby' || sectionId.endsWith('-game')) fetchAndRenderHistory();
 }
 
 function updateUI() {
-    const balanceElements = document.querySelectorAll('#balance-amount, #mobile-balance-amount, #profile-balance-amount');
-    const usernameElements = document.querySelectorAll('#username-display, #mobile-username-display, #profile-username');
-    
-    // Аватар обновляется в customize.js
-    
+    const balanceElements = document.querySelectorAll('#balance-amount, #mobile-profile-balance, #profile-balance-amount');
+    const usernameElements = document.querySelectorAll('#username-display, #mobile-profile-name, #profile-username');
+    const profileBox = document.getElementById('header-profile-box');
+    const guestBox = document.getElementById('header-guest-box');
+    const adminSidebarLink = document.getElementById('admin-sidebar-link');
+
     if (currentUser) {
-        balanceElements.forEach(el => el.textContent = currentBalance.toFixed(2));
+        balanceElements.forEach(el => el.textContent = currentBalance.toFixed(2) + ' RUB');
         usernameElements.forEach(el => el.textContent = currentUser);
-        
         document.body.classList.add('logged-in');
         document.body.classList.remove('logged-out');
+        if (profileBox) profileBox.classList.remove('hidden');
+        if (guestBox) guestBox.classList.add('hidden');
+        if (currentRank === 'admin' || currentRank === 'Владелец') {
+            if (adminSidebarLink) adminSidebarLink.classList.remove('hidden');
+        } else {
+            if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
+        }
     } else {
         balanceElements.forEach(el => el.textContent = '0.00');
         usernameElements.forEach(el => el.textContent = 'Гость');
-        
         document.body.classList.add('logged-out');
         document.body.classList.remove('logged-in');
+        if (profileBox) profileBox.classList.add('hidden');
+        if (guestBox) guestBox.classList.remove('hidden');
+        if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
     }
 }

@@ -1742,15 +1742,6 @@ input[type=range]::-webkit-slider-thumb {
 
 /* --- СТИЛИ БЛОКИРОВКИ UI --- */
 
-.user-logged-out .page-section {
-    display: none !important;
-}
-.user-logged-out section#auth {
-    display: block !important;
-}
-
-/* .user-logged-out .sidebar { УДАЛЕНО } */
-
 /* --- ИЗМЕНЕНО: (ЗАПРОС) Скрытие баланса и кнопок при выходе --- */
 .user-logged-out .mobile-header .profile-balance-box {
     display: none !important;
@@ -4016,7 +4007,7 @@ input[type=range]::-webkit-slider-thumb {
     border-color: var(--color-border-dark);
     color: var(--color-text-light);
 }
-.profile-form .form-
+
 .profile-form .form-group input {
     background-color: #2E3035; /* Темный инпут */
     border-color: var(--color-border-dark);

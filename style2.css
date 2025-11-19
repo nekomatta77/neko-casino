@@ -1,8 +1,76 @@
 /*
- * Это твой новый файл стилей (style2.css).
- * Он подключен ПОСЛЕ style.css и будет переопределять
- * или дополнять стили по мере необходимости.
+ * style2.css
  */
+
+/* === СТИЛИ ДЛЯ ГОСТЕВОГО РЕЖИМА В ХЕДЕРЕ === */
+
+.guest-header-actions {
+    display: flex;
+    flex-direction: column; /* Кнопки друг под другом */
+    gap: 5px;
+    /* ИЗМЕНЕНО: Выравнивание */
+    align-items: stretch; 
+    justify-content: center;
+    min-width: 120px; /* Такая же ширина, как у профиля */
+    margin-left: auto; /* Прижимаем вправо (если во flex container) */
+}
+
+/* Общий стиль для гостевых кнопок */
+.guest-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 0; /* Вертикальный паддинг */
+    font-size: 0.9em;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-align: center;
+    width: 100%;
+}
+
+.guest-btn:active {
+    transform: scale(0.98);
+}
+
+/* Кнопка Вход (Оранжевая) */
+.login-btn {
+    /* Градиент как у логотипа/рамок */
+    background: linear-gradient(90deg, #F5A623, #FFC857);
+    box-shadow: 0 2px 5px rgba(245, 166, 35, 0.4);
+}
+
+/* Кнопка Регистрация (Зеленая) */
+.register-btn {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 2px 5px rgba(0, 168, 120, 0.4);
+}
+
+/* Скрытие элементов в зависимости от состояния входа */
+body.logged-in .guest-header-actions {
+    display: none !important;
+}
+body.logged-out #header-profile-box {
+    display: none !important;
+}
+body.logged-out .guest-header-actions {
+    display: flex !important;
+}
+
+/* === Адаптация для мобильных === */
+@media (max-width: 768px) {
+    .guest-header-actions {
+        min-width: 100px;
+        gap: 4px;
+    }
+    .guest-btn {
+        font-size: 0.8em; /* Чуть меньше шрифт */
+        padding: 5px 0;
+    }
+}
+
+/* === Стили для Модального Окна Авторизации (Наследует wallet-modal) === */
+/* Дополнительные стили не требуются, так как мы используем классы .wallet-* для консистентности дизайна */
 
 /* === Улучшения для Crash (Задача 1) === */
 

@@ -1,8 +1,10 @@
 /*
- * Краткое описание апгрейда (Миграция на Supabase):
- * 1. Сохранена логика "Custom Table Auth" (хранение пользователей в таблице).
- * 2. `handleRegister`: Проверка существования пользователя (fetch) -> Создание (update/insert).
- * 3. Важно: `global.js` должен реализовывать `updateUser` как `supabase.from('users').insert()`.
+ * Краткое описание апгрейда:
+ * 1. **Режим Гостя**: Логика `initAuth` обновлена. Теперь она управляет кнопками "Вход/Регистрация" в хедере.
+ * 2. **Модальное окно**: Реализована логика открытия/закрытия модального окна авторизации (`auth-modal-overlay`).
+ * 3. **Вкладки**: Реализовано переключение между "Входом" и "Регистрацией" внутри модального окна.
+ * 4. **Регистрация**: `handleRegister` использует `updateUser` для создания записи в БД.
+ * 5. **Вход**: `handleLogin` использует `fetchUser` для проверки данных.
  */
 
 import { showSection, setCurrentUser, getSessionUser, fetchUser, updateUser, startDepositHistoryPoller, stopDepositHistoryPoller, startWithdrawalHistoryPoller, stopWithdrawalHistoryPoller, currentUser, setLocalWager } from './global.js';
@@ -67,6 +69,9 @@ function initWalletTabs() {
     const withdrawalHistory = document.getElementById('withdrawal-history-container');
 
     tabs.forEach(tab => {
+        // Игнорируем табы авторизации здесь, они обрабатываются отдельно
+        if (tab.id.startsWith('tab-btn-')) return;
+
         tab.addEventListener('click', async () => {
             const targetId = tab.getAttribute('data-target');
             
@@ -122,18 +127,71 @@ export async function checkLoginState() {
         showSection('lobby'); 
     } else {
         await setCurrentUser(null); 
-        showSection('auth'); 
+        // Мы остаемся в лобби, но в режиме гостя
+        showSection('lobby'); 
     }
 }
 
+// --- ЛОГИКА МОДАЛЬНОГО ОКНА АВТОРИЗАЦИИ ---
+
+function showAuthModal(mode = 'login') {
+    const overlay = document.getElementById('auth-modal-overlay');
+    const modalTitle = document.getElementById('auth-modal-title');
+    const loginTab = document.getElementById('tab-btn-login');
+    const registerTab = document.getElementById('tab-btn-register');
+    const loginContent = document.getElementById('auth-tab-login');
+    const registerContent = document.getElementById('auth-tab-register');
+
+    if (!overlay) return;
+
+    overlay.classList.remove('hidden');
+
+    // Сброс форм
+    document.getElementById('modal-login-form').reset();
+    document.getElementById('modal-register-form').reset();
+
+    // Переключение на нужную вкладку
+    if (mode === 'login') {
+        modalTitle.textContent = 'Вход';
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginContent.classList.add('active');
+        registerContent.classList.remove('active');
+    } else {
+        modalTitle.textContent = 'Регистрация';
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerContent.classList.add('active');
+        loginContent.classList.remove('active');
+    }
+}
+
+function hideAuthModal() {
+    const overlay = document.getElementById('auth-modal-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+function initAuthModalTabs() {
+    const loginTab = document.getElementById('tab-btn-login');
+    const registerTab = document.getElementById('tab-btn-register');
+    
+    if (loginTab) {
+        loginTab.addEventListener('click', () => showAuthModal('login'));
+    }
+    if (registerTab) {
+        registerTab.addEventListener('click', () => showAuthModal('register'));
+    }
+}
+
+
 /**
- * Обрабатывает отправку формы регистрации
+ * Обрабатывает отправку формы регистрации из модалки
  */
 async function handleRegister(e) {
     e.preventDefault();
-    const username = document.getElementById('register-username').value.trim();
-    const pass = document.getElementById('register-password').value;
-    const confirmPass = document.getElementById('register-confirm-password').value;
+    const username = document.getElementById('modal-reg-username').value.trim();
+    const pass = document.getElementById('modal-reg-password').value;
+    const confirmPass = document.getElementById('modal-reg-confirm').value;
 
     if (!username || !pass) {
         alert('Имя пользователя и пароль не могут быть пустыми.');
@@ -144,7 +202,7 @@ async function handleRegister(e) {
         return;
     }
     
-    // ИЗМЕНЕНО: Проверка через SQL select (реализовано в global.js/fetchUser)
+    // Проверка существования
     const existingUser = await fetchUser(username);
 
     if (existingUser) {
@@ -152,16 +210,15 @@ async function handleRegister(e) {
         return;
     }
 
-    // Структура пользователя для Supabase
+    // Создание пользователя
     const newUser = {
-        password: pass, // Примечание: Желательно использовать хеширование или Supabase Auth
+        password: pass, 
         balance: STARTING_BALANCE,
         rank: "None Rang", 
         customization: {}, 
         wager_balance: 0 
     };
     
-    // ИЗМЕНЕНО: updateUser в global.js должен делать INSERT
     const success = await updateUser(username, newUser); 
     
     if (!success) {
@@ -169,18 +226,18 @@ async function handleRegister(e) {
         return;
     }
 
-    alert('Регистрация успешна! Теперь вы можете войти.');
+    alert('Регистрация успешна! Теперь вы вошли.');
     
-    document.getElementById('register-container').classList.add('hidden');
-    document.getElementById('login-container').classList.remove('hidden');
-    document.getElementById('login-username').value = username;
-    document.getElementById('login-password').focus();
+    // Автоматический вход после регистрации
+    await setCurrentUser(username);
+    hideAuthModal();
+    showSection('lobby');
 }
 
 async function handleLogin(e) {
     e.preventDefault();
-    const username = document.getElementById('login-username').value.trim();
-    const pass = document.getElementById('login-password').value;
+    const username = document.getElementById('modal-login-username').value.trim();
+    const pass = document.getElementById('modal-login-password').value;
 
     // Получаем данные пользователя
     const userData = await fetchUser(username);
@@ -197,36 +254,45 @@ async function handleLogin(e) {
     }
 
     await setCurrentUser(username);
+    hideAuthModal();
     showSection('lobby');
 }
 
 export function initAuth() {
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    const showRegisterLink = document.getElementById('show-register');
-    const showLoginLink = document.getElementById('show-login');
-    const loginContainer = document.getElementById('login-container');
-    const registerContainer = document.getElementById('register-container');
+    // Формы в модальном окне
+    const loginForm = document.getElementById('modal-login-form');
+    const registerForm = document.getElementById('modal-register-form');
     
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     if (registerForm) registerForm.addEventListener('submit', handleRegister);
     
-    if (showRegisterLink && loginContainer && registerContainer) {
-        showRegisterLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            loginContainer.classList.add('hidden');
-            registerContainer.classList.remove('hidden');
-        });
+    // Кнопки в хедере (Гостевой режим)
+    const headerLoginBtn = document.getElementById('header-login-btn');
+    const headerRegisterBtn = document.getElementById('header-register-btn');
+
+    if (headerLoginBtn) {
+        headerLoginBtn.addEventListener('click', () => showAuthModal('login'));
+    }
+    if (headerRegisterBtn) {
+        headerRegisterBtn.addEventListener('click', () => showAuthModal('register'));
     }
 
-    if (showLoginLink && loginContainer && registerContainer) {
-        showLoginLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            registerContainer.classList.add('hidden');
-            loginContainer.classList.remove('hidden');
+    // Закрытие модального окна авторизации
+    const authOverlay = document.getElementById('auth-modal-overlay');
+    const authCloseBtn = document.getElementById('auth-modal-close');
+    
+    if (authOverlay) {
+        authOverlay.addEventListener('click', (e) => {
+            if (e.target === authOverlay) hideAuthModal();
         });
     }
+    if (authCloseBtn) {
+        authCloseBtn.addEventListener('click', hideAuthModal);
+    }
+    
+    initAuthModalTabs();
 
+    // Логика кошелька и профиля (существующая)
     const profileTextContent = document.getElementById('mobile-profile-text-content'); 
     
     const goToProfile = () => {

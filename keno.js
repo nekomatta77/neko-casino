@@ -1,35 +1,14 @@
 /*
- * (НОВЫЙ ФАЙЛ)
- * Управляет логикой игры Keno.
- * (Версия 2.2 - Обновлены таблицы выплат)
- *
- * (ИЗМЕНЕНО):
- * 1. (ЗАДАЧА 2) Добавлена функция sleep() и REVEAL_SPEED_MS.
- * 2. (ЗАДАЧА 2) animateReveal() переписана для последовательного
- * показа 8 "выпавших" шаров с анимацией и
- * пошаговым обновлением шкалы выплат.
- * 3. (ЗАДАЧА 2 - НОВЫЙ ЗАПРОС) animateReveal() больше не убирает
- * класс .selected, чтобы подсветка выбора игрока оставалась.
- * 4. (ЗАДАЧА 1 из нового) updatePayoutScaleFill() теперь закрашивает все лапки по порядку.
- * 5. (ЗАДАЧА 2 из нового) animateReveal() больше не ставит '●' в синие ячейки.
- * 6. (ЗАДАЧА 1 из 2-го) updatePayoutTableUI() изменена для отображения множителей ПОД лапками.
- * 7. (НОВЫЙ ЗАПРОС) Добавлен Турбо-режим (isTurboMode)
- * 8. (НОВЫЙ ЗАПРОС 2) Переименован thunder.off.png в thunder_off.png
- * 9. **(ЗАДАЧА 6)**: Добавлен импорт и вызов `reduceWager` при ставке.
+ * (ИЗМЕНЕНО: ДОБАВЛЕН АВТО-РЕЖИМ И ВКЛАДКИ)
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
-// --- КОНФИГУРАЦИЯ ИГРЫ ---
 const KENO_GRID_SIZE = 40;
-const KENO_DRAW_SIZE = 10; // Как в твоем коде
+const KENO_DRAW_SIZE = 10; 
 const MAX_SELECTION = 10;
-// ИЗМЕНЕНО: (Задача 2) Добавлена скорость анимации
 const REVEAL_SPEED_MS = 150; 
 
-// --- ТАБЛИЦЫ ВЫПЛАТ ---
-// (ИЗМЕНЕНО: ЗАДАЧИ 2, 3, 4)
 const PAYOUT_TABLES = {
-    // === ЛЕГКИЙ ===
     easy: {
         1: { 1: 3.96 },
         2: { 1: 2, 2: 3.8 },
@@ -42,58 +21,36 @@ const PAYOUT_TABLES = {
         9: { 1: 0, 2: 1.2, 3: 1.3, 4: 1.7, 5: 2.5, 6: 7.5, 7: 50, 8: 250, 9: 1000 },
         10: { 1: 0, 2: 1.1, 3: 1.2, 4: 1.3, 5: 1.8, 6: 3.5, 7: 13, 8: 50, 9: 250, 10: 1000 }
     },
-    // === СРЕДНИЙ ===
-    medium: {
-        1: { 1: 3.96 },
-        2: { 1: 1.8, 2: 5.1 },
-        3: { 1: 0, 2: 2.8, 3: 50 },
-        4: { 1: 0, 2: 1.1, 3: 13.3, 4: 100 },
-        5: { 1: 0, 2: 1, 3: 3, 4: 35, 5: 350 },
-        6: { 1: 0, 2: 0, 3: 3, 4: 9, 5: 180, 6: 710 },
-        7: { 1: 0, 2: 0, 3: 2, 4: 7, 5: 30, 6: 400, 7: 800 },
-        8: { 1: 0, 2: 0, 3: 2, 4: 4, 5: 11, 6: 67, 7: 400, 8: 900 },
-        9: { 1: 0, 2: 0, 3: 2, 4: 2.5, 5: 5, 6: 15, 7: 100, 8: 500, 9: 1000 },
-        10: { 1: 0, 2: 0, 3: 1.6, 4: 2, 5: 4, 6: 7, 7: 25, 8: 100, 9: 500, 10: 1000 }
-    },
-    // === СЛОЖНЫЙ ===
-    high: {
-        1: { 1: 3.96 },
-        2: { 1: 0, 2: 17.1 },
-        3: { 1: 0, 2: 0, 3: 81.5 },
-        4: { 1: 0, 2: 0, 3: 10, 4: 259 },
-        5: { 1: 0, 2: 0, 3: 4.5, 4: 48, 5: 450 },
-        6: { 1: 0, 2: 0, 3: 0, 4: 11, 5: 350, 6: 710 },
-        7: { 1: 0, 2: 0, 3: 0, 4: 7, 5: 90, 6: 400, 7: 800 },
-        8: { 1: 0, 2: 0, 3: 0, 4: 5, 5: 20, 6: 270, 7: 600, 8: 900 },
-        9: { 1: 0, 2: 0, 3: 0, 4: 4, 5: 11, 6: 56, 7: 500, 8: 800, 9: 1000 },
-        10: { 1: 0, 2: 0, 3: 0, 4: 3.5, 5: 8, 6: 13, 7: 64, 8: 500, 9: 800, 10: 1000 }
-    }
+    medium: { 1: {1:3.96}, 2:{1:1.8,2:5.1}, 3:{2:2.8,3:50}, 4:{2:1.1,3:13.3,4:100}, 5:{2:1,3:3,4:35,5:350}, 6:{3:3,4:9,5:180,6:710}, 7:{3:2,4:7,5:30,6:400,7:800}, 8:{3:2,4:4,5:11,6:67,7:400,8:900}, 9:{3:2,4:2.5,5:5,6:15,7:100,8:500,9:1000}, 10:{3:1.6,4:2,5:4,6:7,7:25,8:100,9:500,10:1000} },
+    high: { 1: {1:3.96}, 2:{2:17.1}, 3:{3:81.5}, 4:{3:10,4:259}, 5:{3:4.5,4:48,5:450}, 6:{4:11,5:350,6:710}, 7:{4:7,5:90,6:400,7:800}, 8:{4:5,5:20,6:270,7:600,8:900}, 9:{4:4,5:11,6:56,7:500,8:800,9:1000}, 10:{4:3.5,5:8,6:13,7:64,8:500,9:800,10:1000} }
 };
 
-// --- ЛОКАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
 let isGameActive = false;
 let currentBet = 10.00;
-let currentRisk = 'easy'; // (ИЗМЕНЕНО: по умолчанию 'easy' как в UI)
-let selectedNumbers = []; // Номера, которые выбрал игрок
-let drawnNumbers = []; // Номера, которые "выпали"
-let isTurboMode = false; // ДОБАВЛЕНО: (Турбо-режим)
+let currentRisk = 'easy'; 
+let selectedNumbers = []; 
+let drawnNumbers = []; 
+let isTurboMode = false; 
+let isAutoMode = false; // Режим авто-игры
 
-// --- ЭЛЕМЕНТЫ DOM (Новый UI) ---
-let grid, betInput, riskSelector, playButton, clearButton, autoPickButton, payoutBar, statusElement;
-let betHalfButton, betDoubleButton, betMinButton, betMaxButton;
-// ИЗМЕНЕНО: (Задача 3) Добавлены элементы оверлея
+// Элементы DOM
+let grid, betInput, playButton, clearButton, autoPickButton, payoutBar, statusElement;
+let betHalfButton, betDoubleButton;
 let kenoResultOverlay, kenoResultMultiplier, kenoResultWinnings;
-// ДОБАВЛЕНО: (Турбо-режим)
 let turboButton, turboIcon;
+let riskButtons;
+let tabButtons, manualPanel, autoPanel;
 
+// Элементы Авто-игры
+let autoGameActive = false;
+let autoGamesRemaining = 0;
+let autoStartButton, autoCountInput, autoTurboButton, autoBetInput;
+let autoBetHalfBtn, autoBetDoubleBtn;
 
-/**
- * Создает сетку Keno 4x10
- */
 function createGrid() {
     grid.innerHTML = '';
     for (let i = 1; i <= KENO_GRID_SIZE; i++) {
-        const cell = document.createElement('button');
+        const cell = document.createElement('div');
         cell.classList.add('keno-cell');
         cell.textContent = i;
         cell.setAttribute('data-number', i);
@@ -102,359 +59,244 @@ function createGrid() {
     }
 }
 
-/**
- * (ПЕРЕРАБОТАНО) Обновляет горизонтальную шкалу выплат
- */
 function updatePayoutTableUI() {
     payoutBar.innerHTML = '';
     const picks = selectedNumbers.length;
     
-    // Если ничего не выбрано, показываем плейсхолдер
-    if (picks === 0) {
-        payoutBar.innerHTML = `<span class="keno-payout-placeholder">Выберите от 1 до 10 ячеек</span>`;
-        return;
-    }
+    if (picks === 0) return; 
 
     const table = PAYOUT_TABLES[currentRisk][picks];
-    const maxHits = MAX_SELECTION; // Идем до 10
-
-    for (let hits = 0; hits <= maxHits; hits++) {
+    
+    for (let hits = 0; hits <= picks; hits++) {
         const multiplier = table[hits] || 0;
         
-        // Показываем, только если есть в таблице
-        if (table.hasOwnProperty(hits)) {
-            const item = document.createElement('div');
-            item.classList.add('keno-payout-item');
-            if (multiplier === 0) {
-                item.classList.add('zero');
-            }
-            item.setAttribute('data-hit-count', hits);
-            
-            // ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Новая структура с оберткой для лапок
-            item.innerHTML = `
-                <div class="keno-paw-wrapper">
-                    <img src="assets/grey_paw.png" alt="Payout" class="payout-paw-grey">
-                    <img src="assets/keno_paw.png" alt="Hit" class="payout-paw-keno">
-                </div>
-                <span class="mult">${multiplier}x</span>
-                <span class="hits">${hits}</span>
-            `;
-            payoutBar.appendChild(item);
-        }
+        const item = document.createElement('div');
+        item.classList.add('keno-gem-item');
+        item.setAttribute('data-hit-count', hits);
+        
+        item.innerHTML = `
+            <div class="keno-paw-wrapper">
+                <img src="assets/grey_paw.png" alt="x" class="paw-grey">
+                <img src="assets/keno_paw.png" alt="HIT" class="paw-color">
+            </div>
+            <span class="keno-gem-mult">x${multiplier}</span>
+        `;
+        payoutBar.appendChild(item);
     }
 }
 
-/**
- * (НОВАЯ ФУНКЦИЯ) Анимирует заполнение шкалы выплат
- * @param {number} hitCount - Текущее количество попаданий
- */
 function updatePayoutScaleFill(hitCount) {
-    const items = payoutBar.querySelectorAll('.keno-payout-item');
-    let found = false;
-
-    // ИЗМЕНЕНО: (ЗАДАЧА 1) Логика sequential fill
+    const items = payoutBar.querySelectorAll('.keno-gem-item');
+    
     items.forEach(item => {
         const itemHits = parseInt(item.getAttribute('data-hit-count'));
         
-        // Пропускаем 0, если у нас есть хиты
-        if (itemHits === 0 && hitCount > 0) {
-             item.classList.remove('filled', 'active');
-             return; // Пропускаем 0, если есть >0 хитов
-        }
-
-        // Если лапка <= кол-ву хитов, "активируем" ее
+        item.classList.remove('active');
         if (itemHits <= hitCount) {
-            item.classList.add('filled', 'active'); // Применяем оба класса
-            if (itemHits === hitCount) {
-                found = true; // Для обработки 0
-            }
-        } else {
-            item.classList.remove('filled', 'active'); // Сбрасываем для тех, что больше
+            item.classList.add('active');
         }
     });
-
-    // Обработка случая 0 хитов
-    if (hitCount === 0 && !found) {
-        const zeroItem = payoutBar.querySelector('[data-hit-count="0"]');
-        if (zeroItem && !zeroItem.classList.contains('zero')) {
-            zeroItem.classList.add('filled', 'active');
-        }
-    }
 }
 
-
-/**
- * Обновляет состояние кнопок (Играть, Авто-выбор, Очистить)
- */
 function updateControlsUI() {
     const selectionCount = selectedNumbers.length;
-    
-    // Кнопка "Играть"
-    playButton.disabled = (selectionCount === 0) || isGameActive;
-    
-    // Кнопка "Авто-выбор"
-    // ИЗМЕНЕНО: (ЗАДАНИЕ 1) Убрана блокировка при 10 ячейках
-    autoPickButton.disabled = isGameActive;
-    
-    // Кнопка "Очистить"
-    clearButton.disabled = (selectionCount === 0) || isGameActive;
-    
-    // ДОБАВЛЕНО: (Турбо-режим)
-    if (turboButton) turboButton.disabled = isGameActive;
+    const bet = isAutoMode ? parseFloat(autoBetInput.value) : parseFloat(betInput.value);
 
-    // Кнопки ставок
-    [betHalfButton, betDoubleButton, betMinButton, betMaxButton, betInput].forEach(el => {
-        if (el) el.disabled = isGameActive;
-    });
-
-    // Блокировка контролов во время игры
-    if (isGameActive) {
-        riskSelector.querySelectorAll('button').forEach(btn => btn.disabled = true);
-        grid.classList.add('disabled');
+    // Логика для ручного режима
+    playButton.disabled = (selectionCount === 0) || isGameActive || autoGameActive;
+    autoPickButton.disabled = isGameActive || autoGameActive;
+    clearButton.disabled = (selectionCount === 0) || isGameActive || autoGameActive;
+    
+    if (selectionCount > 0) {
+        playButton.textContent = `СДЕЛАТЬ СТАВКУ`;
     } else {
-        riskSelector.querySelectorAll('button').forEach(btn => btn.disabled = false);
+        playButton.textContent = `ВЫБЕРИТЕ ЧИСЛА`;
+    }
+
+    // Логика для авто режима
+    if (autoGameActive) {
+        autoStartButton.textContent = `СТОП (${autoGamesRemaining})`;
+        autoStartButton.classList.add('stop-mode');
+        autoCountInput.disabled = true;
+        autoBetInput.disabled = true;
+    } else {
+        autoStartButton.textContent = `ЗАПУСТИТЬ АВТО`;
+        autoStartButton.classList.remove('stop-mode');
+        autoCountInput.disabled = false;
+        autoBetInput.disabled = false;
+        autoStartButton.disabled = (selectionCount === 0);
+    }
+
+    if (isGameActive || autoGameActive) {
+        grid.classList.add('disabled');
+        tabButtons.forEach(btn => btn.disabled = true);
+    } else {
         grid.classList.remove('disabled');
+        tabButtons.forEach(btn => btn.disabled = false);
     }
 }
 
-/**
- * ИЗМЕНЕНО: (Задача 3) Сбрасывает поле
- * @param {boolean} clearSelection - Если true, сбрасывает и выбор игрока.
- */
 function resetGame(clearSelection = true) {
-    isGameActive = false;
+    // Не сбрасываем isGameActive здесь, это делает caller
     drawnNumbers = [];
 
-    // (Задача 3) Скрываем оверлей
-    if (kenoResultOverlay) {
-        kenoResultOverlay.classList.add('hidden');
-    }
+    if (kenoResultOverlay) kenoResultOverlay.classList.add('hidden');
     
-    // Сбрасываем стили ячеек
     grid.querySelectorAll('.keno-cell').forEach(cell => {
-        cell.classList.remove('hit', 'miss', 'drawn', 'idle');
-        cell.innerHTML = cell.getAttribute('data-number'); // Восстанавливаем номер
-        cell.disabled = false;
-        
-        if (clearSelection) {
-            cell.classList.remove('selected');
-        }
+        cell.classList.remove('hit', 'miss', 'drawn', 'idle', 'win');
+        cell.innerHTML = cell.getAttribute('data-number');
+        if (clearSelection) cell.classList.remove('selected');
     });
     
-    statusElement.textContent = '';
-    statusElement.classList.remove('win', 'loss');
-    
-    if (clearSelection) {
-        selectedNumbers = [];
+    if (statusElement) {
+        statusElement.textContent = '';
+        statusElement.classList.remove('win', 'loss');
     }
     
-    // (Задача 3) Обновляем шкалу, только если сбросили выбор
-    if (clearSelection) {
-        updatePayoutTableUI();
-    }
+    if (clearSelection) selectedNumbers = [];
+    
+    updatePayoutTableUI();
+    
+    const items = payoutBar.querySelectorAll('.keno-gem-item');
+    items.forEach(i => i.classList.remove('active'));
     
     updateControlsUI();
 }
 
-
-/**
- * Обрабатывает клик по ячейке
- * @param {Event} e 
- */
 function handleCellClick(e) {
-    if (isGameActive) return;
+    if (isGameActive || autoGameActive) return;
+    
+    grid.querySelectorAll('.keno-cell').forEach(c => {
+        c.classList.remove('hit', 'miss', 'drawn', 'idle', 'win');
+        c.innerHTML = c.getAttribute('data-number');
+    });
+    if (kenoResultOverlay) kenoResultOverlay.classList.add('hidden');
+    if (statusElement) statusElement.textContent = '';
 
     const cell = e.currentTarget;
     const number = parseInt(cell.getAttribute('data-number'));
-    
     const index = selectedNumbers.indexOf(number);
 
     if (index > -1) {
-        // Убираем
         selectedNumbers.splice(index, 1);
         cell.classList.remove('selected');
-        
-        // ИЗМЕНЕНО: (ЗАДАНИЕ 2) Сбрасываем стили (hit/drawn/miss) при снятии выбора
-        cell.classList.remove('hit', 'miss', 'drawn', 'idle');
-        cell.innerHTML = cell.getAttribute('data-number');
-        
     } else {
-        // Добавляем, если не достигнут лимит
         if (selectedNumbers.length < MAX_SELECTION) {
             selectedNumbers.push(number);
             cell.classList.add('selected');
         }
     }
     
+    updatePayoutScaleFill(-1); 
     updatePayoutTableUI();
     updateControlsUI();
 }
 
-/**
- * Обрабатывает смену режима риска
- * @param {Event} e 
- */
-function handleRiskChange(e) {
-    const clickedButton = e.target.closest('.keno-risk-btn');
-    if (!clickedButton || isGameActive) return;
-    
-    currentRisk = clickedButton.getAttribute('data-risk');
-    
-    // Обновляем UI кнопок
-    riskSelector.querySelectorAll('.keno-risk-btn').forEach(btn => {
-        btn.classList.toggle('active', btn === clickedButton);
-    });
-    
-    updatePayoutTableUI();
-}
-
-/**
- * Очищает выбор (вызывает полный сброс)
- */
 function handleClear() {
-    if (isGameActive) return;
-    resetGame(true); // ИЗМЕНЕНО: (Задача 3)
+    if (isGameActive || autoGameActive) return;
+    resetGame(true); 
 }
 
-/**
- * Автоматический выбор ячеек
- */
 function handleAutoPick() {
-    // ИЗМЕНЕНО: (ЗАДАНИЕ 1) Убрана проверка selectedNumbers.length === MAX_SELECTION
-    if (isGameActive) return;
-    
-    // Очищаем старый выбор перед авто-выбором
+    if (isGameActive || autoGameActive) return;
     handleClear();
-
-    let availableNumbers = [];
-    for (let i = 1; i <= KENO_GRID_SIZE; i++) {
-        availableNumbers.push(i);
-    }
-
-    // Выбираем 10 случайных
+    let availableNumbers = Array.from({ length: KENO_GRID_SIZE }, (_, i) => i + 1);
     for (let i = 0; i < MAX_SELECTION; i++) {
-        if (availableNumbers.length === 0) break;
-        
         const randomIndex = Math.floor(Math.random() * availableNumbers.length);
         const number = availableNumbers.splice(randomIndex, 1)[0];
-        
         selectedNumbers.push(number);
-        
-        // Обновляем UI
         const cell = grid.querySelector(`.keno-cell[data-number="${number}"]`);
-        if (cell) {
-            cell.classList.add('selected');
-        }
+        if (cell) cell.classList.add('selected');
     }
-    
     updatePayoutTableUI();
     updateControlsUI();
 }
 
-/**
- * ДОБАВЛЕНО: (Турбо-режим) Переключает режим турбо
- */
 function handleTurboToggle() {
     isTurboMode = !isTurboMode;
+    const img1 = turboButton.querySelector('img');
+    const img2 = autoTurboButton.querySelector('img');
+    const src = isTurboMode ? 'assets/thunder_on.png' : 'assets/thunder_off.png';
+    
+    img1.src = src;
+    img2.src = src;
     
     if (isTurboMode) {
-        if (turboIcon) turboIcon.src = 'assets/thunder_on.png';
-        if (turboButton) turboButton.classList.add('active'); // Для стилей, если понадобятся
+        turboButton.classList.add('active');
+        autoTurboButton.classList.add('active');
     } else {
-        // ИЗМЕНЕНО: (Новый запрос 2) Используем thunder_off.png
-        if (turboIcon) turboIcon.src = 'assets/thunder_off.png';
-        if (turboButton) turboButton.classList.remove('active');
+        turboButton.classList.remove('active');
+        autoTurboButton.classList.remove('active');
     }
 }
 
-/**
- * Запускает игру
- */
+function handleTabSwitch(e) {
+    if (isGameActive || autoGameActive) return;
+    const mode = e.currentTarget.getAttribute('data-mode');
+    
+    tabButtons.forEach(btn => btn.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    
+    if (mode === 'manual') {
+        manualPanel.classList.remove('hidden');
+        autoPanel.classList.add('hidden');
+        isAutoMode = false;
+    } else {
+        manualPanel.classList.add('hidden');
+        autoPanel.classList.remove('hidden');
+        isAutoMode = true;
+    }
+    updateControlsUI();
+}
+
+function handleRiskSwitch(e) {
+    if (isGameActive || autoGameActive) return;
+    const risk = e.currentTarget.getAttribute('data-risk');
+    currentRisk = risk;
+    
+    riskButtons.forEach(btn => btn.classList.remove('active'));
+    e.currentTarget.classList.add('active');
+    
+    updatePayoutTableUI();
+}
+
+// Возвращает Promise для ожидания завершения игры
 async function handlePlayKeno() {
-    currentBet = parseFloat(betInput.value);
+    // Определяем ставку в зависимости от режима
+    currentBet = isAutoMode ? parseFloat(autoBetInput.value) : parseFloat(betInput.value);
     
-    if (isGameActive) return;
-    if (selectedNumbers.length === 0) {
-        statusElement.textContent = '⚠️ Выберите хотя бы 1 ячейку!';
-        statusElement.classList.add('loss');
-        return;
-    }
-    if (currentBet <= 0 || isNaN(currentBet)) {
-        statusElement.textContent = '⚠️ Неверная ставка!';
-        statusElement.classList.add('loss');
-        return;
-    }
-    if (currentBet > currentBalance) {
-        statusElement.textContent = '⚠️ Недостаточно средств!';
-        statusElement.classList.add('loss');
+    if (selectedNumbers.length === 0 || currentBet <= 0 || isNaN(currentBet) || currentBet > currentBalance) {
+        if (autoGameActive) stopAutoGame();
         return;
     }
 
-    // --- Начинаем игру ---
-    // ИЗМЕНЕНО: (Задача 3) Сбрасываем старые результаты, но сохраняем выбор
     resetGame(false); 
-    
     isGameActive = true;
-    updateControlsUI(); // Блокируем кнопки
-    
-    // ИЗМЕНЕНО: Убираем "Розыгрыш...", т.к. он мгновенный
-    // statusElement.textContent = 'Розыгрыш...'; 
-    statusElement.classList.remove('win', 'loss');
-    
-    // Снимаем ставку
-    try {
-        await updateBalance(-currentBet);
-    } catch (error) {
-        statusElement.textContent = '⚠️ Ошибка при снятии ставки.';
-        statusElement.classList.add('loss');
-        isGameActive = false;
-        updateControlsUI();
-        return;
-    }
-    
-    // (ЗАДАЧА 6) Уменьшаем вейджер
-    await reduceWager(currentBet);
+    updateControlsUI(); 
+    updateBalance(-currentBet);
+    reduceWager(currentBet);
 
-    // --- Генерируем выигрышные номера ---
     drawnNumbers = [];
     const numberPool = Array.from({ length: KENO_GRID_SIZE }, (_, i) => i + 1);
-    
     for (let i = 0; i < KENO_DRAW_SIZE; i++) {
         const randomIndex = Math.floor(Math.random() * numberPool.length);
         drawnNumbers.push(numberPool.splice(randomIndex, 1)[0]);
     }
 
-    // --- ИЗМЕНЕНО: (Турбо-режим) ---
     let hitsCount = 0;
-
     if (isTurboMode) {
-        // ТУРБО-РЕЖИМ: Мгновенный результат
         hitsCount = calculateHits(drawnNumbers, selectedNumbers);
         instantReveal(drawnNumbers, selectedNumbers, hitsCount);
     } else {
-        // ОБЫЧНЫЙ РЕЖИМ: Анимация
         hitsCount = await animateReveal(drawnNumbers, selectedNumbers);
     }
-    // --- КОНЕЦ ИЗМЕНЕНИЯ ---
 
-    // --- Расчет выигрыша ---
     const picksCount = selectedNumbers.length;
-    
     const multiplier = PAYOUT_TABLES[currentRisk][picksCount][hitsCount] || 0;
     const winnings = currentBet * multiplier;
     
-    if (winnings > 0) {
-        await updateBalance(winnings);
-        // ИЗМЕНЕНО: (Задача 3) Статус-бар больше не нужен, используем оверлей
-        // statusElement.textContent = `Выигрыш ${winnings.toFixed(2)} RUB (x${multiplier})`;
-        // statusElement.classList.add('win');
-    } else {
-        // ИЗМЕНЕНО: (Задача 3)
-        // statusElement.textContent = `Проигрыш ${currentBet.toFixed(2)} RUB`;
-        // statusElement.classList.add('loss');
-    }
+    if (winnings > 0) updateBalance(winnings);
 
-    // Запись в историю
     writeBetToHistory({
         username: currentUser,
         game: 'keno',
@@ -464,230 +306,188 @@ async function handlePlayKeno() {
         multiplier: `${multiplier.toFixed(2)}x`
     });
     
-    // ИЗМЕНЕНО: (Задача 3) Показываем оверлей вместо setTimeout
-    if (kenoResultOverlay && kenoResultMultiplier && kenoResultWinnings) {
+    // Показываем результат только в ручном режиме или в конце автоигры (по желанию, пока скрываем оверлей в авто, чтобы не мешал)
+    if (!autoGameActive && kenoResultOverlay && kenoResultMultiplier && kenoResultWinnings) {
         kenoResultMultiplier.textContent = `${multiplier.toFixed(2)}x`;
         kenoResultWinnings.textContent = `${winnings.toFixed(2)} RUB`;
-        
-        // (Задача 3) Убираем/добавляем классы win/loss для цвета
         kenoResultOverlay.classList.remove('win', 'loss');
-        if (winnings > 0) {
-            kenoResultOverlay.classList.add('win');
-        } else {
-            kenoResultOverlay.classList.add('loss');
-        }
-        
+        if (winnings > 0) kenoResultOverlay.classList.add('win');
+        else kenoResultOverlay.classList.add('loss');
         kenoResultOverlay.classList.remove('hidden');
     }
     
-    // (Задача 3) Сбрасываем isGameActive, чтобы можно было играть снова
     isGameActive = false;
+    updateControlsUI();
+    return true; // Игра завершена успешно
+}
+
+async function startAutoGame() {
+    if (autoGameActive) {
+        stopAutoGame();
+        return;
+    }
+    
+    const countVal = parseInt(autoCountInput.value);
+    autoGamesRemaining = (isNaN(countVal) || countVal <= 0) ? Infinity : countVal;
+    
+    if (selectedNumbers.length === 0) return;
+    
+    autoGameActive = true;
+    updateControlsUI();
+    
+    while (autoGameActive && autoGamesRemaining > 0) {
+        // Проверка баланса перед игрой
+        currentBet = parseFloat(autoBetInput.value);
+        if (currentBalance < currentBet) {
+            stopAutoGame();
+            break;
+        }
+        
+        await handlePlayKeno();
+        
+        if (autoGamesRemaining !== Infinity) {
+            autoGamesRemaining--;
+        }
+        updateControlsUI(); // Обновляем счетчик на кнопке
+        
+        if (!isTurboMode && autoGameActive) {
+             await sleep(500); // Пауза между играми
+        } else if (autoGameActive) {
+             await sleep(100); // Короткая пауза в турбо
+        }
+    }
+    
+    stopAutoGame();
+}
+
+function stopAutoGame() {
+    autoGameActive = false;
+    autoGamesRemaining = 0;
     updateControlsUI();
 }
 
-// --- Функции Анимации (НОВЫЕ) ---
 
-// ИЗМЕНЕНО: (ЗАДАЧА 2) Добавлена функция sleep
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 
-/**
- * (ИЗМЕНЕНО: ЗАДАЧА 2) Анимация открытия ячеек (ПОСЛЕДОВАТЕЛЬНАЯ)
- * @param {Array<number>} drawnNumbers - Массив выпавших номеров
- * @param {Array<number>} selectedNumbers - Массив номеров игрока
- * @returns {Promise<number>} Количество попаданий (hits)
- */
 async function animateReveal(drawnNumbers, selectedNumbers) {
     let currentHits = 0;
-    
-    // 1. Поочередно открываем ВЫПАВШИЕ 8 номеров
     for (const number of drawnNumbers) {
-        // Ждем перед показом
         await sleep(REVEAL_SPEED_MS);
-        
         const cell = grid.querySelector(`.keno-cell[data-number="${number}"]`);
         if (!cell) continue;
 
         const isSelected = selectedNumbers.includes(number);
-
         if (isSelected) {
-            // Попадание
-            // ИЗМЕНЕНО: (ЗАДАЧА 2) НЕ убираем .selected
-            // cell.classList.remove('selected'); 
-            cell.classList.add('hit'); // Добавляем зеленый
-            cell.innerHTML = `<img src="assets/keno_paw.png" alt="Hit" class="keno-cell-icon">`;
+            cell.classList.add('hit'); 
+            cell.innerHTML = `<img src="assets/keno_paw.png" class="keno-cell-icon">`;
             currentHits++;
         } else {
-            // Выпало, но не выбрано
             cell.classList.add('drawn');
-            // ИЗМЕНЕНО: (ЗАДАЧА 2) Убираем точку
-            cell.innerHTML = ''; 
         }
-        
-        // Обновляем шкалу ПОСЛЕ каждого шара
         updatePayoutScaleFill(currentHits);
     }
-    
-    // 2. Небольшая пауза
-    await sleep(REVEAL_SPEED_MS * 3);
-    
-    // 3. Мгновенно показываем "промахи" (miss) и "пустые" (idle)
+    await sleep(REVEAL_SPEED_MS * 2);
     for (let i = 1; i <= KENO_GRID_SIZE; i++) {
-        const isDrawn = drawnNumbers.includes(i);
-        // Если номер уже "выпал" (hit или drawn), пропускаем
-        if (isDrawn) continue; 
-        
-        const cell = grid.querySelector(`.keno-cell[data-number="${i}"]`);
-        if (!cell) continue;
-        
-        const isSelected = selectedNumbers.includes(i);
-
-        if (isSelected) {
-            // Выбрано, но не выпало = Промах
-            // ИЗМЕНЕНО: (ЗАДАЧА 2) НЕ убираем .selected
-            // cell.classList.remove('selected');
-            cell.classList.add('miss');
-        } else {
-            // Не выбрано и не выпало = Пустая
-            cell.classList.add('idle');
+        if (selectedNumbers.includes(i) && !drawnNumbers.includes(i)) {
+             const cell = grid.querySelector(`.keno-cell[data-number="${i}"]`);
+             if(cell) cell.classList.add('miss');
         }
     }
-    
-    return currentHits; // Возвращаем итоговое число
+    return currentHits; 
 }
 
-
-/**
- * ДОБАВЛЕНО: (Турбо-режим) Мгновенный подсчет
- */
 function calculateHits(drawn, selected) {
     let hits = 0;
-    for (const number of drawn) {
-        if (selected.includes(number)) {
-            hits++;
-        }
-    }
+    for (const number of drawn) { if (selected.includes(number)) hits++; }
     return hits;
 }
 
-/**
- * ДОБАВЛЕНО: (Турбо-режим) Мгновенное отображение результата
- */
 function instantReveal(drawnNumbers, selectedNumbers, hitsCount) {
-    // Мгновенно показываем "промахи" (miss), "попадания" (hit) и "выпавшие" (drawn)
     for (let i = 1; i <= KENO_GRID_SIZE; i++) {
         const cell = grid.querySelector(`.keno-cell[data-number="${i}"]`);
         if (!cell) continue;
-        
         const isSelected = selectedNumbers.includes(i);
         const isDrawn = drawnNumbers.includes(i);
 
         if (isSelected && isDrawn) {
-            // Попадание
             cell.classList.add('hit');
-            cell.innerHTML = `<img src="assets/keno_paw.png" alt="Hit" class="keno-cell-icon">`;
+            cell.innerHTML = `<img src="assets/keno_paw.png" class="keno-cell-icon">`;
         } else if (isSelected && !isDrawn) {
-            // Выбрано, но не выпало = Промах
             cell.classList.add('miss');
         } else if (!isSelected && isDrawn) {
-            // Выпало, но не выбрано
             cell.classList.add('drawn');
-            cell.innerHTML = '';
-        } else {
-            // Не выбрано и не выпало = Пустая
-            cell.classList.add('idle');
         }
     }
-    
-    // Мгновенно обновляем шкалу
     updatePayoutScaleFill(hitsCount);
 }
 
+function setupBetActions(inputEl, halfBtn, doubleBtn) {
+    if (halfBtn) {
+        halfBtn.addEventListener('click', () => {
+            let val = parseFloat(inputEl.value) || 0;
+            inputEl.value = Math.max(1.00, val / 2).toFixed(0);
+        });
+    }
+    if (doubleBtn) {
+        doubleBtn.addEventListener('click', () => {
+            let val = parseFloat(inputEl.value) || 0;
+            inputEl.value = Math.min(currentBalance, val * 2).toFixed(0);
+        });
+    }
+}
 
-/**
- * Инициализация Keno
- */
 export function initKeno() {
-    // Поиск элементов (Новый UI)
     grid = document.getElementById('keno-grid');
     betInput = document.getElementById('keno-bet');
-    riskSelector = document.getElementById('keno-risk-selector');
     playButton = document.getElementById('keno-play-button');
     clearButton = document.getElementById('keno-clear-button');
     autoPickButton = document.getElementById('keno-autopick-button');
     payoutBar = document.getElementById('keno-payout-bar');
     statusElement = document.getElementById('keno-status');
     
-    // Кнопки ставок
-    betHalfButton = document.querySelector('#keno-game .bet-half');
-    betDoubleButton = document.querySelector('#keno-game .bet-double');
-    betMinButton = document.querySelector('#keno-game .bet-min');
-    betMaxButton = document.querySelector('#keno-game .bet-max');
-
-    // ИЗМЕНЕНО: (Задача 3) Ищем элементы оверлея
+    // Кнопки модификаторов ручного режима
+    betHalfButton = document.querySelector('#keno-manual-panel .bet-half');
+    betDoubleButton = document.querySelector('#keno-manual-panel .bet-double');
+    
+    turboButton = document.getElementById('keno-turbo-button');
+    
     kenoResultOverlay = document.getElementById('keno-result-overlay');
     kenoResultMultiplier = document.getElementById('keno-result-multiplier');
     kenoResultWinnings = document.getElementById('keno-result-winnings');
     
-    // ДОБАВЛЕНО: (Турбо-режим)
-    turboButton = document.getElementById('keno-turbo-button');
-    if (turboButton) {
-        turboIcon = turboButton.querySelector('img');
-    }
+    riskButtons = document.querySelectorAll('.keno-risk-btn');
+    tabButtons = document.querySelectorAll('.keno-tab-btn');
+    manualPanel = document.getElementById('keno-manual-panel');
+    autoPanel = document.getElementById('keno-auto-panel');
+    
+    // Элементы авто режима
+    autoStartButton = document.getElementById('keno-auto-start-button');
+    autoCountInput = document.getElementById('keno-auto-count');
+    autoTurboButton = document.getElementById('keno-auto-turbo-button');
+    autoBetInput = document.getElementById('keno-auto-bet');
+    autoBetHalfBtn = document.querySelector('#keno-auto-panel .bet-half');
+    autoBetDoubleBtn = document.querySelector('#keno-auto-panel .bet-double');
 
-    if (!grid) return; // Мы не на странице Keno
+    if (!grid) return; 
 
-    // --- Слушатели ---
-    riskSelector.addEventListener('click', handleRiskChange);
+    // Слушатели
     playButton.addEventListener('click', handlePlayKeno);
     clearButton.addEventListener('click', handleClear);
     autoPickButton.addEventListener('click', handleAutoPick);
     
-    // ДОБАВЛЕНО: (Турбо-режим)
-    if (turboButton) {
-        turboButton.addEventListener('click', handleTurboToggle);
-    }
+    if (turboButton) turboButton.addEventListener('click', handleTurboToggle);
+    if (autoTurboButton) autoTurboButton.addEventListener('click', handleTurboToggle);
+    if (autoStartButton) autoStartButton.addEventListener('click', startAutoGame);
     
-    // ИЗМЕНЕНО: (ЗАДАНИЕ 1) Добавляем слушатель на оверлей для закрытия
-    if (kenoResultOverlay) {
-        kenoResultOverlay.addEventListener('click', () => {
-            kenoResultOverlay.classList.add('hidden');
-        });
-    }
-
-    // Слушатели кнопок ставок
-    if (betHalfButton) {
-        betHalfButton.addEventListener('click', () => {
-            let currentVal = parseFloat(betInput.value);
-            if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.max(1.00, currentVal / 2); 
-            betInput.value = newVal.toFixed(2);
-        });
-    }
-
-    if (betDoubleButton) {
-        betDoubleButton.addEventListener('click', () => {
-            let currentVal = parseFloat(betInput.value);
-            if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.min(currentBalance, currentVal * 2);
-            betInput.value = newVal.toFixed(2);
-        });
-    }
+    riskButtons.forEach(btn => btn.addEventListener('click', handleRiskSwitch));
+    tabButtons.forEach(btn => btn.addEventListener('click', handleTabSwitch));
     
-    if (betMinButton) {
-        betMinButton.addEventListener('click', () => {
-            betInput.value = (1.00).toFixed(2);
-        });
-    }
+    if (kenoResultOverlay) kenoResultOverlay.addEventListener('click', () => kenoResultOverlay.classList.add('hidden'));
     
-    if (betMaxButton) {
-        betMaxButton.addEventListener('click', () => {
-            betInput.value = currentBalance.toFixed(2);
-        });
-    }
+    // Настройка кнопок ставок для обоих режимов
+    setupBetActions(betInput, betHalfButton, betDoubleButton);
+    setupBetActions(autoBetInput, autoBetHalfBtn, autoBetDoubleBtn);
 
-    // --- Первичная настройка ---
     createGrid();
-    resetGame(true); // ИЗМЕНЕНО: (Задача 3)
+    resetGame(true); 
 }

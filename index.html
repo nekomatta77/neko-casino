@@ -7,7 +7,7 @@
     
     <link rel="stylesheet" href="style.css?v=2.2">
     <link rel="stylesheet" href="style2.css?v=1.0">
-    <link rel="stylesheet" href="style3.css?v=1.0">
+    <link rel="stylesheet" href="style3.css?v=3.5">
 </head>
 <body>
 
@@ -24,15 +24,20 @@
                 <span class="logo-text"></span>
             </div>
             
-            <div class="profile-balance-box mobile-balance-adjustment" id="mobile-profile-box">
+            <div class="profile-balance-box mobile-balance-adjustment hidden" id="header-profile-box">
                 <img src="assets/avatars/orange_cat_ava.png" alt="Avatar" class="header-avatar-img" id="mobile-header-avatar">
                 <div class="profile-text-content" id="mobile-profile-text-content">
                     <span class="profile-name" id="mobile-profile-name">...</span>
                     <span class="balance" id="mobile-profile-balance">0.00 RUB</span>
                 </div>
             </div>
+
+            <div class="guest-header-actions" id="header-guest-box">
+                <button class="guest-btn login-btn" id="header-login-btn">Вход</button>
+                <button class="guest-btn register-btn" id="header-register-btn">Регистрация</button>
+            </div>
             
-            </header>
+        </header>
         
         <div class="mini-games-nav-container">
             <nav class="mini-games-nav">
@@ -193,6 +198,9 @@
             <section id="mines-game" class="page-section hidden">
                 <div class="mines-game-container">
                     
+                    <div id="mines-multipliers-bar" class="mines-multipliers-bar">
+                        </div>
+
                     <div class="mines-grid-wrapper">
                         <div id="mines-grid" class="mines-grid">
                             </div>
@@ -201,6 +209,12 @@
                     <div id="mines-status" class="mines-status-bar"></div>
 
                     <div class="mines-controls-panel">
+                        
+                        <div class="mines-action-buttons">
+                            <button id="mines-start-button" class="primary-button full-width">Начать игру</button>
+                            <button id="mines-cashout-button" class="primary-button full-width hidden">Забрать</button>
+                        </div>
+
                         <div class="mines-controls">
                             
                             <div class="mines-input-group">
@@ -226,24 +240,9 @@
                                 <button class="mines-count-btn" data-count="24">24</button>
                                 <input type="number" id="mines-count-input" min="1" max="24" value="3">
                             </div>
-                            </div>
-                        
-                        <div class="mines-stats-panel">
-                            
-                            <p class="stat-label">Следующий множитель:</p>
-                            <p class="stat-value" id="mines-multiplier">1.00x</p>
-                            
-                            <p class="stat-label">Потенциальный выигрыш:</p>
-                            <p class="stat-value" id="mines-payout">0.00 RUB</p>
-                            
                         </div>
                         
-                        <div class="mines-action-buttons">
-                            <button id="mines-start-button" class="primary-button full-width">Начать игру</button>
-                            <button id="mines-cashout-button" class="primary-button full-width hidden">Забрать</button>
                         </div>
-                        
-                    </div>
                     
                 </div>
                 <div class="per-game-history-container">
@@ -407,65 +406,107 @@
             <section id="keno-game" class="page-section hidden">
                 <div class="keno-game-container">
                     
-                    <div class="keno-payout-bar-wrapper">
-                        <div class="keno-payout-bar" id="keno-payout-bar">
-                            </div>
-                    </div>
-
-                    <div class="keno-grid-wrapper">
-                        <div id="keno-grid" class="keno-grid">
-                            </div>
-                        <div class="keno-result-overlay hidden" id="keno-result-overlay">
-                            <div class="keno-result-box">
-                                <div class="keno-result-line">
-                                    <span>Множитель</span>
-                                    <span id="keno-result-multiplier">x0.00</span>
+                    <div class="keno-board-area">
+                        
+                        <div class="keno-grid-wrapper">
+                            <div id="keno-grid" class="keno-grid">
                                 </div>
-                                <div class="keno-result-line">
-                                    <span>Выигрыш</span>
-                                    <span id="keno-result-winnings">0.00 RUB</span>
+                            
+                            <div class="keno-result-overlay hidden" id="keno-result-overlay">
+                                <div class="keno-result-box">
+                                    <div class="keno-result-line">
+                                        <span>Множитель</span>
+                                        <span id="keno-result-multiplier">x0.00</span>
+                                    </div>
+                                    <div class="keno-result-line">
+                                        <span>Выигрыш</span>
+                                        <span id="keno-result-winnings">0.00 RUB</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
+                        <div class="keno-payout-scroll-wrapper">
+                            <div id="keno-payout-bar" class="keno-payout-bar-ref-style">
+                                </div>
                         </div>
                     
+                    </div>
+
                     <div id="keno-status" class="keno-status-bar"></div>
 
-                    <div class="keno-controls-panel">
+                    <div class="keno-controls-ref-style">
                         
-                        <div class="keno-label-wrapper">
-                            <label>Сумма ставки (RUB)</label>
-                            <button id="keno-turbo-button" class="keno-action-btn turbo">
-                                <img src="assets/thunder_off.png" alt="Turbo">
+                        <div class="keno-tabs-visual">
+                            <button class="keno-tab-btn active" data-mode="manual">Ручная</button>
+                            <button class="keno-tab-btn" data-mode="auto">Автоигра</button>
+                        </div>
+
+                        <div id="keno-manual-panel">
+                            <div class="keno-actions-row">
+                                <button id="keno-autopick-button" class="keno-action-btn-ref autopick">
+                                    Случайные клетки
+                                </button>
+                                <button id="keno-clear-button" class="keno-action-btn-ref clear">
+                                    <img src="assets/cat_cleaner.png" alt="Clear">
+                                </button>
+                            </div>
+
+                            <div class="keno-play-row">
+                                <div class="keno-play-wrapper">
+                                    <button id="keno-play-button" class="keno-big-play-btn">
+                                        СДЕЛАТЬ СТАВКУ
+                                    </button>
+                                </div>
+                                <button id="keno-turbo-button" class="keno-turbo-btn">
+                                    <img src="assets/thunder_off.png" alt="Turbo">
+                                </button>
+                            </div>
+
+                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-bet-input-row">
+                                <div class="keno-input-wrapper">
+                                    <span class="currency-icon">₽</span>
+                                    <input type="number" id="keno-bet" value="10" min="1" step="1">
+                                </div>
+                                <button class="bet-half ref-style">1/2</button>
+                                <button class="bet-double ref-style">2x</button>
+                            </div>
+                        </div>
+
+                        <div id="keno-auto-panel" class="hidden">
+                            
+                            <div class="keno-auto-row">
+                                <label>Количество игр</label>
+                                <div class="keno-auto-count-wrapper">
+                                    <input type="number" id="keno-auto-count" value="0" placeholder="∞">
+                                    <button id="keno-auto-turbo-button" class="keno-turbo-btn">
+                                        <img src="assets/thunder_off.png" alt="Turbo">
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button id="keno-auto-start-button" class="keno-big-play-btn full-width">
+                                ЗАПУСТИТЬ АВТО
                             </button>
+
+                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-bet-input-row">
+                                <div class="keno-input-wrapper">
+                                    <span class="currency-icon">₽</span>
+                                    <input type="number" id="keno-auto-bet" value="10" min="1" step="1">
+                                </div>
+                                <button class="bet-half ref-style auto-mod">1/2</button>
+                                <button class="bet-double ref-style auto-mod">2x</button>
+                            </div>
                         </div>
-                        
-                        <div class="keno-bet-actions-wrapper">
-                            <button id="keno-autopick-button" class="keno-action-btn autopick">Автовыбор</button>
-                            
-                            <div class="bet-input-group">
-                                <input type="number" id="keno-bet" value="10.00" min="1.00" step="0.01">
-                            </div>
-                            
-                            <div class="keno-play-wrapper">
-                                <button id="keno-play-button" class="keno-action-btn play">Играть</button>
-                            </div>
-                            </div>
-                        
-                        <div class="keno-bet-modifiers">
-                            <button class="bet-min">Мин</button>
-                            <button class="bet-max">Макс</button>
-                            <button class="bet-half">/2</button>
-                            <button class="bet-double">X2</button>
-                        </div>
-                        
+
                         <div class="keno-risk-selector" id="keno-risk-selector">
                             <button class="keno-risk-btn active" data-risk="easy">Легкий</button>
                             <button class="keno-risk-btn" data-risk="medium">Средний</button>
                             <button class="keno-risk-btn" data-risk="high">Сложный</button>
                         </div>
 
-                        <button id="keno-clear-button" class="keno-clear-btn">Очистить</button>
                     </div>
 
                 </div>
@@ -476,6 +517,7 @@
                         </ul>
                 </div>
             </section>
+            
             <section id="bonus-page" class="page-section hidden">
                 <div class="dice-game-container"> 
                     
@@ -580,9 +622,7 @@
                 <p style="text-align: center; margin-bottom: 20px; color: var(--color-text);">
                     Официальные демо-версии нельзя встроить на сайт. Пожалуйста, перейдите на сайты провайдеров для игры.
                 </p>
-                
                 <div class="slots-container">
-                    
                     <a href="https://www.pragmaticplay.com/ru/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
                         <img src="https://i.imgur.com/g0AbYvA.png" alt="Pragmatic Play" class="slot-provider-logo">
                         <div class="slot-provider-content">
@@ -590,7 +630,6 @@
                             <p>Перейти на официальный сайт и играть в демо</p>
                         </div>
                     </a>
-                    
                     <a href="https://www.pgsoft.com/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
                         <img src="https://i.imgur.com/K4gM5sB.png" alt="PG Soft" class="slot-provider-logo pg-logo">
                         <div class="slot-provider-content">
@@ -598,48 +637,6 @@
                             <p>Перейти на официальный сайт и играть в демо</p>
                         </div>
                     </a>
-
-                </div>
-            </section>
-            
-            <section id="auth" class="page-section hidden">
-                <div class="auth-container" id="login-container">
-                    <h2>Вход</h2>
-                    <form id="login-form">
-                        <div class="form-group">
-                            <label for="login-username">Имя пользователя</label>
-                            <input type="text" id="login-username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="login-password">Пароль</label>
-                            <input type="password" id="login-password" required>
-                        </div>
-                        <button type="submit" class="auth-button">Войти</button>
-                    </form>
-                    <div class="switch-auth">
-                        Нет аккаунта? <a href="#" id="show-register">Регистрация</a>
-                    </div>
-                </div>
-                <div class="auth-container hidden" id="register-container">
-                    <h2>Регистрация</h2>
-                    <form id="register-form">
-                        <div class="form-group">
-                            <label for="register-username">Имя пользователя</label>
-                            <input type="text" id="register-username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="register-password">Пароль</label>
-                            <input type="password" id="register-password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="register-confirm-password">Подтвердите пароль</label>
-                            <input type="password" id="register-confirm-password" required>
-                        </div>
-                        <button type="submit" class="auth-button">Зарегистрироваться</button>
-                    </form>
-                    <div class="switch-auth">
-                        Уже есть аккаунт? <a href="#" id="show-login">Вход</a>
-                    </div>
                 </div>
             </section>
             

@@ -1,75 +1,56 @@
 /*
- * style3.css - Новые стили для страницы Рангов (Lvl котика)
+ * style3.css
+ * Полный файл стилей (Версия 3.6 - Compact Keno & Auto)
  */
 
-/* 1. Переопределяем старый .rank-container */
-/* (В style.css у него 'display: grid') */
+/* =========================================
+   1. СТРАНИЦА РАНГОВ (Lvl Котика)
+   ========================================= */
 #ranks-page .rank-container {
-    display: block; /* Убираем grid */
-    max-width: 100%; /* Разрешаем скроллу занимать всю ширину */
+    display: block; 
+    max-width: 100%; 
     margin: 0; 
     padding: 0;
 }
-
-/* 2. Контейнер для скролла/свайпа */
 .rank-scroll-container {
     display: flex;
-    overflow-x: auto; /* Включаем горизонтальный скролл */
+    overflow-x: auto; 
     overflow-y: hidden;
-    gap: 15px; /* Отступ между карточками */
-    
-    /* Важно для свайпа на мобильных */
+    gap: 15px; 
     -webkit-overflow-scrolling: touch; 
-    
-    /* Отступы, чтобы карточки не "прилипали" к краям */
     padding: 20px 15px; 
-    
-    /* Эстетика: скрываем скроллбар */
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none; 
 }
 .rank-scroll-container::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none; 
 }
-
-/* 3. Новая карточка (вместо старой .rank-card) */
 .rank-card-wrapper {
-    flex: 0 0 280px; /* Фиксированная ширина карточки (280px) */
+    flex: 0 0 280px; 
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 25px 20px;
     border-radius: 16px;
-    
-    /* * Базовый стиль ("прошлые ранги")
-     * По вашей просьбе: "просто темно-серие"
-     */
-    background-color: #2E3035; /* Темно-серый, как в админке */
+    background-color: #2E3035; 
     border: 1px solid var(--color-border-dark);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    
     text-align: center;
     transition: all 0.3s ease;
-    
-    /* ДОБАВЛЕНО: Для позиционирования узоров (если понадобятся) */
     position: relative;
-    overflow: hidden; /* Скрываем все, что выходит за рамки */
+    overflow: hidden;
 }
-
-/* 4. Внутренние элементы карточки */
 .rank-card__image {
-    width: 150px; /* Размер картинки амулета */
+    width: 150px;
     height: 150px;
     object-fit: contain;
     margin-bottom: 20px;
 }
-
 .rank-card__title {
     font-size: 1.8em;
     font-weight: 800;
-    color: var(--color-text-light); /* Белый */
+    color: var(--color-text-light);
     margin-bottom: 20px;
 }
-
 .rank-card__info-list {
     list-style: none;
     padding: 0;
@@ -77,12 +58,11 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* Отступ между строками */
+    gap: 12px;
 }
-
 .rank-card__info-item {
     display: flex;
-    justify-content: space-between; /* "Название" слева, "Значение" справа */
+    justify-content: space-between;
     align-items: center;
     font-size: 0.9em;
     color: var(--color-text-light);
@@ -92,167 +72,729 @@
 .rank-card__info-item:last-child {
     border-bottom: none;
 }
-
 .rank-card__info-item span {
-    opacity: 0.7; /* "Название" делаем полупрозрачным */
+    opacity: 0.7;
 }
-
 .rank-card__info-item strong {
     font-size: 1.1em;
     font-weight: 700;
-    color: #FFFFFF; /* "Значение" делаем ярко-белым */
+    color: #FFFFFF;
 }
-
-/* 5. Стилизация состояний (по просьбе юзера) */
-
-/* --- БУДУЩИЕ РАНГИ (Locked) --- */
-/* "более тусклые" */
 .rank-card-wrapper.locked {
-    background-color: #242830; /* Еще темнее фон */
+    background-color: #242830;
     border-color: #2E3035;
 }
 .rank-card-wrapper.locked .rank-card__image {
     opacity: 0.4;
-    filter: grayscale(80%); /* Обесцвечиваем и делаем тусклым */
+    filter: grayscale(80%);
 }
-.rank-card-wrapper.locked .rank-card__title {
-    opacity: 0.5;
-}
+.rank-card-wrapper.locked .rank-card__title,
 .rank-card-wrapper.locked .rank-card__info-list {
     opacity: 0.5;
 }
-
-/* --- ПРОШЛЫЕ РАНГИ (Achieved) --- */
-/* "просто темно-серие" - это .rank-card-wrapper по умолчанию */
 .rank-card-wrapper.achieved {
-    /* Стиль по умолчанию (темно-серый) */
     background-color: #2E3035; 
     border-color: var(--color-border-dark);
 }
 .rank-card-wrapper.achieved .rank-card__image {
-     /* Яркая, но не светится */
      opacity: 1.0; 
      filter: grayscale(0%);
 }
-
-/* --- ТЕКУЩИЙ РАНГ (Current) --- */
-/* "темно-серой с золотым дизайном" */
 .rank-card-wrapper.current {
-    /* ДОБАВЛЕНО: Геометрический золотой узор (поверх фона) */
     background-image: repeating-linear-gradient(
         45deg,
         transparent,
         transparent 10px,
-        rgba(245, 166, 35, 0.05) 10px, /* 5% opacity gold */
-        rgba(245, 166, 35, 0.05) 12px /* 2px line thickness */
+        rgba(245, 166, 35, 0.05) 10px,
+        rgba(245, 166, 35, 0.05) 12px
     );
-    /* --- */
-    
-    background-color: #2E3035; /* Темно-серый фон (под узором) */
-    border: 2px solid var(--color-orange); /* Золотая рамка */
-    
-    /* Золотое свечение */
+    background-color: #2E3035;
+    border: 2px solid var(--color-orange);
     box-shadow: 0 0 20px rgba(245, 166, 35, 0.5), 
-                0 4px 15px rgba(0, 0, 0, 0.2); 
-    
-    /* Чуть больше, чтобы выделяться */
+                0 4px 15px rgba(0, 0, 0, 0.2);
     transform: scale(1.03); 
 }
 .rank-card-wrapper.current .rank-card__image {
     opacity: 1;
     filter: grayscale(0%);
-    /* Свечение для картинки */
     filter: drop-shadow(0 0 10px var(--color-orange));
 }
 .rank-card-wrapper.current .rank-card__title {
-    color: var(--color-orange); /* Золотой заголовок */
+    color: var(--color-orange);
     text-shadow: 0 0 10px var(--color-orange);
 }
-
-/* Делаем значения у "current" тоже золотыми */
 .rank-card-wrapper.current .rank-card__info-item strong {
     color: var(--color-orange);
 }
-
-/* Адаптация для мобильных */
 @media (max-width: 768px) {
     .rank-card-wrapper {
-        /* Делаем карточки чуть уже на мобильных */
         flex-basis: 250px; 
     }
 }
 
-/* === (ДОБАВЛЕНО) Стили для Недельных Бонусов (bonus-page) === */
-
+/* =========================================
+   2. НЕДЕЛЬНЫЕ БОНУСЫ
+   ========================================= */
 .weekly-bonus-box {
-    margin-top: 10px; /* Отступ от блока промокодов */
+    margin-top: 10px;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Отступ между элементами */
+    gap: 20px;
 }
-
 .weekly-bonus-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 15px;
-    background-color: #2E3035; /* Темный фон, как у квестов */
+    background-color: #2E3035;
     padding: 15px;
     border-radius: 8px;
 }
-
 .weekly-bonus-info {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-
 .weekly-bonus-title {
     font-size: 1.1em;
     font-weight: bold;
     color: var(--color-text-light);
     opacity: 0.9;
 }
-
 .weekly-bonus-value {
     font-size: 1.3em;
     font-weight: bold;
-    color: var(--color-secondary); /* Зеленый цвет суммы */
+    color: var(--color-secondary);
 }
-
-/* Стили для кнопок "Забрать" (наследует .auth-button) */
 .weekly-bonus-item .auth-button {
-    background-color: var(--color-border-dark); /* Серый по умолчанию */
+    background-color: var(--color-border-dark);
     color: var(--color-text-light);
     opacity: 0.6;
     cursor: not-allowed;
-    width: auto; /* Авто-ширина */
+    width: auto;
     margin-top: 0;
-    flex-shrink: 0; /* Не сжиматься */
+    flex-shrink: 0;
     padding: 10px 15px;
     font-size: 0.9em;
 }
-
-/* Стиль для активной кнопки (JS будет добавлять .active-claim) */
 .weekly-bonus-item .auth-button.active-claim {
-    background-color: var(--color-secondary); /* Зеленый */
+    background-color: var(--color-secondary);
     opacity: 1;
     cursor: pointer;
 }
 .weekly-bonus-item .auth-button.active-claim:hover {
     background-color: #008f66;
 }
-
-/* Статус-бар (наследует .profile-status) */
 #weekly-bonus-status {
     text-align: center;
     font-size: 0.9em;
     min-height: 1.2em;
 }
-#weekly-bonus-status.win {
-    color: var(--color-secondary);
+#weekly-bonus-status.win { color: var(--color-secondary); }
+#weekly-bonus-status.loss { color: var(--color-mine-bomb); }
+
+/* =========================================
+   3. БОЛЬШИЕ ВЫИГРЫШИ
+   ========================================= */
+.bet-history-container h3 {
+    font-size: 1.5em;
+    font-weight: 900;
+    text-align: left;
+    margin-bottom: 15px;
+    background: linear-gradient(to right, #F5A623, #FFD700, #F5A623);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 2px 10px rgba(245, 166, 35, 0.3);
 }
-#weekly-bonus-status.loss {
-    color: var(--color-mine-bomb);
+.high-win-card {
+    width: 150px; 
+    min-width: 150px;
+    padding: 2px; 
+    border-radius: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    background: linear-gradient(45deg, #F5A623, #FFF, #F5A623, #B8860B);
+    background-size: 300% 300%;
+    animation: gold-shimmer 4s ease infinite;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 
+                0 0 10px rgba(245, 166, 35, 0.3);
+    transition: transform 0.2s;
 }
+.high-win-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(245, 166, 35, 0.6);
+}
+.history-item-content {
+    background-color: #2E3035; 
+    border-radius: 12px;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    gap: 10px;
+}
+.history-game-img-icon {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+.high-win-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+.history-user {
+    font-size: 0.9em;
+    color: #FFFFFF;
+    font-weight: bold;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.history-multiplier-tag {
+    font-size: 0.85em;
+    color: #F5A623;
+    font-weight: 800;
+    background-color: rgba(245, 166, 35, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(245, 166, 35, 0.4);
+    box-shadow: 0 0 5px rgba(245, 166, 35, 0.2);
+}
+.history-amount.win {
+    font-size: 1.2em;
+    font-weight: 900;
+    color: #00FF99; 
+    text-shadow: 0 0 10px rgba(0, 255, 153, 0.6);
+}
+@keyframes gold-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* =========================================
+   4. MINES SCROLL BAR
+   ========================================= */
+.mines-multipliers-bar {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 8px;
+    padding: 10px 5px; 
+    margin-bottom: 10px;
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+}
+.mines-multipliers-bar::-webkit-scrollbar {
+    display: none;
+}
+.mines-multiplier-item {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-sidebar); 
+    border: 2px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 80px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.step-label {
+    font-size: 0.7em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-bottom: 4px; 
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+.mines-multiplier-item .multiplier-value {
+    font-size: 1.4em; 
+    font-weight: bold;
+    color: var(--color-orange);
+    line-height: 1.2;
+}
+.mines-multiplier-item.active {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.5);
+}
+.mines-multiplier-item.active .multiplier-value,
+.mines-multiplier-item.active .step-label {
+    color: #FFFFFF;
+    opacity: 1;
+}
+.mines-action-buttons {
+    margin-top: 0; 
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* =========================================
+   5. РЕДИЗАЙН KENO (COMPACT & AUTO)
+   ========================================= */
+
+.keno-game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* ОБЩИЙ ФОН (Затемненная область) */
+.keno-board-area {
+    background-color: rgba(30, 33, 40, 0.6); 
+    border-radius: 16px;
+    padding: 15px 5px; 
+    margin-bottom: 0;
+    order: 1; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+
+/* --- 1. ИГРОВОЕ ПОЛЕ --- */
+.keno-grid-wrapper {
+    order: unset; 
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    position: relative;
+    margin-bottom: 0; 
+}
+
+.keno-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px; 
+}
+
+.keno-cell {
+    aspect-ratio: 1 / 1;
+    background-color: #2E3035; 
+    border: 1px solid var(--color-border-dark);
+    border-radius: 12px; 
+    color: var(--color-text-light);
+    font-size: 1.3em; 
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.keno-cell:hover {
+    transform: translateY(-1px);
+}
+
+/* Выбранная ячейка */
+.keno-cell.selected {
+    background-color: var(--color-orange); 
+    color: #FFFFFF;
+    border-color: var(--color-orange);
+    box-shadow: 0 0 10px var(--color-orange);
+}
+
+/* Угаданная ячейка (Зеленая) */
+.keno-cell.hit {
+    background-color: var(--color-secondary); 
+    border-color: var(--color-secondary);
+    box-shadow: none;
+    color: #fff;
+    animation: popIn 0.3s ease;
+}
+/* Ячейка, которая выпала, но не была выбрана */
+.keno-cell.drawn {
+    background-color: #4A5568; 
+    color: #FFF;
+    border-color: #4A5568;
+    opacity: 0.7;
+}
+
+/* Картинка внутри ячейки */
+.keno-cell-icon {
+    width: 90%; 
+    height: 90%;
+    object-fit: contain;
+}
+
+
+/* --- 2. МНОЖИТЕЛИ --- */
+.keno-payout-scroll-wrapper {
+    order: unset;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none;
+    margin-top: 0; 
+}
+.keno-payout-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+.keno-payout-bar-ref-style {
+    display: flex;
+    justify-content: space-between;
+    min-width: 100%;
+    gap: 5px;
+}
+
+.keno-gem-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.6; 
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 30px;
+}
+
+.keno-paw-wrapper {
+    position: relative;
+    width: 26px; 
+    height: 26px;
+}
+
+.paw-grey, .paw-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.3s;
+}
+.paw-grey { opacity: 1; }
+.paw-color { opacity: 0; }
+
+/* Активное состояние */
+.keno-gem-item.active {
+    opacity: 1;
+    transform: scale(1.05);
+}
+.keno-gem-item.active .paw-grey { opacity: 0; }
+.keno-gem-item.active .paw-color { opacity: 1; }
+
+.keno-gem-mult {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-light);
+}
+
+
+/* --- 3. ПАНЕЛЬ УПРАВЛЕНИЯ (MINIMALIST) --- */
+.keno-controls-ref-style {
+    order: 2; 
+    margin-top: -5px; 
+    background-color: #2E3035; 
+    border-radius: 20px 20px 0 0; 
+    padding: 10px; /* TASK 1: Reduced Padding */
+    border: 1px solid var(--color-border-dark);
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* TASK 1: Reduced Gap */
+}
+
+/* Tabs */
+.keno-tabs-visual {
+    display: flex;
+    background-color: #222429;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 0;
+}
+.keno-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-text-light);
+    padding: 8px; /* Reduced */
+    font-weight: bold;
+    border-radius: 6px;
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.keno-tab-btn.active {
+    background-color: #3D4654;
+    opacity: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Container for Manual/Auto panels */
+#keno-manual-panel,
+#keno-auto-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced Gap */
+}
+
+/* Actions Row (Manual) */
+.keno-actions-row {
+    display: flex;
+    gap: 8px;
+}
+.keno-action-btn-ref {
+    background-color: transparent;
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    padding: 0 10px;
+    height: 40px; /* TASK 1: Reduced Height (was ~50px) */
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9em;
+}
+.keno-action-btn-ref.autopick {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.keno-action-btn-ref.autopick:hover { background-color: #3D4654; }
+.keno-action-btn-ref.clear {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.keno-action-btn-ref.clear img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+.keno-action-btn-ref.clear:hover { background-color: #3D4654; }
+
+/* Play Row (Manual) */
+.keno-play-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch; 
+}
+.keno-play-wrapper {
+    display: flex;
+    flex-shrink: 0;
+    height: 40px; /* TASK 1: Reduced Height */
+    flex-grow: 1;
+}
+.keno-big-play-btn {
+    flex-grow: 1; 
+    background: linear-gradient(90deg, #F5A623, #FFC857); 
+    color: #2E3035; 
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    font-size: 1em;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #C78212; 
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.keno-big-play-btn.full-width {
+    height: 40px;
+    width: 100%;
+}
+.keno-big-play-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #C78212;
+}
+.keno-turbo-btn {
+    width: 40px; /* Reduced */
+    height: 40px; /* Reduced */
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-turbo-btn:hover { background-color: #3D4654; }
+.keno-turbo-btn img {
+    width: 20px; /* Reduced */
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.keno-turbo-btn.active img {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px #FFD700);
+}
+
+/* Input Row (Common) */
+.keno-bet-input-header {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    margin-bottom: -4px;
+    opacity: 0.7;
+}
+.keno-bet-input-row {
+    display: flex;
+    gap: 8px;
+    height: 40px; /* TASK 1: Reduced Height */
+    align-items: center; 
+}
+.keno-input-wrapper {
+    flex-grow: 1;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: 100%; 
+}
+.currency-icon {
+    color: var(--color-text-light);
+    opacity: 0.5;
+    font-weight: bold;
+    margin-right: 5px;
+    font-size: 0.9em;
+}
+.keno-input-wrapper input {
+    background: transparent;
+    border: none;
+    color: #FFF;
+    font-size: 1.2em; /* Reduced */
+    width: 100%;
+    font-weight: 900;
+    outline: none;
+    padding: 0;
+    height: 100%;
+}
+
+/* Modifiers */
+.bet-half.ref-style, .bet-double.ref-style {
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark); 
+    color: var(--color-text-light);
+    width: 40px; /* TASK 1: Reduced Size */
+    height: 40px; 
+    flex-shrink: 0; 
+    border-radius: 8px;
+    font-weight: 900; 
+    font-size: 0.9em; 
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* --- AUTO GAME STYLES (TASK 6/3) --- */
+.keno-auto-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.keno-auto-row label {
+    font-size: 0.8em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    font-weight: bold;
+}
+.keno-auto-count-wrapper {
+    display: flex;
+    gap: 8px;
+    height: 40px;
+}
+#keno-auto-count {
+    flex-grow: 1;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    color: #FFF;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 10px;
+}
+#keno-auto-start-button {
+    margin-top: 0;
+}
+/* Stop button state */
+#keno-auto-start-button.stop-mode {
+    background: linear-gradient(90deg, #FF5555, #FF7777);
+    box-shadow: 0 3px 0 #B03030;
+}
+#keno-auto-start-button.stop-mode:active {
+    box-shadow: 0 1px 0 #B03030;
+}
+
+
+/* --- RISK LEVELS (TASK 2) --- */
+.keno-risk-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    background-color: #222429;
+    border-radius: 8px;
+    padding: 3px;
+    margin-top: 5px; /* Spacing from content above */
+}
+.keno-risk-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-light);
+    opacity: 0.5;
+    padding: 8px 0; /* Reduced padding */
+    font-size: 0.85em;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-risk-btn.active {
+    background-color: #3D4654;
+    opacity: 1;
+    color: var(--color-orange);
+}
+
+
+/* Статус бар */
+#keno-status {
+    order: unset; 
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 400px) {
+    .keno-grid { gap: 3px; }
+    .keno-cell { border-radius: 8px; font-size: 1.1em; }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
