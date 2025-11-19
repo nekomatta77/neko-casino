@@ -1,13 +1,11 @@
 /*
  * style3.css
- * Полный файл стилей (Версия 3.16 - Keno Multipliers Fix)
+ * Полный файл стилей (Версия 3.17 - Dark Text Headers Fix)
  */
 
 /* =========================================
-   1. ТОП НАВИГАЦИЯ (ИСПРАВЛЕН СКРОЛЛ)
+   1. ТОП НАВИГАЦИЯ
    ========================================= */
-
-/* Контейнер (отвечает за появление/исчезновение) */
 #top-game-nav {
     transition: opacity 0.3s ease, max-height 0.3s ease;
     opacity: 1;
@@ -17,7 +15,6 @@
     width: 100%; 
 }
 
-/* Скрытый режим (в лобби) */
 #top-game-nav.hidden {
     opacity: 0;
     max-height: 0;
@@ -26,18 +23,14 @@
     padding: 0;
 }
 
-/* Сама навигация (отвечает за прокрутку) */
 .mini-games-nav {
     display: flex !important; 
     flex-wrap: nowrap !important; 
     overflow-x: auto !important; 
-    
     gap: 10px;
     padding: 10px 5px;
     margin: 0;
-    
     -webkit-overflow-scrolling: touch; 
-    
     scrollbar-width: none; 
     -ms-overflow-style: none;
 }
@@ -45,18 +38,15 @@
     display: none; 
 }
 
-/* Элемент навигации */
 .mini-games-nav-item {
     flex: 0 0 auto !important; 
     min-width: 100px !important;
     width: 100px; 
-    
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    
     background-color: var(--color-sidebar);
     border: 2px solid var(--color-border-dark);
     padding: 8px 10px;
@@ -69,7 +59,6 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Активный элемент */
 .mini-games-nav-item.active {
     background-color: #6A788C;
     border-color: var(--color-text-light);
@@ -80,7 +69,7 @@
 
 
 /* =========================================
-   2. СТРАНИЦА РАНГОВ (Lvl Котика)
+   2. СТРАНИЦА РАНГОВ
    ========================================= */
 #ranks-page .rank-container {
     display: block; 
@@ -271,31 +260,26 @@
 #weekly-bonus-status.loss { color: var(--color-mine-bomb); }
 
 /* =========================================
-   . БОЛЬШИЕ ВЫИГРЫШИ
-   ========================================= */
-/* ... (код выше) ... */
-
-/* =========================================
-   4. БОЛЬШИЕ ВЫИГРЫШИ
+   4. БОЛЬШИЕ ВЫИГРЫШИ (СВЕТЛАЯ ТЕМА)
    ========================================= */
 .bet-history-container h3 {
     font-size: 1.5em;
-    font-weight: 800; /* Жирность как у "Список игр" */
+    font-weight: 800;
     text-align: left;
     margin-bottom: 15px;
     
-    /* ИЗМЕНЕНО: Убираем золотой градиент и ставим обычный цвет */
+    /* ЗАДАЧА: Делаем темным (как Список игр) в светлой теме */
     background: none; 
     -webkit-background-clip: border-box;
     background-clip: border-box;
-    color: var(--color-text); /* Темный цвет, как у всех заголовков */
-    text-shadow: none; /* Убираем золотое свечение */
-    
-    /* Опционально: если хочешь подчеркивание как у "Список игр" */
-    /* border-bottom: none; */
+    color: var(--color-text); /* Темный цвет */
+    text-shadow: none; 
 }
 
-/* ... (код ниже) ... */
+/* Список игр (СВЕТЛАЯ ТЕМА) - уже по дефолту темный, но на всякий случай */
+.game-list-title {
+    color: var(--color-text); /* Темный цвет */
+}
 
 .high-win-card {
     width: 150px; 
@@ -449,17 +433,18 @@
     width: 100%;
 }
 
-/* --- ЗАДАЧА 4: МЕНЯЕМ ПОРЯДОК ЭЛЕМЕНТОВ --- */
-/* Порядок:
-   1. Grid (Сетка)
-   2. Status (Победа/Проигрыш)
-   3. Controls (Кнопки, ставки)
-   4. Payout Bar (Множители - ВНИЗУ)
-*/
 .keno-grid-wrapper { order: 1; }
 #keno-status { order: 2; }
 .keno-controls-panel { order: 3; margin-top: 0; } /* Панель управления */
-.keno-payout-bar-wrapper { order: 4; margin-top: 5px; } /* Множители в самом низу */
+/* МНОЖИТЕЛИ */
+.keno-payout-scroll-wrapper {
+    order: 4 !important; 
+    margin-top: 5px !important; /* Внешний отступ от кнопок */
+    /* ВАЖНО: padding-top позволяет лапкам не обрезаться сверху */
+    padding-top: 15px !important; 
+    background-color: transparent !important;
+    border: none !important;
+}
 
 /* ОБЩИЙ ФОН (Затемненная область) */
 .keno-board-area {
@@ -510,12 +495,12 @@
     transform: translateY(-1px);
 }
 
-/* Выбранная ячейка (Стили переопределены в style4.css для яркости) */
+/* Выбранная ячейка */
 .keno-cell.selected {
-    /* background-color: var(--color-orange);  <-- См. style4.css */
+    background-color: var(--color-orange); 
     color: #FFFFFF;
-    /* border-color: var(--color-orange); */
-    /* box-shadow: 0 0 10px var(--color-orange); */
+    border-color: var(--color-orange);
+    box-shadow: 0 0 10px var(--color-orange);
 }
 
 /* Угаданная ячейка (Зеленая) */

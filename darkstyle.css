@@ -1,14 +1,14 @@
 /*
  * style4.css
  * GLOBAL DARK THEME OVERHAUL (Основной приоритет)
- * Версия 4.2 - Gold Cards, Dark Inputs, Keno Highlight, Profile Borders
+ * Версия 4.7 - Keno Paws Clipping Fix (Padding Top)
  */
 
 :root {
     /* --- НОВАЯ ГЛОБАЛЬНАЯ ПАЛИТРА (DARK MODE) --- */
     --bg-main: #1B1E24; 
     --bg-panel: #272B34;
-    --bg-input: #131519; /* Самый темный для инпутов */
+    --bg-input: #131519; 
     
     --text-main: #E0E6ED;
     --text-muted: #94A3B8;
@@ -20,7 +20,7 @@
     --accent-blue: #4A90E2;
     --accent-red: #FF5555;
     
-    /* Переопределение старых переменных */
+    /* Переопределение */
     --color-background: var(--bg-main);
     --color-sidebar: var(--bg-panel);
     --color-card: var(--bg-panel);
@@ -30,7 +30,6 @@
     --color-border-dark: var(--border-color);
     --balance-info-bg: var(--bg-input);
     
-    /* Specific Keno/Mines overrides */
     --color-mine-closed: var(--bg-input);
 }
 
@@ -43,27 +42,34 @@ body {
     color: var(--text-main) !important;
 }
 
-/* Скроллбар */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-main); }
 ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
-/* Тексты и ссылки */
 h1, h2, h3, h4, h5, h6, p, span, div, a, li, label { color: var(--text-main); }
 a:hover { color: var(--accent-orange); }
+
 .game-list-title { color: var(--text-main) !important; }
 
-/* Разделители */
+/* "Большие выигрыши" - Золотой */
+.bet-history-container h3 {
+    font-size: 1.5em;
+    font-weight: 900;
+    margin-bottom: 15px;
+    background: linear-gradient(to right, #F5A623, #FFD700, #F5A623) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    color: transparent !important;
+    text-shadow: none !important;
+}
+
 hr, .lobby-divider, .hash-divider { background-color: var(--border-color) !important; opacity: 0.5; }
 
 /* =========================================
-   2. ЛОББИ И КАРТОЧКИ (ЗАДАЧА 1: ЗОЛОТО)
+   2. ЛОББИ И КАРТОЧКИ
    ========================================= */
-
-/* Возвращаем золотую обводку и анимацию, но на темном фоне */
 .lobby-game-card {
     background-color: var(--bg-panel) !important;
-    /* Восстанавливаем градиентную рамку */
     border: 3px solid transparent !important;
     background-image: 
         linear-gradient(var(--bg-panel), var(--bg-panel)), 
@@ -75,7 +81,6 @@ hr, .lobby-divider, .hash-divider { background-color: var(--border-color) !impor
     box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
 }
 
-/* Возвращаем золотой уголок */
 .lobby-game-card::after {
     background: linear-gradient(90deg, var(--accent-orange), #FFD700) !important;
     border: none !important;
@@ -91,7 +96,7 @@ hr, .lobby-divider, .hash-divider { background-color: var(--border-color) !impor
 }
 
 /* =========================================
-   3. ХЕДЕР И НАВИГАЦИЯ (ЗАДАЧА 5: РАМКИ)
+   3. ХЕДЕР И НАВИГАЦИЯ
    ========================================= */
 .mobile-header {
     background-color: var(--bg-panel) !important;
@@ -99,10 +104,8 @@ hr, .lobby-divider, .hash-divider { background-color: var(--border-color) !impor
     box-shadow: 0 4px 20px rgba(0,0,0,0.2);
 }
 
-/* Баланс: Убираем !important с border, чтобы работал customize.js */
 .profile-balance-box {
     background-color: var(--bg-input) !important;
-    /* Цвет по умолчанию (если не задан инлайн стиль) */
     border: 1px solid var(--border-color); 
     color: var(--text-main) !important;
 }
@@ -119,14 +122,12 @@ hr, .lobby-divider, .hash-divider { background-color: var(--border-color) !impor
 .sidebar-nav { background-color: var(--bg-panel) !important; border-right: 1px solid var(--border-color) !important; }
 
 /* =========================================
-   4. ИНПУТЫ И ФОРМЫ (ЗАДАЧА 3: ЕДИНЫЙ ЦВЕТ)
+   4. ИНПУТЫ И ФОРМЫ
    ========================================= */
-
-/* Делаем ВСЕ инпуты единого темного цвета */
 input[type="text"],
 input[type="number"],
 input[type="password"],
-.keno-input-wrapper, /* Обертка в кено/минах/краше */
+.keno-input-wrapper, 
 .mines-custom-input,
 .mines-custom-input input {
     background-color: var(--bg-input) !important;
@@ -134,13 +135,11 @@ input[type="password"],
     color: #FFFFFF !important;
     border-radius: 8px !important;
 }
-/* Фикс вложенности */
 .keno-input-wrapper input {
     background-color: transparent !important;
     border: none !important;
 }
 
-/* Контейнеры панелей */
 .bet-input-group, 
 .dice-input-group,
 .ref-link-box,
@@ -150,7 +149,6 @@ input[type="password"],
     border: 1px solid var(--border-color) !important;
 }
 
-/* Кнопки модификаторы (x2, 1/2, мин, макс) */
 .bet-actions button,
 .dice-input-group .bet-actions-grid button,
 .keno-bet-modifiers button {
@@ -164,24 +162,23 @@ input[type="password"],
     color: var(--text-main) !important;
 }
 
-/* ЗАДАЧА 3: Кнопки быстрого выбора мин (темнее, как x2) */
 .mines-count-btn {
     background-color: var(--bg-input) !important; 
     border: 1px solid var(--border-color) !important;
     color: var(--text-muted) !important;
 }
 .mines-count-btn.active {
-    background-color: var(--border-color) !important; /* Чуть светлее для активной */
+    background-color: var(--border-color) !important;
     color: var(--accent-orange) !important;
     border-color: var(--accent-orange) !important;
 }
 
 /* =========================================
-   5. DICE (ЗАДАЧА 2: ТЕМНЫЕ КНОПКИ)
+   5. DICE
    ========================================= */
 .dice-buttons .roll-button {
-    background: var(--bg-input) !important; /* Темный фон */
-    color: var(--text-main) !important;     /* Светлый текст */
+    background: var(--bg-input) !important; 
+    color: var(--text-main) !important;     
     border: 1px solid var(--border-color) !important;
     box-shadow: 0 4px 0 rgba(0,0,0,0.2) !important;
 }
@@ -190,7 +187,6 @@ input[type="password"],
     box-shadow: none !important;
 }
 
-/* Калькулятор Dice */
 .dice-calculator-box {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color) !important;
@@ -200,15 +196,35 @@ input[type="password"],
 }
 
 /* =========================================
-   6. KENO (ЗАДАЧА 4: ВЫДЕЛЕНИЕ)
+   6. KENO (ИСПРАВЛЕНО ОБРЕЗАНИЕ)
    ========================================= */
-/* Ячейки по дефолту */
+
+.keno-board-area {
+    display: flex !important;
+    flex-direction: column !important;
+    order: 1 !important; 
+}
+
+.keno-grid-wrapper { order: 1 !important; }
+#keno-status { order: 2 !important; }
+.keno-controls-panel { order: 3 !important; margin-top: 0 !important; }
+
+/* МНОЖИТЕЛИ */
+.keno-payout-scroll-wrapper {
+    order: 4 !important; 
+    margin-top: 5px !important; /* Внешний отступ от кнопок */
+    /* ВАЖНО: padding-top позволяет лапкам не обрезаться сверху */
+    padding-top: 15px !important; 
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Стили ячеек */
 .keno-cell, .mine-cell.closed {
     background-color: var(--bg-input) !important;
     border: 1px solid var(--border-color) !important;
 }
 
-/* ЗАДАЧА 4: Полное выделение выбранной ячейки */
 .keno-cell.selected {
     background-color: var(--accent-orange) !important;
     color: #FFF !important;
@@ -218,22 +234,37 @@ input[type="password"],
     z-index: 2;
 }
 
+.keno-cell.hit {
+    background-color: var(--accent-green) !important;
+    border-color: var(--accent-green) !important;
+    color: #FFF !important;
+    box-shadow: 0 0 15px var(--accent-green) !important;
+    opacity: 1 !important;
+    z-index: 3;
+}
+
+.keno-cell.drawn {
+    background-color: #5A6578 !important; 
+    border-color: #5A6578 !important;
+    color: #FFF !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    z-index: 1;
+}
+
 /* =========================================
    7. ПРОЧЕЕ
    ========================================= */
-/* Кнопки действий */
 .auth-button, .primary-button, #mines-start-button, #crash-start-button, #coin-start-button, .keno-big-play-btn, .wallet-deposit-button {
     border: none !important;
     box-shadow: 0 4px 0 rgba(0,0,0,0.2) !important;
 }
 
-/* Оранжевые кнопки */
 #keno-play-button, #coin-start-button, #mines-start-button, #crash-start-button {
     background: var(--accent-orange) !important;
     color: #fff !important;
 }
 
-/* Модалки и Списки */
 .wallet-modal-content, .customize-modal-content, .hash-modal-content, .admin-stats-modal-content {
     background-color: var(--bg-panel) !important;
     border: 1px solid var(--border-color) !important;
@@ -247,7 +278,6 @@ input[type="password"],
     border-top-color: var(--border-color) !important;
 }
 
-/* Переключатель темы (кнопка в профиле) */
 #theme-toggle-btn {
     background-color: var(--bg-input) !important;
     border: 1px solid var(--border-color) !important;
