@@ -153,7 +153,6 @@ export async function updateUser(username, userData) {
     return true;
 }
 
-// ИЗМЕНЕНО: Добавлен вывод ошибки в консоль
 export async function patchUser(username, partialData) {
     if (!supabase) return false;
     const { error } = await supabase
@@ -162,7 +161,7 @@ export async function patchUser(username, partialData) {
         .eq('username', username);
 
     if (error) {
-        console.error("PATCH USER ERROR:", error); // <-- Чтобы видеть причину в консоли
+        console.error("PATCH USER ERROR:", error);
         return false;
     }
     return true;
@@ -345,6 +344,7 @@ export function stopWithdrawalHistoryPoller() {}
 export async function createPromocode(code, data) { return true; }
 export async function activatePromocode(code) { return {success:true}; }
 
+// === ВОТ ЗДЕСЬ ОБНОВЛЕННАЯ ЛОГИКА ===
 export function showSection(sectionId) {
     document.querySelectorAll('.page-section').forEach(el => {
         el.classList.add('hidden'); 
@@ -359,6 +359,18 @@ export function showSection(sectionId) {
     if (target) {
         target.classList.remove('hidden'); 
         target.classList.add('active'); 
+    }
+    
+    // --- ИСПРАВЛЕНИЕ: Показываем бар только внутри игр ---
+    const gameNav = document.getElementById('top-game-nav');
+    if (gameNav) {
+        // Если ID секции заканчивается на "-game" (dice-game, mines-game и т.д.)
+        if (sectionId.endsWith('-game')) {
+            gameNav.classList.remove('hidden');
+        } else {
+            // Иначе (lobby, bonus-page, ref-page...) скрываем
+            gameNav.classList.add('hidden');
+        }
     }
     
     const statsBar = document.getElementById('lobby-stats-bar');

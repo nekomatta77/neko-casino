@@ -7,7 +7,7 @@
     
     <link rel="stylesheet" href="style.css?v=2.2">
     <link rel="stylesheet" href="style2.css?v=1.0">
-    <link rel="stylesheet" href="style3.css?v=3.5">
+    <link rel="stylesheet" href="style3.css?v=3.8">
 </head>
 <body>
 
@@ -39,7 +39,7 @@
             
         </header>
         
-        <div class="mini-games-nav-container">
+        <div class="mini-games-nav-container hidden" id="top-game-nav">
             <nav class="mini-games-nav">
                 <div class="mini-games-nav-item" data-target="dice-game">
                     <img src="assets/dice_icon.png" alt="Dice" class="nav-game-icon"> Dice
@@ -480,9 +480,6 @@
                                 <label>Количество игр</label>
                                 <div class="keno-auto-count-wrapper">
                                     <input type="number" id="keno-auto-count" value="0" placeholder="∞">
-                                    <button id="keno-auto-turbo-button" class="keno-turbo-btn">
-                                        <img src="assets/thunder_off.png" alt="Turbo">
-                                    </button>
                                 </div>
                             </div>
 
@@ -1269,6 +1266,52 @@
                 <h4>История выводов</h4>
                 <ul id="withdrawal-history-list" class="per-game-history-list">
                     </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="auth-modal-overlay">
+        <div class="user-modal-content wallet-modal-content"> <div class="wallet-header">
+                <h3 id="auth-modal-title">Вход</h3>
+                <button class="wallet-modal-close" id="auth-modal-close">&times;</button>
+            </div>
+
+            <div class="wallet-tabs">
+                <button class="wallet-tab active" id="tab-btn-login">Вход</button>
+                <button class="wallet-tab" id="tab-btn-register">Регистрация</button>
+            </div>
+
+            <div class="wallet-tab-content active" id="auth-tab-login">
+                <form class="wallet-form" id="modal-login-form">
+                    <div class="form-group">
+                        <label>Никнейм</label>
+                        <input type="text" id="modal-login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="modal-login-password" required>
+                    </div>
+                    <button type="submit" class="auth-button green-button full-width">Войти</button>
+                </form>
+            </div>
+
+            <div class="wallet-tab-content" id="auth-tab-register">
+                <form class="wallet-form" id="modal-register-form">
+                    <div class="form-group">
+                        <label>Никнейм</label>
+                        <input type="text" id="modal-reg-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="modal-reg-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Повторите пароль</label>
+                        <input type="password" id="modal-reg-confirm" required>
+                    </div>
+                    <button type="submit" class="auth-button blue-button full-width">Создать аккаунт</button>
+                </form>
             </div>
 
         </div>

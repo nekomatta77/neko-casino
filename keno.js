@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: ДОБАВЛЕН АВТО-РЕЖИМ И ВКЛАДКИ)
+ * (ИЗМЕНЕНО: УДАЛЕНА ЛОГИКА ТУРБО ИЗ АВТО-РЕЖИМА)
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -44,7 +44,7 @@ let tabButtons, manualPanel, autoPanel;
 // Элементы Авто-игры
 let autoGameActive = false;
 let autoGamesRemaining = 0;
-let autoStartButton, autoCountInput, autoTurboButton, autoBetInput;
+let autoStartButton, autoCountInput, autoBetInput;
 let autoBetHalfBtn, autoBetDoubleBtn;
 
 function createGrid() {
@@ -215,18 +215,18 @@ function handleAutoPick() {
 function handleTurboToggle() {
     isTurboMode = !isTurboMode;
     const img1 = turboButton.querySelector('img');
-    const img2 = autoTurboButton.querySelector('img');
+    // const img2 = autoTurboButton.querySelector('img'); // REMOVED
     const src = isTurboMode ? 'assets/thunder_on.png' : 'assets/thunder_off.png';
     
     img1.src = src;
-    img2.src = src;
+    // img2.src = src; // REMOVED
     
     if (isTurboMode) {
         turboButton.classList.add('active');
-        autoTurboButton.classList.add('active');
+        // autoTurboButton.classList.add('active'); // REMOVED
     } else {
         turboButton.classList.remove('active');
-        autoTurboButton.classList.remove('active');
+        // autoTurboButton.classList.remove('active'); // REMOVED
     }
 }
 
@@ -350,11 +350,7 @@ async function startAutoGame() {
         }
         updateControlsUI(); // Обновляем счетчик на кнопке
         
-        if (!isTurboMode && autoGameActive) {
-             await sleep(500); // Пауза между играми
-        } else if (autoGameActive) {
-             await sleep(100); // Короткая пауза в турбо
-        }
+        await sleep(500); // Всегда используем стандартную задержку, игнорируя isTurboMode
     }
     
     stopAutoGame();
@@ -463,7 +459,7 @@ export function initKeno() {
     // Элементы авто режима
     autoStartButton = document.getElementById('keno-auto-start-button');
     autoCountInput = document.getElementById('keno-auto-count');
-    autoTurboButton = document.getElementById('keno-auto-turbo-button');
+    // autoTurboButton = document.getElementById('keno-auto-turbo-button'); // REMOVED
     autoBetInput = document.getElementById('keno-auto-bet');
     autoBetHalfBtn = document.querySelector('#keno-auto-panel .bet-half');
     autoBetDoubleBtn = document.querySelector('#keno-auto-panel .bet-double');
@@ -476,7 +472,7 @@ export function initKeno() {
     autoPickButton.addEventListener('click', handleAutoPick);
     
     if (turboButton) turboButton.addEventListener('click', handleTurboToggle);
-    if (autoTurboButton) autoTurboButton.addEventListener('click', handleTurboToggle);
+    // if (autoTurboButton) autoTurboButton.addEventListener('click', handleTurboToggle); // REMOVED
     if (autoStartButton) autoStartButton.addEventListener('click', startAutoGame);
     
     riskButtons.forEach(btn => btn.addEventListener('click', handleRiskSwitch));
