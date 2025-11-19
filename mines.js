@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: ЗАДАЧА 1 - Добавлен "ШАГ #" в шкалу)
+ * (ИЗМЕНЕНО: НОВЫЙ ДИЗАЙН ИНТЕРФЕЙСА)
  */
 import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -9,6 +9,9 @@ let currentMines = 3;
 let currentBet = 10.00;
 let safeCells = []; 
 let revealedCount = 0;
+
+// --- ЭЛЕМЕНТЫ DOM ---
+let mainButton;
 
 // --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
 function getMultiplierForSafeCells(safeCount, totalMines) {
@@ -41,7 +44,6 @@ function createMinesGrid() {
     }
 }
 
-// (ЗАДАЧА 1) Функция генерации списка множителей (Добавлен ШАГ)
 function renderMultipliersBar(minesCount) {
     const bar = document.getElementById('mines-multipliers-bar');
     if (!bar) return;
@@ -49,7 +51,6 @@ function renderMultipliersBar(minesCount) {
 
     const safeCountTotal = MINES_GRID_SIZE - minesCount;
     
-    // Генерируем список для всех безопасных шагов
     for (let i = 1; i <= safeCountTotal; i++) {
         const mult = getMultiplierForSafeCells(i, minesCount);
         
@@ -57,7 +58,6 @@ function renderMultipliersBar(minesCount) {
         item.classList.add('mines-multiplier-item');
         item.setAttribute('data-step', i);
         
-        // ИЗМЕНЕНО: Добавлен .step-label
         item.innerHTML = `
             <span class="step-label">ШАГ ${i}</span>
             <span class="multiplier-value">${mult}x</span>
@@ -67,14 +67,11 @@ function renderMultipliersBar(minesCount) {
     }
 }
 
-// Обновление активного множителя в баре
 function updateMultipliersBarUI() {
     const bar = document.getElementById('mines-multipliers-bar');
     if (!bar) return;
 
     const items = bar.querySelectorAll('.mines-multiplier-item');
-    
-    // Снимаем активный класс со всех
     items.forEach(item => item.classList.remove('active'));
 
     if (isGameActive && revealedCount > 0) {
@@ -86,12 +83,24 @@ function updateMultipliersBarUI() {
     }
 }
 
+async function handleMainAction() {
+    if (isGameActive) {
+        await cashoutGame();
+    } else {
+        await startGame();
+    }
+}
+
 
 async function startGame() {
-    currentMines = parseInt(document.getElementById('mines-count-input').value); 
+    const minesInput = document.getElementById('mines-count-input');
+    const betInput = document.getElementById('mines-bet');
+    
+    currentMines = parseInt(minesInput.value); 
+    currentBet = parseFloat(betInput.value);
 
     if (currentBet <= 0 || isNaN(currentBet) || currentMines < 1 || currentMines > 24 || isNaN(currentMines)) {
-        document.getElementById('mines-status').textContent = '⚠️ Проверьте ставку и количество мин (от 1 до 24)!';
+        document.getElementById('mines-status').textContent = '⚠️ Проверьте ставку и количество мин!';
         return;
     }
     
@@ -105,7 +114,6 @@ async function startGame() {
     isGameActive = true;
     revealedCount = 0;
     
-    // Мгновенное списание
     updateBalance(-currentBet);
     reduceWager(currentBet);
     
@@ -126,12 +134,11 @@ async function startGame() {
 }
 
 function updateMinesUI() {
-    const startButton = document.getElementById('mines-start-button');
-    const cashoutButton = document.getElementById('mines-cashout-button');
+    const controls = document.querySelector('.mines-controls'); // Old styling reference, kept for safety
     
-    const controls = document.querySelector('.mines-controls');
-    controls.style.opacity = isGameActive ? 0.5 : 1;
-    controls.style.pointerEvents = isGameActive ? 'none' : 'auto';
+    // Блокировка инпутов
+    const inputs = document.querySelectorAll('#mines-game input, #mines-game .mines-count-btn, #mines-game .bet-half, #mines-game .bet-double');
+    inputs.forEach(el => el.disabled = isGameActive);
     
     updateMultipliersBarUI();
 
@@ -139,14 +146,16 @@ function updateMinesUI() {
         const currentTotalMultiplier = getMultiplierForSafeCells(revealedCount, currentMines);
         const currentPayout = currentBet * currentTotalMultiplier;
         
-        cashoutButton.textContent = `Забрать (${currentPayout.toFixed(2)} RUB)`;
-        cashoutButton.classList.remove('hidden');
-        startButton.classList.add('hidden');
+        mainButton.textContent = `ЗАБРАТЬ (${currentPayout.toFixed(2)} ₽)`;
+        mainButton.classList.add('cashout-mode');
+        
+        // Кнопка "Забрать" активна только если открыта хотя бы 1 ячейка
+        mainButton.disabled = (revealedCount === 0);
         
     } else {
-        cashoutButton.classList.add('hidden');
-        startButton.classList.remove('hidden');
-        cashoutButton.textContent = `Забрать`; 
+        mainButton.textContent = `НАЧАТЬ ИГРУ`;
+        mainButton.classList.remove('cashout-mode');
+        mainButton.disabled = false;
     }
 }
 
@@ -170,15 +179,20 @@ function placeMines(count) {
 function showAllMines(didWin) {
     const cells = document.querySelectorAll('.mine-cell');
     cells.forEach((cell, index) => {
-        cell.removeEventListener('click', handleCellClick);
-        if (cell.classList.contains('closed')) {
-            cell.classList.remove('closed');
+        // Удаляем листенеры, чтобы нельзя было кликнуть
+        const newCell = cell.cloneNode(true);
+        cell.parentNode.replaceChild(newCell, cell);
+        
+        if (newCell.classList.contains('closed')) {
+            newCell.classList.remove('closed');
             if (safeCells[index]) {
-                cell.classList.add('bomb');
-                cell.innerHTML = `<img src="assets/mines_mine.png" alt="Mine" class="mine-cell-icon">`;
+                newCell.classList.add('bomb');
+                newCell.innerHTML = `<img src="assets/mines_mine.png" alt="Mine" class="mine-cell-icon">`;
+                if (!didWin) newCell.style.opacity = '1'; 
             } else {
-                cell.classList.add('safe');
-                cell.innerHTML = `<img src="assets/mines_fish.png" alt="Fish" class="mine-cell-icon">`;
+                newCell.classList.add('safe');
+                newCell.innerHTML = `<img src="assets/mines_fish.png" alt="Fish" class="mine-cell-icon">`;
+                newCell.style.opacity = '0.5'; // Затеняем нераскрытые рыбы
             }
         }
     });
@@ -223,9 +237,9 @@ function handleCellClick(e) {
         
         if (revealedCount === MINES_GRID_SIZE - currentMines) {
             cashoutGame(); 
+        } else {
+            updateMinesUI();
         }
-        
-        updateMinesUI();
     }
 }
 
@@ -263,39 +277,10 @@ function endGame(didWin) {
     revealedCount = 0;
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    
-    const startButton = document.getElementById('mines-start-button');
-    if (startButton) {
-        startButton.addEventListener('click', startGame);
-    }
-    
-    const cashoutButton = document.getElementById('mines-cashout-button');
-    if (cashoutButton) {
-        cashoutButton.addEventListener('click', cashoutGame);
-    }
-    
-    const betInput = document.getElementById('mines-bet');
-    if (betInput) {
-        betInput.addEventListener('input', () => {
-            let newVal = parseFloat(betInput.value);
-            if (isNaN(newVal)) newVal = 0; 
-            currentBet = newVal; 
-            updateMinesUI();
-        });
-        betInput.addEventListener('blur', () => {
-            if (isNaN(currentBet) || currentBet < 1.00) {
-                currentBet = 1.00;
-            }
-            betInput.value = currentBet.toFixed(2);
-            updateMinesUI();
-        });
-    }
-});
-
 export function initMines() {
     const minesCountInput = document.getElementById('mines-count-input');
     const minesCountButtons = document.querySelectorAll('.mines-count-btn');
+    mainButton = document.getElementById('mines-main-button');
 
     if (minesCountInput && minesCountButtons) {
         const updateActiveButton = (count) => {
@@ -307,7 +292,8 @@ export function initMines() {
                     btn.classList.remove('active');
                 }
             });
-            if (![5, 10, 15, 24].includes(countAsInt)) {
+            // Если ввели число не из списка кнопок
+            if (![3, 5, 10, 24].includes(countAsInt)) {
                 minesCountButtons.forEach(btn => btn.classList.remove('active'));
             }
         };
@@ -317,77 +303,68 @@ export function initMines() {
 
         minesCountButtons.forEach(button => {
             button.addEventListener('click', () => {
+                if (isGameActive) return;
                 const count = parseInt(button.getAttribute('data-count'));
                 currentMines = count;
                 minesCountInput.value = count;
                 updateActiveButton(count);
-                if (!isGameActive) { 
-                    renderMultipliersBar(count);
-                    updateMinesUI();
-                }
+                renderMultipliersBar(count);
             });
         });
 
         minesCountInput.addEventListener('input', () => {
+            if (isGameActive) return;
             let val = parseInt(minesCountInput.value);
             if (val > 24) val = 24;
             if (isNaN(val) || val < 1) {
-                currentMines = 1; 
+                // Don't update logic yet, wait for valid input
             } else {
                 currentMines = val;
+                updateActiveButton(val);
+                renderMultipliersBar(val);
             }
-            updateActiveButton(currentMines);
-            if (!isGameActive) {
-                renderMultipliersBar(currentMines);
-                updateMinesUI();
-            }
+        });
+        
+        // Blur validation
+        minesCountInput.addEventListener('blur', () => {
+            let val = parseInt(minesCountInput.value);
+             if (isNaN(val) || val < 1) {
+                 val = 1;
+                 minesCountInput.value = 1;
+             }
+             currentMines = val;
+             updateActiveButton(val);
+             renderMultipliersBar(val);
         });
     }
 
+    if (mainButton) {
+        mainButton.addEventListener('click', handleMainAction);
+    }
+
     const betInput = document.getElementById('mines-bet');
-    const betHalfButton = document.querySelector('.mines-controls .bet-half');
-    const betDoubleButton = document.querySelector('.mines-controls .bet-double');
+    const betHalfButton = document.querySelector('#mines-game .bet-half');
+    const betDoubleButton = document.querySelector('#mines-game .bet-double');
 
     if (betHalfButton) {
         betHalfButton.addEventListener('click', () => {
+            if(isGameActive) return;
             let currentVal = parseFloat(betInput.value);
             if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.max(1.00, currentVal / 2); 
-            betInput.value = newVal.toFixed(2);
+            let newVal = Math.max(1.00, currentVal / 2).toFixed(0); 
+            betInput.value = newVal;
             currentBet = newVal; 
-            updateMinesUI();
         });
     }
 
     if (betDoubleButton) {
         betDoubleButton.addEventListener('click', () => {
+            if(isGameActive) return;
             let currentVal = parseFloat(betInput.value);
             if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.min(currentBalance, currentVal * 2);
-            betInput.value = newVal.toFixed(2);
+            let newVal = Math.min(currentBalance, currentVal * 2).toFixed(0);
+            betInput.value = newVal;
             currentBet = newVal; 
-            updateMinesUI();
-        });
-    }
-    
-    const betMinButton = document.querySelector('.mines-controls .bet-min');
-    const betMaxButton = document.querySelector('.mines-controls .bet-max');
-    
-    if (betMinButton) {
-        betMinButton.addEventListener('click', () => {
-            let newVal = 1.00; 
-            betInput.value = newVal.toFixed(2);
-            currentBet = newVal; 
-            updateMinesUI(); 
-        });
-    }
-    
-    if (betMaxButton) {
-        betMaxButton.addEventListener('click', () => {
-            let newVal = currentBalance; 
-            betInput.value = newVal.toFixed(2);
-            currentBet = newVal; 
-            updateMinesUI(); 
         });
     }
     

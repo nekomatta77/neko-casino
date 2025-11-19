@@ -1,27 +1,89 @@
 /*
- * Краткое описание апгрейда:
- * 1. **(НОВЫЙ ЗАПРОС)**: `updateProfileData()` стала асинхронной.
- * 2. **(НОВЫЙ ЗАПРОС)**: Добавлен импорт `fetchUser` и `currentUser`.
- * 3. **(НОВЫЙ ЗАПРОС)**: `updateProfileData()` теперь загружает ранг из БД
- * и переводит его на русский язык (включая "Владелец" для "admin").
- * 4. (ИЗМЕНЕНО) `updateProfileData()` теперь загружает `wager_balance` из БД.
- * 5. **(НОВАЯ ЗАДАЧА)**: `switch (dbRank)` обновлен для соответствия
- * 6 новым рангам со страницы "Lvl котика".
+ * profile.js
+ * Добавлена логика переключения темы (Dark/Light Mode) и сохранение в БД
  */
 
-import { showSection, setCurrentUser, currentUser, fetchUser, updateUser } from './global.js';
+import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser } from './global.js';
 
 // --- Элементы DOM ---
 let wagerAmountEl, rankEl, wagerRulesLink;
 let passwordForm, oldPassInput, newPassInput, passwordStatusEl;
 let vkLinkBtn, tgLinkBtn, logoutBtn;
+let themeToggleBtn; 
+
+// --- ЛОГИКА ТЕМЫ ---
+
+/**
+ * Инициализирует состояние кнопки и темы при открытии профиля
+ */
+function initTheme() {
+    const themeStyle = document.getElementById('theme-style'); // Ссылка на style4.css
+    const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; // Default light
+    
+    // Синхронизируем текст кнопки
+    if (themeToggleBtn) {
+        if (currentTheme === 'dark') {
+            themeToggleBtn.textContent = "☀️ Включить светлую тему";
+        } else {
+            themeToggleBtn.textContent = "🌙 Включить темную тему";
+        }
+    }
+
+    // Синхронизируем стили
+    if (themeStyle) {
+        themeStyle.disabled = (currentTheme === 'light');
+    }
+}
+
+/**
+ * Обрабатывает клик по кнопке переключения
+ */
+async function handleThemeToggle() {
+    const themeStyle = document.getElementById('theme-style');
+    if (!themeStyle) return;
+
+    // Проверяем текущее состояние
+    const isDark = !themeStyle.disabled; 
+    let newTheme = 'light';
+
+    if (isDark) {
+        // Переключаем на СВЕТЛУЮ
+        themeStyle.disabled = true; // Отключаем темные стили
+        newTheme = 'light';
+        if(themeToggleBtn) themeToggleBtn.textContent = "🌙 Включить темную тему";
+    } else {
+        // Переключаем на ТЕМНУЮ
+        themeStyle.disabled = false; // Включаем темные стили
+        newTheme = 'dark';
+        if(themeToggleBtn) themeToggleBtn.textContent = "☀️ Включить светлую тему";
+    }
+    
+    // 1. Сохраняем локально (для быстрой загрузки)
+    localStorage.setItem('cashcat_theme', newTheme);
+    
+    // 2. Сохраняем в БД (если пользователь залогинен)
+    if (currentUser) {
+        // Сначала получаем текущие настройки, чтобы не затереть аватар
+        const userData = await fetchUser(currentUser);
+        const currentCustomization = userData?.customization || {};
+        
+        // Обновляем только тему
+        const newCustomization = {
+            ...currentCustomization,
+            theme: newTheme
+        };
+        
+        await patchUser(currentUser, { customization: newCustomization });
+    }
+}
+
 
 /**
  * Обрабатывает выход пользователя
  */
 async function handleLogout() {
-    await setCurrentUser(null); // Очищает сессию, обнуляет баланс и блокирует UI
-    location.reload(); // Перезагружаем страницу, чтобы сбросить состояние игр
+    await setCurrentUser(null); // Очищает сессию
+    location.reload(); // Перезагружаем
 }
 
 /**
@@ -29,17 +91,9 @@ async function handleLogout() {
  */
 function handleShowWagerRules(e) {
     e.preventDefault();
-    
-    // 1. Переходим на страницу FAQ
     showSection('faq-page');
-    
-    // 2. Находим нужный элемент аккордеона
-    // (Мы ожидаем, что data-key="q3_wager_play" - это "Отыгрыш вагерного баланса")
     const faqItem = document.querySelector('.faq-item[data-key="q3_wager_play"]');
-    
     if (faqItem) {
-        // 3. Имитируем клик по нему, чтобы он открылся
-        // (Логика в faq.js сама загрузит контент, если нужно)
         const questionButton = faqItem.querySelector('.faq-question');
         if (questionButton && !faqItem.classList.contains('active')) {
             questionButton.click();
@@ -64,21 +118,17 @@ async function handleChangePassword(e) {
 
     passwordStatusEl.textContent = 'Проверка...';
 
-    // 1. Получаем текущие данные пользователя
     const userData = await fetchUser(currentUser);
     if (!userData) {
         passwordStatusEl.textContent = 'Ошибка: Пользователь не найден.';
         return;
     }
 
-    // 2. Проверяем старый пароль
     if (userData.password !== oldPass) {
         passwordStatusEl.textContent = 'Неверный установленный пароль.';
         return;
     }
 
-    // 3. Пароль верный, обновляем
-    // (Мы перезаписываем весь объект, но только с новым паролем)
     const success = await updateUser(currentUser, {
         ...userData,
         password: newPass
@@ -86,81 +136,46 @@ async function handleChangePassword(e) {
 
     if (success) {
         passwordStatusEl.textContent = 'Пароль успешно изменен!';
-        passwordForm.reset(); // Очищаем форму
+        passwordForm.reset(); 
     } else {
-        passwordStatusEl.textContent = 'Ошибка при сохранении. Попробуйте снова.';
+        passwordStatusEl.textContent = 'Ошибка при сохранении.';
     }
 }
 
 /**
- * (ИЗМЕНЕНО) Обновляет данные на странице (вызывается из main.js)
- * Стала асинхронной для загрузки данных из БД.
+ * Обновляет данные на странице профиля
  */
 export async function updateProfileData() {
-    
-    // 1. Устанавливаем плейсхолдеры
-    if (wagerAmountEl) {
-        wagerAmountEl.textContent = '...'; // (ИЗМЕНЕНО)
-    }
-    if (rankEl) {
-        rankEl.textContent = '...';
-    }
+    if (wagerAmountEl) wagerAmountEl.textContent = '...';
+    if (rankEl) rankEl.textContent = '...';
 
-    // 2. Загружаем данные пользователя
+    // Инициализируем состояние кнопки темы каждый раз при входе в профиль
+    initTheme();
+
     if (currentUser && rankEl && wagerAmountEl) {
         const userData = await fetchUser(currentUser);
-        
-        // --- Ранг ---
-        const dbRank = userData?.rank || 'None Rang'; // Ранг из БД
-        // ИЗМЕНЕНО: По умолчанию "Котенок", а не "Без ранга"
+        const dbRank = userData?.rank || 'None Rang';
         let displayRank = 'Котенок'; 
 
-        // 3. Переводим ранг из БД в отображаемый (СИНХРОНИЗИРОВАНО С LVL КОТИКА)
         switch (dbRank) {
-            case 'None Rang':
-                displayRank = 'Котенок'; // (Ранг 1)
-                break;
-            case 'Kitten':
-                displayRank = 'Котенок'; // (Ранг 1)
-                break;
-            case 'Newfag': // (Гипотетический ключ для Ранга 2)
-                displayRank = 'Кот новичок';
-                break;
-            case 'Old Cat':
-                displayRank = 'Бывалый кот'; // (Ранг 3)
-                break;
-            case 'Street Cat':
-                displayRank = 'Уличный боец'; // (Ранг 4)
-                break;
-            case 'Horse': // (Гипотетический ключ для Ранга 5)
-                displayRank = 'Победоносец';
-                break;
-            case 'King':
-                displayRank = 'Король'; // (Ранг 6)
-                break;
-            case 'admin':
-                displayRank = 'Владелец'; // <-- Особый ранг (остается)
-                break;
-            default:
-                displayRank = 'Котенок';
+            case 'None Rang': displayRank = 'Котенок'; break;
+            case 'Kitten': displayRank = 'Котенок'; break;
+            case 'Newfag': displayRank = 'Кот новичок'; break;
+            case 'Old Cat': displayRank = 'Бывалый кот'; break;
+            case 'Street Cat': displayRank = 'Уличный боец'; break;
+            case 'Horse': displayRank = 'Победоносец'; break;
+            case 'King': displayRank = 'Король'; break;
+            case 'admin': displayRank = 'Владелец'; break;
+            default: displayRank = 'Котенок';
         }
         rankEl.textContent = displayRank;
         
-        // --- Вейджер ---
         const dbWager = userData?.wager_balance || 0;
         wagerAmountEl.textContent = dbWager.toFixed(2);
         
     } else {
-        // Для гостя
-        // ИЗМЕНЕНО: По умолчанию "Котенок"
         if (rankEl) rankEl.textContent = 'Котенок';
         if (wagerAmountEl) wagerAmountEl.textContent = '0.00';
-    }
-    
-    // TODO: Здесь также нужно будет проверять,
-    // привязаны ли VK/TG и менять текст кнопок
-    if (vkLinkBtn) {
-        // console.log('VK button text update needed');
     }
 }
 
@@ -168,46 +183,29 @@ export async function updateProfileData() {
  * Инициализирует страницу профиля
  */
 export function initProfile() {
-    // Поиск основных элементов
     wagerAmountEl = document.getElementById('profile-wager-amount');
     rankEl = document.getElementById('profile-rank');
     wagerRulesLink = document.getElementById('profile-wager-rules-link');
-    
-    // Поиск элементов формы
     passwordForm = document.getElementById('profile-password-form');
     oldPassInput = document.getElementById('profile-old-pass');
     newPassInput = document.getElementById('profile-new-pass');
     passwordStatusEl = document.getElementById('profile-password-status');
-    
-    // Поиск кнопок
     vkLinkBtn = document.getElementById('profile-link-vk');
     tgLinkBtn = document.getElementById('profile-link-tg');
     logoutBtn = document.getElementById('profile-logout-button');
+    
+    // Находим кнопку темы
+    themeToggleBtn = document.getElementById('theme-toggle-btn');
 
-    // Назначение слушателей
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleLogout);
+    // Слушатели
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', handleThemeToggle);
     }
+
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);
+    if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
     
-    if (wagerRulesLink) {
-        wagerRulesLink.addEventListener('click', handleShowWagerRules);
-    }
-    
-    if (passwordForm) {
-        passwordForm.addEventListener('submit', handleChangePassword);
-    }
-    
-    if (vkLinkBtn) {
-        vkLinkBtn.addEventListener('click', () => {
-            // TODO: Добавить логику привязки VK
-            alert('Логика привязки Вконтакте (в разработке)');
-        });
-    }
-    
-    if (tgLinkBtn) {
-        tgLinkBtn.addEventListener('click', () => {
-            // TODO: Добавить логику привязки TG
-            alert('Логика привязки Telegram (в разработке)');
-        });
-    }
+    if (vkLinkBtn) vkLinkBtn.addEventListener('click', () => alert('В разработке'));
+    if (tgLinkBtn) tgLinkBtn.addEventListener('click', () => alert('В разработке'));
 }

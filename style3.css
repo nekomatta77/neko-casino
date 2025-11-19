@@ -1,6 +1,6 @@
 /*
  * style3.css
- * Полный файл стилей (Версия 3.9 - Scroll Fix)
+ * Полный файл стилей (Версия 3.16 - Keno Multipliers Fix)
  */
 
 /* =========================================
@@ -11,10 +11,10 @@
 #top-game-nav {
     transition: opacity 0.3s ease, max-height 0.3s ease;
     opacity: 1;
-    max-height: 120px; /* Увеличено, чтобы поместился скроллбар */
-    overflow: hidden; /* Скрывает то, что вылезает за пределы анимации */
+    max-height: 120px; 
+    overflow: hidden; 
     margin-bottom: 15px;
-    width: 100%; /* На всю ширину */
+    width: 100%; 
 }
 
 /* Скрытый режим (в лобби) */
@@ -28,18 +28,16 @@
 
 /* Сама навигация (отвечает за прокрутку) */
 .mini-games-nav {
-    display: flex !important; /* Принудительно Flex */
-    flex-wrap: nowrap !important; /* Принудительно ЗАПРЕТИТЬ перенос */
-    overflow-x: auto !important; /* Принудительно ВКЛЮЧИТЬ скролл */
+    display: flex !important; 
+    flex-wrap: nowrap !important; 
+    overflow-x: auto !important; 
     
     gap: 10px;
     padding: 10px 5px;
     margin: 0;
     
-    /* Для плавной прокрутки на iOS */
     -webkit-overflow-scrolling: touch; 
     
-    /* Убираем скроллбар визуально, но оставляем функцию */
     scrollbar-width: none; 
     -ms-overflow-style: none;
 }
@@ -49,10 +47,7 @@
 
 /* Элемент навигации */
 .mini-games-nav-item {
-    /* КРИТИЧНО: Запрещаем сжатие и рост */
     flex: 0 0 auto !important; 
-    
-    /* КРИТИЧНО: Минимальная ширина, чтобы элемент не сжимался */
     min-width: 100px !important;
     width: 100px; 
     
@@ -276,19 +271,32 @@
 #weekly-bonus-status.loss { color: var(--color-mine-bomb); }
 
 /* =========================================
+   . БОЛЬШИЕ ВЫИГРЫШИ
+   ========================================= */
+/* ... (код выше) ... */
+
+/* =========================================
    4. БОЛЬШИЕ ВЫИГРЫШИ
    ========================================= */
 .bet-history-container h3 {
     font-size: 1.5em;
-    font-weight: 900;
+    font-weight: 800; /* Жирность как у "Список игр" */
     text-align: left;
     margin-bottom: 15px;
-    background: linear-gradient(to right, #F5A623, #FFD700, #F5A623);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 2px 10px rgba(245, 166, 35, 0.3);
+    
+    /* ИЗМЕНЕНО: Убираем золотой градиент и ставим обычный цвет */
+    background: none; 
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-text); /* Темный цвет, как у всех заголовков */
+    text-shadow: none; /* Убираем золотое свечение */
+    
+    /* Опционально: если хочешь подчеркивание как у "Список игр" */
+    /* border-bottom: none; */
 }
+
+/* ... (код ниже) ... */
+
 .high-win-card {
     width: 150px; 
     min-width: 150px;
@@ -435,11 +443,23 @@
 .keno-game-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
     max-width: 500px;
     margin: 0 auto;
     width: 100%;
 }
+
+/* --- ЗАДАЧА 4: МЕНЯЕМ ПОРЯДОК ЭЛЕМЕНТОВ --- */
+/* Порядок:
+   1. Grid (Сетка)
+   2. Status (Победа/Проигрыш)
+   3. Controls (Кнопки, ставки)
+   4. Payout Bar (Множители - ВНИЗУ)
+*/
+.keno-grid-wrapper { order: 1; }
+#keno-status { order: 2; }
+.keno-controls-panel { order: 3; margin-top: 0; } /* Панель управления */
+.keno-payout-bar-wrapper { order: 4; margin-top: 5px; } /* Множители в самом низу */
 
 /* ОБЩИЙ ФОН (Затемненная область) */
 .keno-board-area {
@@ -452,7 +472,6 @@
     flex-direction: column;
     gap: 15px; 
 }
-
 
 /* --- ИГРОВОЕ ПОЛЕ --- */
 .keno-grid-wrapper {
@@ -491,12 +510,12 @@
     transform: translateY(-1px);
 }
 
-/* Выбранная ячейка */
+/* Выбранная ячейка (Стили переопределены в style4.css для яркости) */
 .keno-cell.selected {
-    background-color: var(--color-orange); 
+    /* background-color: var(--color-orange);  <-- См. style4.css */
     color: #FFFFFF;
-    border-color: var(--color-orange);
-    box-shadow: 0 0 10px var(--color-orange);
+    /* border-color: var(--color-orange); */
+    /* box-shadow: 0 0 10px var(--color-orange); */
 }
 
 /* Угаданная ячейка (Зеленая) */
@@ -523,7 +542,7 @@
 }
 
 
-/* --- МНОЖИТЕЛИ --- */
+/* --- МНОЖИТЕЛИ (УМЕНЬШЕННЫЕ) --- */
 .keno-payout-scroll-wrapper {
     order: unset;
     width: 100%;
@@ -538,24 +557,24 @@
     display: flex;
     justify-content: space-between;
     min-width: 100%;
-    gap: 5px;
+    gap: 2px; /* Уменьшен зазор */
 }
 
 .keno-gem-item {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 2px; /* Уменьшен зазор */
     opacity: 0.6; 
     transition: all 0.3s;
     flex: 1;
-    min-width: 30px;
+    min-width: 25px; /* Уменьшена мин ширина */
 }
 
 .keno-paw-wrapper {
     position: relative;
-    width: 26px; 
-    height: 26px;
+    width: 18px; /* Уменьшен размер лапок */
+    height: 18px;
 }
 
 .paw-grey, .paw-color {
@@ -573,13 +592,13 @@
 /* Активное состояние */
 .keno-gem-item.active {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.2); /* Увеличено выделение */
 }
 .keno-gem-item.active .paw-grey { opacity: 0; }
 .keno-gem-item.active .paw-color { opacity: 1; }
 
 .keno-gem-mult {
-    font-size: 0.8em;
+    font-size: 0.65em; /* Очень маленький текст */
     font-weight: bold;
     color: var(--color-text-light);
 }
@@ -878,3 +897,450 @@
     0% { transform: scale(0.8); opacity: 0.5; }
     100% { transform: scale(1); opacity: 1; }
 }
+
+
+/* =========================================
+   7. АДАПТАЦИЯ COINFLIP (ПОД СТИЛЬ KENO)
+   ========================================= */
+
+/* Обертка для кнопок выбора (Орел/Решка) */
+.coin-choice-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+/* Сами кнопки выбора (наследуют стиль keno-turbo-btn, но растягиваются) */
+.coin-choice-btn {
+    flex-grow: 1; /* Растягиваем на всю ширину */
+    width: auto;  /* Сбрасываем фикс ширину */
+    height: 50px; /* Высота как у инпутов */
+    border-radius: 10px;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    transition: all 0.2s;
+}
+
+.coin-choice-btn img {
+    width: 35px; /* Картинки покрупнее */
+    height: 35px;
+    opacity: 0.8;
+    transition: transform 0.2s ease, opacity 0.2s;
+}
+
+.coin-choice-btn:hover {
+    background-color: #3D4654;
+    border-color: var(--color-text-light);
+}
+
+.coin-choice-btn:hover img {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Переопределение цвета активной кнопки Забрать (зеленый) при нажатии */
+#coin-cashout-button:active {
+    box-shadow: 0 1px 0 #007550 !important;
+    transform: translateY(2px);
+}
+
+/* Скрытый класс (утилита) */
+.hidden {
+    display: none !important;
+}
+
+/* =========================================
+   8. ФИКСЫ ИНТЕРФЕЙСА COINFLIP
+   ========================================= */
+#coin-game .coin-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#coin-game .keno-controls-ref-style {
+    order: 1 !important;
+    border-radius: 16px !important;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#coin-game .coin-display-wrapper,
+#coin-game #coin-status {
+    order: 0 !important;
+}
+
+#coin-game .per-game-history-container {
+    order: 10 !important;
+    margin-top: 0 !important;
+}
+
+/* =========================================
+   9. РЕДИЗАЙН CRASH (KENO STYLE)
+   ========================================= */
+
+/* 1. Порядок элементов (История вниз) */
+#crash-game .crash-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* График сверху */
+.crash-graph-wrapper {
+    order: 0;
+    background-color: rgba(30, 33, 40, 0.6); /* Темный фон как в Keno Board */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 16px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+}
+
+/* Статус */
+#crash-status {
+    order: 1;
+}
+
+/* Панель управления */
+#crash-game .keno-controls-ref-style {
+    order: 2;
+    border-radius: 16px; /* Полное скругление */
+    margin-top: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* История */
+#crash-game .per-game-history-container {
+    order: 10;
+    margin-top: 20px;
+}
+
+
+/* 2. Стилизация ряда "Авто-вывод" */
+.crash-auto-row-styled {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+}
+
+.crash-auto-label-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crash-label-title {
+    font-weight: bold;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+/* Инпут авто-вывода (маленький) */
+.crash-auto-input-box {
+    width: 100px !important; /* Фикс ширина */
+    flex-grow: 0 !important;
+    height: 36px !important;
+    border-color: transparent !important; /* Убираем рамку wrapper'а, т.к. есть внешняя */
+    background-color: rgba(255,255,255,0.05) !important;
+}
+.crash-auto-input-box input {
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* Тумблер (Toggle Switch) */
+.switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch-toggle input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-border-dark);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--color-secondary); /* Зеленый */
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+/* Скругление тумблера */
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Отключенный инпут */
+.crash-auto-input-box input:disabled {
+    opacity: 0.3;
+}
+
+/* Кнопка "Забрать" (Зеленая) */
+#crash-main-button.cashout-mode {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 3px 0 #007550;
+}
+#crash-main-button.cashout-mode:active {
+    box-shadow: 0 1px 0 #007550;
+    transform: translateY(2px);
+}
+
+/* Кнопка "Пропустить" (Синяя/Серая) */
+#crash-main-button.skip-mode {
+    background: linear-gradient(90deg, #4A90E2, #5aa1f5);
+    box-shadow: 0 3px 0 #2c6bb3;
+}
+
+/* =========================================
+   10. РЕДИЗАЙН MINES (KENO STYLE)
+   ========================================= */
+
+/* 1. Порядок элементов (История вниз) */
+#mines-game .mines-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Шкала сверху */
+#mines-multipliers-bar {
+    order: 0;
+}
+
+/* Сетка */
+.mines-grid-wrapper {
+    order: 1;
+    background-color: rgba(30, 33, 40, 0.6); /* Темный фон */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 16px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+/* Статус */
+#mines-status {
+    order: 2;
+}
+
+/* Панель управления */
+#mines-game .keno-controls-ref-style {
+    order: 3;
+    border-radius: 16px; /* Полное скругление */
+    margin-top: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* История */
+#mines-game .per-game-history-container {
+    order: 10;
+    margin-top: 20px;
+}
+
+/* 2. Стили для выбора мин (Mines Count) */
+.mines-count-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 5px;
+    margin-top: 10px; /* Отступ сверху для отделения */
+}
+
+.mines-count-label {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.7;
+}
+
+.mines-count-selector {
+    display: flex;
+    gap: 5px;
+}
+
+.mines-count-btn {
+    flex: 1;
+    background-color: transparent;
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 8px;
+    padding: 8px 0;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mines-count-btn:hover {
+    background-color: #3D4654;
+}
+
+.mines-count-btn.active {
+    background-color: #3D4654;
+    color: var(--color-orange);
+    border-color: var(--color-orange);
+    opacity: 1;
+}
+
+/* Кастомный инпут мин */
+.mines-custom-input {
+    flex: 0 0 60px; /* Фикс ширина */
+    height: 34px; /* Под высоту кнопок */
+    padding: 0 5px;
+    background-color: #222429; /* Темный фон */
+    border: 1px solid var(--color-border-dark);
+    /* ADDED: Flex to center input if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* --- ИЗМЕНЕНО: Исправляем цвет текста и фона инпута --- */
+.mines-custom-input input,
+.mines-custom-input #mines-count-input {
+    text-align: center;
+    font-size: 1em;
+    background-color: transparent !important; /* Перекрываем стиль из style.css */
+    color: #FFF !important; /* Перекрываем стиль из style.css */
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-weight: bold;
+    padding: 0; /* Reset padding */
+}
+
+/* Кнопка "Забрать" (Зеленая) */
+#mines-main-button.cashout-mode {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 3px 0 #007550;
+}
+#mines-main-button.cashout-mode:active {
+    box-shadow: 0 1px 0 #007550;
+    transform: translateY(2px);
+}
+
+/* === (ИЗМЕНЕНО: ЗАДАЧА 4 И НОВЫЙ ЗАПРОС) Стили для скролла мини-игр === */
+
+/* ИЗМЕНЕНО: Контейнер */
+.mini-games-nav-container {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto 15px;
+    padding: 0 10px; 
+}
+
+.mini-games-nav {
+    display: flex; 
+    /* ИЗМЕНЕНО: Включаем перенос */
+    flex-wrap: wrap; 
+    /* ИЗМЕНЕНО: Убираем горизонтальный скролл */
+    overflow-x: visible; 
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0; 
+    gap: 10px;
+    margin: 0; 
+    
+    /* ИЗМЕНЕНО: Убираем стили свайпа */
+    /* cursor: grab; */
+    /* user-select: none; */
+    
+    /* ИЗМЕНЕНО: Убираем плавную прокрутку */
+    /* scroll-behavior: smooth; */
+    
+    /* Скрываем скроллбар (на всякий случай) */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+.mini-games-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+/* ИЗМЕНЕНО: Удаляем стили для кнопок прокрутки */
+.mini-games-scroll-btn {
+    display: none;
+}
+
+
+.mini-games-nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* ИЗМЕНЕНО: flex-basis задает базовую ширину */
+    flex-basis: 110px;
+    /* ИЗМЕНЕНО: flex-grow позволяет растягиваться */
+    flex-grow: 1;
+    /* ИЗМЕНЕНО: flex-shrink: 0; (оставляем, чтобы не сжимались) */
+    flex-shrink: 0; 
+    
+    background-color: var(--color-sidebar);
+    border: 2px solid var(--color-border-dark);
+    padding: 8px 10px; 
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 0.9em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+}
+
+/* ИСПРАВЛЕНИЕ: Убираем pointer-events: none; отсюда */
+.mini-games-nav-item .nav-game-icon {
+    /* pointer-events: none; */
+}
+
+
+/* Адаптация скролла для мобильных */
+@media (max-width: 768px) {
+    .mini-games-nav-container {
+        padding: 0 10px;
+    }
+    .mini-games-nav {
+        padding: 0; 
+    }
+    .mini-games-nav-item {
+        /* ИЗМЕНЕНО: Базовая ширина 100px, растягиваем */
+        flex-basis: 100px;
+        flex-grow: 1;
+        font-size: 0.8em;
+        gap: 5px;
+        padding: 8px 5px;
+    }
+}
+/* === КОНЕЦ СТИЛЕЙ СЛРОЛЛА МИНИ-ИГР === */

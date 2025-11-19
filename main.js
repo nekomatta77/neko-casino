@@ -1,12 +1,9 @@
 /*
- * Краткое описание апгрейда:
- * 1. **ИСПРАВЛЕНИЕ ОШИБКИ ИМПОРТА**: Удален 'updateBalanceDisplay' из импорта global.js.
- * Это устраняет ошибку "does not provide an export named...", из-за которой сайт не загружался.
+ * main.js
+ * Default theme is now Light
  */
 
-// --- ИЗМЕНЕНО: Убран updateBalanceDisplay из импорта ---
 import { showSection, currentUser, fetchUser } from './global.js'; 
-
 import { initMines } from './mines.js';
 import { initDice } from './dice.js';
 import { initCrash } from './crash.js'; 
@@ -19,6 +16,24 @@ import { initProfile, updateProfileData } from './profile.js';
 import { initCustomize } from './customize.js';
 import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
+
+/**
+ * Вспомогательная функция для применения темы до полной загрузки JS.
+ * Default: Light Mode (style4 disabled).
+ */
+function applySavedTheme() {
+    const themeStyle = document.getElementById('theme-style');
+    const currentTheme = localStorage.getItem('cashcat_theme'); // Может быть null
+    
+    if (themeStyle) {
+        if (currentTheme === 'dark') {
+            themeStyle.disabled = false; // Включаем темный
+        } else {
+            // Если 'light' или null (первый вход) -> отключаем темный (Light default)
+            themeStyle.disabled = true; 
+        }
+    }
+}
 
 function getRankIndex(dbRank) {
     switch (dbRank) {
@@ -36,21 +51,18 @@ function getRankIndex(dbRank) {
 
 async function updateRanksDisplay() {
     let targetIndex = 0; 
-
     if (currentUser) {
         try {
             const userData = await fetchUser(currentUser);
             const dbRank = userData?.rank || 'None Rang';
             targetIndex = getRankIndex(dbRank);
         } catch (error) {
-            console.error("Ошибка при загрузке ранга:", error);
+            console.error("Rank load error:", error);
             targetIndex = 0; 
         }
     }
-
     const rankCards = document.querySelectorAll('#ranks-page .rank-card-wrapper');
     if (rankCards.length === 0) return;
-
     rankCards.forEach((card, index) => {
         card.classList.remove('current', 'achieved', 'locked');
         if (index < targetIndex) {
@@ -65,14 +77,13 @@ async function updateRanksDisplay() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     
+    applySavedTheme(); // Apply theme ASAP
+
     const loaderOverlay = document.getElementById('loader-overlay');
     const loaderBar = document.getElementById('loader-bar');
-
     if (loaderBar) loaderBar.style.width = '20%';
     
-    // --- БЕЗОПАСНЫЙ ЗАПУСК ---
     try {
-        // Инициализация всех модулей
         try { initMines(); } catch(e){ console.error("Mines init failed", e); }
         try { initDice(); } catch(e){ console.error("Dice init failed", e); }
         try { initCrash(); } catch(e){ console.error("Crash init failed", e); }
@@ -88,7 +99,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (loaderBar) loaderBar.style.width = '60%';
         
-        // Сайдбар
         const openSidebarButton = document.getElementById('open-sidebar-button');
         const openSidebarButtonText = document.getElementById('open-sidebar-button-text');
         const sidebarNav = document.getElementById('sidebar-nav');
@@ -116,7 +126,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (target === 'admin-page') updateAdminData();
                     if (target === 'ranks-page') updateRanksDisplay();
                     if (target === 'bonus-page') updateBonusPage();
-                    
                     showSection(target);
                     toggleSidebar(); 
                 }
@@ -128,7 +137,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.addEventListener('click', (event) => {
                 const currentItem = event.currentTarget;
                 const target = currentItem.getAttribute('data-target');
-                
                 if (target) { 
                     if (target === 'bonus-page') updateBonusPage();
                     if (target === 'ref-page') updateReferralData();
@@ -172,15 +180,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
-        // Проверка логина в самом конце
         await checkLoginState(); 
 
     } catch (error) {
-        console.error("CRITICAL INIT ERROR:", error);
+        console.error("INIT ERROR:", error);
     } finally {
-        // --- ГАРАНТИРОВАННО УБИРАЕМ ЗАГРУЗЧИК ---
         if (loaderBar) loaderBar.style.width = '100%';
-        
         setTimeout(() => {
             if (loaderOverlay) {
                 loaderOverlay.style.opacity = '0';

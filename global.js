@@ -88,9 +88,23 @@ export async function fetchUser(username, updateGlobal = false) {
             setLocalWager(localWagerBalance);
             
             if (data.customization) {
+                // Применяем аватар/рамку
                 import('./customize.js').then(module => {
                     module.applyCustomization(data.customization);
                 }).catch(err => console.log("Customize load err", err));
+                
+                // --- ЛОГИКА ТЕМЫ (DB Sync) ---
+                const themeStyle = document.getElementById('theme-style');
+                if (themeStyle && data.customization.theme) {
+                    const dbTheme = data.customization.theme;
+                    if (dbTheme === 'light') {
+                        themeStyle.disabled = true;
+                    } else {
+                        themeStyle.disabled = false;
+                    }
+                    // Синхронизируем localStorage с БД
+                    localStorage.setItem('cashcat_theme', dbTheme);
+                }
             }
         }
 

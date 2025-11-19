@@ -7,7 +7,8 @@
     
     <link rel="stylesheet" href="style.css?v=2.2">
     <link rel="stylesheet" href="style2.css?v=1.0">
-    <link rel="stylesheet" href="style3.css?v=3.8">
+    <link rel="stylesheet" href="style3.css?v=3.16">
+    <link rel="stylesheet" href="darkstyle.css?v=4.2" id="theme-style" disabled> 
 </head>
 <body>
 
@@ -63,7 +64,7 @@
             <section id="lobby" class="page-section active full-width-lobby">
                 
                 <header class="lobby-header">
-                    <p class="game-list-title">Список игр</p>
+                    <p class="game-list-title">Оригинальные игры CashCat</p>
                     
                 </header>
                 
@@ -199,56 +200,54 @@
                 <div class="mines-game-container">
                     
                     <div id="mines-multipliers-bar" class="mines-multipliers-bar">
-                        </div>
+                    </div>
 
                     <div class="mines-grid-wrapper">
                         <div id="mines-grid" class="mines-grid">
-                            </div>
+                        </div>
                     </div>
                     
-                    <div id="mines-status" class="mines-status-bar"></div>
+                    <div id="mines-status" class="keno-status-bar"></div>
 
-                    <div class="mines-controls-panel">
+                    <div class="keno-controls-ref-style">
                         
-                        <div class="mines-action-buttons">
-                            <button id="mines-start-button" class="primary-button full-width">Начать игру</button>
-                            <button id="mines-cashout-button" class="primary-button full-width hidden">Забрать</button>
+                        <div class="keno-play-row">
+                            <button id="mines-main-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
                         </div>
 
-                        <div class="mines-controls">
-                            
-                            <div class="mines-input-group">
-                                <label for="mines-bet">Сумма ставки (RUB)</label>
-                                <div class="bet-input-group">
-                                    <input type="number" id="mines-bet" value="10.00" min="1.00" step="0.01">
-                                    <div class="bet-actions">
-                                        <button class="bet-half">½</button>
-                                        <button class="bet-double">x2</button>
-                                    </div>
-                                </div>
-                                <div class="bet-actions-secondary">
-                                    <button class="bet-min">Мин</button>
-                                    <button class="bet-max">Макс</button>
-                                </div>
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="mines-bet" value="10" min="1" step="1">
                             </div>
-                            
-                            <label for="mines-count-input">Количество бомб</label>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+
+                        <div class="mines-count-row">
+                            <label class="mines-count-label">Количество мин</label>
                             <div class="mines-count-selector">
+                                <button class="mines-count-btn active" data-count="3">3</button>
                                 <button class="mines-count-btn" data-count="5">5</button>
                                 <button class="mines-count-btn" data-count="10">10</button>
-                                <button class="mines-count-btn" data-count="15">15</button>
                                 <button class="mines-count-btn" data-count="24">24</button>
-                                <input type="number" id="mines-count-input" min="1" max="24" value="3">
+                                <div class="keno-input-wrapper mines-custom-input">
+                                    <input type="number" id="mines-count-input" min="1" max="24" value="3">
+                                </div>
                             </div>
                         </div>
                         
-                        </div>
+                    </div>
                     
-                </div>
-                <div class="per-game-history-container">
-                    <h3>История игр</h3>
-                    <ul id="mines-history-list" class="per-game-history-list">
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="mines-history-list" class="per-game-history-list">
                         </ul>
+                    </div>
+
                 </div>
             </section>
             
@@ -256,102 +255,68 @@
                 <div class="crash-game-container">
                     
                     <div class="crash-graph-wrapper">
-                        
                         <div id="crash-multiplier-display">1.00x</div>
-                        
                         <canvas id="crash-canvas"></canvas>
-                        
                     </div>
                     
-                    <div id="crash-status" class="crash-status-bar"></div>
+                    <div id="crash-status" class="keno-status-bar"></div>
 
-                    <div class="crash-controls-panel">
-                        <div class="crash-controls">
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="crash-auto-row-styled">
+                            <div class="crash-auto-label-group">
+                                <span class="crash-label-title">Авто-вывод</span>
+                                <label class="switch-toggle">
+                                    <input type="checkbox" id="crash-auto-cashout-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
                             
-                            <div class="crash-auto-bet-wrapper">
-                                
-                                <div class="auto-cashout-group">
-                                    <label for="crash-auto-cashout-toggle">Авто-вывод</label> <div class="auto-cashout-input-wrapper">
-                                        <input type="number" id="crash-auto-cashout-input" value="2.00" min="1.01" step="0.01">
-                                        <input type="checkbox" id="crash-auto-cashout-toggle" class="toggle-checkbox">
-                                        <label for="crash-auto-cashout-toggle" class="toggle-label"></label>
-                                    </div>
-                                </div>
-                                
-                                <div class="bet-input-group crash-bet-group">
-                                    <label for="crash-bet">Сумма ставки (RUB)</label>
-                                    
-                                    <input type="number" id="crash-bet" value="10.00" min="1.00" step="0.01">
-                                    
-                                    <div class="bet-actions-grid"> 
-                                        <button class="bet-double">X2</button> 
-                                        <button class="bet-half">1/2</button> 
-                                        <button class="bet-min">Мин</button> 
-                                        <button class="bet-max">Макс</button> 
-                                    </div>
-                                    
-                                    </div>
+                            <div class="keno-input-wrapper crash-auto-input-box">
+                                <span class="currency-icon">x</span>
+                                <input type="number" id="crash-auto-cashout-input" value="2.00" min="1.01" step="0.01" disabled>
                             </div>
                         </div>
-                        
-                        <div class="crash-action-buttons">
-                            <button id="crash-start-button" class="primary-button full-width">Начать игру</button>
-                            <button id="crash-cashout-button" class="primary-button full-width hidden secondary-button">Забрать</button>
+
+                        <div class="keno-play-row">
+                            <button id="crash-main-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
                         </div>
-                        
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="crash-bet" value="10" min="1" step="1">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
                         </div>
-                </div>
-                
-                <div class="per-game-history-container">
-                    <h3>История игр</h3>
-                    <ul id="crash-history-list" class="per-game-history-list">
+
+                    </div>
+
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="crash-history-list" class="per-game-history-list">
                         </ul>
+                    </div>
                 </div>
             </section>
 
             <section id="coin-game" class="page-section hidden">
                 <div class="coin-game-container">
                     <div class="coin-multipliers-bar">
-                        <div class="coin-multiplier-item" data-level="1">
-                            <span class="level">1</span>
-                            <span class="value">1.8x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="2">
-                            <span class="level">2</span>
-                            <span class="value">3.6x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="3">
-                            <span class="level">3</span>
-                            <span class="value">5.4x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="4">
-                            <span class="level">4</span>
-                            <span class="value">7.2x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="5">
-                            <span class="level">5</span>
-                            <span class="value">9.0x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="6">
-                            <span class="level">6</span>
-                            <span class="value">10.8x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="7">
-                            <span class="level">7</span>
-                            <span class="value">12.6x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="8">
-                            <span class="level">8</span>
-                            <span class="value">14.4x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="9">
-                            <span class="level">9</span>
-                            <span class="value">16.2x</span>
-                        </div>
-                        <div class="coin-multiplier-item" data-level="10">
-                            <span class="level">10</span>
-                            <span class="value">18.0x</span>
-                        </div>
+                        <div class="coin-multiplier-item" data-level="1"><span class="level">1</span><span class="value">1.8x</span></div>
+                        <div class="coin-multiplier-item" data-level="2"><span class="level">2</span><span class="value">3.6x</span></div>
+                        <div class="coin-multiplier-item" data-level="3"><span class="level">3</span><span class="value">5.4x</span></div>
+                        <div class="coin-multiplier-item" data-level="4"><span class="level">4</span><span class="value">7.2x</span></div>
+                        <div class="coin-multiplier-item" data-level="5"><span class="level">5</span><span class="value">9.0x</span></div>
+                        <div class="coin-multiplier-item" data-level="6"><span class="level">6</span><span class="value">10.8x</span></div>
+                        <div class="coin-multiplier-item" data-level="7"><span class="level">7</span><span class="value">12.6x</span></div>
+                        <div class="coin-multiplier-item" data-level="8"><span class="level">8</span><span class="value">14.4x</span></div>
+                        <div class="coin-multiplier-item" data-level="9"><span class="level">9</span><span class="value">16.2x</span></div>
+                        <div class="coin-multiplier-item" data-level="10"><span class="level">10</span><span class="value">18.0x</span></div>
                     </div>
 
                     <div class="coin-display-wrapper">
@@ -364,36 +329,40 @@
                             </div>
                         </div>
                     </div>
-                    <div id="coin-status" class="coin-status-bar"></div>
+                    <div id="coin-status" class="keno-status-bar"></div>
 
-                    <div class="coin-controls-panel">
+                    <div class="keno-controls-ref-style">
                         
-                        <button id="coin-start-button" class="primary-button">Начать игру</button>
-                        
-                        <div id="coin-choice-buttons" class="coin-choice-buttons hidden">
-                            <button class="coin-choice-button" id="coin-choice-orel" data-choice="orel">Орел</button>
-                            <button class="coin-choice-button" id="coin-choice-reshka" data-choice="reshka">Решка</button>
-                        </div>
-                        
-                        <button id="coin-cashout-button" class="primary-button full-width hidden secondary-button">Забрать</button>
+                        <div class="keno-play-row">
+                            <button id="coin-start-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
 
-                        <div id="coin-bet-controls" class="mines-input-group">
-                            <label for="coin-bet">Сумма ставки (RUB)</label>
-                            
-                            <div class="bet-input-group">
-                                <input type="number" id="coin-bet" value="10.00" min="1.00" step="0.01">
-                                <div class="bet-actions">
-                                    <button class="bet-half">½</button>
-                                    <button class="bet-double">x2</button>
-                                </div>
+                            <div id="coin-choice-buttons" class="coin-choice-wrapper hidden">
+                                <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-orel" data-choice="orel">
+                                    <img src="assets/coin_eagle.png" alt="Орел">
+                                </button>
+                                <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-reshka" data-choice="reshka">
+                                    <img src="assets/coin_noteagle.png" alt="Решка">
+                                </button>
                             </div>
-                            
-                            <div class="bet-actions-secondary">
-                                <button class="bet-min">Мин</button>
-                                <button class="bet-max">Макс</button>
+
+                            <button id="coin-cashout-button" class="keno-big-play-btn full-width hidden" style="background: linear-gradient(90deg, #00A878, #00D699); box-shadow: 0 3px 0 #007550;">
+                                ЗАБРАТЬ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="coin-bet" value="10" min="1" step="1">
                             </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
                         </div>
-                        </div>
+
+                    </div>
 
                     <div class="per-game-history-container">
                         <h3>История игр</h3>
@@ -880,6 +849,10 @@
                 
                 <div class="profile-container">
                     
+                    <button id="theme-toggle-btn" class="auth-button" style="margin-bottom: 15px;">
+                        🌙 Темная тема
+                    </button>
+
                     <div class="profile-box wager-box">
                         <span>Для вывода нужно отыграть:</span>
                         <span id="profile-wager-amount">0.00</span>
@@ -1523,6 +1496,6 @@
     </nav>
     <div class="bottom-nav-safe-area"></div>
 
-    <script type="module" src="main.js?v=2.1"></script> 
+    <script type="module" src="main.js?v=2.2"></script> 
 </body>
 </html>
