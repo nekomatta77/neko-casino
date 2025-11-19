@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: НОВЫЙ ДИЗАЙН ПАНЕЛИ)
+ * (ИЗМЕНЕНО: DECIMAL BETS)
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -10,45 +10,66 @@ let currentLevel = 0;
 let currentPayout = 0.00; 
 let isFlipping = false; 
 
-const MULTIPLIERS = [
-    1.8, 3.6, 5.4, 7.2, 9.0, 10.8, 12.6, 14.4, 16.2, 18.0, 
-    19.8, 21.6, 23.4, 25.2, 27.0, 28.8, 30.6, 32.4, 34.2, 36.0, 
-    37.8, 39.6, 41.4, 43.2, 45.0, 46.8, 48.6, 50.4, 52.2, 54.0, 
-    55.8, 57.6, 59.4, 61.2, 63.0, 64.8, 66.6, 68.4, 70.2, 72.0, 
-    73.8, 75.6, 77.4, 79.2, 81.0, 82.8, 84.6, 86.4, 88.2, 90.0  
-];
+const MULTIPLIERS = Array.from({ length: 30 }, (_, i) => ((i + 1) * 1.80).toFixed(2));
 
 // --- ЭЛЕМЕНТЫ DOM ---
 let betInput, choiceOrelBtn, choiceReshkaBtn, cashoutBtn, choiceWrapper, statusElement, coinFlipper, startButton;
 let betHalfBtn, betDoubleBtn;
+
+function renderCoinMultipliers() {
+    const bar = document.querySelector('.coin-multipliers-bar');
+    if (!bar) return;
+    bar.innerHTML = ''; 
+    MULTIPLIERS.forEach((mult, index) => {
+        const level = index + 1;
+        const item = document.createElement('div');
+        item.classList.add('coin-multiplier-item');
+        item.setAttribute('data-level', level);
+        item.innerHTML = `
+            <span class="coin-step-label">ШАГ ${level}</span>
+            <span class="value">${mult}x</span>
+        `;
+        bar.appendChild(item);
+    });
+}
 
 function updateControlsUI() {
     const betInputRow = document.querySelector('#coin-game .keno-bet-input-row');
     
     if (isGameActive) {
         // Игра идет:
-        startButton.classList.add('hidden'); // Скрываем старт
-        
-        if (currentLevel === 0) {
-            // Начало игры: показываем выбор
-            choiceWrapper.classList.remove('hidden');
-            cashoutBtn.classList.add('hidden');
-        } else {
-            // Уровень > 0: показываем выбор И кнопку забрать
-            choiceWrapper.classList.remove('hidden');
-            cashoutBtn.classList.remove('hidden');
-            cashoutBtn.textContent = `ЗАБРАТЬ (${currentPayout.toFixed(2)} ₽)`;
-        }
+        startButton.classList.add('hidden');
         
         // Блокируем инпут ставки
         if(betInputRow) betInputRow.style.pointerEvents = 'none';
         if(betInputRow) betInputRow.style.opacity = '0.5';
+        
+        if (currentLevel === 0) {
+            // СТАРТ ИГРЫ (0 побед):
+            choiceWrapper.classList.remove('hidden');
+            
+            // ВАЖНО: Скрываем кнопку "Забрать", она недоступна на 0 шаге
+            cashoutBtn.classList.add('hidden'); 
+            cashoutBtn.disabled = true; 
+        } else {
+            // ЕСТЬ ПОБЕДА (currentLevel > 0):
+            choiceWrapper.classList.remove('hidden');
+            
+            // ВАЖНО: Показываем кнопку "Забрать"
+            cashoutBtn.classList.remove('hidden');
+            cashoutBtn.disabled = false; 
+            
+            cashoutBtn.innerHTML = `ЗАБРАТЬ<br><span style="font-size: 0.9em;">${currentPayout.toFixed(2)} RUB</span>`;
+        }
 
     } else {
-        // Игра не идет:
-        startButton.classList.remove('hidden'); // Показываем старт
-        choiceWrapper.classList.add('hidden');  // Скрываем выбор
-        cashoutBtn.classList.add('hidden');     // Скрываем забрать
+        // ИГРА НЕ ИДЕТ:
+        startButton.classList.remove('hidden'); 
+        choiceWrapper.classList.add('hidden');
+        
+        // Скрываем и блокируем кнопку "Забрать"
+        cashoutBtn.classList.add('hidden');     
+        cashoutBtn.disabled = true;
         
         // Разблокируем инпут
         if(betInputRow) betInputRow.style.pointerEvents = 'auto';
@@ -59,15 +80,18 @@ function updateControlsUI() {
         updateMultiplierHighlight();
     }
     
-    // Блокировка во время анимации
+    // Блокировка во время анимации монетки
     if (isFlipping) {
         choiceWrapper.style.pointerEvents = 'none';
         choiceWrapper.style.opacity = 0.5;
-        cashoutBtn.disabled = true;
-    } else {
+        cashoutBtn.disabled = true; // Блокируем "Забрать" во время анимации
+    } else if (isGameActive && currentLevel > 0) {
         choiceWrapper.style.pointerEvents = 'auto';
         choiceWrapper.style.opacity = 1;
-        cashoutBtn.disabled = false;
+        cashoutBtn.disabled = false; // Разблокируем после анимации, если есть выигрыш
+    } else if (isGameActive) {
+        choiceWrapper.style.pointerEvents = 'auto';
+        choiceWrapper.style.opacity = 1;
     }
 }
 
@@ -100,7 +124,6 @@ function handleStartGame() {
         return;
     }
     
-    // Списываем ставку сразу при старте
     updateBalance(-currentBet);
     reduceWager(currentBet);
     
@@ -116,12 +139,9 @@ function handleStartGame() {
 async function handleChoice(e) {
     if (isFlipping || !isGameActive) return; 
 
-    // Если это первый ход (currentLevel === 0), игра уже активна (нажата Start), ставка списана
-    // Просто запускаем флип
-    
     const choice = e.currentTarget.getAttribute('data-choice'); 
     isFlipping = true;
-    updateControlsUI(); 
+    updateControlsUI(); // Блокирует кнопки
     
     const result = Math.random() < 0.5 ? 'orel' : 'reshka';
     
@@ -136,7 +156,7 @@ async function handleChoice(e) {
                 return;
             }
             
-            const currentMultiplier = MULTIPLIERS[currentLevel - 1];
+            const currentMultiplier = parseFloat(MULTIPLIERS[currentLevel - 1]);
             currentPayout = currentBet * currentMultiplier;
             
             statusElement.textContent = `Вы угадали! (x${currentMultiplier.toFixed(2)})`;
@@ -161,7 +181,7 @@ async function handleChoice(e) {
         }
         
         isFlipping = false;
-        updateControlsUI(); 
+        updateControlsUI(); // Разблокирует и обновит
         updateMultiplierHighlight();
     });
 }
@@ -169,7 +189,7 @@ async function handleChoice(e) {
 async function handleCashout() {
     if (isFlipping || !isGameActive) return;
 
-    const finalMultiplier = MULTIPLIERS[currentLevel - 1] || 0;
+    const finalMultiplier = parseFloat(MULTIPLIERS[currentLevel - 1] || 0);
     const netProfit = currentPayout - currentBet;
 
     updateBalance(currentPayout);
@@ -220,6 +240,8 @@ export function initCoin() {
     betHalfBtn = document.querySelector('#coin-game .bet-half');
     betDoubleBtn = document.querySelector('#coin-game .bet-double');
 
+    renderCoinMultipliers();
+
     if (!startButton) return; 
     
     startButton.addEventListener('click', handleStartGame);
@@ -233,7 +255,8 @@ export function initCoin() {
         betHalfBtn.addEventListener('click', () => {
             if(isGameActive) return;
             let currentVal = parseFloat(betInput.value) || 0;
-            betInput.value = Math.max(1.00, currentVal / 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            betInput.value = Math.max(1.00, currentVal / 2).toFixed(2);
         });
     }
 
@@ -241,9 +264,13 @@ export function initCoin() {
         betDoubleBtn.addEventListener('click', () => {
             if(isGameActive) return;
             let currentVal = parseFloat(betInput.value) || 0;
-            betInput.value = Math.min(currentBalance, currentVal * 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            betInput.value = Math.min(currentBalance, currentVal * 2).toFixed(2);
         });
     }
     
+    // Принудительный сброс при инициализации
+    isGameActive = false;
+    currentLevel = 0;
     updateControlsUI();
 }

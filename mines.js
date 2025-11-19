@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: НОВЫЙ ДИЗАЙН ИНТЕРФЕЙСА)
+ * (ИЗМЕНЕНО: ДОБАВЛЕНА ЛОГИКА КНОПКИ "ОТМЕНИТЬ", DECIMAL BETS)
  */
 import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -85,8 +85,16 @@ function updateMultipliersBarUI() {
 
 async function handleMainAction() {
     if (isGameActive) {
-        await cashoutGame();
+        // Если игра идет
+        if (revealedCount === 0) {
+            // Если ничего не открыто -> ОТМЕНИТЬ
+            await cancelGame();
+        } else {
+            // Если что-то открыто -> ЗАБРАТЬ
+            await cashoutGame();
+        }
     } else {
+        // Если игра не идет -> НАЧАТЬ
         await startGame();
     }
 }
@@ -115,6 +123,7 @@ async function startGame() {
     revealedCount = 0;
     
     updateBalance(-currentBet);
+    // reduceWager(currentBet); 
     reduceWager(currentBet);
     
     createMinesGrid(); 
@@ -133,9 +142,25 @@ async function startGame() {
     });
 }
 
-function updateMinesUI() {
-    const controls = document.querySelector('.mines-controls'); // Old styling reference, kept for safety
+// Функция ОТМЕНЫ игры (возврат ставки)
+async function cancelGame() {
+    if (!isGameActive || revealedCount > 0) return;
+
+    isGameActive = false;
+    // Возвращаем ставку
+    updateBalance(currentBet);
     
+    const statusElement = document.getElementById('mines-status');
+    statusElement.textContent = 'Ставка возвращена';
+    
+    updateMinesUI();
+    
+    // Сброс сетки
+    createMinesGrid(); 
+}
+
+
+function updateMinesUI() {
     // Блокировка инпутов
     const inputs = document.querySelectorAll('#mines-game input, #mines-game .mines-count-btn, #mines-game .bet-half, #mines-game .bet-double');
     inputs.forEach(el => el.disabled = isGameActive);
@@ -143,18 +168,27 @@ function updateMinesUI() {
     updateMultipliersBarUI();
 
     if (isGameActive) {
-        const currentTotalMultiplier = getMultiplierForSafeCells(revealedCount, currentMines);
-        const currentPayout = currentBet * currentTotalMultiplier;
-        
-        mainButton.textContent = `ЗАБРАТЬ (${currentPayout.toFixed(2)} ₽)`;
-        mainButton.classList.add('cashout-mode');
-        
-        // Кнопка "Забрать" активна только если открыта хотя бы 1 ячейка
-        mainButton.disabled = (revealedCount === 0);
+        if (revealedCount === 0) {
+            // ВАРИАНТ 3: ИГРА ИДЕТ, НО ЯЧЕЙКИ НЕ ОТКРЫТЫ -> ОТМЕНИТЬ
+            mainButton.textContent = `ОТМЕНИТЬ`;
+            mainButton.classList.remove('cashout-mode');
+            mainButton.classList.add('cancel-mode');
+            mainButton.disabled = false; 
+        } else {
+            // ВАРИАНТ 2: ИГРА ИДЕТ, ЯЧЕЙКИ ОТКРЫТЫ -> ЗАБРАТЬ
+            const currentTotalMultiplier = getMultiplierForSafeCells(revealedCount, currentMines);
+            const currentPayout = currentBet * currentTotalMultiplier;
+            
+            mainButton.textContent = `ЗАБРАТЬ (${currentPayout.toFixed(2)} ₽)`;
+            mainButton.classList.remove('cancel-mode');
+            mainButton.classList.add('cashout-mode');
+            mainButton.disabled = false;
+        }
         
     } else {
+        // ВАРИАНТ 1: ИГРА НЕ ИДЕТ -> НАЧАТЬ
         mainButton.textContent = `НАЧАТЬ ИГРУ`;
-        mainButton.classList.remove('cashout-mode');
+        mainButton.classList.remove('cashout-mode', 'cancel-mode');
         mainButton.disabled = false;
     }
 }
@@ -351,7 +385,8 @@ export function initMines() {
             if(isGameActive) return;
             let currentVal = parseFloat(betInput.value);
             if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.max(1.00, currentVal / 2).toFixed(0); 
+            // ИЗМЕНЕНО: toFixed(2)
+            let newVal = Math.max(1.00, currentVal / 2).toFixed(2); 
             betInput.value = newVal;
             currentBet = newVal; 
         });
@@ -362,7 +397,8 @@ export function initMines() {
             if(isGameActive) return;
             let currentVal = parseFloat(betInput.value);
             if (isNaN(currentVal)) currentVal = 0;
-            let newVal = Math.min(currentBalance, currentVal * 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            let newVal = Math.min(currentBalance, currentVal * 2).toFixed(2);
             betInput.value = newVal;
             currentBet = newVal; 
         });

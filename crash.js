@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: НОВЫЙ ДИЗАЙН ИНТЕРФЕЙСА)
+ * (ИЗМЕНЕНО: DECIMAL BETS)
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -380,14 +380,16 @@ export function initCrash() {
         betHalfBtn.addEventListener('click', () => {
             if(isGameRunning) return;
             let val = parseFloat(betInput.value) || 0;
-            betInput.value = Math.max(1.00, val / 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            betInput.value = Math.max(1.00, val / 2).toFixed(2);
         });
     }
     if (betDoubleBtn) {
         betDoubleBtn.addEventListener('click', () => {
             if(isGameRunning) return;
             let val = parseFloat(betInput.value) || 0;
-            betInput.value = Math.min(currentBalance, val * 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            betInput.value = Math.min(currentBalance, val * 2).toFixed(2);
         });
     }
 }

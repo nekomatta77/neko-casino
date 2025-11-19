@@ -1,5 +1,5 @@
 /*
- * (ИЗМЕНЕНО: УДАЛЕНА ЛОГИКА ТУРБО ИЗ АВТО-РЕЖИМА)
+ * (ИЗМЕНЕНО: DECIMAL BETS)
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager } from './global.js';
 
@@ -421,13 +421,15 @@ function setupBetActions(inputEl, halfBtn, doubleBtn) {
     if (halfBtn) {
         halfBtn.addEventListener('click', () => {
             let val = parseFloat(inputEl.value) || 0;
-            inputEl.value = Math.max(1.00, val / 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            inputEl.value = Math.max(1.00, val / 2).toFixed(2);
         });
     }
     if (doubleBtn) {
         doubleBtn.addEventListener('click', () => {
             let val = parseFloat(inputEl.value) || 0;
-            inputEl.value = Math.min(currentBalance, val * 2).toFixed(0);
+            // ИЗМЕНЕНО: toFixed(2)
+            inputEl.value = Math.min(currentBalance, val * 2).toFixed(2);
         });
     }
 }

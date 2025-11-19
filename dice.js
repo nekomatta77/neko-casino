@@ -159,6 +159,8 @@ async function rollDice(rollType) {
 
     const rollRaw = Math.floor(Math.random() * 1000000);
     const rollDisplay = rollRaw.toString().padStart(6, '0'); 
+    // Показываем число сразу
+    document.getElementById('dice-result-number').textContent = rollDisplay;
 
     let win = false;
     let targetNumber;
@@ -197,7 +199,8 @@ async function rollDice(rollType) {
         betData.multiplier = `${multiplier.toFixed(2)}x`;
 
     } else {
-        statusElement.textContent = `Проигрыш ${bet.toFixed(2)} RUB`; 
+        // ИЗМЕНЕНО: Показываем выпавшее число при проигрыше
+        statusElement.textContent = `Выпало: ${rollDisplay}`; 
         statusElement.classList.add('loss');
 
         betData.amount = -bet;

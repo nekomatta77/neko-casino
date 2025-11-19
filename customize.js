@@ -1,8 +1,9 @@
 /*
- * (ИЗМЕНЕНО: МИГРАЦИЯ SUPABASE)
+ * (ИЗМЕНЕНО: ФИКС ФОНА В DARK MODE - ПРИОРИТЕТ СТИЛЕЙ)
  * 1. Удалена логика Firebase paths ('customization/avatar').
  * 2. Реализован паттерн "Fetch -> Merge -> Update Full Object" для корректной работы с JSONB в Supabase.
  * 3. updateColorGridSelection теперь безопасен для null значений.
+ * 4. applyStyleToProfileBox теперь использует setProperty(..., 'important'), чтобы пробивать темную тему.
  */
 
 import { currentUser, patchUser, fetchUser } from './global.js';
@@ -29,7 +30,6 @@ async function updateCustomizationProperty(username, key, value) {
     };
     
     // 4. Отправляем ВЕСЬ объект кастомизации обратно
-    // (В global.js функция patchUser должна делать: update({ customization: newCustomization }))
     return await patchUser(username, { customization: newCustomization });
 }
 
@@ -47,28 +47,35 @@ function hideCustomizeModal() {
 }
 
 function applyStyleToProfileBox(key, value) {
+    // Обновляем селекторы, если они вдруг потерялись
+    if (!headerProfileBoxes || headerProfileBoxes.length === 0) {
+        headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
+    }
+
     if (key === 'border') {
-        const borderStyle = (value === 'none') 
-            ? 'none' 
-            : `3px solid ${value}`; 
-        
         headerProfileBoxes.forEach(box => {
-            box.style.border = borderStyle;
-            if (value !== 'none') {
-                 box.style.padding = '5px 8px';
+            if (value === 'none' || !value) {
+                // Сбрасываем на дефолт (удаляем инлайн стиль)
+                // CSS сам подставит дефолтную рамку из style.css/style4.css
+                box.style.removeProperty('border');
+                box.style.removeProperty('padding'); // Сброс паддинга к дефолту
             } else {
-                 box.style.padding = '6px 12px';
+                // Ставим кастомную рамку с приоритетом
+                box.style.setProperty('border', `3px solid ${value}`, 'important');
+                // Корректируем паддинг для толстой рамки
+                box.style.padding = '5px 8px'; 
             }
         });
 
     } else if (key === 'background') {
-        const bgStyle = (value === 'none') ? '' : value;
-            
         headerProfileBoxes.forEach(box => {
-            if (value === 'none') {
-                box.style.backgroundColor = 'var(--balance-info-bg)';
+            if (value === 'none' || !value) {
+                // СБРОС: Удаляем инлайн-стиль полностью.
+                // Это позволит CSS-файлам (darkstyle.css или style.css) применить правильный дефолтный фон.
+                box.style.removeProperty('background-color');
             } else {
-                box.style.backgroundColor = bgStyle;
+                // УСТАНОВКА: Используем 'important', чтобы перебить !important в darkstyle.css
+                box.style.setProperty('background-color', value, 'important');
             }
         });
     }
@@ -120,7 +127,7 @@ async function handleColorSelect(e) {
 export function applyCustomization(customs) {
     const data = customs || {}; 
     
-    if (!headerAvatars) {
+    if (!headerAvatars || headerAvatars.length === 0) {
         headerAvatars = document.querySelectorAll('.header-avatar-img');
         headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
     }

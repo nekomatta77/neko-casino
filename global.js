@@ -1,6 +1,6 @@
 /*
  * GLOBAL.JS - SUPABASE EDITION
- * Основной файл логики и взаимодействия с БД.
+ * (ИЗМЕНЕНО: ОПТИМИЗАЦИЯ ПЕРЕХОДОВ - МГНОВЕННЫЙ ОТКЛИК)
  */
 
 // Инициализация Supabase
@@ -88,12 +88,10 @@ export async function fetchUser(username, updateGlobal = false) {
             setLocalWager(localWagerBalance);
             
             if (data.customization) {
-                // Применяем аватар/рамку
                 import('./customize.js').then(module => {
                     module.applyCustomization(data.customization);
                 }).catch(err => console.log("Customize load err", err));
                 
-                // --- ЛОГИКА ТЕМЫ (DB Sync) ---
                 const themeStyle = document.getElementById('theme-style');
                 if (themeStyle && data.customization.theme) {
                     const dbTheme = data.customization.theme;
@@ -102,7 +100,6 @@ export async function fetchUser(username, updateGlobal = false) {
                     } else {
                         themeStyle.disabled = false;
                     }
-                    // Синхронизируем localStorage с БД
                     localStorage.setItem('cashcat_theme', dbTheme);
                 }
             }
@@ -306,8 +303,11 @@ function renderHistoryList(bets, type) {
             const isWin = bet.profit_amount >= 0;
             const winClass = isWin ? 'win' : 'loss';
             
-            let displayAmount = isWin ? `+${(bet.bet_amount + bet.profit_amount).toFixed(2)}` : `0.00`;
+            const totalWin = bet.bet_amount + bet.profit_amount;
+            const displayAmountVal = isWin ? `+${totalWin.toFixed(2)}` : `0.00`;
             
+            let displayAmountRecent = `${displayAmountVal} RUB`;
+
             let gameIconSrc = 'assets/dice_icon.png';
             if (bet.game === 'mines') gameIconSrc = 'assets/mine_icon.png';
             else if (bet.game === 'crash') gameIconSrc = 'assets/crash_icon.png';
@@ -323,7 +323,10 @@ function renderHistoryList(bets, type) {
                                 <span class="history-user">${bet.username}</span>
                                 <span class="history-multiplier-tag">${bet.multiplier}</span>
                             </div>
-                            <span class="history-amount win">${displayAmount} RUB</span>
+                            <span class="history-amount win">
+                                ${displayAmountVal}
+                                <span class="high-win-currency">RUB</span>
+                            </span>
                         </div>
                     </li>
                 `;
@@ -333,7 +336,7 @@ function renderHistoryList(bets, type) {
                          <span class="history-cell user">${bet.username}</span>
                          <span class="history-cell bet">${bet.bet_amount.toFixed(2)}</span>
                          <span class="history-cell multiplier">${bet.multiplier || '-'}</span>
-                         <span class="history-cell payout">${displayAmount}</span>
+                         <span class="history-cell payout">${displayAmountRecent}</span>
                     </li>
                 `;
             }
@@ -360,29 +363,30 @@ export async function activatePromocode(code) { return {success:true}; }
 
 // === ВОТ ЗДЕСЬ ОБНОВЛЕННАЯ ЛОГИКА ===
 export function showSection(sectionId) {
-    document.querySelectorAll('.page-section').forEach(el => {
-        el.classList.add('hidden'); 
-        el.classList.remove('active'); 
+    // 1. Мгновенное переключение классов (Визуальный переход)
+    const allSections = document.querySelectorAll('.page-section');
+    allSections.forEach(el => {
+        if (el.id === sectionId) {
+            el.classList.remove('hidden');
+            el.classList.add('active');
+        } else {
+            el.classList.add('hidden');
+            el.classList.remove('active');
+        }
     });
-    document.querySelectorAll('.bottom-nav-item').forEach(el => {
+
+    const navItems = document.querySelectorAll('.bottom-nav-item');
+    navItems.forEach(el => {
         el.classList.remove('active');
         if(el.getAttribute('data-target') === sectionId) el.classList.add('active');
     });
     
-    const target = document.getElementById(sectionId);
-    if (target) {
-        target.classList.remove('hidden'); 
-        target.classList.add('active'); 
-    }
-    
-    // --- ИСПРАВЛЕНИЕ: Показываем бар только внутри игр ---
+    // Управление Game Nav (мгновенно)
     const gameNav = document.getElementById('top-game-nav');
     if (gameNav) {
-        // Если ID секции заканчивается на "-game" (dice-game, mines-game и т.д.)
         if (sectionId.endsWith('-game')) {
             gameNav.classList.remove('hidden');
         } else {
-            // Иначе (lobby, bonus-page, ref-page...) скрываем
             gameNav.classList.add('hidden');
         }
     }
@@ -392,7 +396,14 @@ export function showSection(sectionId) {
         if (sectionId === 'lobby') statsBar.classList.remove('hidden');
         else statsBar.classList.add('hidden');
     }
-    if (sectionId === 'lobby' || sectionId.endsWith('-game')) fetchAndRenderHistory();
+
+    // 2. Асинхронная подгрузка данных (с задержкой 0, чтобы дать браузеру отрисовать UI)
+    // Это предотвращает "фриз" кнопки при нажатии
+    setTimeout(() => {
+        if (sectionId === 'lobby' || sectionId.endsWith('-game')) {
+            fetchAndRenderHistory();
+        }
+    }, 0);
 }
 
 function updateUI() {
