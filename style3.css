@@ -1,0 +1,258 @@
+/*
+ * style3.css - Новые стили для страницы Рангов (Lvl котика)
+ */
+
+/* 1. Переопределяем старый .rank-container */
+/* (В style.css у него 'display: grid') */
+#ranks-page .rank-container {
+    display: block; /* Убираем grid */
+    max-width: 100%; /* Разрешаем скроллу занимать всю ширину */
+    margin: 0; 
+    padding: 0;
+}
+
+/* 2. Контейнер для скролла/свайпа */
+.rank-scroll-container {
+    display: flex;
+    overflow-x: auto; /* Включаем горизонтальный скролл */
+    overflow-y: hidden;
+    gap: 15px; /* Отступ между карточками */
+    
+    /* Важно для свайпа на мобильных */
+    -webkit-overflow-scrolling: touch; 
+    
+    /* Отступы, чтобы карточки не "прилипали" к краям */
+    padding: 20px 15px; 
+    
+    /* Эстетика: скрываем скроллбар */
+    scrollbar-width: none; /* Firefox */
+}
+.rank-scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* 3. Новая карточка (вместо старой .rank-card) */
+.rank-card-wrapper {
+    flex: 0 0 280px; /* Фиксированная ширина карточки (280px) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 20px;
+    border-radius: 16px;
+    
+    /* * Базовый стиль ("прошлые ранги")
+     * По вашей просьбе: "просто темно-серие"
+     */
+    background-color: #2E3035; /* Темно-серый, как в админке */
+    border: 1px solid var(--color-border-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    text-align: center;
+    transition: all 0.3s ease;
+    
+    /* ДОБАВЛЕНО: Для позиционирования узоров (если понадобятся) */
+    position: relative;
+    overflow: hidden; /* Скрываем все, что выходит за рамки */
+}
+
+/* 4. Внутренние элементы карточки */
+.rank-card__image {
+    width: 150px; /* Размер картинки амулета */
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+
+.rank-card__title {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: var(--color-text-light); /* Белый */
+    margin-bottom: 20px;
+}
+
+.rank-card__info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Отступ между строками */
+}
+
+.rank-card__info-item {
+    display: flex;
+    justify-content: space-between; /* "Название" слева, "Значение" справа */
+    align-items: center;
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.rank-card__info-item:last-child {
+    border-bottom: none;
+}
+
+.rank-card__info-item span {
+    opacity: 0.7; /* "Название" делаем полупрозрачным */
+}
+
+.rank-card__info-item strong {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #FFFFFF; /* "Значение" делаем ярко-белым */
+}
+
+/* 5. Стилизация состояний (по просьбе юзера) */
+
+/* --- БУДУЩИЕ РАНГИ (Locked) --- */
+/* "более тусклые" */
+.rank-card-wrapper.locked {
+    background-color: #242830; /* Еще темнее фон */
+    border-color: #2E3035;
+}
+.rank-card-wrapper.locked .rank-card__image {
+    opacity: 0.4;
+    filter: grayscale(80%); /* Обесцвечиваем и делаем тусклым */
+}
+.rank-card-wrapper.locked .rank-card__title {
+    opacity: 0.5;
+}
+.rank-card-wrapper.locked .rank-card__info-list {
+    opacity: 0.5;
+}
+
+/* --- ПРОШЛЫЕ РАНГИ (Achieved) --- */
+/* "просто темно-серие" - это .rank-card-wrapper по умолчанию */
+.rank-card-wrapper.achieved {
+    /* Стиль по умолчанию (темно-серый) */
+    background-color: #2E3035; 
+    border-color: var(--color-border-dark);
+}
+.rank-card-wrapper.achieved .rank-card__image {
+     /* Яркая, но не светится */
+     opacity: 1.0; 
+     filter: grayscale(0%);
+}
+
+/* --- ТЕКУЩИЙ РАНГ (Current) --- */
+/* "темно-серой с золотым дизайном" */
+.rank-card-wrapper.current {
+    /* ДОБАВЛЕНО: Геометрический золотой узор (поверх фона) */
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(245, 166, 35, 0.05) 10px, /* 5% opacity gold */
+        rgba(245, 166, 35, 0.05) 12px /* 2px line thickness */
+    );
+    /* --- */
+    
+    background-color: #2E3035; /* Темно-серый фон (под узором) */
+    border: 2px solid var(--color-orange); /* Золотая рамка */
+    
+    /* Золотое свечение */
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.5), 
+                0 4px 15px rgba(0, 0, 0, 0.2); 
+    
+    /* Чуть больше, чтобы выделяться */
+    transform: scale(1.03); 
+}
+.rank-card-wrapper.current .rank-card__image {
+    opacity: 1;
+    filter: grayscale(0%);
+    /* Свечение для картинки */
+    filter: drop-shadow(0 0 10px var(--color-orange));
+}
+.rank-card-wrapper.current .rank-card__title {
+    color: var(--color-orange); /* Золотой заголовок */
+    text-shadow: 0 0 10px var(--color-orange);
+}
+
+/* Делаем значения у "current" тоже золотыми */
+.rank-card-wrapper.current .rank-card__info-item strong {
+    color: var(--color-orange);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .rank-card-wrapper {
+        /* Делаем карточки чуть уже на мобильных */
+        flex-basis: 250px; 
+    }
+}
+
+/* === (ДОБАВЛЕНО) Стили для Недельных Бонусов (bonus-page) === */
+
+.weekly-bonus-box {
+    margin-top: 10px; /* Отступ от блока промокодов */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Отступ между элементами */
+}
+
+.weekly-bonus-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background-color: #2E3035; /* Темный фон, как у квестов */
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.weekly-bonus-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.weekly-bonus-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.9;
+}
+
+.weekly-bonus-value {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--color-secondary); /* Зеленый цвет суммы */
+}
+
+/* Стили для кнопок "Забрать" (наследует .auth-button) */
+.weekly-bonus-item .auth-button {
+    background-color: var(--color-border-dark); /* Серый по умолчанию */
+    color: var(--color-text-light);
+    opacity: 0.6;
+    cursor: not-allowed;
+    width: auto; /* Авто-ширина */
+    margin-top: 0;
+    flex-shrink: 0; /* Не сжиматься */
+    padding: 10px 15px;
+    font-size: 0.9em;
+}
+
+/* Стиль для активной кнопки (JS будет добавлять .active-claim) */
+.weekly-bonus-item .auth-button.active-claim {
+    background-color: var(--color-secondary); /* Зеленый */
+    opacity: 1;
+    cursor: pointer;
+}
+.weekly-bonus-item .auth-button.active-claim:hover {
+    background-color: #008f66;
+}
+
+/* Статус-бар (наследует .profile-status) */
+#weekly-bonus-status {
+    text-align: center;
+    font-size: 0.9em;
+    min-height: 1.2em;
+}
+#weekly-bonus-status.win {
+    color: var(--color-secondary);
+}
+#weekly-bonus-status.loss {
+    color: var(--color-mine-bomb);
+}
