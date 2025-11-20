@@ -1,14 +1,14 @@
 /*
  * GLOBAL.JS - SUPABASE EDITION
- * (ИЗМЕНЕНО: ОПТИМИЗАЦИЯ ПЕРЕХОДОВ - МГНОВЕННЫЙ ОТКЛИК)
+ * (ИЗМЕНЕНО: Заменен CDN на более стабильный jsdelivr +esm)
  */
 
 // Инициализация Supabase
 const SUPABASE_URL = 'https://jqkaqluzauhsdfhvhowb.supabase.co'; 
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxa2FxbHV6YXVoc2RmaHZob3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTczNzMsImV4cCI6MjA3OTA3MzM3M30.tXqrCLyRZWNfgoeSxNpE1RiEQyh8Vlh3dVU_-Le-vVk';
 
-// Используем CDN для ESM модулей
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// ИЗМЕНЕНО: Используем jsdelivr вместо esm.sh (работает быстрее и стабильнее)
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 let supabase = null;
 try {

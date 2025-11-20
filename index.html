@@ -1480,6 +1480,17 @@
         </div>
     </nav>
     <div class="bottom-nav-safe-area"></div>
+    
+    <script>
+        setTimeout(() => {
+            const overlay = document.getElementById('loader-overlay');
+            if (overlay && overlay.style.opacity !== '0') {
+                console.warn("App took too long to load. Forcing loader removal.");
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            }
+        }, 8000);
+    </script>
 
     <script type="module" src="main.js?v=2.2"></script> 
 </body>
