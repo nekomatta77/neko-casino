@@ -409,17 +409,25 @@ export function showSection(sectionId) {
 function updateUI() {
     const balanceElements = document.querySelectorAll('#balance-amount, #mobile-profile-balance, #profile-balance-amount');
     const usernameElements = document.querySelectorAll('#username-display, #mobile-profile-name, #profile-username');
+    
     const profileBox = document.getElementById('header-profile-box');
+    const notifBox = document.getElementById('header-notif-box'); // <-- ДОБАВЛЕНО
+    
     const guestBox = document.getElementById('header-guest-box');
     const adminSidebarLink = document.getElementById('admin-sidebar-link');
 
     if (currentUser) {
         balanceElements.forEach(el => el.textContent = currentBalance.toFixed(2) + ' RUB');
         usernameElements.forEach(el => el.textContent = currentUser);
+        
         document.body.classList.add('logged-in');
         document.body.classList.remove('logged-out');
+        
         if (profileBox) profileBox.classList.remove('hidden');
+        if (notifBox) notifBox.classList.remove('hidden'); // <-- ПОКАЗЫВАЕМ
+        
         if (guestBox) guestBox.classList.add('hidden');
+        
         if (currentRank === 'admin' || currentRank === 'Владелец') {
             if (adminSidebarLink) adminSidebarLink.classList.remove('hidden');
         } else {
@@ -428,9 +436,13 @@ function updateUI() {
     } else {
         balanceElements.forEach(el => el.textContent = '0.00');
         usernameElements.forEach(el => el.textContent = 'Гость');
+        
         document.body.classList.add('logged-out');
         document.body.classList.remove('logged-in');
+        
         if (profileBox) profileBox.classList.add('hidden');
+        if (notifBox) notifBox.classList.add('hidden'); // <-- СКРЫВАЕМ
+        
         if (guestBox) guestBox.classList.remove('hidden');
         if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
     }

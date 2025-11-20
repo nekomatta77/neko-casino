@@ -1,7 +1,7 @@
 /*
  * style4.css
  * GLOBAL DARK THEME OVERHAUL (Основной приоритет)
- * Версия 4.7 - Keno Paws Clipping Fix (Padding Top)
+ * Версия 4.8 - Sleepy Cat Update
  */
 
 :root {
@@ -284,4 +284,10 @@ input[type="password"],
     color: var(--text-main) !important;
     margin-top: 10px;
     cursor: pointer;
+}
+
+/* Stop button style (Keno/General) */
+.keno-big-play-btn.stop-mode {
+    background-color: var(--bg-input) !important;
+    color: var(--text-muted) !important;
 }

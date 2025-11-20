@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="style.css?v=2.2">
     <link rel="stylesheet" href="style2.css?v=1.0">
     <link rel="stylesheet" href="style3.css?v=3.16">
-    <link rel="stylesheet" href="darkstyle.css?v=4.2" id="theme-style" disabled> 
-    <link rel="stylesheet" href="style4.css?v=1.0">
+    <link rel="stylesheet" href="darkstyle.css?v=4.3" id="theme-style" disabled> 
+    <link rel="stylesheet" href="style4.css?v=1.6">
 </head>
 <body>
 
@@ -26,12 +26,43 @@
                 <span class="logo-text"></span>
             </div>
             
-            <div class="profile-balance-box mobile-balance-adjustment hidden" id="header-profile-box">
-                <img src="assets/avatars/orange_cat_ava.png" alt="Avatar" class="header-avatar-img" id="mobile-header-avatar">
-                <div class="profile-text-content" id="mobile-profile-text-content">
-                    <span class="profile-name" id="mobile-profile-name">...</span>
-                    <span class="balance" id="mobile-profile-balance">0.00 RUB</span>
+            <div class="header-user-group">
+                
+                <div class="profile-balance-box mobile-balance-adjustment hidden" id="header-profile-box">
+                    <img src="assets/avatars/orange_cat_ava.png" alt="Avatar" class="header-avatar-img" id="mobile-header-avatar">
+                    <div class="profile-text-content" id="mobile-profile-text-content">
+                        <span class="profile-name" id="mobile-profile-name">...</span>
+                        <span class="balance" id="mobile-profile-balance">0.00 RUB</span>
+                    </div>
                 </div>
+
+                <div class="notification-wrapper hidden" id="header-notif-box">
+                    <button class="notif-btn" id="notif-toggle-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="bell-icon">
+                            <path d="M12.02 2.90991C8.70997 2.90991 6.01997 5.59991 6.01997 8.90991V11.7999C6.01997 12.4099 5.75997 13.3399 5.44997 13.8599L4.29997 15.7699C3.58997 16.9599 4.07997 18.2999 5.37997 18.2999H18.66C19.96 18.2999 20.45 16.9599 19.74 15.7699L18.59 13.8599C18.28 13.3399 18.02 12.4099 18.02 11.7999V8.90991C18.02 5.60991 15.32 2.90991 12.02 2.90991Z" />
+                            <path d="M13.87 3.20005C13.56 3.11005 13.24 3.04005 12.91 3.01005C11.95 2.93005 11.11 2.52005 10.49 1.86005C10.13 1.47005 10.03 1.00005 10.07 0.610046" />
+                            <path d="M15.02 19.0601C15.02 20.7101 13.67 22.0601 12.02 22.0601C11.2 22.0601 10.44 21.7201 9.90002 21.1801C9.36002 20.6401 9.02002 19.8801 9.02002 19.0601" />
+                        </svg>
+                        <span class="notif-badge">1</span>
+                    </button>
+                    
+                    <div class="notif-dropdown hidden" id="notif-dropdown">
+                        <div class="notif-header">Уведомления</div>
+                        <ul class="notif-list">
+                            <li class="notif-item new">
+                                <span class="notif-title">Добро пожаловать!</span>
+                                <span class="notif-text">Рады видеть вас в CashCat.</span>
+                                <span class="notif-time">Только что</span>
+                            </li>
+                            <li class="notif-item">
+                                <span class="notif-title">Бонус доступен</span>
+                                <span class="notif-text">Не забудьте забрать ежедневную награду.</span>
+                                <span class="notif-time">1ч назад</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
 
             <div class="guest-header-actions" id="header-guest-box">
@@ -40,6 +71,7 @@
             </div>
             
         </header>
+        
         
         <div class="mini-games-nav-container hidden" id="top-game-nav">
             <nav class="mini-games-nav">
@@ -57,6 +89,9 @@
                 </div>
                 <div class="mini-games-nav-item" data-target="keno-game">
                     <img src="assets/keno_icon.png" alt="Keno" class="nav-game-icon"> Keno
+                </div>
+                <div class="mini-games-nav-item" data-target="sleepy-game">
+                    <img src="assets/sleepy_icon.png" alt="Sleepy" class="nav-game-icon"> Sleepy
                 </div>
             </nav>
         </div>
@@ -113,6 +148,15 @@
                         </button>
                         <div class="game-card-panel">
                             <span class="game-card-title">Keno</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-game-wrapper" data-game-type="sleepy">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/sleepy_cat_card.png" alt="Sleepy" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Sleepy</span>
                         </div>
                     </div>
 
@@ -473,6 +517,48 @@
                         </ul>
                 </div>
             </section>
+
+            <section id="sleepy-game" class="page-section hidden">
+                <div class="sleepy-game-container">
+                    
+                    <div class="coin-multipliers-bar" id="sleepy-multipliers-bar">
+                        </div>
+
+                    <div class="sleepy-scene">
+                        <div class="sleepy-zzz" id="sleepy-zzz">Zzz...</div>
+                        <img src="assets/sleepy_cat_sleep.png" alt="Sleepy Cat" id="sleepy-cat-img" class="sleepy-cat">
+                        <div class="sleepy-bowl-wrapper">
+                             <img src="assets/sleepy_bowl.png" alt="Bowl" id="sleepy-bowl-img" class="sleepy-bowl">
+                        </div>
+                    </div>
+                    
+                    <div id="sleepy-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="keno-play-row">
+                            <button id="sleepy-action-btn" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
+                            <button id="sleepy-cashout-btn" class="keno-big-play-btn full-width hidden" style="background: linear-gradient(90deg, #00A878, #00D699); box-shadow: 0 3px 0 #007550;">
+                                ЗАБРАТЬ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="sleepy-bet" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
             
             <section id="bonus-page" class="page-section hidden">
                 <div class="dice-game-container"> 
@@ -555,7 +641,7 @@
                             <li class="quest-item">
                                 <div class="quest-info">
                                     <span class="quest-status-icon status-pending">○</span>
-                                    <span class="quest-text">Подпишись на <a href="https://telegram.org" target="_blank" rel="noopener noreferrer">Telegram канал</a></span>
+                                    <span class="quest-text">Подпишись на <a href="https://t.me/CashCat_Official" target="_blank" rel="noopener noreferrer">Telegram канал</a></span>
                                 </div>
                                 <span class="quest-reward">2Р</span>
                             </li>
@@ -596,128 +682,105 @@
             <section id="faq-page" class="page-section hidden">
                 <h2 class="game-list-title">Ответы на вопросы</h2>
                 <div class="faq-container">
-                    
                     <div class="faq-item" data-key="q1_payout">
                         <button class="faq-question">
                             <span>Через сколько приходит выплата?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
-                    <div class="faq-item" data-key="q2_wager">
+                     <div class="faq-item" data-key="q2_wager">
                         <button class="faq-question">
                             <span>Бонусы и вагерный баланс</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q3_wager_play">
                         <button class="faq-question">
                             <span>Отыгрыш вагерного баланса</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
-                    <div class="faq-item" data-key="q4_bonus_balance">
+                     <div class="faq-item" data-key="q4_bonus_balance">
                         <button class="faq-question">
                             <span>Как узнать сумму бонусного баланса?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q5_multi_account">
                         <button class="faq-question">
                             <span>У меня больше 1 аккаунта. Что делать и какие будут последствия?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q6_inactivity">
                         <button class="faq-question">
                             <span>Неактивность и обнуление баланса аккаунта</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q7_ref_system">
                         <button class="faq-question">
                             <span>Что такое реферальная система?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
-                    <div class="faq-item" data-key="q8_ref_features">
+                     <div class="faq-item" data-key="q8_ref_features">
                         <button class="faq-question">
                             <span>Особенности реферальной системы</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q9_ref_missing">
                         <button class="faq-question">
                             <span>Реферал зарегистрировался по моей ссылке и не появился в списке</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                     <div class="faq-item" data-key="q10_wrong_details">
                         <button class="faq-question">
                             <span>Что делать, если введены неверные реквизиты при выводе средста?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
-                    <div class="faq-item" data-key="q11_cancel_payout">
+                     <div class="faq-item" data-key="q11_cancel_payout">
                         <button class="faq-question">
                             <span>Как отменить выплату?</span>
                             <span class="faq-icon">+</span>
                         </button>
                         <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                </div>
+                            <div class="faq-answer-content"></div>
                         </div>
                     </div>
-                    
                 </div>
             </section>
             <section id="ref-page" class="page-section hidden">

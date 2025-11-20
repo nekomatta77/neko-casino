@@ -16,6 +16,7 @@ import { initProfile, updateProfileData } from './profile.js';
 import { initCustomize } from './customize.js';
 import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
+import { initSleepy } from './sleepy.js'; // NEW IMPORT
 
 /**
  * Вспомогательная функция для применения темы до полной загрузки JS.
@@ -96,6 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initCustomize(); } catch(e){ console.error("Custom init failed", e); }
         try { initKeno(); } catch(e){ console.error("Keno init failed", e); }
         try { initAdmin(); } catch(e){ console.error("Admin init failed", e); }
+        try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); } // NEW INIT
         
         if (loaderBar) loaderBar.style.width = '60%';
         
@@ -145,6 +147,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
         });
+        
+        // --- ЛОГИКА УВЕДОМЛЕНИЙ (NEW) ---
+        const notifBtn = document.getElementById('notif-toggle-btn');
+        const notifDropdown = document.getElementById('notif-dropdown');
+        
+        if (notifBtn && notifDropdown) {
+            // Открытие/закрытие при клике
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Чтобы не срабатывал клик по document
+                notifDropdown.classList.toggle('hidden');
+            });
+            
+            // Закрытие при клике вне области
+            document.addEventListener('click', (e) => {
+                if (!notifDropdown.classList.contains('hidden')) {
+                    if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                        notifDropdown.classList.add('hidden');
+                    }
+                }
+            });
+        }
+        // --------------------------------
 
         function navigateToGame(gameType) {
             if (gameType === 'mines') showSection('mines-game');
@@ -152,6 +176,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (gameType === 'crash') showSection('crash-game');
             else if (gameType === 'coin') showSection('coin-game');
             else if (gameType === 'keno') showSection('keno-game');
+            else if (gameType === 'sleepy') showSection('sleepy-game'); // NEW NAV
         }
 
         const lobbyGameWrappers = document.querySelectorAll('.lobby-game-wrapper');
