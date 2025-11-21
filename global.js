@@ -280,7 +280,8 @@ function renderHistoryList(bets, type) {
             document.getElementById('mines-history-list'),
             document.getElementById('crash-history-list'),
             document.getElementById('coin-history-list'),
-            document.getElementById('keno-history-list')
+            document.getElementById('keno-history-list'),
+            document.getElementById('sleepy-history-list') // ДОБАВЛЕНО: Поддержка Sleepy
         ].filter(el => el !== null);
     }
     
@@ -289,7 +290,8 @@ function renderHistoryList(bets, type) {
         'mines-history-list': 'mines',
         'crash-history-list': 'crash',
         'coin-history-list': 'coin',
-        'keno-history-list': 'keno'
+        'keno-history-list': 'keno',
+        'sleepy-history-list': 'sleepy' // ДОБАВЛЕНО: Маппинг для списка Sleepy
     };
 
     targets.forEach(list => {
@@ -313,6 +315,7 @@ function renderHistoryList(bets, type) {
             else if (bet.game === 'crash') gameIconSrc = 'assets/crash_icon.png';
             else if (bet.game === 'coin') gameIconSrc = 'assets/coin_icon.png';
             else if (bet.game === 'keno') gameIconSrc = 'assets/keno_icon.png';
+            else if (bet.game === 'sleepy') gameIconSrc = 'assets/sleepy_icon.png'; // ДОБАВЛЕНО: Иконка Sleepy
 
             if (type === 'highwins') {
                 return `

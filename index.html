@@ -7,9 +7,9 @@
     
     <link rel="stylesheet" href="style.css?v=2.2">
     <link rel="stylesheet" href="style2.css?v=1.0">
-    <link rel="stylesheet" href="style3.css?v=3.16">
+    <link rel="stylesheet" href="style3.css?v=3.17">
     <link rel="stylesheet" href="darkstyle.css?v=4.3" id="theme-style" disabled> 
-    <link rel="stylesheet" href="style4.css?v=1.6">
+    <link rel="stylesheet" href="style4.css?v=1.8">
 </head>
 <body>
 
@@ -521,8 +521,12 @@
             <section id="sleepy-game" class="page-section hidden">
                 <div class="sleepy-game-container">
                     
-                    <div class="coin-multipliers-bar" id="sleepy-multipliers-bar">
+                    <div class="sleepy-stats-group">
+                        <div class="coin-multipliers-bar" id="sleepy-multipliers-bar"></div>
+                        <div id="sleepy-risk-display" class="hidden">
+                            <span>⚠️</span> Шанс что кот проснется: 0%
                         </div>
+                    </div>
 
                     <div class="sleepy-scene">
                         <div class="sleepy-zzz" id="sleepy-zzz">Zzz...</div>
@@ -535,7 +539,6 @@
                     <div id="sleepy-status" class="keno-status-bar"></div>
 
                     <div class="keno-controls-ref-style">
-                        
                         <div class="keno-play-row">
                             <button id="sleepy-action-btn" class="keno-big-play-btn full-width">
                                 НАЧАТЬ ИГРУ
@@ -554,7 +557,12 @@
                             <button class="bet-half ref-style">1/2</button>
                             <button class="bet-double ref-style">2x</button>
                         </div>
+                    </div>
 
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="sleepy-history-list" class="per-game-history-list">
+                        </ul>
                     </div>
 
                 </div>

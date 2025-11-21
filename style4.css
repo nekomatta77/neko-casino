@@ -1,6 +1,6 @@
 /*
  * style4.css
- * LATEST UPDATES (FONTS, NOTIFICATIONS & FIXES)
+ * LATEST UPDATES (Sleepy Cat: Colored Status Bars & Unified UI)
  */
 
 /* Импорт шрифтов Google Fonts */
@@ -13,6 +13,8 @@
 #mobile-profile-balance {
     color: #FFFFFF !important; /* Принудительно белый */
     text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; /* Тень для контраста */
+    font-family: 'Roboto Mono', monospace !important;
+    font-weight: 700 !important; 
 }
 
 /* =========================================
@@ -52,7 +54,11 @@
    TASK 3: КРАСИВЫЙ ШРИФТ ДЛЯ ЗАГОЛОВКОВ
    ========================================= */
 .game-list-title,
-.bet-history-container h3 {
+.bet-history-container h3,
+.coin-step-label, 
+.value,
+#sleepy-risk-display,
+#sleepy-status {
     font-family: 'Fredoka', sans-serif !important;
     font-weight: 800 !important; 
     letter-spacing: 1px;
@@ -80,27 +86,21 @@
    ОБНОВЛЕНО: СТИЛИ ХЕДЕРА И УВЕДОМЛЕНИЙ
    ========================================= */
 
-/* 1. ГРУППА ПОЛЬЗОВАТЕЛЯ (ПРАВАЯ ЧАСТЬ) */
 .header-user-group {
     display: flex !important;
-    /* Ставим элементы в строку: Профиль | Уведомления */
     flex-direction: row !important; 
     align-items: center !important;
     justify-content: flex-end !important;
-    gap: 10px !important; /* Отступ между профилем и колокольчиком */
+    gap: 10px !important; 
     margin-left: auto !important; 
     margin-top: 0px !important; 
 }
 
-/* 2. ЛОГОТИП (ЛЕВАЯ ЧАСТЬ) */
 .mobile-header .logo {
-    /* ОПУСКАЕМ ЛОГОТИП ВНИЗ */
     transform: translateY(15px) !important;
     align-items: flex-start !important; 
 }
 
-
-/* 3. КОНТЕЙНЕР УВЕДОМЛЕНИЙ (Внутри группы) */
 .notification-bar-container {
     width: auto !important;
     margin: 0 !important; 
@@ -118,10 +118,9 @@
     align-items: center;
 }
 
-/* Стили кнопки уведомлений (ИКОНКА) */
 .notif-btn {
-    background-color: transparent !important; /* Убираем фон */
-    border: none !important; /* Убираем рамку */
+    background-color: transparent !important; 
+    border: none !important; 
     border-radius: 50% !important;
     width: 40px !important; 
     height: 40px !important; 
@@ -139,22 +138,18 @@
     background-color: rgba(255,255,255,0.1) !important;
 }
 
-/* Стили SVG иконки */
 .bell-icon {
     width: 24px !important; 
     height: 24px !important;
     color: #FFF !important;
-    /* ЗАЛИВКА */
     fill: #FFF !important;
     stroke: none !important;
 }
 
-/* Скрываем текст */
 .notif-text-label {
     display: none !important;
 }
 
-/* БЕЙДЖ (Красная точка) */
 .notif-badge {
     background-color: var(--color-orange) !important;
     color: #FFF !important;
@@ -173,10 +168,9 @@
     top: 5px !important;
     right: 5px !important;
     margin-left: 0 !important;
-    box-shadow: 0 0 0 2px #2E3035 !important; /* Обводка цветом фона для "выреза" */
+    box-shadow: 0 0 0 2px #2E3035 !important; 
 }
 
-/* Выпадающий список */
 .notif-dropdown {
     position: absolute !important;
     top: 100% !important;
@@ -259,11 +253,9 @@
     align-self: flex-end !important;
 }
 
-/* Адаптация для мобильных (Хедер уменьшен обратно) */
 @media (max-width: 768px) {
     .mobile-header {
         height: auto !important; 
-        /* ИЗМЕНЕНО: Вернули к компактному виду */
         min-height: 60px !important; 
         padding-top: 5px !important;
         padding-bottom: 5px !important;
@@ -280,7 +272,7 @@
    COIN - ЗЕЛЕНЫЙ АКТИВНЫЙ МНОЖИТЕЛЬ
    ========================================= */
 .coin-multiplier-item.active {
-    background-color: var(--color-secondary) !important; /* Зеленый */
+    background-color: var(--color-secondary) !important; 
     border-color: var(--color-secondary) !important;
     box-shadow: 0 0 15px rgba(0, 168, 120, 0.6) !important; 
 }
@@ -303,7 +295,6 @@
     min-height: 55px !important; 
 }
 
-/* Правило для скрытия перебивает flex */
 #coin-cashout-button.hidden {
     display: none !important;
 }
@@ -327,7 +318,7 @@
 }
 
 /* =========================================
-   MINES - КНОПКА ОТМЕНИТЬ (КРАСНАЯ)
+   MINES - КНОПКА ОТМЕНИТЬ
    ========================================= */
 #mines-main-button.cancel-mode {
     background: linear-gradient(90deg, #FF5555, #FF7777) !important; 
@@ -363,56 +354,36 @@
 
 /* === 1. ФИКСИРУЕМ РАЗМЕР ХЕДЕРА === */
 .mobile-header {
-    /* Задаем жесткую высоту, чтобы он не рос */
     height: 60px !important;       
     min-height: 60px !important;   
-    
-    /* ВАЖНО: Разрешаем элементам вылезать за границы (чтобы уши/лапы не обрезались) */
     overflow: visible !important;  
-    
-    /* Нужно для позиционирования логотипа */
     position: relative !important; 
 }
 
-/* === 2. НАСТРОЙКА ЛОГОТИПА (НЕЗАВИСИМЫЙ БЛОК) === */
+/* === 2. НАСТРОЙКА ЛОГОТИПА === */
 .mobile-header .logo {
-    /* "Вырываем" лого из потока. Теперь он не влияет на высоту хедера */
     position: absolute !important; 
-    
-    /* --- УПРАВЛЕНИЕ ПОЗИЦИЕЙ --- */
-    top: -3px;  /* Сдвиг сверху (увеличь, чтобы опустить ниже) */
-    left: 15px; /* Сдвиг слева */
-    
-    /* Сбрасываем старые отступы, чтобы они не мешали */
+    top: -3px;
+    left: 15px;
     margin: 0 !important;
     transform: none !important;
-    z-index: 20; /* Чтобы кот был поверх всего */
+    z-index: 20;
 }
 
 /* === 3. УПРАВЛЕНИЕ РАЗМЕРОМ КАРТИНКИ === */
 .mobile-header .logo .logo-image {
-    /* --- УПРАВЛЕНИЕ РАЗМЕРОМ --- */
-    height: 75px !important; /* Ставь сколько хочешь, хедер не растянется! */
-    
+    height: 75px !important; 
     width: auto !important;
-    
-    /* Добавляем тень, чтобы кот красиво смотрелся поверх контента снизу */
     filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
 }
 /* === УМЕНЬШЕНИЕ ПАДДИНГА БАЛАНСА === */
 .profile-balance-box {
-    /* Первая цифра (2px) — отступ сверху и снизу.
-       Вторая цифра (8px) — отступ слева и справа.
-       Меняй их, чтобы сделать блок тоньше или уже.
-    */
     padding: 2px 4px !important;
-    
-    /* Можно также убрать минимальную ширину, чтобы блок сжимался под контент */
     min-width: auto !important; 
 }
 
 /* ===============================================================
-   8. SLEEPY CAT (ИГРОВЫЕ СТИЛИ, ПЕРЕНЕСЕНЫ ИЗ DARKSTYLE.CSS)
+   8. SLEEPY CAT (ИГРОВЫЕ СТИЛИ)
    =============================================================== */
 
 .sleepy-game-container {
@@ -426,16 +397,14 @@
 }
 
 .sleepy-scene {
+    padding-top: 20px; 
     position: relative;
     width: 100%;
     height: 300px;
-    
-    /* ЗАДАЧА: ФОН SLEEPY ROOM */
     background-image: url('assets/sleepy_room.png') !important;
     background-size: cover !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
-    
     border-radius: 12px;
     overflow: hidden;
     display: flex;
@@ -444,25 +413,28 @@
     justify-content: flex-end;
     border: 1px solid var(--border-color) !important;
     box-shadow: inset 0 0 30px rgba(0,0,0,0.5) !important;
+    z-index: 1; 
 }
 
 .sleepy-cat {
-    width: 180px;
-    height: auto;
+    width: 145px !important;
+    height: auto !important;
+    margin-bottom: -20px !important;
+    transform: translateX(0px) translateY(0px) scale(1.0); 
     z-index: 2;
-    margin-bottom: -20px; /* Slightly hidden bottom */
     transition: transform 0.1s;
 }
 
 .sleepy-bowl-wrapper {
     z-index: 3;
-    margin-bottom: 20px;
+    margin-bottom: 20px !important;
 }
 
 .sleepy-bowl {
-    width: 100px;
-    height: auto;
+    width: 75px !important;
+    height: auto !important;
     transition: transform 0.2s;
+    transform: translateX(0px) translateY(6px) scale(1.0);
 }
 
 .sleepy-bowl.bounce {
@@ -471,22 +443,24 @@
 
 .sleepy-zzz {
     position: absolute;
-    top: 20%;
-    right: 30%;
-    font-family: 'Comic Sans MS', cursive, sans-serif;
+    top: 25% !important;
+    right: 25% !important;
+    transform: translate(-135px, 50px) !important;
+    z-index: 10 !important;
+    font-family: 'Fredoka', cursive !important;
     font-weight: bold;
-    color: var(--text-muted) !important;
+    color: var(--color-text-light) !important;
     font-size: 2em;
-    animation: floatZzz 2s infinite;
+    text-shadow: 2px 2px 0px #2E3035 !important;
     opacity: 0;
-    z-index: 4;
+    animation: floatZzz 2.5s infinite ease-out !important;
 }
 
 @keyframes floatZzz {
-    0% { transform: translateY(0) scale(0.8); opacity: 0; }
+    0% { transform: translate(10px, -15px) scale(0.8); opacity: 0; } 
     20% { opacity: 0.8; }
     80% { opacity: 0.8; }
-    100% { transform: translateY(-40px) scale(1.2); opacity: 0; }
+    100% { transform: translate(40px, -60px) scale(1.5); opacity: 0; }
 }
 
 .shake-cat {
@@ -500,121 +474,162 @@
   40%, 60% { transform: translate3d(6px, 0, 0); }
 }
 
-/* =========================================
-   ЗАДАЧИ ДЛЯ SLEEPY CAT
-   ========================================= */
+@keyframes catBreath {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03) translateY(-2px); } 
+    100% { transform: scale(1); }
+}
 
-/* ЗАДАЧА 1: Позиционирование кота на карточке в лобби 
-   Меняй значения translateX (лево/право), translateY (верх/низ) и scale (размер)
-*/
+.sleepy-cat:not(.shake-cat) {
+    animation: catBreath 3s infinite ease-in-out !important;
+    transform-origin: bottom center;
+}
+
+/* Позиционирование кота в лобби */
 .lobby-game-wrapper[data-game-type="sleepy"] .game-card-cat {
     transform: translateX(-28px) translateY(20px) scale(0.85) !important;
 }
-
-/* Эффект при наведении на карточку */
 .lobby-game-wrapper[data-game-type="sleepy"]:hover .game-card-cat {
     transform: translateX(0px) translateY(5px) scale(1.25) !important;
 }
 
-
-/* ЗАДАЧА 2: Стиль красной кнопки "ПРОИГРЫШ" 
-   (Добавляется JS-ом в sleepy.js)
-*/
+/* Кнопка "ПРОИГРЫШ" */
 #sleepy-cashout-btn.loss-mode {
     background: linear-gradient(90deg, #FF5555, #FF7777) !important;
     box-shadow: 0 3px 0 #B03030 !important;
     color: #FFFFFF !important;
     border: 1px solid #B03030 !important;
-    opacity: 1 !important; /* Убираем прозрачность disabled */
+    opacity: 1 !important;
     cursor: not-allowed !important;
 }
 
-
-/* ЗАДАЧА 3: Анимация "Дыхание" для спящего кота 
-*/
-@keyframes catBreath {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.03) translateY(-2px); } /* Чуть увеличивается и приподнимается */
-    100% { transform: scale(1); }
-}
-
-/* Применяем анимацию к коту, если он НЕ трясется (т.е. спит) */
-.sleepy-cat:not(.shake-cat) {
-    animation: catBreath 3s infinite ease-in-out !important;
-    transform-origin: bottom center; /* Дышит "от живота" */
-}
-
-
-/* ЗАДАЧА 4: Позиционирование эффекта Zzz 
-   Меняй значения translate(x, y) для перемещения
-*/
-.sleepy-zzz {
-    /* Базовая позиция (можно перебить) */
-    top: 25% !important;
-    right: 25% !important;
-    
-    /* Точная настройка позиции: X (право/лево), Y (верх/низ) */
-    transform: translate(-135px, 50px) !important;
-    
-    /* Убедимся, что анимация полета не перебивает позицию (z-index) */
-    z-index: 10 !important;
-}
-
-/* Дополнительно: Анимация самого Zzz (чтобы красиво улетал) */
-@keyframes floatZzz {
-    0% { transform: translate(10px, -15px) scale(0.8); opacity: 0; } /* Начальная точка должна совпадать с transform выше */
-    20% { opacity: 0.8; }
-    80% { opacity: 0.8; }
-    100% { transform: translate(40px, -60px) scale(1.5); opacity: 0; } /* Конечная точка полета */
-}
-
-.sleepy-zzz {
-    animation: floatZzz 2.5s infinite ease-out !important;
-    /* Шрифт для Zzz */
-    font-family: 'Fredoka', cursive !important;
-    color: var(--color-text-light) !important;
-    font-weight: bold !important;
-    text-shadow: 2px 2px 0px var(--color-sidebar) !important;
-}
 /* =========================================
-   НАСТРОЙКА РАЗМЕРОВ И ПОЗИЦИИ В SLEEPY CAT
+   1. SLEEPY CAT - ГРУППА СТАТИСТИКИ
    ========================================= */
 
-/* 1. КОТ */
-.sleepy-cat {
-    /* Размер */
-    width: 145px !important;    /* Меняй ширину здесь */
-    height: auto !important;    /* Высота авто для сохранения пропорций */
-    
-    /* Позиция */
-    margin-bottom: -20px !important; /* Сдвиг по вертикали (от низа) */
-    
-    /* Точное позиционирование через Transform */
-    /* translateX: влево/вправо (px)
-       translateY: вверх/вниз (px)
-       scale: масштаб (1.0 = 100%, 1.2 = 120%) 
-    */
-    transform: translateX(0px) translateY(0px) scale(1.0); 
+.sleepy-stats-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: -10px !important; 
+    z-index: 10; 
+    position: relative;
+    gap: 0; 
 }
 
-/* 2. МИСКА */
-.sleepy-bowl {
-    /* Размер */
-    width: 75px !important;    /* Меняй ширину здесь */
-    height: auto !important;
+/* ЗАДАЧА: ЕДИНЫЙ ВИЗУАЛ (Множители, Риск, Статус) */
+.sleepy-stats-group .coin-multiplier-item,
+#sleepy-risk-display,
+#sleepy-status {
+    background: linear-gradient(145deg, #2E3035, #25282e) !important; /* Темный градиент */
+    border: 1px solid var(--color-border-dark) !important; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    color: var(--color-text-light) !important;
+}
+
+/* Специфика Множителей */
+.sleepy-stats-group .coin-multiplier-item {
+    border-radius: 8px !important; 
+    min-width: 75px !important;
+    padding: 8px 5px !important;
+    margin-bottom: 5px !important; 
+    margin-right: 5px !important; 
+    background-color: transparent; 
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+/* Активный множитель */
+.sleepy-stats-group .coin-multiplier-item.active {
+    background: var(--color-secondary) !important; 
+    border-color: var(--color-secondary) !important;
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.6) !important;
+    transform: scale(1.05);
+    z-index: 2;
+    color: #FFFFFF !important;
+}
+
+.sleepy-stats-group .coin-multipliers-bar {
+    margin-bottom: 0 !important;
+    padding-bottom: 5px;
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Специфика Риска */
+#sleepy-risk-display {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 10px;
+    border-radius: 12px !important;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+}
+
+/* =========================================
+   2. ТАБЛИЧКА ВЫИГРЫША (STATUS)
+   ========================================= */
+#sleepy-status {
+    /* Задаем базовые стили, как у риска/множителей */
+    width: 100%;
+    margin-top: 15px !important; 
+    padding: 12px !important;
+    border-radius: 12px !important;
+    text-align: center;
+    font-size: 1.2em !important;
+    font-weight: bold;
     
-    /* Позиция */
-    /* translateX: влево/вправо
-       translateY: вверх/вниз
-       scale: масштаб
-    */
-    transform: translateX(0px) translateY(6px) scale(1.0);
+    /* Для центрирования контента */
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Если нужно подвинуть весь блок миски (обертку), а не только картинку */
-.sleepy-bowl-wrapper {
-    margin-bottom: 20px !important; /* Отступ снизу */
-    /* Можно добавить transform и сюда */
-    /* transform: translateX(10px); */
+/* --- СОСТОЯНИЕ ПОБЕДЫ/УСПЕХА (ЗЕЛЕНАЯ) --- */
+#sleepy-status.win {
+    background: linear-gradient(145deg, #00A878, #00D699) !important;
+    border-color: #007550 !important;
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.5) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
+/* --- СОСТОЯНИЕ ПРОИГРЫША (КРАСНАЯ) --- */
+#sleepy-status.loss {
+    background: linear-gradient(145deg, #FF5555, #FF7777) !important;
+    border-color: #B03030 !important;
+    box-shadow: 0 0 15px rgba(255, 85, 85, 0.5) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* Внутренние элементы (для JS) */
+#sleepy-status .win-val,
+#sleepy-status .loss-val, 
+#sleepy-status .neutral-val {
+    /* Если табличка цветная, делаем текст белым */
+    color: inherit !important; 
+}
+
+/* =========================================
+   3. ПАНЕЛЬ УПРАВЛЕНИЯ
+   ========================================= */
+#sleepy-game .keno-controls-ref-style {
+    border-radius: 16px !important; 
+    border: 1px solid var(--color-border-dark) !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    background-color: #2E3035 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+#sleepy-game .per-game-history-container {
+    order: 100 !important;
+    margin-top: 0 !important;
+}
