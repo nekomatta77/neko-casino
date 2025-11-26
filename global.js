@@ -1,6 +1,6 @@
 /*
- * GLOBAL.JS - SUPABASE EDITION
- * (ИЗМЕНЕНО: Заменен CDN на более стабильный jsdelivr +esm)
+ * GLOBAL.JS - SUPABASE EDITION + SMART ANTI-MINUS SYSTEM
+ * (ИЗМЕНЕНО: Добавлена логика AntiMinusController)
  */
 
 // Инициализация Supabase
@@ -27,6 +27,117 @@ export const MINES_GRID_SIZE = 25;
 
 let depositPoller = null;
 let withdrawalPoller = null;
+
+// ==========================================
+// 0. ANTI-MINUS SYSTEM (THE BRAIN)
+// ==========================================
+
+export const AntiMinus = {
+    // Настройки по умолчанию (если БД недоступна)
+    settings: {
+        targetRTP: 70, // % который возвращается игрокам (30% доход сайта)
+        minBankReserve: 1000, // Минимальный резерв, который нельзя трогать
+        adminWinMode: false, // Режим "Подкрутка" (пока не активен)
+        active: true // Включен ли анти-минус
+    },
+    
+    stats: {
+        totalIn: 0, // Депозиты + Проигрыши игроков
+        totalOut: 0 // Выводы + Выигрыши игроков
+    },
+
+    /**
+     * Инициализация настроек (загрузка из Supabase или localStorage)
+     */
+    async init() {
+        // Симуляция получения настроек с сервера
+        const savedSettings = localStorage.getItem('cashcat_antiminus_settings');
+        if (savedSettings) {
+            this.settings = JSON.parse(savedSettings);
+        }
+        
+        // Подгружаем реальную статистику банка (упрощенно)
+        if (supabase) {
+            const { data: bets } = await supabase.from('bets').select('bet_amount, profit_amount');
+            if (bets) {
+                let totalBet = 0;
+                let totalWon = 0;
+                bets.forEach(b => {
+                    totalBet += b.bet_amount;
+                    if (b.profit_amount > 0) totalWon += b.profit_amount;
+                });
+                // RTP считается: (Выигрыши / Ставки) * 100
+                this.stats.totalIn = totalBet;
+                this.stats.totalOut = totalWon;
+            }
+        }
+    },
+
+    /**
+     * Сохранение настроек из Админки
+     */
+    saveSettings(newSettings) {
+        this.settings = { ...this.settings, ...newSettings };
+        localStorage.setItem('cashcat_antiminus_settings', JSON.stringify(this.settings));
+        console.log("Anti-Minus Updated:", this.settings);
+    },
+
+    /**
+     * ГЛАВНАЯ ФУНКЦИЯ: Решает, разрешить ли выигрыш
+     * @param {number} potentialWinAmount - Сумма чистого выигрыша
+     * @param {number} betAmount - Сумма ставки
+     * @returns {boolean} - true (разрешить), false (запретить/слить)
+     */
+    canUserWin(potentialWinAmount, betAmount) {
+        if (!this.settings.active) return true; // Если выключен, рандом чистый
+
+        // 1. ЖЕСТКАЯ ПРОВЕРКА БАНКА
+        // (Симуляция банка: Депозиты - Выводы + (Ставки - Выигрыши))
+        // Для примера берем локальную статистику + абстрактный банк
+        const estimatedBank = 50000 + (this.stats.totalIn - this.stats.totalOut); 
+        
+        if ((estimatedBank - potentialWinAmount) < this.settings.minBankReserve) {
+            console.warn("Anti-Minus: Bank protection triggered!");
+            return false; // Банк пуст, не даем выиграть
+        }
+
+        // 2. ПРОВЕРКА RTP (Return to Player)
+        const currentTotalBets = this.stats.totalIn + betAmount;
+        const currentTotalWins = this.stats.totalOut + potentialWinAmount;
+        
+        const projectedRTP = (currentTotalWins / currentTotalBets) * 100;
+
+        console.log(`[Anti-Minus] Projected RTP: ${projectedRTP.toFixed(2)}% | Target: ${this.settings.targetRTP}%`);
+
+        // Если текущий RTP превышает целевой -> Увеличиваем шанс слива
+        if (projectedRTP > this.settings.targetRTP) {
+            // Если выигрыш маленький (x1.1 - x2), еще можем разрешить с шансом 30%
+            // Если выигрыш большой, режем жестко
+            const multiplier = potentialWinAmount / betAmount;
+            
+            if (multiplier < 2.0 && Math.random() > 0.7) return true; // Иногда везет на мелочи
+            
+            console.warn("Anti-Minus: RTP Limit triggered. Forcing Loss.");
+            return false;
+        }
+
+        return true; // Все ок, RTP в норме
+    },
+
+    /**
+     * Регистрирует результат игры для обновления RTP в реальном времени
+     */
+    registerGame(bet, profit) {
+        this.stats.totalIn += bet;
+        if (profit > 0) {
+            this.stats.totalOut += profit;
+        }
+    }
+};
+
+// Запускаем инициализацию
+AntiMinus.init();
+
 
 // ==========================================
 // 1. УПРАВЛЕНИЕ СЕССИЕЙ
@@ -235,6 +346,9 @@ export function setLocalWager(amount) {
 // ==========================================
 
 export async function writeBetToHistory(betData) {
+    // Обновляем статистику Анти-Минуса
+    AntiMinus.registerGame(betData.betAmount, betData.amount);
+
     if (!supabase) return;
     const { error } = await supabase.from('bets').insert([{
         username: betData.username,
@@ -281,7 +395,7 @@ function renderHistoryList(bets, type) {
             document.getElementById('crash-history-list'),
             document.getElementById('coin-history-list'),
             document.getElementById('keno-history-list'),
-            document.getElementById('sleepy-history-list') // ДОБАВЛЕНО: Поддержка Sleepy
+            document.getElementById('sleepy-history-list') 
         ].filter(el => el !== null);
     }
     
@@ -291,7 +405,7 @@ function renderHistoryList(bets, type) {
         'crash-history-list': 'crash',
         'coin-history-list': 'coin',
         'keno-history-list': 'keno',
-        'sleepy-history-list': 'sleepy' // ДОБАВЛЕНО: Маппинг для списка Sleepy
+        'sleepy-history-list': 'sleepy' 
     };
 
     targets.forEach(list => {
@@ -315,7 +429,7 @@ function renderHistoryList(bets, type) {
             else if (bet.game === 'crash') gameIconSrc = 'assets/crash_icon.png';
             else if (bet.game === 'coin') gameIconSrc = 'assets/coin_icon.png';
             else if (bet.game === 'keno') gameIconSrc = 'assets/keno_icon.png';
-            else if (bet.game === 'sleepy') gameIconSrc = 'assets/sleepy_icon.png'; // ДОБАВЛЕНО: Иконка Sleepy
+            else if (bet.game === 'sleepy') gameIconSrc = 'assets/sleepy_icon.png'; 
 
             if (type === 'highwins') {
                 return `
@@ -364,9 +478,8 @@ export function stopWithdrawalHistoryPoller() {}
 export async function createPromocode(code, data) { return true; }
 export async function activatePromocode(code) { return {success:true}; }
 
-// === ВОТ ЗДЕСЬ ОБНОВЛЕННАЯ ЛОГИКА ===
+// === ОБНОВЛЕННАЯ ЛОГИКА UI ===
 export function showSection(sectionId) {
-    // 1. Мгновенное переключение классов (Визуальный переход)
     const allSections = document.querySelectorAll('.page-section');
     allSections.forEach(el => {
         if (el.id === sectionId) {
@@ -384,7 +497,6 @@ export function showSection(sectionId) {
         if(el.getAttribute('data-target') === sectionId) el.classList.add('active');
     });
     
-    // Управление Game Nav (мгновенно)
     const gameNav = document.getElementById('top-game-nav');
     if (gameNav) {
         if (sectionId.endsWith('-game')) {
@@ -400,8 +512,6 @@ export function showSection(sectionId) {
         else statsBar.classList.add('hidden');
     }
 
-    // 2. Асинхронная подгрузка данных (с задержкой 0, чтобы дать браузеру отрисовать UI)
-    // Это предотвращает "фриз" кнопки при нажатии
     setTimeout(() => {
         if (sectionId === 'lobby' || sectionId.endsWith('-game')) {
             fetchAndRenderHistory();
@@ -414,7 +524,7 @@ function updateUI() {
     const usernameElements = document.querySelectorAll('#username-display, #mobile-profile-name, #profile-username');
     
     const profileBox = document.getElementById('header-profile-box');
-    const notifBox = document.getElementById('header-notif-box'); // <-- ДОБАВЛЕНО
+    const notifBox = document.getElementById('header-notif-box'); 
     
     const guestBox = document.getElementById('header-guest-box');
     const adminSidebarLink = document.getElementById('admin-sidebar-link');
@@ -427,7 +537,7 @@ function updateUI() {
         document.body.classList.remove('logged-out');
         
         if (profileBox) profileBox.classList.remove('hidden');
-        if (notifBox) notifBox.classList.remove('hidden'); // <-- ПОКАЗЫВАЕМ
+        if (notifBox) notifBox.classList.remove('hidden'); 
         
         if (guestBox) guestBox.classList.add('hidden');
         
@@ -444,7 +554,7 @@ function updateUI() {
         document.body.classList.remove('logged-in');
         
         if (profileBox) profileBox.classList.add('hidden');
-        if (notifBox) notifBox.classList.add('hidden'); // <-- СКРЫВАЕМ
+        if (notifBox) notifBox.classList.add('hidden'); 
         
         if (guestBox) guestBox.classList.remove('hidden');
         if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
