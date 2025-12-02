@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 3.9 (Updated: Dark Blue Notifs, Neon High Wins)
+ * Version 4.6 (Updated: Logo Aligned Left on Mobile)
  */
 
 :root {
@@ -31,6 +31,7 @@ body {
     
     /* Снежинки на фоне */
     background-image: 
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
@@ -215,12 +216,12 @@ body {
         gap: 10px !important;
     }
 
-    /* 1. Логотип сверху по центру */
+    /* 1. Логотип сверху СЛЕВА */
     .mobile-header .logo {
         position: static !important;
         width: 100%;
         display: flex;
-        justify-content: center !important;
+        justify-content: flex-start !important; /* Влево */
         transform: none !important;
         margin: 0 !important;
     }
@@ -835,4 +836,207 @@ input:focus { border-color: var(--color-primary) !important; }
 .snow-toggle-label {
     font-weight: bold;
     color: #FFFFFF !important;
+}
+
+/* --- ЗАДАЧА 1: ОКНА ДАЙСОВ (БЕЛЫЕ С ГРАНИЦЕЙ) --- */
+.dice-input-group {
+    background-color: #FFFFFF !important;
+    border: 2px solid #E0E7FF !important; /* Видимая граница */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+
+/* Инпуты внутри дайсов тоже делаем светлыми, чтобы читалось */
+.dice-input-group input[type="number"] {
+    background-color: #F3F4F6 !important;
+    color: #111827 !important;
+    border-color: #D1D5DB !important;
+}
+.dice-input-group label {
+    color: #4B5563 !important; /* Темно-серый лейбл */
+}
+
+/* Кнопки управления ставками (x2, min, max) внутри дайсов */
+.dice-input-group .bet-actions-grid button {
+    background-color: #E5E7EB !important;
+    color: #374151 !important;
+    border: 1px solid #D1D5DB !important;
+}
+.dice-input-group .bet-actions-grid button:hover {
+    background-color: #D1D5DB !important;
+}
+
+
+/* --- ЗАДАЧА 2: ИСТОРИЯ ИГР (СВЕТЛЫЙ СТИЛЬ) --- */
+
+/* 1) Фон как у кнопок сайдбара */
+.game-history-item {
+    background-color: rgba(79, 70, 229, 0.05) !important;
+    border: 1px solid rgba(79, 70, 229, 0.1) !important; /* Легкая граница */
+    border-radius: 8px !important;
+    margin-bottom: 5px !important;
+}
+
+/* 2) Ник и Ставка - Серые */
+.history-cell.user {
+    color: #9CA3AF !important; /* Серый цвет */
+    font-weight: 600 !important;
+}
+
+.history-cell.bet {
+    color: #9CA3AF !important; /* Серый цвет */
+}
+
+/* Остальные (Payout/Win/Loss) оставляем как есть, 
+   но убедимся, что они видны на светлом фоне */
+.game-history-item.win .history-cell.payout {
+    color: #00A878 !important; /* Зеленый */
+}
+.game-history-item.loss .history-cell.payout {
+    color: #FF5555 !important; /* Красный */
+}
+
+/* --- ЗАДАЧА 4.5: MINES REDESIGN (ИСПРАВЛЕННЫЙ ИНПУТ + НЕТ ОБВОДКИ) --- */
+
+/* 1. Множители (Сверху) */
+.mines-multiplier-item {
+    background-color: #FFFFFF !important; /* Белый фон */
+    border: 1px solid var(--color-border-dark) !important;
+}
+.mines-multiplier-item .multiplier-value {
+    color: var(--color-primary) !important; /* Индиго цифры */
+}
+.mines-multiplier-item .step-label {
+    color: #9CA3AF !important; /* Серый текст "ШАГ" */
+}
+/* Активный шаг */
+.mines-multiplier-item.active {
+    background-color: var(--color-primary) !important; /* Индиго фон */
+}
+.mines-multiplier-item.active .multiplier-value,
+.mines-multiplier-item.active .step-label {
+    color: #FFFFFF !important; /* Белый текст на активном */
+}
+
+/* 2. Сетка Мин (Без границ контейнера, с тенью ячеек, Красные/Белые) */
+.mines-grid-wrapper {
+    background-color: transparent !important; 
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Общий стиль ячейки (Закрытая) */
+.mine-cell {
+    border: none !important; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important; /* Тень */
+    background-color: #F3F4F6 !important; /* Светло-серый фон закрытой ячейки */
+}
+/* При наведении */
+.mine-cell:hover {
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ОТКРЫТАЯ МИНА (КРАСНЫЙ ФОН) */
+.mine-cell.bomb {
+    background-color: #FF5555 !important; /* Красный */
+    color: #FFFFFF !important;
+}
+
+/* ОТКРЫТАЯ РЫБКА (БЕЛЫЙ ФОН) */
+.mine-cell.safe {
+    background-color: #FFFFFF !important; /* Белый */
+    /* Тень сохраняется от .mine-cell */
+}
+
+/* 3. Кнопка "Начать игру" - Индиго */
+#mines-main-button {
+    background: var(--color-primary) !important; /* Индиго */
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 0 #3730A3 !important; 
+}
+#mines-main-button:active {
+    box-shadow: 0 2px 0 #3730A3 !important;
+    transform: translateY(2px);
+}
+
+/* 4. Окошки управления (ИСПРАВЛЕННЫЙ СЕЛЕКТОР) */
+
+/* Панель управления (прозрачная) */
+.mines-controls-panel {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* ИНПУТ СТАВКИ (БЕЛЫЙ) - используем ID или более точный селектор */
+#mines-game .keno-controls-ref-style .keno-input-wrapper {
+    background-color: #FFFFFF !important; /* Белый фон */
+    border: 2px solid var(--color-border-dark) !important; /* Контур */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+}
+/* Сам input внутри */
+#mines-game .keno-controls-ref-style .keno-input-wrapper input {
+    background-color: transparent !important;
+    color: var(--text-main) !important; /* Темный текст */
+    outline: none !important; /* Убираем фокус браузера */
+}
+/* Знак валюты */
+#mines-game .keno-controls-ref-style .keno-input-wrapper .currency-icon {
+    color: var(--text-main) !important; /* Темный знак */
+    opacity: 0.7;
+}
+
+/* Кнопки 1/2, 2x и Выбор Мин (Темно-синие) - используем новый селектор */
+#mines-game .keno-controls-ref-style .bet-half,
+#mines-game .keno-controls-ref-style .bet-double,
+.mines-count-btn,
+.mines-custom-input {
+    background-color: #1E1B4B !important; /* Темно-синий */
+    color: #FFFFFF !important; /* Белый текст */
+    border: 1px solid #1E1B4B !important;
+    border-radius: 8px !important;
+}
+
+/* Ховер для кнопок */
+#mines-game .keno-controls-ref-style .bet-half:hover,
+#mines-game .keno-controls-ref-style .bet-double:hover,
+.mines-count-btn:hover {
+    background-color: #2D2A5E !important; 
+    opacity: 1;
+}
+
+/* Активная кнопка мин */
+.mines-count-btn.active {
+    border: 2px solid var(--color-primary) !important; /* Индиго обводка */
+    box-shadow: 0 0 10px var(--color-primary) !important;
+}
+
+/* Инпут внутри кастомного выбора мин (ТОЖЕ БЕЛЫЙ) */
+.mines-custom-input {
+    background-color: #FFFFFF !important;
+    border: 2px solid var(--color-border-dark) !important;
+}
+.mines-custom-input input {
+    color: var(--text-main) !important; /* Темный текст */
+    background-color: transparent !important;
+    outline: none !important;
+}
+
+/* Убираем фокус (синий контур) */
+input:focus, button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+/* Возвращаем тень только нашим элементам, если нужно */
+#mines-game .keno-controls-ref-style .keno-input-wrapper:focus-within {
+    border-color: var(--color-primary) !important;
+}
+
+/* 5. История игр (Светлая) */
+.per-game-history-list {
+    background-color: transparent !important; 
+    border: none !important;
+    box-shadow: none !important;
 }
