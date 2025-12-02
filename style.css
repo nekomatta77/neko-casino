@@ -4116,3 +4116,3769 @@ input[type=range]::-webkit-slider-thumb {
 .game-check-link:hover {
     opacity: 1;
 }
+/* === СТИЛИ ДЛЯ ГОСТЕВОГО РЕЖИМА В ХЕДЕРЕ === */
+
+.guest-header-actions {
+    display: flex;
+    flex-direction: column; /* Кнопки друг под другом */
+    gap: 5px;
+    /* ИЗМЕНЕНО: Выравнивание */
+    align-items: stretch; 
+    justify-content: center;
+    min-width: 120px; /* Такая же ширина, как у профиля */
+    margin-left: auto; /* Прижимаем вправо (если во flex container) */
+}
+
+/* Общий стиль для гостевых кнопок */
+.guest-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 0; /* Вертикальный паддинг */
+    font-size: 0.9em;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-align: center;
+    width: 100%;
+}
+
+.guest-btn:active {
+    transform: scale(0.98);
+}
+
+/* Кнопка Вход (Оранжевая) */
+.login-btn {
+    /* Градиент как у логотипа/рамок */
+    background: linear-gradient(90deg, #F5A623, #FFC857);
+    box-shadow: 0 2px 5px rgba(245, 166, 35, 0.4);
+}
+
+/* Кнопка Регистрация (Зеленая) */
+.register-btn {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 2px 5px rgba(0, 168, 120, 0.4);
+}
+
+/* Скрытие элементов в зависимости от состояния входа */
+body.logged-in .guest-header-actions {
+    display: none !important;
+}
+body.logged-out #header-profile-box {
+    display: none !important;
+}
+body.logged-out .guest-header-actions {
+    display: flex !important;
+}
+
+/* === Адаптация для мобильных === */
+@media (max-width: 768px) {
+    .guest-header-actions {
+        min-width: 100px;
+        gap: 4px;
+    }
+    .guest-btn {
+        font-size: 0.8em; /* Чуть меньше шрифт */
+        padding: 5px 0;
+    }
+}
+
+/* === Стили для Модального Окна Авторизации (Наследует wallet-modal) === */
+/* Дополнительные стили не требуются, так как мы используем классы .wallet-* для консистентности дизайна */
+
+/* === Улучшения для Crash (Задача 1) === */
+
+/* 1. Панель управления Crash теперь вертикальная */
+.crash-controls-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Отступ между блоками "Авто" и "Ставка" */
+}
+
+/* 2. Убираем старую flex-обертку из layout */
+.crash-auto-bet-wrapper {
+    display: contents; /* Элементы "Авто" и "Ставка" становятся прямыми детьми .crash-controls-panel */
+}
+
+/* 3. Блок "Авто-вывод" */
+.auto-cashout-group {
+    flex-basis: auto; /* Сбрасываем старую ширину */
+    background-color: #2E3035; /* Фон (темнее, чем --color-sidebar) для контраста */
+    padding: 15px;
+    border-radius: 8px;
+    order: 2; /* Ставим блок "Авто" ПОСЛЕ блока "Ставка" */
+    
+    /* ИЗМЕНЕНО: (Разделение) Добавляем отступ сверху, а не снизу */
+    margin-top: 15px;
+    border: 1px solid #444; /* Небольшая граница для лучшего отделения */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для отделения */
+}
+
+/* 4. Блок "Сумма ставки" */
+.bet-input-group.crash-bet-group {
+    background-color: #2E3035; /* Такой же фон */
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Отступ между label, input и сеткой кнопок */
+    margin-bottom: 0; /* Убираем старый отступ */
+    order: 1; /* Ставим блок "Ставка" ПЕРВЫМ */
+    
+    /* ИЗМЕНЕНО: (Разделение) */
+    border: 1px solid #444;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 5. Убираем старую вложенную группу инпута (она была в HTML) */
+.crash-bet-group .bet-input-group {
+    margin-bottom: 0;
+    /* (Мы удалили ее из HTML, этот селектор больше не должен работать) */
+}
+
+/* 6. Стилизуем инпут (он теперь прямой потомок .crash-bet-group) */
+.crash-bet-group > input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+}
+
+/* 7. Новая сетка кнопок (которую мы добавили в HTML) */
+.crash-bet-group .bet-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+/* 8. Кнопки в новой сетке */
+.crash-bet-group .bet-actions-grid button {
+    padding: 12px 5px;
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.crash-bet-group .bet-actions-grid button:hover {
+    background-color: #6A788C;
+}
+
+/* 9. Сбрасываем отступ у кнопок "Начать игру" */
+.crash-action-buttons {
+    margin-top: 0;
+}
+
+
+/* === Улучшения для Coinflip (Задача 2) === */
+
+#coin-cashout-button {
+    width: 100%; /* Делаем кнопку "Забрать" на всю ширину */
+}
+
+/* === Перекрашиваем кнопку "Начать игру" в Минах === */
+
+#mines-start-button {
+    background-color: var(--color-orange);
+    color: #FFFFFF;
+}
+
+/* === ИСПРАВЛЕНИЯ для Mobile Header (Задачи 2 и 3) === */
+
+/* 1. Центрируем панель баланса по высоте в хедере */
+.mobile-header {
+    /* ИЗМЕНЕНО: Выравниваем элементы по центру по вертикали */
+    align-items: center; 
+    /* УБИРАЕМ: align-items: flex-end; */
+}
+
+/* 2. Убираем сдвиг и трансформации с панели при клике */
+.profile-balance-box:hover {
+    /* Сброс, который был в style.css */
+    transform: none; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+.profile-balance-box:active {
+    /* Убираем сдвиг при нажатии */
+    transform: none; 
+}
+/* Убираем старые трансформации, которые сдвигали панель */
+.mobile-header .profile-balance-box {
+    transform: none;
+    margin-bottom: 0; /* Сброс margin-bottom, который мог быть */
+}
+
+
+/* === Стили для Панели Профиля (с Аватаром) === */
+
+.profile-balance-box {
+    /* Переопределяем: Аватар слева, текст справа */
+    display: flex;
+    flex-direction: row; 
+    align-items: center; 
+    gap: 10px; 
+    padding: 8px; 
+    min-width: 0; 
+}
+
+.header-avatar-img {
+    width: 40px;  
+    height: 40px; 
+    border-radius: 50%; 
+    border: 2px solid var(--color-text-light); 
+    object-fit: cover; 
+    flex-shrink: 0; 
+    cursor: pointer; 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.header-avatar-img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px var(--color-orange);
+}
+
+.profile-text-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    gap: 2px;
+    min-width: 0; 
+}
+
+/* Адаптация текста */
+.profile-balance-box .profile-name {
+    font-size: 0.9em;
+    line-height: 1.2;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.profile-balance-box .balance {
+    font-size: 1.0em; 
+    line-height: 1.2;
+    text-align: left;
+}
+
+/* Адаптация для мобильного хедера (где баланс меньше) */
+.mobile-header .header-avatar-img {
+    width: 36px;
+    height: 36px;
+    border-width: 1px;
+}
+.mobile-header .profile-balance-box {
+    gap: 8px;
+    padding: 6px;
+}
+
+/* === Стили для Модального Окна Кастомизации (CUSTOMIZE) === */
+
+.customize-modal-content {
+    background-color: rgba(61, 70, 84, 0.85); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1); 
+    color: var(--color-text-light);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    text-align: left;
+    width: 95%;
+    max-width: 420px;
+    display: flex; 
+    flex-direction: column;
+    gap: 25px; 
+}
+
+.customize-section-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+
+.customize-avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px; 
+}
+
+.customize-avatar-choice {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1; 
+    border-radius: 10px; 
+    object-fit: cover;
+    cursor: pointer;
+    border: 3px solid transparent; 
+    opacity: 0.6; 
+    transition: all 0.2s ease;
+}
+
+.customize-avatar-choice:hover {
+    opacity: 1;
+}
+
+.customize-avatar-choice.selected {
+    opacity: 1;
+    border-color: var(--color-orange); 
+    transform: scale(1.05);
+    box-shadow: 0 0 15px var(--color-orange);
+}
+
+.customize-color-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.customize-color-choice {
+    width: 100%;
+    height: 50px; 
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #000000; 
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.customize-color-choice.selected {
+    border-color: var(--color-text-light); 
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--color-text-light);
+}
+
+.no-style-icon {
+    font-size: 1.5em;
+    line-height: 1;
+}
+
+/* === ИСПРАВЛЕНИЕ: (ЗАДАНИЕ) Убираем размытие иконок мин на iPhone (Retina) === */
+.mine-cell-icon {
+    /* Говорим браузеру не сглаживать, а сохранять пиксели */
+    image-rendering: -moz-crisp-edges;         /* Firefox */
+    image-rendering: -webkit-crisp-edges;      /* Old WebKit */
+    image-rendering: pixelated;                /* Modern */
+    image-rendering: crisp-edges;              /* Old standard */
+}
+
+/* === (ИЗМЕНЕНО: ЗАДАЧА 4 И НОВЫЙ ЗАПРОС) Стили для скролла мини-игр === */
+
+/* ИЗМЕНЕНО: Контейнер */
+.mini-games-nav-container {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto 15px;
+    padding: 0 10px; 
+}
+
+.mini-games-nav {
+    display: flex; 
+    /* ИЗМЕНЕНО: Включаем перенос */
+    flex-wrap: wrap; 
+    /* ИЗМЕНЕНО: Убираем горизонтальный скролл */
+    overflow-x: visible; 
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0; 
+    gap: 10px;
+    margin: 0; 
+    
+    /* ИЗМЕНЕНО: Убираем стили свайпа */
+    /* cursor: grab; */
+    /* user-select: none; */
+    
+    /* ИЗМЕНЕНО: Убираем плавную прокрутку */
+    /* scroll-behavior: smooth; */
+    
+    /* Скрываем скроллбар (на всякий случай) */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+.mini-games-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+/* ИЗМЕНЕНО: Удаляем стили для кнопок прокрутки */
+.mini-games-scroll-btn {
+    display: none;
+}
+
+
+.mini-games-nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* ИЗМЕНЕНО: flex-basis задает базовую ширину */
+    flex-basis: 110px;
+    /* ИЗМЕНЕНО: flex-grow позволяет растягиваться */
+    flex-grow: 1;
+    /* ИЗМЕНЕНО: flex-shrink: 0; (оставляем, чтобы не сжимались) */
+    flex-shrink: 0; 
+    
+    background-color: var(--color-sidebar);
+    border: 2px solid var(--color-border-dark);
+    padding: 8px 10px; 
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 0.9em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+}
+
+/* ИСПРАВЛЕНИЕ: Убираем pointer-events: none; отсюда */
+.mini-games-nav-item .nav-game-icon {
+    /* pointer-events: none; */
+}
+
+
+/* Адаптация скролла для мобильных */
+@media (max-width: 768px) {
+    .mini-games-nav-container {
+        padding: 0 10px;
+    }
+    .mini-games-nav {
+        padding: 0; 
+    }
+    .mini-games-nav-item {
+        /* ИЗМЕНЕНО: Базовая ширина 100px, растягиваем */
+        flex-basis: 100px;
+        flex-grow: 1;
+        font-size: 0.8em;
+        gap: 5px;
+        padding: 8px 5px;
+    }
+}
+/* === КОНЕЦ СТИЛЕЙ СЛРОЛЛА МИНИ-ИГР === */
+
+
+/* === (НОВОЕ) Стили для KENO (Макет v2) === */
+
+.keno-game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px; /* ИЗМЕНЕНО: 500px -> 800px (Задача 2) */
+    margin: 0 auto;
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 1) Меняем порядок элементов --- */
+.keno-payout-bar-wrapper { 
+    order: 3; /* <-- ИСПРАВЛЕНО (было 4) */
+    margin-top: 0; /* <-- ИСПРАВЛЕНО (было 15px) */
+}
+.keno-grid-wrapper { order: 1; }
+#keno-status { order: 2; }
+.keno-controls-panel { order: 4; } /* <-- ИСПРАВЛЕНО (было 3) */
+/* --- КОНЕЦ ИСПРАВЛЕНИЯ --- */
+
+
+/* 1. Шкала выплат */
+.keno-payout-bar-wrapper {
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--color-sidebar);
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.keno-payout-bar {
+    display: flex;
+    gap: 5px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none; /* Firefox */
+}
+.keno-payout-bar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+/* ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Стили контейнера лапки и текста */
+.keno-payout-item {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Начинаем сверху */
+    background-color: transparent;
+    border-radius: 6px;
+    width: 55px;
+    height: auto; /* Высота стала автоматической */
+    color: var(--color-text-light);
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    position: relative;
+    gap: 2px; /* Отступ между лапкой и текстом */
+}
+
+/* ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Новая обертка для лапок */
+.keno-paw-wrapper {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0; /* Чтобы не сжималась */
+}
+
+/* ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Лапки теперь внутри обертки */
+.payout-paw-grey,
+.payout-paw-keno {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.3s ease;
+    filter: none; 
+}
+
+.payout-paw-grey {
+    opacity: 1; /* По умолчанию серая лапка видна */
+}
+
+.payout-paw-keno {
+    opacity: 0; /* По умолчанию цветная лапка скрыта */
+}
+/* --- */
+
+.keno-payout-item .hits {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 5) Скрываем нумерацию */
+    display: none;
+    position: relative;
+    z-index: 2;
+}
+
+/* ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Стили для множителя под лапкой */
+.keno-payout-item .mult {
+    font-size: 1.0em; /* Уменьшили шрифт */
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    position: static; /* Убрали position: relative */
+    z-index: 0;
+    text-shadow: none; /* Убрали тень */
+}
+
+.keno-payout-placeholder {
+    width: 100%;
+    text-align: center;
+    padding: 25px 0; /* Увеличили отступ */
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    opacity: 0.6;
+}
+
+/* Состояния шкалы */
+.keno-payout-item.filled {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Убираем фон */
+    background-color: transparent;
+}
+.keno-payout-item.filled .mult {
+    opacity: 1;
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 1 & 4) Стиль активного множителя (показываем keno_paw) */
+.keno-payout-item.active {
+    /* Убираем старые стили */
+    background-color: transparent;
+    transform: scale(1.05);
+    border-color: transparent; /* Убираем зеленую рамку с квадрата */
+    box-shadow: none; /* Убираем зеленое свечение с квадрата */
+}
+
+.keno-payout-item.active .payout-paw-grey {
+    opacity: 0; /* Скрываем серую */
+}
+
+.keno-payout-item.active .payout-paw-keno {
+    opacity: 1; /* Показываем цветную */
+    /* ИЗМЕНЕНО: (ЗАДАЧА 3) Убираем свечение */
+    filter: none;
+}
+
+/* ИЗМЕНЕНО: (ЗАДАЧА 1 из 2-го) Стили для активного множителя под лапкой */
+.keno-payout-item.active .mult {
+    color: #FFFFFF;
+    opacity: 1;
+    text-shadow: none; /* Тень не нужна */
+}
+
+/* (ИЗМЕНЕНО: ЗАДАЧА 2) Стили для 0x */
+.keno-payout-item.zero .mult {
+    opacity: 0.4;
+}
+
+/* 2. Сетка */
+.keno-grid-wrapper {
+    background-color: var(--color-sidebar);
+    padding: 10px;
+    border-radius: 8px;
+    position: relative; /* ИЗМЕНЕНО: (Задача 3) Для оверлея */
+}
+
+.keno-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* 8 колонок */
+    gap: 5px; /* ИЗМЕНЕНО: 8px -> 5px (По запросу) */
+}
+
+.keno-cell {
+    aspect-ratio: 1 / 1;
+    background-color: #2E3035;
+    border: none;
+    border-radius: 6px;
+    color: var(--color-text-light);
+    font-size: 1.5em; /* ИЗМЕНЕНО: 2.2em -> 1.5em (Исправление) */
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: translateZ(0); 
+}
+.keno-cell:hover {
+    background-color: var(--color-border-dark);
+}
+.keno-grid.disabled .keno-cell:not(.selected) {
+    pointer-events: none;
+}
+/* Адаптивный размер шрифта в ячейках */
+@media (max-width: 400px) {
+    .keno-cell { font-size: 1.1em; } /* ИЗМЕНЕНО: 1.5em -> 1.1em (Исправление) */
+    .keno-grid { gap: 3px; } /* ИЗМЕНЕНО: 5px -> 3px (По запросу) */
+}
+
+
+/* Состояния ячеек */
+.keno-cell.selected {
+    background-color: var(--color-orange);
+    color: #FFFFFF;
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--color-orange);
+}
+.keno-cell.idle {
+    opacity: 0.3; /* "Потухшие" */
+}
+.keno-cell.miss {
+    background-color: #2E3035; /* Как idle, но не .selected */
+    opacity: 0.7;
+}
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Стиль "выпавших" (синих) стал блеклым */
+.keno-cell.drawn {
+    background-color: var(--color-blue);
+    color: #FFFFFF;
+    opacity: 0.6; /* <-- Слегка прозрачный */
+    font-size: 1.5em; /* Для точки '●' */
+}
+.keno-cell.hit {
+    background-color: var(--color-secondary);
+    color: #FFFFFF;
+    opacity: 1;
+    animation: bounceIn 0.3s ease;
+}
+.keno-cell-icon {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    /* Исправляем размытие (наследуется от .mine-cell-icon) */
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+
+/* 3. Статус бар */
+#keno-status {
+    /* Стили .dice-status-bar (win/loss) будут применены */
+    width: 100%;
+    margin-top: 0;
+}
+
+/* 4. Панель управления */
+.keno-controls-panel {
+    background-color: var(--color-sidebar);
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.keno-controls-panel label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    font-weight: bold;
+}
+
+.keno-bet-actions-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+/* (ИЗМЕНЕНО: ЗАДАЧА 3) Добавляем min-width, чтобы инпут мог сжиматься */
+.keno-bet-actions-wrapper .bet-input-group {
+    flex-grow: 1;
+    margin-bottom: 0;
+    min-width: 0; /* <-- Вот фикс */
+}
+.keno-bet-actions-wrapper .bet-input-group input {
+    height: 50px; /* Выше инпут */
+    font-size: 1.2em;
+}
+
+.keno-action-btn {
+    padding: 15px;
+    font-size: 1.1em;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.keno-action-btn.autopick {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Авто-выбор стал синим */
+    background-color: var(--color-blue); 
+    color: #FFFFFF;
+}
+.keno-action-btn.play {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Кнопка "Играть" стала желтой (оранжевой) */
+    background-color: var(--color-orange); 
+    color: #FFFFFF;
+}
+.keno-action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.keno-bet-modifiers {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+/* Используем стили кнопок из Dice */
+.keno-bet-modifiers button {
+    padding: 10px 5px;
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 4px;
+    font-weight: normal;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.keno-bet-modifiers button:hover {
+    background-color: #6A788C;
+}
+
+.keno-risk-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+    background-color: #2E3035;
+    border-radius: 6px;
+    padding: 4px;
+}
+.keno-risk-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    padding: 10px 5px; /* Выше кнопки */
+    font-size: 0.9em;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-risk-btn.active {
+    background-color: var(--color-border-dark);
+    opacity: 1;
+}
+.keno-risk-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.keno-clear-btn {
+    width: 100%;
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    opacity: 0.7;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-clear-btn:hover {
+    opacity: 1;
+    background-color: #6A788C;
+}
+.keno-clear-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+
+/* 5. История */
+#keno-game .per-game-history-container {
+    margin-top: 0; /* Уже есть gap */
+    max-width: none;
+    padding: 0;
+}
+
+/* === (НОВОЕ) Стили для Keno Overlay (Задача 3) === */
+.keno-grid-wrapper {
+    position: relative; /* Для оверлея */
+}
+.keno-result-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 8px; /* Совпадает с .keno-grid-wrapper */
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Легкая прозрачность */
+    opacity: 0.95; 
+    cursor: pointer; /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Можно кликнуть */
+}
+.keno-result-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.keno-result-box {
+    background-color: var(--color-sidebar);
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Обводка стала зеленой */
+    border: 2px solid var(--color-secondary); 
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2, 4) Аккуратная неоновая обводка */
+    box-shadow: 0 0 15px var(--color-secondary); 
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Уменьшаем отступы (делаем меньше) */
+    padding: 20px 30px; 
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    /* Анимация появления */
+    animation: bounceIn 0.3s ease;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Делаем прямоугольником и уменьшаем */
+    width: 300px;
+    max-width: 90%;
+    /* ИЗМЕНЕНО: (ЗАПРОС 2) 1 / 1.5 = 0.667 */
+    transform: scale(0.667); 
+}
+
+/* (Задача 3) Меняем цвет рамки/тени при проигрыше */
+.keno-result-overlay.loss .keno-result-box {
+     /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Обводка остается зеленой */
+     border-color: var(--color-secondary);
+     box-shadow: 0 0 15px var(--color-secondary);
+}
+
+.keno-result-line {
+    display: flex;
+    flex-direction: column; /* Ставим друг под друга */
+    gap: 5px;
+    font-size: 1.2em;
+    color: var(--color-text-light);
+}
+
+.keno-result-line span:first-child {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+.keno-result-line span:last-child {
+    font-weight: bold;
+    font-size: 1.5em;
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 4) Множитель (Х) стал зеленым */
+#keno-result-multiplier {
+    color: var(--color-secondary);
+}
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 4) Выигрыш стал зеленым */
+#keno-result-winnings {
+    color: var(--color-secondary);
+}
+.keno-result-overlay.loss #keno-result-winnings {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 4) При проигрыше (0.00) тоже зеленый */
+    color: var(--color-secondary);
+}
+
+/* === КОНЕЦ СТИЛЕЙ KENO OVERLAY === */
+
+/* === (ЗАДАНИЕ 1) Позиционирование Keno Cat === */
+.lobby-game-wrapper[data-game-type="keno"] .game-card-cat {
+    /* Было: translateX(-10px) translateY(10px) scale(1.15); */
+    transform: translateX(-15px) translateY(15px) scale(0.95); /* Новое положение */
+}
+
+.lobby-game-wrapper[data-game-type="keno"]:hover .game-card-cat {
+    /* Было: scale(1.08); */
+    transform: translateX(5px) translateY(10px) scale(1.25); /* Немного приподнимается при наведении */
+}
+
+/* === (ЗАДАЧА 2) Keno: Сохраняем подсветку выбранных ячеек === */
+
+/* 1. .selected.hit (Выбрано и Попало) */
+/* ИЗМЕНЕНО: Делаем фон ЗЕЛЕНЫМ (от .hit), но сохраняем свечение (от .selected) */
+.keno-cell.selected.hit {
+    background-color: var(--color-secondary); /* ИЗМЕНЕНО: Фон стал зеленым */
+    animation: bounceIn 0.3s ease; /* Анимация от .hit */
+    opacity: 1; /* От .hit */
+    box-shadow: 0 0 10px var(--color-secondary); /* ИЗМЕНЕНО: Свечение стало зеленым */
+}
+
+/* 2. .selected.miss (Выбрано и Промах) */
+/* Делаем фон ОРАНЖЕВЫМ, но тусклым (комбинация .selected и .miss) */
+.keno-cell.selected.miss {
+    background-color: var(--color-orange); /* Фон от .selected */
+    opacity: 0.7; /* Тусклость от .miss */
+    box-shadow: 0 0 10px var(--color-orange); /* От .selected */
+}
+
+/* 3. .selected.drawn (Выбрано, но шар выпал позже - не должно случиться, но на всякий) */
+.keno-cell.selected.drawn {
+    background-color: var(--color-orange);
+    opacity: 1;
+}
+
+/* === (ДОБАВЛЕНО) Стили для кнопки Турбо Keno === */
+
+/* 1. Обертка для кнопок "Играть" и "Турбо" */
+.keno-play-wrapper {
+    display: flex;
+    flex-shrink: 0;
+    /* Кнопки в этой обертке унаследуют высоту 50px от .keno-bet-actions-wrapper */
+    height: 50px;
+    /* ИЗМЕНЕНО: (Новый запрос 2) Кнопка "Играть" теперь растягивается */
+    flex-grow: 1;
+}
+
+/* 2. Изменяем кнопку "Играть", чтобы убрать скругление справа */
+#keno-play-button {
+    border-top-right-radius: 6px; /* ИЗМЕНЕНО: (Новый запрос 2) Восстанавливаем */
+    border-bottom-right-radius: 6px; /* ИЗМЕНЕНО: (Новый запрос 2) Восстанавливаем */
+    height: 100%; /* Растягиваем на 50px */
+    /* ИЗМЕНЕНО: (Новый запрос 2) Растягиваем */
+    flex-grow: 1;
+}
+
+/* 3. Стилизуем новую кнопку "Турбо" */
+.keno-action-btn.turbo {
+    /* ИЗМЕНЕНО: (Новый запрос 2) Убираем фон и рамки */
+    background-color: transparent;
+    border: none;
+    /* ИЗМЕНЕНО: (Новый запрос 2) Убираем отступы */
+    padding: 0;
+    width: auto; /* Авто-ширина */
+    height: auto; /* Авто-высота */
+    border-radius: 0;
+    /* ИЗМЕНЕНО: (Новый запрос 2) Убираем центрирование */
+    display: block; 
+}
+
+/* 4. Стилизуем иконку молнии внутри кнопки */
+#keno-turbo-button img {
+    height: 28px; /* ИЗМЕНЕНО: (Новый запрос 2) Размер иконки */
+    width: auto;
+    object-fit: contain;
+    /* Четкость иконки */
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: crisp-edges;
+    /* ИЗМЕНЕНО: (Новый запрос 2) Тусклая по умолчанию */
+    opacity: 0.6;
+    transition: opacity 0.2s, filter 0.2s;
+}
+
+/* 5. Стиль при наведении (для .turbo) */
+.keno-action-btn.turbo:hover img {
+    opacity: 1;
+}
+
+/* 6. Стиль "Включено" (Task 3: Neon Glow) */
+.keno-action-btn.turbo.active img {
+    opacity: 1;
+    /* Task 3: Оранжевый неон */
+    filter: drop-shadow(0 0 8px var(--color-orange)) drop-shadow(0 0 4px var(--color-orange));
+}
+
+/* === (НОВЫЙ ЗАПРОС 2) Стили для новой обертки Keno Label === */
+.keno-label-wrapper {
+    display: flex;
+    justify-content: space-between; /* Label слева, кнопка справа */
+    align-items: center;
+    margin-bottom: 5px; /* Стандартный отступ label */
+}
+        
+.keno-label-wrapper label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    font-weight: bold;
+    margin-bottom: 0; /* Убираем отступ, т.к. он на wrapper'е */
+}
+
+/* === (НОВЫЙ ЗАПРОС 3) Эстетика Keno Input === */
+
+/* 1. Сначала стилизуем обертку инпута (.bet-input-group) */
+/* Она станет "фоном" для инпута */
+.keno-bet-actions-wrapper .bet-input-group {
+    background-color: #2E3035; /* Темный фон, как у ячеек */
+    border: 1px solid var(--color-border-dark); /* Темная рамка */
+    border-radius: 6px;
+    padding: 0; /* Убираем внутренний отступ, он будет у инпута */
+    /* ИСПОЛЬЗУЕМ FLEX для центрирования текста, т.к. input[type=number] плохо слушается text-align */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px; /* Синхронизируем высоту с кнопками */
+    transition: border-color 0.2s, box-shadow 0.2s; /* Для :focus-within */
+}
+
+/* 2. Теперь "обнуляем" сам инпут, делая его прозрачным */
+.keno-bet-actions-wrapper .bet-input-group input#keno-bet {
+    background: transparent;
+    border: none;
+    color: var(--color-text-light); /* Светлый текст */
+    text-align: center; /* Центрируем текст */
+    font-size: 1.5em; /* Крупный шрифт */
+    font-weight: bold;
+    padding: 10px 5px; /* Внутренний отступ */
+    height: auto; /* Сбрасываем фикс. высоту */
+    /* Убираем стрелочки у number input */
+    -moz-appearance: textfield;
+}
+
+.keno-bet-actions-wrapper .bet-input-group input#keno-bet::-webkit-outer-spin-button,
+.keno-bet-actions-wrapper .bet-input-group input#keno-bet::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* 3. Синхронизируем высоту кнопок "Автовыбор" и "Играть" */
+.keno-action-btn.autopick {
+     height: 50px; /* Та же высота, что и у инпута */
+}
+
+.keno-play-wrapper {
+     height: 50px; /* Та же высота, что и у инпута */
+}
+
+/* 4. При фокусе на инпут, подсвечиваем обертку */
+.keno-bet-actions-wrapper .bet-input-group:focus-within {
+    border-color: var(--color-orange);
+    box-shadow: 0 0 10px var(--color-orange);
+}
+
+/* === КОНЕЦ ЭСТЕТИКИ KENO INPUT === */
+
+/* === (ИСПРАВЛЕНИЕ) Стили для Keno Status Bar (Задача пользователя) === */
+
+.keno-status-bar {
+    text-align: center;
+    color: var(--color-text); 
+    min-height: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-top: 0; /* Уже есть 'order: 2' */
+    
+    /* Стили по умолчанию для прямоугольника (как в Dice/Coin) */
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Скрыт, пока нет .win/.loss */
+    
+    width: 100%; 
+    max-width: 500px; /* Ограничиваем ширину, как у других */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.keno-status-bar.win {
+    display: block;
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+
+.keno-status-bar.loss {
+    display: block;
+    background-color: var(--color-mine-bomb);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+}
+
+/* === (ЗАДАЧА) Плавная анимация для статуса в Dice === */
+
+/* 1. Определяем @keyframes для "плавного появления" */
+@keyframes smooth-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.9); /* Начинаем чуть меньше */
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.03); /* Слегка "перепрыгиваем" */
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.0); /* Возвращаемся в норму */
+  }
+}
+
+/* 2. Применяем анимацию, когда появляется класс .win или .loss */
+/* Мы используем #dice-status, чтобы быть уверенными, 
+   что анимация применится только к Dice */
+#dice-status.win,
+#dice-status.loss {
+  /* Длительность 0.3 секунды */
+  animation: smooth-pop-in 0.3s ease-out;
+}
+
+/* === (ЗАДАЧА 3) Анимация для кота на странице бонусов === */
+@keyframes floatCat {
+    0% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px); /* Поднимается */
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+/* === (ЗАДАЧА 4) Фикс "прыжка" истории в Dice === */
+
+/* 1. Обертка для статус-бара и ссылки "Проверить игру" */
+.dice-status-wrapper {
+  width: 100%;
+  max-width: 500px; /* Та же ширина, что и у .dice-status-bar */
+  margin: 0 auto;
+  
+  /* * Резервируем место.
+   * .dice-status-bar (padding 20px + min-height 20px) = 40px
+   * .game-check-link (font-size 0.9em + margin-top 10px) = ~25px
+   * Задаем min-height, достаточный для ОБОИХ.
+   * 40px (статус) + 25px (ссылка) = ~65px. 
+   * Возьмем 70px с запасом.
+   */
+  min-height: 70px;
+  
+  /* Центрируем, если контент меньше */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Начинаем сверху */
+  align-items: center;
+}
+
+/* 2. Убираем margin-top у элементов, так как он теперь на обертке */
+#dice-status {
+  margin-top: 10px; /* Оставляем отступ от кнопок */
+}
+
+.game-check-link {
+  margin-top: 10px; /* Отступ от статус-бара (если он есть) или от верха */
+}
+
+/* 3. Когда статус-бар скрыт, ссылка "Проверить игру"
+   все равно будет иметь отступ 10px сверху,
+   но общая высота .dice-status-wrapper (70px) не даст истории "подпрыгнуть"
+*/
+
+/* === (ЗАДАЧА 1) Исправление верстки Промокода === */
+.promocode-box {
+    /* Восстанавливаем отступы, которые сбрасывал .dice-controls */
+    padding: 20px;
+}
+
+.promocode-box .form-group input {
+    /* Добавляем стили, которые отсутствовали из-за конфликта */
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+/* === (ЗАДАЧА 2) Плашка выигрыша Dice на всю ширину === */
+#dice-status.dice-status-bar {
+    width: 100%;
+    max-width: none; /* Снимаем ограничение max-width (если оно было) */
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* === (НОВЫЕ) СТИЛИ ДЛЯ СТРАНИЦЫ РАНГОВ === */
+.rank-container {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 колонка на мобильных */
+    gap: 15px;
+    max-width: 500px;
+    margin: 20px auto;
+}
+
+.rank-card {
+    background-color: var(--color-sidebar);
+    color: var(--color-text-light);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--color-border-dark);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.rank-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    border-color: var(--color-orange);
+}
+
+.rank-title {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--color-orange);
+}
+
+.rank-requirement {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.8;
+}
+
+/* === (НОВЫЕ) СТИЛИ ДЛЯ АДМИН-ПАНЕЛИ === */
+.admin-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--color-sidebar);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: var(--color-text-light);
+}
+
+/* === (ИСПРАВЛЕНО) Выравнивание вкладок в админ-панели === */
+#admin-tabs {
+    gap: 10px; 
+    flex-wrap: wrap; /* Разрешаем перенос вкладок */
+}
+
+#admin-tabs .ref-tab {
+    /* Убираем flex-grow/basis, чтобы вкладки имели естественную ширину */
+    /* flex-grow: 1; */
+    /* flex-basis: 0; */
+    flex-shrink: 0; /* Не сжимаем вкладки */
+    
+    text-align: center;
+    padding: 10px 15px; /* Увеличиваем отступ для лучшего вида */
+    margin: 0;
+}
+
+/* === (ЗАДАЧА 1 & 4) Выравнивание и стилизация кнопок в админ-панели === */
+
+/* 1. Задаем ячейке "Ранг" layout (Оставляем как было) */
+.admin-user-table td:nth-child(4) /* Ранг */
+{
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 5px; 
+    vertical-align: top; 
+}
+
+/* (ЗАДАЧА 1) Выравниваем кнопки "Действия" по горизонтали (ИСПРАВЛЕНО) */
+.admin-user-table td:nth-child(5)  /* Действия */
+{
+    /* ИСПОЛЬЗУЕМ GRID ВМЕСТО FLEX */
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 колонки */
+    
+    /* Убираем старые flex-стили */
+    /* flex-direction: row; */
+    /* flex-wrap: wrap; */
+    /* align-items: flex-start; */
+    
+    gap: 5px;
+    vertical-align: top;
+}
+
+/* (ЗАДАЧА 1) УДАЛЯЕМ старое правило, которое мешало */
+/*
+.admin-user-table td:nth-child(5) .button.admin-button {
+    flex-grow: 1; 
+    flex-basis: 0; 
+    width: auto; 
+    min-width: 100px; 
+}
+*/
+
+/* 3. Улучшаем общую кнопку (Task 4) */
+.button.admin-button {
+    width: 100%; /* Занимает всю ширину ячейки/группы (кроме td 5) */
+    padding: 10px 12px; /* Более "пухлая" кнопка */
+    font-size: 0.9em;
+    font-weight: bold; /* Жирный шрифт */
+    border: none; /* Убираем рамку */
+    border-radius: 6px; /* Скругление */
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.button.admin-button:hover {
+    transform: translateY(-1px); /* Легкий подъем */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень при наведении */
+}
+
+.button.admin-button:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* 4. Стилизуем инпуты и селекты, чтобы они тоже были 100% ширины */
+.admin-password-input,
+.admin-balance-input,
+.admin-rank-select {
+    width: 100%;
+    margin-bottom: 0; /* 'gap' теперь управляет отступом */
+}
+
+/* 5. Переопределяем цвета (Task 4) */
+
+/* Кнопки "Сохранить" (Синие) */
+.admin-password-save-btn,
+.admin-balance-save-btn,
+.admin-rank-save-btn {
+    background-color: var(--color-blue);
+    color: white;
+}
+.admin-password-save-btn:hover,
+.admin-balance-save-btn:hover,
+.admin-rank-save-btn:hover {
+    background-color: #3a7bc8;
+}
+
+/* Кнопка "Статистика" (Зеленая) */
+.admin-stats-btn {
+    background-color: var(--color-secondary);
+    color: white;
+}
+.admin-stats-btn:hover {
+     background-color: #008f66;
+}
+
+/* Кнопка "Заблокировать" (Красная) */
+.admin-block-btn {
+    background-color: var(--color-mine-bomb);
+    color: white;
+}
+.admin-block-btn:hover {
+    background-color: #e04848;
+}
+
+/* Стили для таблицы (наследуются от .ref-table) */
+.admin-user-table th:nth-child(1),
+.admin-user-table td:nth-child(1) {
+    width: 20%; /* Ник */
+}
+.admin-user-table th:nth-child(2),
+.admin-user-table td:nth-child(2) {
+    width: 25%; /* Пароль */
+}
+.admin-user-table th:nth-child(3),
+.admin-user-table td:nth-child(3) {
+    width: 25%; /* Баланс */
+}
+.admin-user-table th:nth-child(4),
+.admin-user-table td:nth-child(4) {
+    width: 30%; /* Ранг */
+}
+.admin-user-table th:nth-child(5),
+.admin-user-table td:nth-child(5) {
+    width: 30%; /* Действия */
+    text-align: center;
+}
+.admin-user-table td:nth-child(5) {
+    /* display: flex; (Переопределено на grid) */
+    gap: 5px;
+    /* flex-wrap: wrap; (Больше не нужно) */
+    justify-content: center;
+}
+
+/* Стили для инпутов и селектов в таблице */
+.admin-password-input,
+.admin-balance-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1em;
+    text-align: left;
+    margin-bottom: 5px; /* Отступ до кнопки */
+}
+.admin-balance-input {
+    text-align: right;
+}
+
+.admin-rank-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1em;
+}
+
+/* Статус создания промокода */
+#admin-promo-status.success {
+    color: var(--color-secondary);
+}
+#admin-promo-status.error {
+    color: var(--color-mine-bomb);
+}
+
+/* (ЗАДАЧА 4) Статус очистки истории */
+#admin-clear-history-status {
+    text-align: center;
+    font-size: 0.9em;
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em;
+}
+#admin-clear-history-status.success {
+    color: var(--color-secondary);
+}
+#admin-clear-history-status.error {
+    color: var(--color-mine-bomb);
+}
+
+
+/* === (НОВЫЕ) СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА СТАТИСТИКИ === */
+.admin-stats-modal-content {
+    background-color: #3D4654;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    width: 95%;
+    max-width: 450px;
+    color: var(--color-text-light);
+}
+
+.admin-stats-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Отступ между блоками (наследуем .profile-box) */
+    margin-top: 15px;
+}
+/* Используем стили из .profile-box */
+#admin-stats-profit-box {
+    border: 2px solid var(--color-border-dark);
+}
+#admin-stats-profit-box.win {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 10px var(--color-secondary);
+}
+#admin-stats-profit-box.loss {
+    border-color: var(--color-mine-bomb);
+    box-shadow: 0 0 10px var(--color-mine-bomb);
+}
+#admin-stats-profit-box.win span:last-child {
+    color: var(--color-secondary);
+}
+#admin-stats-profit-box.loss span:last-child {
+    color: var(--color-mine-bomb);
+}
+
+/* === (ИСПРАВЛЕНО) Адаптация админ-панели для мобильных === */
+@media (max-width: 768px) {
+    /* 1. Делаем вкладки поуже на очень маленьких экранах */
+    @media (max-width: 450px) {
+        #admin-tabs {
+            gap: 5px; /* Tighter gap */
+        }
+        #admin-tabs .ref-tab {
+            font-size: 0.9em; /* Smaller text */
+            padding: 10px 8px;
+            /* Восстанавливаем flex-grow, чтобы они заполнили 2+1 строки */
+            flex-grow: 1; 
+            flex-basis: 0;
+        }
+    }
+    
+    /* 2. Прячем заголовки таблицы */
+    .admin-user-table thead {
+        display: none;
+    }
+
+    /* 3. Превращаем строки в "карточки" */
+    .admin-user-table tr {
+        display: block;
+        border: 1px solid var(--color-border-dark);
+        border-radius: 8px;
+        margin-bottom: 20px;
+        padding: 10px;
+        background-color: #2E3035; /* Фон карточки */
+    }
+
+    /* 4. Ячейки теперь ведут себя как строки "Label: Content" */
+    .admin-user-table td {
+        display: grid;
+        /* ИЗМЕНЕНО: Уменьшаем левую колонку для мобильных */
+        grid-template-columns: 100px 1fr; /* Label (100px) | Content (1fr) */
+        gap: 10px;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--color-border-dark);
+        width: 100% !important; /* !Важно: перебить десктопный width: 30% */
+        text-align: left; /* Сбрасываем text-align: center */
+    }
+    .admin-user-table tr td:last-child {
+        border-bottom: none;
+    }
+    
+    /* 5. Добавляем Label с помощью data-label из admin.js */
+    .admin-user-table td::before {
+        content: attr(data-label); /* Берем текст из data-label="Ник" */
+        font-weight: bold;
+        opacity: 0.7;
+        font-size: 0.9em;
+        padding-right: 5px;
+    }
+    
+    /* 6. Стилизуем контент внутри ячеек */
+    
+    /* Для 1-й ячейки (Ник) - текст контента */
+    .admin-user-table td:nth-child(1) {
+        font-weight: bold;
+    }
+    
+    /* Для ячеек с инпутами и кнопками (Пароль, Баланс) */
+    .admin-user-table td:nth-child(2),
+    .admin-user-table td:nth-child(3) {
+        /* Контент (инпут + кнопка) должны быть в колонку */
+        display: grid;
+        grid-template-columns: 100px 1fr;
+    }
+    /* Заставляем инпут и кнопку в этих ячейках быть в колонке */
+    .admin-user-table td:nth-child(2) > input,
+    .admin-user-table td:nth-child(2) > button,
+    .admin-user-table td:nth-child(3) > input,
+    .admin-user-table td:nth-child(3) > button {
+        grid-column: 2 / 3; /* Занимают только правую колонку */
+    }
+    .admin-password-input,
+    .admin-balance-input {
+         margin-bottom: 8px; /* Отступ между инпутом и кнопкой */
+    }
+
+    /* Для ячейки Ранг */
+    .admin-user-table td:nth-child(4) {
+        display: grid;
+        grid-template-columns: 100px 1fr;
+    }
+    .admin-user-table td:nth-child(4) > .rank-control-group {
+        grid-column: 2 / 3;
+    }
+    
+    /* !!! (ИСПРАВЛЕНО) Для ячейки Действия (Task 1) !!! */
+    .admin-user-table td:nth-child(5) {
+        /* Переопределяем display: grid с десктопа */
+        display: grid; 
+        grid-template-columns: 100px 1fr; /* Label | Content */
+    }
+    /* Складываем кнопки "Статистика" и "Заблокировать" в колонку */
+    .admin-user-table td:nth-child(5) > .admin-stats-btn,
+    .admin-user-table td:nth-child(5) > .admin-block-btn {
+        grid-column: 2 / 3; /* Занимают правую колонку */
+        width: 100%; /* На всю ширину контентной колонки */
+    }
+    .admin-stats-btn {
+        margin-bottom: 10px; /* Отступ между кнопками */
+    }
+}
+/* =========================================
+   1. ТОП НАВИГАЦИЯ
+   ========================================= */
+#top-game-nav {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+    opacity: 1;
+    max-height: 120px; 
+    overflow: hidden; 
+    margin-bottom: 15px;
+    width: 100%; 
+}
+
+#top-game-nav.hidden {
+    opacity: 0;
+    max-height: 0;
+    pointer-events: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mini-games-nav {
+    display: flex !important; 
+    flex-wrap: nowrap !important; 
+    overflow-x: auto !important; 
+    gap: 10px;
+    padding: 10px 5px;
+    margin: 0;
+    -webkit-overflow-scrolling: touch; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+.mini-games-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+.mini-games-nav-item {
+    flex: 0 0 auto !important; 
+    min-width: 100px !important;
+    width: 100px; 
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--color-sidebar);
+    border: 2px solid var(--color-border-dark);
+    padding: 8px 10px;
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 0.9em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mini-games-nav-item.active {
+    background-color: #6A788C;
+    border-color: var(--color-text-light);
+    color: var(--color-text-light);
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+
+/* =========================================
+   2. СТРАНИЦА РАНГОВ
+   ========================================= */
+#ranks-page .rank-container {
+    display: block; 
+    max-width: 100%; 
+    margin: 0; 
+    padding: 0;
+}
+.rank-scroll-container {
+    display: flex;
+    overflow-x: auto; 
+    overflow-y: hidden;
+    gap: 15px; 
+    -webkit-overflow-scrolling: touch; 
+    padding: 20px 15px; 
+    scrollbar-width: none; 
+}
+.rank-scroll-container::-webkit-scrollbar {
+    display: none; 
+}
+.rank-card-wrapper {
+    flex: 0 0 280px; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 25px 20px;
+    border-radius: 16px;
+    background-color: #2E3035; 
+    border: 1px solid var(--color-border-dark);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+.rank-card__image {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    margin-bottom: 20px;
+}
+.rank-card__title {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: var(--color-text-light);
+    margin-bottom: 20px;
+}
+.rank-card__info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.rank-card__info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.rank-card__info-item:last-child {
+    border-bottom: none;
+}
+.rank-card__info-item span {
+    opacity: 0.7;
+}
+.rank-card__info-item strong {
+    font-size: 1.1em;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+.rank-card-wrapper.locked {
+    background-color: #242830;
+    border-color: #2E3035;
+}
+.rank-card-wrapper.locked .rank-card__image {
+    opacity: 0.4;
+    filter: grayscale(80%);
+}
+.rank-card-wrapper.locked .rank-card__title,
+.rank-card-wrapper.locked .rank-card__info-list {
+    opacity: 0.5;
+}
+.rank-card-wrapper.achieved {
+    background-color: #2E3035; 
+    border-color: var(--color-border-dark);
+}
+.rank-card-wrapper.achieved .rank-card__image {
+     opacity: 1.0; 
+     filter: grayscale(0%);
+}
+.rank-card-wrapper.current {
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(245, 166, 35, 0.05) 10px,
+        rgba(245, 166, 35, 0.05) 12px
+    );
+    background-color: #2E3035;
+    border: 2px solid var(--color-orange);
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.5), 
+                0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.03); 
+}
+.rank-card-wrapper.current .rank-card__image {
+    opacity: 1;
+    filter: grayscale(0%);
+    filter: drop-shadow(0 0 10px var(--color-orange));
+}
+.rank-card-wrapper.current .rank-card__title {
+    color: var(--color-orange);
+    text-shadow: 0 0 10px var(--color-orange);
+}
+.rank-card-wrapper.current .rank-card__info-item strong {
+    color: var(--color-orange);
+}
+@media (max-width: 768px) {
+    .rank-card-wrapper {
+        flex-basis: 250px; 
+    }
+}
+
+/* =========================================
+   3. НЕДЕЛЬНЫЕ БОНУСЫ
+   ========================================= */
+.weekly-bonus-box {
+    margin-top: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.weekly-bonus-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    background-color: #2E3035;
+    padding: 15px;
+    border-radius: 8px;
+}
+.weekly-bonus-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.weekly-bonus-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.9;
+}
+.weekly-bonus-value {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--color-secondary);
+}
+.weekly-bonus-item .auth-button {
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    opacity: 0.6;
+    cursor: not-allowed;
+    width: auto;
+    margin-top: 0;
+    flex-shrink: 0;
+    padding: 10px 15px;
+    font-size: 0.9em;
+}
+.weekly-bonus-item .auth-button.active-claim {
+    background-color: var(--color-secondary);
+    opacity: 1;
+    cursor: pointer;
+}
+.weekly-bonus-item .auth-button.active-claim:hover {
+    background-color: #008f66;
+}
+#weekly-bonus-status {
+    text-align: center;
+    font-size: 0.9em;
+    min-height: 1.2em;
+}
+#weekly-bonus-status.win { color: var(--color-secondary); }
+#weekly-bonus-status.loss { color: var(--color-mine-bomb); }
+
+/* =========================================
+   4. БОЛЬШИЕ ВЫИГРЫШИ (СВЕТЛАЯ ТЕМА)
+   ========================================= */
+.bet-history-container h3 {
+    font-size: 1.5em;
+    font-weight: 800;
+    text-align: left;
+    margin-bottom: 15px;
+    
+    /* ЗАДАЧА: Делаем темным (как Список игр) в светлой теме */
+    background: none; 
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-text); /* Темный цвет */
+    text-shadow: none; 
+}
+
+/* Список игр (СВЕТЛАЯ ТЕМА) - уже по дефолту темный, но на всякий случай */
+.game-list-title {
+    color: var(--color-text); /* Темный цвет */
+}
+
+.high-win-card {
+    width: 150px; 
+    min-width: 150px;
+    padding: 2px; 
+    border-radius: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+    background: linear-gradient(45deg, #F5A623, #FFF, #F5A623, #B8860B);
+    background-size: 300% 300%;
+    animation: gold-shimmer 4s ease infinite;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4), 
+                0 0 10px rgba(245, 166, 35, 0.3);
+    transition: transform 0.2s;
+}
+.high-win-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(245, 166, 35, 0.6);
+}
+.history-item-content {
+    background-color: #2E3035; 
+    border-radius: 12px;
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    gap: 10px;
+}
+.history-game-img-icon {
+    height: 40px;
+    width: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
+}
+.high-win-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+}
+.history-user {
+    font-size: 0.9em;
+    color: #FFFFFF;
+    font-weight: bold;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.history-multiplier-tag {
+    font-size: 0.85em;
+    color: #F5A623;
+    font-weight: 800;
+    background-color: rgba(245, 166, 35, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid rgba(245, 166, 35, 0.4);
+    box-shadow: 0 0 5px rgba(245, 166, 35, 0.2);
+}
+.history-amount.win {
+    font-size: 1.2em;
+    font-weight: 900;
+    color: #00FF99; 
+    text-shadow: 0 0 10px rgba(0, 255, 153, 0.6);
+}
+@keyframes gold-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* =========================================
+   5. MINES SCROLL BAR
+   ========================================= */
+.mines-multipliers-bar {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 8px;
+    padding: 10px 5px; 
+    margin-bottom: 10px;
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+}
+.mines-multipliers-bar::-webkit-scrollbar {
+    display: none;
+}
+.mines-multiplier-item {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-sidebar); 
+    border: 2px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    min-width: 80px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+.step-label {
+    font-size: 0.7em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-bottom: 4px; 
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+.mines-multiplier-item .multiplier-value {
+    font-size: 1.4em; 
+    font-weight: bold;
+    color: var(--color-orange);
+    line-height: 1.2;
+}
+.mines-multiplier-item.active {
+    background-color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.5);
+}
+.mines-multiplier-item.active .multiplier-value,
+.mines-multiplier-item.active .step-label {
+    color: #FFFFFF;
+    opacity: 1;
+}
+.mines-action-buttons {
+    margin-top: 0; 
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* =========================================
+   6. РЕДИЗАЙН KENO (COMPACT & AUTO)
+   ========================================= */
+
+.keno-game-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.keno-grid-wrapper { order: 1; }
+#keno-status { order: 2; }
+.keno-controls-panel { order: 3; margin-top: 0; } /* Панель управления */
+/* МНОЖИТЕЛИ */
+.keno-payout-scroll-wrapper {
+    order: 4 !important; 
+    margin-top: 5px !important; /* Внешний отступ от кнопок */
+    /* ВАЖНО: padding-top позволяет лапкам не обрезаться сверху */
+    padding-top: 15px !important; 
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* ОБЩИЙ ФОН (Затемненная область) */
+.keno-board-area {
+    background-color: rgba(30, 33, 40, 0.6); 
+    border-radius: 16px;
+    padding: 15px 5px; 
+    margin-bottom: 0;
+    order: 1; 
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+}
+
+/* --- ИГРОВОЕ ПОЛЕ --- */
+.keno-grid-wrapper {
+    order: unset; 
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    position: relative;
+    margin-bottom: 0; 
+}
+
+.keno-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px; 
+}
+
+.keno-cell {
+    aspect-ratio: 1 / 1;
+    background-color: #2E3035; 
+    border: 1px solid var(--color-border-dark);
+    border-radius: 12px; 
+    color: var(--color-text-light);
+    font-size: 1.3em; 
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3);
+    overflow: hidden;
+}
+
+.keno-cell:hover {
+    transform: translateY(-1px);
+}
+
+/* Выбранная ячейка */
+.keno-cell.selected {
+    background-color: var(--color-orange); 
+    color: #FFFFFF;
+    border-color: var(--color-orange);
+    box-shadow: 0 0 10px var(--color-orange);
+}
+
+/* Угаданная ячейка (Зеленая) */
+.keno-cell.hit {
+    background-color: var(--color-secondary); 
+    border-color: var(--color-secondary);
+    box-shadow: none;
+    color: #fff;
+    animation: popIn 0.3s ease;
+}
+/* Ячейка, которая выпала, но не была выбрана */
+.keno-cell.drawn {
+    background-color: #4A5568; 
+    color: #FFF;
+    border-color: #4A5568;
+    opacity: 0.7;
+}
+
+/* Картинка внутри ячейки */
+.keno-cell-icon {
+    width: 90%; 
+    height: 90%;
+    object-fit: contain;
+}
+
+
+/* --- МНОЖИТЕЛИ (УМЕНЬШЕННЫЕ) --- */
+.keno-payout-scroll-wrapper {
+    order: unset;
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 5px;
+    scrollbar-width: none;
+    margin-top: 0; 
+}
+.keno-payout-scroll-wrapper::-webkit-scrollbar { display: none; }
+
+.keno-payout-bar-ref-style {
+    display: flex;
+    justify-content: space-between;
+    min-width: 100%;
+    gap: 2px; /* Уменьшен зазор */
+}
+
+.keno-gem-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px; /* Уменьшен зазор */
+    opacity: 0.6; 
+    transition: all 0.3s;
+    flex: 1;
+    min-width: 25px; /* Уменьшена мин ширина */
+}
+
+.keno-paw-wrapper {
+    position: relative;
+    width: 18px; /* Уменьшен размер лапок */
+    height: 18px;
+}
+
+.paw-grey, .paw-color {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.3s;
+}
+.paw-grey { opacity: 1; }
+.paw-color { opacity: 0; }
+
+/* Активное состояние */
+.keno-gem-item.active {
+    opacity: 1;
+    transform: scale(1.2); /* Увеличено выделение */
+}
+.keno-gem-item.active .paw-grey { opacity: 0; }
+.keno-gem-item.active .paw-color { opacity: 1; }
+
+.keno-gem-mult {
+    font-size: 0.65em; /* Очень маленький текст */
+    font-weight: bold;
+    color: var(--color-text-light);
+}
+
+
+/* --- ПАНЕЛЬ УПРАВЛЕНИЯ (MINIMALIST) --- */
+.keno-controls-ref-style {
+    order: 2; 
+    margin-top: -5px; 
+    background-color: #2E3035; 
+    border-radius: 20px 20px 0 0; 
+    padding: 10px; /* Компактный паддинг */
+    border: 1px solid var(--color-border-dark);
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Компактный отступ */
+}
+
+/* Tabs */
+.keno-tabs-visual {
+    display: flex;
+    background-color: #222429;
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 0;
+}
+.keno-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--color-text-light);
+    padding: 8px;
+    font-weight: bold;
+    border-radius: 6px;
+    opacity: 0.6;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+.keno-tab-btn.active {
+    background-color: #3D4654;
+    opacity: 1;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Container for Manual/Auto panels */
+#keno-manual-panel,
+#keno-auto-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Actions Row (Manual) */
+.keno-actions-row {
+    display: flex;
+    gap: 8px;
+}
+.keno-action-btn-ref {
+    background-color: transparent;
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    padding: 0 10px;
+    height: 40px; /* Компактная высота */
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9em;
+}
+.keno-action-btn-ref.autopick {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.keno-action-btn-ref.autopick:hover { background-color: #3D4654; }
+.keno-action-btn-ref.clear {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.keno-action-btn-ref.clear img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.8;
+}
+.keno-action-btn-ref.clear:hover { background-color: #3D4654; }
+
+/* Play Row (Manual) */
+.keno-play-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch; 
+}
+.keno-play-wrapper {
+    display: flex;
+    flex-shrink: 0;
+    height: 40px; /* Компактная высота */
+    flex-grow: 1;
+}
+.keno-big-play-btn {
+    flex-grow: 1; 
+    background: linear-gradient(90deg, #F5A623, #FFC857); 
+    color: #2E3035; 
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    font-size: 1em;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 3px 0 #C78212; 
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.keno-big-play-btn.full-width {
+    height: 40px;
+    width: 100%;
+}
+.keno-big-play-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #C78212;
+}
+.keno-turbo-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-turbo-btn:hover { background-color: #3D4654; }
+.keno-turbo-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.keno-turbo-btn.active img {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px #FFD700);
+}
+
+/* Input Row (Common) */
+.keno-bet-input-header {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    margin-bottom: -4px;
+    opacity: 0.7;
+}
+.keno-bet-input-row {
+    display: flex;
+    gap: 8px;
+    height: 40px; /* Компактная высота */
+    align-items: center; 
+}
+.keno-input-wrapper {
+    flex-grow: 1;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    height: 100%; 
+}
+.currency-icon {
+    color: var(--color-text-light);
+    opacity: 0.5;
+    font-weight: bold;
+    margin-right: 5px;
+    font-size: 0.9em;
+}
+.keno-input-wrapper input {
+    background: transparent;
+    border: none;
+    color: #FFF;
+    font-size: 1.2em;
+    width: 100%;
+    font-weight: 900;
+    outline: none;
+    padding: 0;
+    height: 100%;
+}
+
+/* Modifiers */
+.bet-half.ref-style, .bet-double.ref-style {
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark); 
+    color: var(--color-text-light);
+    width: 40px; /* Компактный размер */
+    height: 40px; 
+    flex-shrink: 0; 
+    border-radius: 8px;
+    font-weight: 900; 
+    font-size: 0.9em; 
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* --- AUTO GAME STYLES --- */
+.keno-auto-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.keno-auto-row label {
+    font-size: 0.8em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    font-weight: bold;
+}
+.keno-auto-count-wrapper {
+    display: flex;
+    gap: 8px;
+    height: 40px;
+}
+#keno-auto-count {
+    flex-grow: 1;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 8px;
+    color: #FFF;
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: center;
+    padding: 0 10px;
+}
+#keno-auto-start-button {
+    margin-top: 0;
+}
+/* Stop button state */
+#keno-auto-start-button.stop-mode {
+    background: linear-gradient(90deg, #FF5555, #FF7777);
+    box-shadow: 0 3px 0 #B03030;
+}
+#keno-auto-start-button.stop-mode:active {
+    box-shadow: 0 1px 0 #B03030;
+}
+
+
+/* --- RISK LEVELS --- */
+.keno-risk-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 4px;
+    background-color: #222429;
+    border-radius: 8px;
+    padding: 3px;
+    margin-top: 5px;
+}
+.keno-risk-btn {
+    background-color: transparent;
+    border: none;
+    color: var(--color-text-light);
+    opacity: 0.5;
+    padding: 8px 0;
+    font-size: 0.85em;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.keno-risk-btn.active {
+    background-color: #3D4654;
+    opacity: 1;
+    color: var(--color-orange);
+}
+
+
+/* Статус бар */
+#keno-status {
+    order: unset; 
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 400px) {
+    .keno-grid { gap: 3px; }
+    .keno-cell { border-radius: 8px; font-size: 1.1em; }
+}
+
+@keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+/* =========================================
+   7. АДАПТАЦИЯ COINFLIP (ПОД СТИЛЬ KENO)
+   ========================================= */
+
+/* Обертка для кнопок выбора (Орел/Решка) */
+.coin-choice-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+/* Сами кнопки выбора (наследуют стиль keno-turbo-btn, но растягиваются) */
+.coin-choice-btn {
+    flex-grow: 1; /* Растягиваем на всю ширину */
+    width: auto;  /* Сбрасываем фикс ширину */
+    height: 50px; /* Высота как у инпутов */
+    border-radius: 10px;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    transition: all 0.2s;
+}
+
+.coin-choice-btn img {
+    width: 35px; /* Картинки покрупнее */
+    height: 35px;
+    opacity: 0.8;
+    transition: transform 0.2s ease, opacity 0.2s;
+}
+
+.coin-choice-btn:hover {
+    background-color: #3D4654;
+    border-color: var(--color-text-light);
+}
+
+.coin-choice-btn:hover img {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+/* Переопределение цвета активной кнопки Забрать (зеленый) при нажатии */
+#coin-cashout-button:active {
+    box-shadow: 0 1px 0 #007550 !important;
+    transform: translateY(2px);
+}
+
+/* Скрытый класс (утилита) */
+.hidden {
+    display: none !important;
+}
+
+/* =========================================
+   8. ФИКСЫ ИНТЕРФЕЙСА COINFLIP
+   ========================================= */
+#coin-game .coin-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+#coin-game .keno-controls-ref-style {
+    order: 1 !important;
+    border-radius: 16px !important;
+    margin-top: 10px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#coin-game .coin-display-wrapper,
+#coin-game #coin-status {
+    order: 0 !important;
+}
+
+#coin-game .per-game-history-container {
+    order: 10 !important;
+    margin-top: 0 !important;
+}
+
+/* =========================================
+   9. РЕДИЗАЙН CRASH (KENO STYLE)
+   ========================================= */
+
+/* 1. Порядок элементов (История вниз) */
+#crash-game .crash-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* График сверху */
+.crash-graph-wrapper {
+    order: 0;
+    background-color: rgba(30, 33, 40, 0.6); /* Темный фон как в Keno Board */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 16px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+}
+
+/* Статус */
+#crash-status {
+    order: 1;
+}
+
+/* Панель управления */
+#crash-game .keno-controls-ref-style {
+    order: 2;
+    border-radius: 16px; /* Полное скругление */
+    margin-top: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* История */
+#crash-game .per-game-history-container {
+    order: 10;
+    margin-top: 20px;
+}
+
+
+/* 2. Стилизация ряда "Авто-вывод" */
+.crash-auto-row-styled {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #222429;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 5px;
+}
+
+.crash-auto-label-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.crash-label-title {
+    font-weight: bold;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+/* Инпут авто-вывода (маленький) */
+.crash-auto-input-box {
+    width: 100px !important; /* Фикс ширина */
+    flex-grow: 0 !important;
+    height: 36px !important;
+    border-color: transparent !important; /* Убираем рамку wrapper'а, т.к. есть внешняя */
+    background-color: rgba(255,255,255,0.05) !important;
+}
+.crash-auto-input-box input {
+    text-align: right;
+    padding-right: 5px;
+}
+
+/* Тумблер (Toggle Switch) */
+.switch-toggle {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.switch-toggle input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-border-dark);
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--color-secondary); /* Зеленый */
+}
+
+input:checked + .slider:before {
+    transform: translateX(18px);
+}
+
+/* Скругление тумблера */
+.slider.round {
+    border-radius: 34px;
+}
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Отключенный инпут */
+.crash-auto-input-box input:disabled {
+    opacity: 0.3;
+}
+
+/* Кнопка "Забрать" (Зеленая) */
+#crash-main-button.cashout-mode {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 3px 0 #007550;
+}
+#crash-main-button.cashout-mode:active {
+    box-shadow: 0 1px 0 #007550;
+    transform: translateY(2px);
+}
+
+/* Кнопка "Пропустить" (Синяя/Серая) */
+#crash-main-button.skip-mode {
+    background: linear-gradient(90deg, #4A90E2, #5aa1f5);
+    box-shadow: 0 3px 0 #2c6bb3;
+}
+
+/* =========================================
+   10. РЕДИЗАЙН MINES (KENO STYLE)
+   ========================================= */
+
+/* 1. Порядок элементов (История вниз) */
+#mines-game .mines-game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Шкала сверху */
+#mines-multipliers-bar {
+    order: 0;
+}
+
+/* Сетка */
+.mines-grid-wrapper {
+    order: 1;
+    background-color: rgba(30, 33, 40, 0.6); /* Темный фон */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 16px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    padding: 10px;
+}
+
+/* Статус */
+#mines-status {
+    order: 2;
+}
+
+/* Панель управления */
+#mines-game .keno-controls-ref-style {
+    order: 3;
+    border-radius: 16px; /* Полное скругление */
+    margin-top: 5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* История */
+#mines-game .per-game-history-container {
+    order: 10;
+    margin-top: 20px;
+}
+
+/* 2. Стили для выбора мин (Mines Count) */
+.mines-count-row {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 5px;
+    margin-top: 10px; /* Отступ сверху для отделения */
+}
+
+.mines-count-label {
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.7;
+}
+
+.mines-count-selector {
+    display: flex;
+    gap: 5px;
+}
+
+.mines-count-btn {
+    flex: 1;
+    background-color: transparent;
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 8px;
+    padding: 8px 0;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mines-count-btn:hover {
+    background-color: #3D4654;
+}
+
+.mines-count-btn.active {
+    background-color: #3D4654;
+    color: var(--color-orange);
+    border-color: var(--color-orange);
+    opacity: 1;
+}
+
+/* Кастомный инпут мин */
+.mines-custom-input {
+    flex: 0 0 60px; /* Фикс ширина */
+    height: 34px; /* Под высоту кнопок */
+    padding: 0 5px;
+    background-color: #222429; /* Темный фон */
+    border: 1px solid var(--color-border-dark);
+    /* ADDED: Flex to center input if needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* --- ИЗМЕНЕНО: Исправляем цвет текста и фона инпута --- */
+.mines-custom-input input,
+.mines-custom-input #mines-count-input {
+    text-align: center;
+    font-size: 1em;
+    background-color: transparent !important; /* Перекрываем стиль из style.css */
+    color: #FFF !important; /* Перекрываем стиль из style.css */
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-weight: bold;
+    padding: 0; /* Reset padding */
+}
+
+/* Кнопка "Забрать" (Зеленая) */
+#mines-main-button.cashout-mode {
+    background: linear-gradient(90deg, #00A878, #00D699);
+    box-shadow: 0 3px 0 #007550;
+}
+#mines-main-button.cashout-mode:active {
+    box-shadow: 0 1px 0 #007550;
+    transform: translateY(2px);
+}
+
+/* === (ИЗМЕНЕНО: ЗАДАЧА 4 И НОВЫЙ ЗАПРОС) Стили для скролла мини-игр === */
+
+/* ИЗМЕНЕНО: Контейнер */
+.mini-games-nav-container {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto 15px;
+    padding: 0 10px; 
+}
+
+.mini-games-nav {
+    display: flex; 
+    /* ИЗМЕНЕНО: Включаем перенос */
+    flex-wrap: wrap; 
+    /* ИЗМЕНЕНО: Убираем горизонтальный скролл */
+    overflow-x: visible; 
+    background-color: transparent;
+    border-radius: 0;
+    padding: 0; 
+    gap: 10px;
+    margin: 0; 
+    
+    /* ИЗМЕНЕНО: Убираем стили свайпа */
+    /* cursor: grab; */
+    /* user-select: none; */
+    
+    /* ИЗМЕНЕНО: Убираем плавную прокрутку */
+    /* scroll-behavior: smooth; */
+    
+    /* Скрываем скроллбар (на всякий случай) */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+}
+.mini-games-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+/* ИЗМЕНЕНО: Удаляем стили для кнопок прокрутки */
+.mini-games-scroll-btn {
+    display: none;
+}
+
+
+.mini-games-nav-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    
+    /* ИЗМЕНЕНО: flex-basis задает базовую ширину */
+    flex-basis: 110px;
+    /* ИЗМЕНЕНО: flex-grow позволяет растягиваться */
+    flex-grow: 1;
+    /* ИЗМЕНЕНО: flex-shrink: 0; (оставляем, чтобы не сжимались) */
+    flex-shrink: 0; 
+    
+    background-color: var(--color-sidebar);
+    border: 2px solid var(--color-border-dark);
+    padding: 8px 10px; 
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 0.9em;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-align: center;
+}
+
+/* ИСПРАВЛЕНИЕ: Убираем pointer-events: none; отсюда */
+.mini-games-nav-item .nav-game-icon {
+    /* pointer-events: none; */
+}
+
+
+/* Адаптация скролла для мобильных */
+@media (max-width: 768px) {
+    .mini-games-nav-container {
+        padding: 0 10px;
+    }
+    .mini-games-nav {
+        padding: 0; 
+    }
+    .mini-games-nav-item {
+        /* ИЗМЕНЕНО: Базовая ширина 100px, растягиваем */
+        flex-basis: 100px;
+        flex-grow: 1;
+        font-size: 0.8em;
+        gap: 5px;
+        padding: 8px 5px;
+    }
+}
+/* Импорт шрифтов Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;800&family=Roboto+Mono:wght@700&display=swap');
+
+/* =========================================
+   12. ANTI-MINUS DASHBOARD (АДМИНКА)
+   ========================================= */
+
+.am-dashboard-box {
+    background-color: #222429; /* Темный фон внутри контейнера */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+}
+
+.am-dash-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.am-stat-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.am-stat-item .label {
+    font-size: 0.8em;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.am-stat-item .value {
+    font-size: 1.2em;
+    font-weight: 900;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.text-blue { color: #4A90E2 !important; }
+.text-orange { color: #F5A623 !important; }
+
+/* Шкала Прогресса (Profit Bar) */
+.am-bar-container {
+    width: 100%;
+    height: 12px;
+    background-color: #111;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 5px;
+    border: 1px solid var(--color-border-dark);
+    position: relative;
+}
+
+.am-bar-fill {
+    height: 100%;
+    background-color: var(--color-secondary); /* Зеленый по дефолту */
+    width: 0%; /* JS меняет это */
+    transition: width 0.5s ease, background-color 0.5s ease;
+    box-shadow: 0 0 10px currentColor; /* Свечение цветом фона */
+}
+
+.am-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75em;
+    color: var(--color-text-light);
+    opacity: 0.5;
+    margin-bottom: 15px;
+}
+
+/* Чистая Прибыль */
+.am-dash-net {
+    text-align: center;
+    font-size: 1.1em;
+    border-top: 1px solid var(--color-border-dark);
+    padding-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.am-dash-net span:first-child {
+    color: var(--color-text-light);
+    opacity: 0.8;
+}
+
+.net-value {
+    font-weight: 900;
+    font-size: 1.3em;
+    text-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* --- Адаптация для мобильных --- */
+@media (max-width: 600px) {
+    .am-dash-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .am-stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 12px;
+    }
+    .am-stat-item .label { margin-bottom: 0; }
+}
+
+/* Вспомогательные стили (для полноты файла) */
+.profile-balance-box .balance,
+#mobile-profile-balance {
+    color: #FFFFFF !important; 
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important; 
+    font-family: 'Roboto Mono', monospace !important;
+    font-weight: 700 !important; 
+}
+.profile-balance-box,
+.profile-name,
+.profile-balance-box .balance,
+#mobile-profile-name,
+#mobile-profile-balance {
+    font-family: 'Roboto Mono', monospace !important;
+    font-weight: 700 !important; 
+    letter-spacing: 0; 
+}
+.profile-balance-box .balance {
+    font-size: 1.1em !important; 
+    margin-top: 0; 
+}
+.profile-name {
+    font-size: 0.9em !important;
+    opacity: 0.9;
+    color: #FFFFFF !important; 
+}
+@media (max-width: 768px) {
+    .mobile-header .profile-balance-box .balance {
+        font-size: 1.0em !important;
+    }
+    .mobile-header .profile-name {
+        font-size: 0.8em !important;
+    }
+}
+.game-list-title,
+.bet-history-container h3,
+.coin-step-label, 
+.value,
+#sleepy-risk-display,
+#sleepy-status {
+    font-family: 'Fredoka', sans-serif !important;
+    font-weight: 800 !important; 
+    letter-spacing: 1px;
+    text-transform: uppercase; 
+    line-height: 1.2;
+}
+.game-list-title {
+    font-size: 1.7em !important;
+}
+.bet-history-container h3 {
+    font-size: 1.4em !important;
+}
+@media (max-width: 768px) {
+    .game-list-title {
+        font-size: 1.4em !important;
+    }
+    .bet-history-container h3 {
+        font-size: 1.2em !important;
+    }
+}
+.header-user-group {
+    display: flex !important;
+    flex-direction: row !important; 
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 10px !important; 
+    margin-left: auto !important; 
+    margin-top: 0px !important; 
+}
+.mobile-header .logo {
+    transform: translateY(15px) !important;
+    align-items: flex-start !important; 
+}
+.notification-bar-container {
+    width: auto !important;
+    margin: 0 !important; 
+    padding: 0 !important;
+    position: static !important; 
+    display: block !important;
+}
+.notification-bar-container.hidden {
+    display: none !important;
+}
+.notification-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.notif-btn {
+    background-color: transparent !important; 
+    border: none !important; 
+    border-radius: 50% !important;
+    width: 40px !important; 
+    height: 40px !important; 
+    min-width: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background-color 0.2s !important;
+}
+.notif-btn:hover {
+    background-color: rgba(255,255,255,0.1) !important;
+}
+.bell-icon {
+    width: 24px !important; 
+    height: 24px !important;
+    color: #FFF !important;
+    fill: #FFF !important;
+    stroke: none !important;
+}
+.notif-text-label {
+    display: none !important;
+}
+.notif-badge {
+    background-color: var(--color-orange) !important;
+    color: #FFF !important;
+    font-size: 0.6em !important;
+    font-weight: bold !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    border-radius: 8px !important; 
+    padding: 0 3px !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: absolute !important;
+    top: 5px !important;
+    right: 5px !important;
+    margin-left: 0 !important;
+    box-shadow: 0 0 0 2px #2E3035 !important; 
+}
+.notif-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    margin-top: 10px !important;
+    right: 0 !important; 
+    width: 280px !important;
+    background-color: #2E3035 !important;
+    border: 1px solid var(--color-border-dark) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+    z-index: 1001 !important;
+    overflow: hidden !important;
+    animation: dropdownFade 0.2s ease-out !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+.notif-dropdown.hidden {
+    display: none !important;
+}
+@keyframes dropdownFade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.notif-header {
+    padding: 12px 15px !important;
+    font-weight: bold !important;
+    color: #FFF !important;
+    background-color: rgba(0,0,0,0.2) !important;
+    border-bottom: 1px solid var(--color-border-dark) !important;
+    font-size: 0.9em !important;
+}
+.notif-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+.notif-item {
+    padding: 12px 15px !important;
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    transition: background-color 0.2s !important;
+}
+.notif-item:last-child {
+    border-bottom: none !important;
+}
+.notif-item:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+.notif-item.new {
+    border-left: 3px solid var(--color-orange) !important;
+    background-color: rgba(245, 166, 35, 0.05) !important;
+}
+.notif-title {
+    font-size: 0.9em !important;
+    font-weight: bold !important;
+    color: #FFF !important;
+}
+.notif-text {
+    font-size: 0.85em !important;
+    color: var(--color-text-light) !important;
+    opacity: 0.8 !important;
+    line-height: 1.3 !important;
+}
+.notif-time {
+    font-size: 0.7em !important;
+    color: var(--color-text-light) !important;
+    opacity: 0.5 !important;
+    align-self: flex-end !important;
+}
+@media (max-width: 768px) {
+    .mobile-header {
+        height: auto !important; 
+        min-height: 60px !important; 
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+        align-items: center !important; 
+    }
+    .profile-balance-box {
+        margin-bottom: 0 !important;
+    }
+}
+.coin-multiplier-item.active {
+    background-color: var(--color-secondary) !important; 
+    border-color: var(--color-secondary) !important;
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.6) !important; 
+}
+.coin-multiplier-item.active .value {
+    color: #FFFFFF !important;
+}
+#coin-cashout-button {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    line-height: 1.2 !important;
+    padding: 5px 0 !important;
+    height: auto !important;
+    min-height: 55px !important; 
+}
+#coin-cashout-button.hidden {
+    display: none !important;
+}
+.high-win-card .history-amount {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.1 !important;
+    margin-top: 5px !important;
+}
+.high-win-currency {
+    font-size: 0.7em !important;
+    opacity: 0.9;
+    margin-top: 2px;
+}
+#mines-main-button.cancel-mode {
+    background: linear-gradient(90deg, #FF5555, #FF7777) !important; 
+    box-shadow: 0 3px 0 #B03030 !important; 
+    color: #FFFFFF !important;
+}
+#mines-main-button.cancel-mode:active {
+    box-shadow: 0 1px 0 #B03030 !important;
+    transform: translateY(2px) !important;
+}
+.coin-multiplier-item {
+    min-width: 80px !important; 
+    padding: 8px 5px !important;
+}
+.coin-step-label {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+.coin-multiplier-item.active .coin-step-label {
+    color: #FFFFFF;
+    opacity: 1;
+}
+.mobile-header {
+    height: 60px !important;       
+    min-height: 60px !important;   
+    overflow: visible !important;  
+    position: relative !important; 
+}
+.mobile-header .logo {
+    position: absolute !important; 
+    top: -3px;
+    left: 15px;
+    margin: 0 !important;
+    transform: none !important;
+    z-index: 20;
+}
+.mobile-header .logo .logo-image {
+    height: 75px !important; 
+    width: auto !important;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+}
+.profile-balance-box {
+    padding: 2px 4px !important;
+    min-width: auto !important; 
+}
+.sleepy-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    gap: 20px;
+}
+.sleepy-scene {
+    padding-top: 20px; 
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-image: url('assets/sleepy_room.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5) !important;
+    z-index: 1; 
+}
+.sleepy-cat {
+    width: 145px !important;
+    height: auto !important;
+    margin-bottom: -20px !important;
+    transform: translateX(0px) translateY(0px) scale(1.0); 
+    z-index: 2;
+    transition: transform 0.1s;
+}
+.sleepy-bowl-wrapper {
+    z-index: 3;
+    margin-bottom: 20px !important;
+}
+.sleepy-bowl {
+    width: 75px !important;
+    height: auto !important;
+    transition: transform 0.2s;
+    transform: translateX(0px) translateY(6px) scale(1.0);
+}
+.sleepy-bowl.bounce {
+    animation: bounceIn 0.3s;
+}
+.sleepy-zzz {
+    position: absolute;
+    top: 25% !important;
+    right: 25% !important;
+    transform: translate(-135px, 50px) !important;
+    z-index: 10 !important;
+    font-family: 'Fredoka', cursive !important;
+    font-weight: bold;
+    color: var(--color-text-light) !important;
+    font-size: 2em;
+    text-shadow: 2px 2px 0px #2E3035 !important;
+    opacity: 0;
+    animation: floatZzz 2.5s infinite ease-out !important;
+}
+@keyframes floatZzz {
+    0% { transform: translate(10px, -15px) scale(0.8); opacity: 0; } 
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translate(40px, -60px) scale(1.5); opacity: 0; }
+}
+.shake-cat {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+@keyframes shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(4px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+  40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+@keyframes catBreath {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.03) translateY(-2px); } 
+    100% { transform: scale(1); }
+}
+.sleepy-cat:not(.shake-cat) {
+    animation: catBreath 3s infinite ease-in-out !important;
+    transform-origin: bottom center;
+}
+.lobby-game-wrapper[data-game-type="sleepy"] .game-card-cat {
+    transform: translateX(-28px) translateY(20px) scale(0.85) !important;
+}
+.lobby-game-wrapper[data-game-type="sleepy"]:hover .game-card-cat {
+    transform: translateX(0px) translateY(5px) scale(1.25) !important;
+}
+#sleepy-cashout-btn.loss-mode {
+    background: linear-gradient(90deg, #FF5555, #FF7777) !important;
+    box-shadow: 0 3px 0 #B03030 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #B03030 !important;
+    opacity: 1 !important;
+    cursor: not-allowed !important;
+}
+.sleepy-stats-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-bottom: -10px !important; 
+    z-index: 10; 
+    position: relative;
+    gap: 0; 
+}
+.sleepy-stats-group .coin-multiplier-item,
+#sleepy-risk-display,
+#sleepy-status {
+    background: linear-gradient(145deg, #2E3035, #25282e) !important; 
+    border: 1px solid var(--color-border-dark) !important; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    color: var(--color-text-light) !important;
+}
+.sleepy-stats-group .coin-multiplier-item {
+    border-radius: 8px !important; 
+    min-width: 75px !important;
+    padding: 8px 5px !important;
+    margin-bottom: 5px !important; 
+    margin-right: 5px !important; 
+    background-color: transparent; 
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+.sleepy-stats-group .coin-multiplier-item.active {
+    background: var(--color-secondary) !important; 
+    border-color: var(--color-secondary) !important;
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.6) !important;
+    transform: scale(1.05);
+    z-index: 2;
+    color: #FFFFFF !important;
+}
+.sleepy-stats-group .coin-multipliers-bar {
+    margin-bottom: 0 !important;
+    padding-bottom: 5px;
+    background-color: transparent !important;
+    border: none !important;
+}
+#sleepy-risk-display {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 10px;
+    border-radius: 12px !important;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 0;
+}
+#sleepy-status {
+    width: 100%;
+    margin-top: 15px !important; 
+    padding: 12px !important;
+    border-radius: 12px !important;
+    text-align: center;
+    font-size: 1.2em !important;
+    font-weight: bold;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+#sleepy-status.win {
+    background: linear-gradient(145deg, #00A878, #00D699) !important;
+    border-color: #007550 !important;
+    box-shadow: 0 0 15px rgba(0, 168, 120, 0.5) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+#sleepy-status.loss {
+    background: linear-gradient(145deg, #FF5555, #FF7777) !important;
+    border-color: #B03030 !important;
+    box-shadow: 0 0 15px rgba(255, 85, 85, 0.5) !important;
+    color: #FFFFFF !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+#sleepy-status .win-val,
+#sleepy-status .loss-val, 
+#sleepy-status .neutral-val {
+    color: inherit !important; 
+}
+#sleepy-game .keno-controls-ref-style {
+    border-radius: 16px !important; 
+    border: 1px solid var(--color-border-dark) !important;
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+    background-color: #2E3035 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+#sleepy-game .per-game-history-container {
+    order: 100 !important;
+    margin-top: 0 !important;
+}
+
+/* =========================================
+   13. WHEEL GAME STYLES (UPDATED & RESIZED)
+   ========================================= */
+
+.wheel-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Визуал колеса (УВЕЛИЧЕНО) */
+.wheel-visual-wrapper {
+    position: relative;
+    /* ИЗМЕНЕНО: 300px -> 350px для лучшей видимости секторов */
+    width: 350px; 
+    height: 350px;
+    margin: 30px auto; /* ИЗМЕНЕНО: auto для центрирования */
+    /* Тень под колесом */
+    filter: drop-shadow(0 15px 30px rgba(0,0,0,0.6));
+    
+    /* ИЗМЕНЕНО: (ПОРЯДОК) Колесо всегда сверху */
+    order: 1;
+}
+
+.wheel-spinner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* Градиент задается через JS */
+    transition: transform 4s cubic-bezier(0.15, 0.90, 0.30, 1.0);
+    /* Внутренняя тень для объема */
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.6); 
+    border: 8px solid #2E3035; /* Более толстый ободок */
+}
+
+/* Стрелка */
+.wheel-pointer {
+    position: absolute;
+    top: -25px; /* Поднята выше из-за толстого ободка */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; 
+    height: 0; 
+    /* Увеличенная стрелка */
+    border-left: 20px solid transparent;
+    border-right: 20px solid transparent;
+    border-top: 35px solid #FFFFFF; /* Белая стрелка */
+    z-index: 10;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+}
+
+/* Центральная заглушка (ступица) */
+.wheel-center-cap {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px; /* Увеличена заглушка */
+    height: 70px;
+    background-color: #2E3035;
+    border: 4px solid #FFF;
+    border-radius: 50%;
+    z-index: 5;
+    box-shadow: 0 0 20px rgba(0,0,0,0.7);
+    background-image: url('assets/CashCat2.png'); 
+    background-size: cover;
+    background-position: center;
+}
+
+/* Сетка ставок */
+.wheel-bet-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.wheel-bet-btn {
+    position: relative;
+    background-color: #222429;
+    border: 2px solid var(--color-border-dark);
+    border-radius: 12px;
+    padding: 15px 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.1s;
+    min-height: 90px; /* Чуть выше кнопки */
+}
+
+.wheel-bet-btn span {
+    font-size: 1.3em; /* Крупнее шрифт */
+    font-weight: 900;
+    color: #FFF;
+    margin-bottom: 5px;
+}
+
+.bet-value {
+    font-size: 1em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* Цвета кнопок */
+.wheel-bet-btn.black { border-color: #555; }
+.wheel-bet-btn.black.active { background-color: #444; box-shadow: 0 0 15px #444; }
+
+.wheel-bet-btn.red { border-color: #FF5555; }
+.wheel-bet-btn.red span { color: #FF5555; }
+.wheel-bet-btn.red.active { background-color: rgba(255, 85, 85, 0.2); box-shadow: 0 0 15px rgba(255, 85, 85, 0.5); }
+
+.wheel-bet-btn.green { border-color: #00A878; }
+.wheel-bet-btn.green span { color: #00A878; }
+.wheel-bet-btn.green.active { background-color: rgba(0, 168, 120, 0.2); box-shadow: 0 0 15px rgba(0, 168, 120, 0.5); }
+
+.wheel-bet-btn.gold { border-color: #F5A623; }
+.wheel-bet-btn.gold span { color: #F5A623; }
+.wheel-bet-btn.gold.active { background-color: rgba(245, 166, 35, 0.2); box-shadow: 0 0 15px rgba(245, 166, 35, 0.5); }
+
+.wheel-bet-btn:active { transform: scale(0.95); }
+.wheel-bet-btn.pulse { animation: popIn 0.2s; }
+
+/* История (Лента) */
+#wheel-history-bar {
+    display: flex;
+    gap: 6px;
+    overflow-x: hidden; 
+    height: 35px; /* Выше история */
+    width: 100%;
+    justify-content: center; 
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin-bottom: 10px;
+    
+    /* ИЗМЕНЕНО: (ПОРЯДОК) История (полоска) после колеса */
+    order: 2;
+}
+
+/* Статус выигрыша */
+#wheel-status {
+    /* ИЗМЕНЕНО: (ПОРЯДОК) Статус после полоски */
+    order: 3;
+}
+
+/* Панель управления (Ставки) */
+.wheel-game-container .keno-controls-ref-style {
+    /* ИЗМЕНЕНО: (ПОРЯДОК) Панель после статуса */
+    order: 4;
+}
+
+/* ИСТОРИЯ ИГР (Список) - ВСЕГДА ВНИЗУ */
+.wheel-game-container .per-game-history-container {
+    /* ИЗМЕНЕНО: (ПОРЯДОК) Список в самом низу */
+    order: 5;
+    margin-top: 20px; /* Отступ от панели */
+}
+
+
+.wheel-hist-item {
+    width: 10px; /* Толще полоски */
+    height: 100%;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+.wheel-hist-item.black { background-color: #2E3035; border: 1px solid #555; }
+.wheel-hist-item.red   { background-color: #FF5555; }
+.wheel-hist-item.green { background-color: #00A878; }
+.wheel-hist-item.gold  { background-color: #F5A623; box-shadow: 0 0 8px #F5A623; }
+
+/* Адаптация под мобильные (чтобы колесо не вылезало) */
+@media (max-width: 400px) {
+    .wheel-visual-wrapper {
+        width: 290px;
+        height: 290px;
+    }
+    .wheel-center-cap {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Wheel Lobby Card Adjustments */
+.lobby-game-wrapper[data-game-type="wheel"] .game-card-cat {
+    transform: translateX(-5px) translateY(15px) scale(1.1); /* Default state */
+}
+.lobby-game-wrapper[data-game-type="wheel"]:hover .game-card-cat {
+    transform: translateX(0px) translateY(5px) scale(1.2); /* Hover state */
+}
+
+
+
+
+
