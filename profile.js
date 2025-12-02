@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Обновлено: Переключение класса .dark-theme вместо подмены файлов
+ * Обновлено: Добавлена логика падающего снега
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser } from './global.js';
@@ -10,16 +10,13 @@ let wagerAmountEl, rankEl, wagerRulesLink;
 let passwordForm, oldPassInput, newPassInput, passwordStatusEl;
 let vkLinkBtn, tgLinkBtn, logoutBtn;
 let themeToggleBtn; 
+let snowToggleInput; // Новый тумблер
 
-// --- ЛОГИКА ТЕМЫ ---
+// --- ЛОГИКА ТЕМЫ И СНЕГА ---
 
-/**
- * Инициализирует состояние темы
- */
 function initTheme() {
     const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     
-    // Применяем класс к body
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-theme');
         if (themeToggleBtn) themeToggleBtn.textContent = "☀️ Включить светлую тему";
@@ -29,48 +26,93 @@ function initTheme() {
     }
 }
 
-/**
- * Обрабатывает клик по кнопке переключения
- */
 async function handleThemeToggle() {
-    // Переключаем класс
     const isDarkNow = document.body.classList.toggle('dark-theme');
     const newTheme = isDarkNow ? 'dark' : 'light';
 
-    // Обновляем текст кнопки
     if (themeToggleBtn) {
         themeToggleBtn.textContent = isDarkNow ? "☀️ Включить светлую тему" : "🌙 Включить темную тему";
     }
     
-    // 1. Сохраняем локально
     localStorage.setItem('cashcat_theme', newTheme);
     
-    // 2. Сохраняем в БД (если пользователь залогинен)
     if (currentUser) {
         const userData = await fetchUser(currentUser);
         const currentCustomization = userData?.customization || {};
-        
-        const newCustomization = {
-            ...currentCustomization,
-            theme: newTheme
-        };
-        
-        await patchUser(currentUser, { customization: newCustomization });
+        await patchUser(currentUser, { customization: { ...currentCustomization, theme: newTheme } });
     }
 }
 
+// --- ЛОГИКА ПАДАЮЩЕГО СНЕГА ---
 
-/**
- * Обрабатывает выход пользователя
- */
+function initSnow() {
+    const snowContainer = document.getElementById('falling-snow-container');
+    if (!snowContainer) return;
+
+    // Читаем настройку (по умолчанию true)
+    const isSnowEnabled = localStorage.getItem('cashcat_snow') !== 'false';
+    
+    if (snowToggleInput) {
+        snowToggleInput.checked = isSnowEnabled;
+        snowToggleInput.addEventListener('change', handleSnowToggle);
+    }
+
+    if (isSnowEnabled) {
+        startSnow(snowContainer);
+    } else {
+        stopSnow(snowContainer);
+    }
+}
+
+function handleSnowToggle(e) {
+    const enabled = e.target.checked;
+    localStorage.setItem('cashcat_snow', enabled);
+    
+    const snowContainer = document.getElementById('falling-snow-container');
+    if (enabled) startSnow(snowContainer);
+    else stopSnow(snowContainer);
+}
+
+function startSnow(container) {
+    if (!container) return;
+    container.innerHTML = ''; // Очистка
+    container.style.display = 'block';
+    
+    // Создаем 30 снежинок (чтобы не нагружать)
+    for (let i = 0; i < 30; i++) {
+        const flake = document.createElement('div');
+        flake.classList.add('snowflake');
+        flake.textContent = '❄'; // Или '•'
+        
+        // Рандомные свойства
+        const size = Math.random() * 1.5 + 0.5 + 'em';
+        const left = Math.random() * 100 + 'vw';
+        const duration = Math.random() * 5 + 5 + 's'; // 5-10s
+        const delay = Math.random() * -10 + 's'; // Отрицательная задержка чтобы сразу падали
+        
+        flake.style.fontSize = size;
+        flake.style.left = left;
+        flake.style.animationDuration = duration;
+        flake.style.animationDelay = delay;
+        
+        container.appendChild(flake);
+    }
+}
+
+function stopSnow(container) {
+    if (!container) return;
+    container.innerHTML = '';
+    container.style.display = 'none';
+}
+
+
+// --- СТАНДАРТНАЯ ЛОГИКА ---
+
 async function handleLogout() {
     await setCurrentUser(null); 
     location.reload(); 
 }
 
-/**
- * Обрабатывает нажатие на ссылку "Правила отыгрыша"
- */
 function handleShowWagerRules(e) {
     e.preventDefault();
     showSection('faq-page');
@@ -83,9 +125,6 @@ function handleShowWagerRules(e) {
     }
 }
 
-/**
- * Обрабатывает смену пароля
- */
 async function handleChangePassword(e) {
     e.preventDefault();
     if (!currentUser) return;
@@ -124,14 +163,10 @@ async function handleChangePassword(e) {
     }
 }
 
-/**
- * Обновляет данные на странице профиля
- */
 export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
     if (rankEl) rankEl.textContent = '...';
 
-    // Инициализируем состояние кнопки темы
     initTheme();
 
     if (currentUser && rankEl && wagerAmountEl) {
@@ -161,9 +196,6 @@ export async function updateProfileData() {
     }
 }
 
-/**
- * Инициализирует страницу профиля
- */
 export function initProfile() {
     wagerAmountEl = document.getElementById('profile-wager-amount');
     rankEl = document.getElementById('profile-rank');
@@ -176,16 +208,17 @@ export function initProfile() {
     tgLinkBtn = document.getElementById('profile-link-tg');
     logoutBtn = document.getElementById('profile-logout-button');
     
-    // Находим кнопку темы
+    // Тема и Снег
     themeToggleBtn = document.getElementById('theme-toggle-btn');
+    snowToggleInput = document.getElementById('snow-toggle-input'); // Получаем элемент
 
-    // Слушатели
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', handleThemeToggle);
     }
     
-    // При загрузке сразу проверяем тему (чтобы не мигало)
+    // Инициализация
     initTheme();
+    initSnow(); // Запускаем снег
 
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);

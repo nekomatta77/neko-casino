@@ -1,306 +1,436 @@
-/* * style2.css 
- * GLOBAL REDESIGN (White Clean UI + Dark Mode Support)
+/*
+ * style2.css
+ * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
+ * Version 3.3
  */
 
 :root {
-    /* --- ОСНОВНАЯ ПАЛИТРА (СВЕТЛАЯ ТЕМА ПО УМОЛЧАНИЮ) --- */
-    
-    /* Основной акцентный цвет (Indigo) */
-    --color-primary: #4F46E5; 
+    /* --- ПАЛИТРА --- */
+    --color-primary: #4F46E5;       /* Индиго */
     --color-primary-hover: #4338ca;
     
-    /* Фон и текст */
-    --bg-main: #FFFFFF;           /* Чистый белый фон */
-    --bg-card: #F3F4F6;           /* Очень светло-серый для карточек */
-    --bg-panel: #FFFFFF;          /* Панели тоже белые или светло-серые */
-    --bg-input: #F9FAFB;          /* Фон полей ввода */
+    --bg-main: #FFFFFF;             /* Белый фон страницы */
+    --bg-card: #F5F7FF;             /* Светлый фон карточек */
+    --bg-panel: #EEF2FF;            /* Светлый фон панелей */
     
-    --text-main: #111827;         /* Почти черный текст для контраста */
-    --text-muted: #6B7280;        /* Серый текст для второстепенного */
-    --text-light: #111827;        /* Переопределяем старую переменную */
+    /* ТЕКСТ */
+    --text-main: #1E1B4B;           /* Темно-синий текст */
+    --text-muted: #6366F1;          /* Индиго текст */
+    --text-white: #FFFFFF;          /* Белый (для ника) */
     
-    --border-color: #E5E7EB;      /* Светлая обводка */
-    --border-color-dark: #D1D5DB; 
+    --border-color: #E0E7FF;
+    --border-color-dark: #C7D2FE;
     
-    /* Другие цвета */
-    --color-secondary: #10B981;   /* Зеленый (успех/деньги) */
-    --color-danger: #EF4444;      /* Красный (ошибка) */
-    --color-orange: #F59E0B;      /* Оранжевый (предупреждения/ранги) */
-    
-    /* Настройки UI */
-    --header-height: 70px;
-    --card-radius: 24px;          /* Скругление квадратов */
-    --transition-speed: 0.3s;
+    --card-radius: 24px;
 }
 
-/* --- ТЕМНАЯ ТЕМА (Активируется классом .dark-theme на body) --- */
-body.dark-theme {
-    --bg-main: #111827;           /* Глубокий темный фон */
-    --bg-card: #1F2937;           /* Темно-серые карточки */
-    --bg-panel: #1F2937;
-    --bg-input: #374151;
-    
-    --text-main: #F9FAFB;         /* Белый текст */
-    --text-muted: #9CA3AF;
-    --text-light: #F9FAFB;
-    
-    --border-color: #374151;
-    --border-color-dark: #4B5563;
-}
-
-/* Глобальный сброс цветов */
+/* Глобальный фон с КУЧЕЙ снежинок */
 body {
     background-color: var(--bg-main) !important;
-    background-image: none !important; /* Убираем старый градиент */
     color: var(--text-main) !important;
-    transition: background-color var(--transition-speed), color var(--transition-speed);
+    
+    /* Снежинки на фоне */
+    background-image: 
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/snow2.svg');
+    
+    background-position: 
+        5% 5%,   95% 15%,  15% 25%,  85% 35%,
+        25% 45%, 75% 55%,  35% 65%,  65% 75%,
+        45% 85%, 55% 95%,  10% 90%,  90% 10%,
+        20% 60%, 80% 40%,  40% 20%,  60% 80%,
+        2% 50%,  98% 50%;
+        
+    background-repeat: no-repeat;
+    
+    /* Разные размеры для хаоса */
+    background-size: 
+        40px, 25px, 50px, 30px,
+        60px, 20px, 45px, 35px,
+        55px, 25px, 40px, 30px,
+        35px, 50px, 25px, 45px,
+        30px, 20px;
+    
+    background-attachment: fixed;
 }
 
-/* --- 1. ХЕДЕР (Task 3: Белый/Прозрачный) --- */
+/* Падающий снег (анимация) */
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: #A5B4FC; /* Светло-голубой */
+    user-select: none;
+    pointer-events: none;
+    z-index: 9999;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+    100% { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
+}
+
+/* --- ХЕДЕР (PC по умолчанию) --- */
 .mobile-header {
     background-color: var(--bg-main) !important;
     border-bottom: 1px solid var(--border-color) !important;
-    box-shadow: none !important; /* Убираем тень для "чистого" вида */
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.05) !important;
+    height: 70px !important;
+    display: flex !important; 
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 15px !important;
 }
 
-/* Логотип */
+/* --- ЛОГОТИП С ШАПКОЙ (ОБНОВЛЕНО ПО ЗАПРОСУ) --- */
+.logo-text-wrapper {
+    position: relative;
+    display: inline-block;
+    font-weight: 900;
+    color: var(--color-primary);
+}
+
+.letter-with-hat {
+    position: relative;
+    display: inline-block;
+}
+
+.santa-hat {
+    position: absolute;
+    /* Обновленные координаты от пользователя */
+    top: -18px; 
+    left: -8px; 
+    width: 35px; 
+    height: auto;
+    z-index: 10;
+    pointer-events: none;
+    transform: rotate(0deg); /* Исправлено deg -> 0deg */
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+}
+
+/* Логотип текст */
 .logo-text {
-    /* Делаем текст логотипа контрастным в зависимости от темы */
     background: none !important;
-    -webkit-text-fill-color: var(--text-main) !important; 
-    color: var(--text-main) !important;
+    -webkit-text-fill-color: var(--color-primary) !important; 
+    color: var(--color-primary) !important;
     text-shadow: none !important;
+    font-weight: 900 !important;
 }
 
-/* Баланс в хедере */
+/* Группа пользователя (Справа на ПК) */
+.header-user-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* --- ПЛАШКА БАЛАНСА И НИК --- */
 .profile-balance-box {
-    background-color: var(--bg-card) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-    box-shadow: none !important;
+    background-color: var(--color-primary) !important; 
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 5px 15px !important;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3) !important;
 }
-.profile-balance-box .balance {
-    color: var(--color-primary) !important; /* Акцентный цвет для денег */
-    text-shadow: none !important;
-    -webkit-text-stroke: 0 !important;
-}
+
+/* Имя игрока - Белое */
 .profile-name {
-    color: var(--text-muted) !important;
-    -webkit-text-stroke: 0 !important;
+    color: #FFFFFF !important; 
+    opacity: 0.9;
+    font-weight: normal !important;
 }
 
-/* --- 2. КАРТОЧКИ РЕЖИМОВ (Task 2: Округленные квадраты) --- */
+/* Баланс - Белый (жирный) */
+.profile-balance-box .balance {
+    color: #FFFFFF !important;
+    font-weight: 900 !important;
+    text-shadow: none !important;
+}
 
+/* Аватарка в хедере */
+.header-avatar-img {
+    border: 2px solid rgba(255,255,255,0.5) !important;
+}
+
+/* --- УВЕДОМЛЕНИЯ --- */
+.bell-icon {
+    fill: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+.notif-btn:hover {
+    background-color: var(--bg-panel) !important;
+}
+.notif-badge {
+    background-color: var(--color-orange) !important;
+    color: #FFF !important;
+    box-shadow: 0 0 0 2px var(--bg-main) !important;
+}
+
+
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+@media (max-width: 768px) {
+    
+    /* Шапки Санты на мобильном */
+    .santa-hat {
+        width: 26px;
+        top: 5px;
+        left: 2px;
+    }
+
+    /* Хедер в колонку */
+    .mobile-header {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 10px 15px !important;
+        gap: 10px !important;
+    }
+
+    /* 1. Логотип сверху по центру */
+    .mobile-header .logo {
+        position: static !important;
+        width: 100%;
+        display: flex;
+        justify-content: center !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+    .mobile-header .logo-image {
+        height: 60px !important;
+        display: none !important; /* Скрываем картинку, если используем текст */
+    }
+    /* Увеличиваем текст логотипа на мобильных */
+    .logo-text-wrapper {
+        font-size: 1.5em; 
+    }
+
+    /* 2. Группа с балансом и уведомлениями - на всю ширину снизу */
+    .header-user-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-between !important;
+        align-items: center;
+        margin: 0 !important;
+        gap: 10px !important;
+    }
+
+    /* --- КАРТОЧКА ИГРОКА (МОБИЛЬНАЯ) --- */
+    .profile-balance-box {
+        flex-grow: 1; /* Растягиваем */
+        display: flex;
+        align-items: center !important; /* Центрируем по вертикали */
+        justify-content: flex-start !important; /* Все слева (аватар -> текст) */
+        padding: 10px 25px !important; /* Чуть больше паддинг */
+        margin: 0 !important;
+        transform: none !important;
+        gap: 25px !important; /* Отступ между аватаром и текстом */
+    }
+    
+    /* Аватарка чуть крупнее */
+    .header-avatar-img {
+        width: 48px !important;
+        height: 48px !important;
+        border: 2px solid rgba(255,255,255,0.8) !important;
+    }
+
+    /* Текстовый контейнер (Ник + Баланс) */
+    .profile-text-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        gap: 2px !important;
+    }
+
+    /* 1. Ник - КРУПНЫЙ */
+    .mobile-header .profile-name {
+        font-size: 1.8em !important; /* Крупный шрифт */
+        font-weight: 800 !important; /* Жирный */
+        line-height: 1.1 !important;
+        color: #FFFFFF !important;
+        text-transform: none !important; /* Или uppercase если хотите */
+    }
+
+    /* 2. Баланс - ПОМЕНЬШЕ */
+    .mobile-header .profile-balance-box .balance {
+        font-size: 1.4em !important; /* Чуть меньше ника */
+        font-weight: 500 !important; /* Средняя жирность */
+        opacity: 0.9 !important; /* Слегка прозрачный для иерархии */
+        color: #FFFFFF !important;
+    }
+    
+    /* Уведомления */
+    .notification-wrapper {
+        flex-shrink: 0;
+    }
+    
+    /* Меню гостя */
+    .guest-header-actions {
+        width: 100%;
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+}
+
+
+/* --- КАРТОЧКИ ИГР --- */
 .game-cards-list {
-    /* Сетка 2 колонки */
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
     padding: 0 15px;
-    max-width: 600px; /* Ограничим ширину для красоты */
+    max-width: 800px;
     margin: 0 auto;
 }
 
 .lobby-game-wrapper {
+    position: relative;
     width: 100%;
-    /* Flex для центрирования, если нужно */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .lobby-game-card {
     width: 100% !important;
-    height: auto !important;
-    aspect-ratio: 1 / 1 !important; /* ДЕЛАЕМ КВАДРАТОМ */
-    
-    border-radius: var(--card-radius) !important; /* СИЛЬНОЕ СКРУГЛЕНИЕ */
-    
+    height: 140px !important; 
+    aspect-ratio: auto !important;
+    border-radius: var(--card-radius) !important;
     background: var(--bg-card) !important;
-    border: 1px solid var(--border-color) !important;
-    box-shadow: none !important;
-    
-    /* Убираем старые анимации рамок */
-    animation: none !important;
-    background-image: none !important;
-    
+    border: 2px solid var(--border-color) !important;
+    box-shadow: 0 4px 0 var(--border-color-dark) !important;
     position: relative;
     overflow: hidden;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.1s ease !important;
+    margin-bottom: 0 !important;
+    background-image: none !important;
+    animation: none !important;
 }
 
-/* Ховер эффект для карточек */
-.lobby-game-card:hover {
-    transform: translateY(-5px) !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-    border-color: var(--color-primary) !important;
+.lobby-game-card:active {
+    transform: translateY(4px) !important;
+    box-shadow: none !important;
 }
 
-/* Картинка кота внутри квадрата */
+/* Картинка кота */
 .game-card-cat {
-    width: 80% !important; /* Чуть меньше, чтобы влезал в квадрат */
-    height: 80% !important;
+    height: 110px !important;
+    width: auto !important;
     object-fit: contain;
-    
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) !important; /* Центрируем кота */
-    
-    transition: transform 0.3s ease;
+    transform: translate(-50%, -50%) !important;
+    z-index: 1;
 }
 
-.lobby-game-card:hover .game-card-cat {
-    transform: translate(-50%, -50%) scale(1.1) !important; /* Зум при наведении */
+/* SLEEPY CAT FIX */
+.lobby-game-wrapper[data-game-type="sleepy"] .game-card-cat {
+    transform: translate(-50%, -50%) !important; 
+    height: 100px !important; 
+    top: 45% !important; 
 }
 
-/* Название игры (теперь внутри карточки или под ней, сделаем аккуратную подпись внизу квадрата) */
+/* Название игры */
 .game-card-panel {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
-    right: 10px;
-    
-    background-color: rgba(255, 255, 255, 0.8) !important; /* Полупрозрачный белый */
-    backdrop-filter: blur(4px);
-    
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid var(--border-color) !important;
     border-radius: 12px !important;
-    padding: 5px !important;
-    border: none !important;
-    width: auto !important;
-    margin: 0 !important;
-}
-/* В темной теме панель темная */
-body.dark-theme .game-card-panel {
-    background-color: rgba(0, 0, 0, 0.6) !important;
+    padding: 4px !important;
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .game-card-title {
-    font-size: 0.9em !important;
+    font-size: 0.85em !important;
     font-weight: 800 !important;
-    color: var(--text-main) !important;
+    color: var(--color-primary) !important;
     text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-/* Убираем старые декоративные элементы "лапки" с углов */
-.lobby-game-card::after,
-.lobby-game-card::before {
-    display: none !important;
-}
-
-
-/* --- 3. ЗАБЛОКИРОВАННЫЕ ИГРЫ (Task 1 из прошлого запроса) --- */
-/* Обновляем под новый дизайн */
-
+/* Заблокированные */
 .lobby-game-wrapper.locked-game {
-    opacity: 0.6 !important;
-    pointer-events: none !important;
-    filter: grayscale(1) !important;
+    opacity: 0.7 !important;
+    filter: grayscale(0.8) !important;
 }
-
 .lobby-game-wrapper.locked-game .lobby-game-card {
-    background: var(--bg-input) !important; /* Еще более блеклый фон */
-    border-style: dashed !important; /* Пунктирная рамка для заблокированных */
+    background: #E0E7FF !important;
+    border-color: #C7D2FE !important;
+    cursor: not-allowed;
 }
-
 .lobby-game-wrapper.locked-game .lobby-game-card::before {
-    display: block !important;
     content: '🔒';
-    font-size: 3em;
+    font-size: 2.5em;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 100;
-    filter: grayscale(0); /* Замок оставим цветным (или нет, grayscale родителя все равно повлияет) */
+    z-index: 10;
+    filter: grayscale(0);
 }
 
-
-/* --- 4. НИЖНЯЯ НАВИГАЦИЯ --- */
-.bottom-nav {
-    background-color: var(--bg-main) !important;
-    border-top: 1px solid var(--border-color) !important;
-    /* Убираем блюр, делаем сплошным для чистоты, или оставляем */
-}
-.bottom-nav-item {
-    color: var(--text-muted) !important;
-}
-.bottom-nav-item.active {
-    color: var(--color-primary) !important;
-}
-/* Фильтр для иконок, чтобы они меняли цвет */
-.bottom-nav-item.active .nav-icon {
-    filter: sepia(1) hue-rotate(200deg) saturate(5); /* Подгонка под синий/индиго, приблизительно */
+/* --- ИНТЕРФЕЙС ИНДИГО --- */
+.dice-controls, .mines-controls-panel, .crash-controls-panel, .coin-controls-panel, .keno-controls-ref-style {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color-dark) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.1) !important;
 }
 
-
-/* --- 5. ОБЩИЕ UI ЭЛЕМЕНТЫ (Кнопки, Инпуты) --- */
-
-/* Кнопки */
-.primary-button, .auth-button, .wallet-deposit-button, .wallet-withdrawal-button {
+.primary-button, .auth-button, .wallet-deposit-button, .wallet-withdrawal-button, #mines-start-button, #crash-start-button, #coin-start-button, #keno-play-button, #wheel-spin-button {
     background-color: var(--color-primary) !important;
     color: #FFFFFF !important;
     border-radius: 12px !important;
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3) !important; /* Тень в цвет кнопки */
-}
-.primary-button:hover, .auth-button:hover {
-    background-color: var(--color-primary-hover) !important;
-    transform: translateY(-2px);
+    box-shadow: 0 4px 0 #3730A3 !important;
 }
 
 /* Инпуты */
 input[type="text"], input[type="number"], input[type="password"] {
     background-color: var(--bg-input) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-    border-radius: 12px !important;
-}
-input:focus {
-    border-color: var(--color-primary) !important;
-    outline: none;
-}
-
-/* Панели игр (Mines, Dice и т.д.) */
-.dice-game-container, .mines-game-container, .crash-game-container, .coin-game-container, .keno-game-container, .sleepy-game-container, .wheel-game-container {
-    background-color: transparent !important;
-}
-
-/* Контейнеры управления играми */
-.dice-controls, .mines-controls-panel, .crash-controls-panel, .coin-controls-panel, .keno-controls-ref-style {
-    background-color: var(--bg-panel) !important;
-    border: 1px solid var(--border-color) !important;
-    border-radius: 16px !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Текст заголовков */
-.game-list-title, h1, h2, h3 {
+    border: 2px solid var(--border-color) !important;
     color: var(--text-main) !important;
 }
-.game-list-title::after {
-    background-color: var(--color-primary) !important; /* Подчеркивание акцентным цветом */
+input:focus { border-color: var(--color-primary) !important; }
+
+/* Тексты */
+.game-list-title, h1, h2, h3 { color: var(--text-main) !important; }
+.game-list-title::after { background-color: var(--color-primary) !important; }
+
+/* Навигация */
+.bottom-nav {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border-top: 1px solid var(--border-color) !important;
+}
+.bottom-nav-item.active { color: var(--color-primary) !important; }
+.bottom-nav-item.active .nav-icon {
+    filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(232deg) brightness(96%) contrast(92%) !important;
 }
 
-/* Сайдбар */
-.sidebar-nav {
+/* Сайдбар и Модалки */
+.sidebar-nav, .wallet-modal-content, .customize-modal-content {
     background-color: var(--bg-main) !important;
-    border-right: 1px solid var(--border-color) !important;
-}
-.sidebar-links a {
     color: var(--text-main) !important;
 }
-.sidebar-links a:hover {
-    background-color: var(--bg-input) !important;
-    color: var(--color-primary) !important;
-}
+.sidebar-links a:hover { color: var(--color-primary) !important; }
 
-/* Модальные окна */
-.wallet-modal-content, .customize-modal-content {
-    background-color: var(--bg-main) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
+/* Тумблер снега */
+.snow-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-panel);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color-dark);
 }
-.wallet-header h3 {
-    color: var(--text-main) !important;
+.snow-toggle-label {
+    font-weight: bold;
+    color: var(--text-main);
 }

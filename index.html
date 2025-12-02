@@ -6,10 +6,13 @@
     <title>CashCat</title>
     
     <link rel="stylesheet" href="style.css?v=2.2">
-    <link rel="stylesheet" href="style2.css?v=2.0"> <link rel="stylesheet" href="style3.css?v=3.17">
+    <link rel="stylesheet" href="style2.css?v=3.2"> 
+    <link rel="stylesheet" href="style3.css?v=3.17">
     <link rel="stylesheet" href="style4.css?v=2.1">
 </head>
 <body>
+
+    <div id="falling-snow-container"></div>
 
     <div id="loader-overlay">
         <div id="loader-bar"></div>
@@ -20,8 +23,9 @@
         <header class="mobile-header">
             
             <div class="logo mobile-logo-adjustment">
-                <img src="assets/CashCat.png" alt="CashCat Logo" class="logo-image">
-                <span class="logo-text"></span>
+                <span class="logo-text-wrapper">
+                    C<span class="letter-with-hat">a<img src="assets/hat_year.svg" class="santa-hat" alt="hat"></span>shC<span class="letter-with-hat">a<img src="assets/hat_year.svg" class="santa-hat" alt="hat"></span>t
+                </span>
             </div>
             
             <div class="header-user-group">
@@ -70,7 +74,6 @@
             
         </header>
         
-        
         <div class="mini-games-nav-container hidden" id="top-game-nav">
             <nav class="mini-games-nav">
                 <div class="mini-games-nav-item" data-target="dice-game">
@@ -109,64 +112,64 @@
                     <div class="lobby-game-wrapper" data-game-type="dice">
                         <button class="lobby-game-card play-button">
                             <img src="assets/dice_cat.png" alt="Dice" class="game-card-cat">
-                            </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Dice</span>
-                        </div>
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Dice</span>
+                            </div>
+                        </button>
                     </div>
                     
                     <div class="lobby-game-wrapper" data-game-type="mines">
                         <button class="lobby-game-card play-button">
                             <img src="assets/mines_cat.png" alt="Mines" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Mines</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Mines</span>
-                        </div>
                     </div>
 
                     <div class="lobby-game-wrapper" data-game-type="keno">
                         <button class="lobby-game-card play-button">
                             <img src="assets/keno_cat.png" alt="Keno" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Keno</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Keno</span>
-                        </div>
                     </div>
 
                     <div class="lobby-game-wrapper locked-game" data-game-type="crash">
                         <button class="lobby-game-card play-button">
                             <img src="assets/crash_cat.png" alt="Crash" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Crash</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Crash</span>
-                        </div>
                     </div>
                     
                     <div class="lobby-game-wrapper locked-game" data-game-type="coin">
                         <button class="lobby-game-card play-button">
                             <img src="assets/coin_cat.png" alt="Coinflip" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Coinflip</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Coinflip</span>
-                        </div>
                     </div>
 
                     <div class="lobby-game-wrapper locked-game" data-game-type="sleepy">
                         <button class="lobby-game-card play-button">
                             <img src="assets/sleepy_cat_card.png" alt="Sleepy" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Sleepy</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Sleepy</span>
-                        </div>
                     </div>
 
                     <div class="lobby-game-wrapper locked-game" data-game-type="wheel">
                         <button class="lobby-game-card play-button">
                             <img src="assets/wheel_cat.png" alt="Wheel" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Wheel x30</span>
+                            </div>
                         </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Wheel x30</span>
-                        </div>
                     </div>
 
                 </div>
@@ -981,6 +984,14 @@
                     <button id="theme-toggle-btn" class="auth-button" style="margin-bottom: 15px;">
                         🌙 Включить темную тему
                     </button>
+                    
+                    <div class="snow-toggle-wrapper">
+                        <span class="snow-toggle-label">❄️ Падающий снег</span>
+                        <label class="switch-toggle">
+                            <input type="checkbox" id="snow-toggle-input">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
 
                     <div class="profile-box wager-box">
                         <span>Для вывода нужно отыграть:</span>
