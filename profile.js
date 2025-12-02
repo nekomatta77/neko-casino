@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Добавлена логика переключения темы (Dark/Light Mode) и сохранение в БД
+ * Обновлено: Переключение класса .dark-theme вместо подмены файлов
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser } from './global.js';
@@ -14,24 +14,18 @@ let themeToggleBtn;
 // --- ЛОГИКА ТЕМЫ ---
 
 /**
- * Инициализирует состояние кнопки и темы при открытии профиля
+ * Инициализирует состояние темы
  */
 function initTheme() {
-    const themeStyle = document.getElementById('theme-style'); // Ссылка на style4.css
-    const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; // Default light
+    const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     
-    // Синхронизируем текст кнопки
-    if (themeToggleBtn) {
-        if (currentTheme === 'dark') {
-            themeToggleBtn.textContent = "☀️ Включить светлую тему";
-        } else {
-            themeToggleBtn.textContent = "🌙 Включить темную тему";
-        }
-    }
-
-    // Синхронизируем стили
-    if (themeStyle) {
-        themeStyle.disabled = (currentTheme === 'light');
+    // Применяем класс к body
+    if (currentTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+        if (themeToggleBtn) themeToggleBtn.textContent = "☀️ Включить светлую тему";
+    } else {
+        document.body.classList.remove('dark-theme');
+        if (themeToggleBtn) themeToggleBtn.textContent = "🌙 Включить темную тему";
     }
 }
 
@@ -39,35 +33,23 @@ function initTheme() {
  * Обрабатывает клик по кнопке переключения
  */
 async function handleThemeToggle() {
-    const themeStyle = document.getElementById('theme-style');
-    if (!themeStyle) return;
+    // Переключаем класс
+    const isDarkNow = document.body.classList.toggle('dark-theme');
+    const newTheme = isDarkNow ? 'dark' : 'light';
 
-    // Проверяем текущее состояние
-    const isDark = !themeStyle.disabled; 
-    let newTheme = 'light';
-
-    if (isDark) {
-        // Переключаем на СВЕТЛУЮ
-        themeStyle.disabled = true; // Отключаем темные стили
-        newTheme = 'light';
-        if(themeToggleBtn) themeToggleBtn.textContent = "🌙 Включить темную тему";
-    } else {
-        // Переключаем на ТЕМНУЮ
-        themeStyle.disabled = false; // Включаем темные стили
-        newTheme = 'dark';
-        if(themeToggleBtn) themeToggleBtn.textContent = "☀️ Включить светлую тему";
+    // Обновляем текст кнопки
+    if (themeToggleBtn) {
+        themeToggleBtn.textContent = isDarkNow ? "☀️ Включить светлую тему" : "🌙 Включить темную тему";
     }
     
-    // 1. Сохраняем локально (для быстрой загрузки)
+    // 1. Сохраняем локально
     localStorage.setItem('cashcat_theme', newTheme);
     
     // 2. Сохраняем в БД (если пользователь залогинен)
     if (currentUser) {
-        // Сначала получаем текущие настройки, чтобы не затереть аватар
         const userData = await fetchUser(currentUser);
         const currentCustomization = userData?.customization || {};
         
-        // Обновляем только тему
         const newCustomization = {
             ...currentCustomization,
             theme: newTheme
@@ -82,8 +64,8 @@ async function handleThemeToggle() {
  * Обрабатывает выход пользователя
  */
 async function handleLogout() {
-    await setCurrentUser(null); // Очищает сессию
-    location.reload(); // Перезагружаем
+    await setCurrentUser(null); 
+    location.reload(); 
 }
 
 /**
@@ -149,7 +131,7 @@ export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
     if (rankEl) rankEl.textContent = '...';
 
-    // Инициализируем состояние кнопки темы каждый раз при входе в профиль
+    // Инициализируем состояние кнопки темы
     initTheme();
 
     if (currentUser && rankEl && wagerAmountEl) {
@@ -201,6 +183,9 @@ export function initProfile() {
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', handleThemeToggle);
     }
+    
+    // При загрузке сразу проверяем тему (чтобы не мигало)
+    initTheme();
 
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);

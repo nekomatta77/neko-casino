@@ -6,9 +6,7 @@
     <title>CashCat</title>
     
     <link rel="stylesheet" href="style.css?v=2.2">
-    <link rel="stylesheet" href="style2.css?v=1.0">
-    <link rel="stylesheet" href="style3.css?v=3.17">
-    <link rel="stylesheet" href="darkstyle.css?v=4.4" id="theme-style" disabled> 
+    <link rel="stylesheet" href="style2.css?v=2.0"> <link rel="stylesheet" href="style3.css?v=3.17">
     <link rel="stylesheet" href="style4.css?v=2.1">
 </head>
 <body>
@@ -126,24 +124,6 @@
                         </div>
                     </div>
 
-                    <div class="lobby-game-wrapper" data-game-type="crash">
-                        <button class="lobby-game-card play-button">
-                            <img src="assets/crash_cat.png" alt="Crash" class="game-card-cat">
-                        </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Crash</span>
-                        </div>
-                    </div>
-                    
-                    <div class="lobby-game-wrapper" data-game-type="coin">
-                        <button class="lobby-game-card play-button">
-                            <img src="assets/coin_cat.png" alt="Coinflip" class="game-card-cat">
-                        </button>
-                        <div class="game-card-panel">
-                            <span class="game-card-title">Coinflip</span>
-                        </div>
-                    </div>
-                    
                     <div class="lobby-game-wrapper" data-game-type="keno">
                         <button class="lobby-game-card play-button">
                             <img src="assets/keno_cat.png" alt="Keno" class="game-card-cat">
@@ -153,7 +133,25 @@
                         </div>
                     </div>
 
-                    <div class="lobby-game-wrapper" data-game-type="sleepy">
+                    <div class="lobby-game-wrapper locked-game" data-game-type="crash">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/crash_cat.png" alt="Crash" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Crash</span>
+                        </div>
+                    </div>
+                    
+                    <div class="lobby-game-wrapper locked-game" data-game-type="coin">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/coin_cat.png" alt="Coinflip" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Coinflip</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-game-wrapper locked-game" data-game-type="sleepy">
                         <button class="lobby-game-card play-button">
                             <img src="assets/sleepy_cat_card.png" alt="Sleepy" class="game-card-cat">
                         </button>
@@ -162,7 +160,7 @@
                         </div>
                     </div>
 
-                    <div class="lobby-game-wrapper" data-game-type="wheel">
+                    <div class="lobby-game-wrapper locked-game" data-game-type="wheel">
                         <button class="lobby-game-card play-button">
                             <img src="assets/wheel_cat.png" alt="Wheel" class="game-card-cat">
                         </button>
@@ -981,7 +979,7 @@
                 <div class="profile-container">
                     
                     <button id="theme-toggle-btn" class="auth-button" style="margin-bottom: 15px;">
-                        🌙 Темная тема
+                        🌙 Включить темную тему
                     </button>
 
                     <div class="profile-box wager-box">
