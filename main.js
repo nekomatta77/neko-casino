@@ -183,6 +183,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         lobbyGameWrappers.forEach(wrapper => {
             wrapper.addEventListener('click', (e) => {
                 e.preventDefault();
+                // --- ИЗМЕНЕНИЕ: Блокировка перехода, если игра заблокирована ---
+                if (wrapper.classList.contains('locked-game')) return; 
+                // -------------------------------------------------------------
                 const gameType = e.currentTarget.getAttribute('data-game-type'); 
                 if (gameType) navigateToGame(gameType);
             });

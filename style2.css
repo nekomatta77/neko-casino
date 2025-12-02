@@ -1,12 +1,12 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 3.3
+ * Version 3.9 (Updated: Dark Blue Notifs, Neon High Wins)
  */
 
 :root {
     /* --- ПАЛИТРА --- */
-    --color-primary: #4F46E5;       /* Индиго */
+    --color-primary: #4F46E5;       /* Индиго (Яркий) */
     --color-primary-hover: #4338ca;
     
     --bg-main: #FFFFFF;             /* Белый фон страницы */
@@ -14,9 +14,9 @@
     --bg-panel: #EEF2FF;            /* Светлый фон панелей */
     
     /* ТЕКСТ */
-    --text-main: #1E1B4B;           /* Темно-синий текст */
+    --text-main: #1E1B4B;           /* Темно-синий текст (Dark Blue) - Основной цвет для темных плашек */
     --text-muted: #6366F1;          /* Индиго текст */
-    --text-white: #FFFFFF;          /* Белый (для ника) */
+    --text-white: #FFFFFF;          /* Белый (для ника и темных фонов) */
     
     --border-color: #E0E7FF;
     --border-color-dark: #C7D2FE;
@@ -31,6 +31,7 @@ body {
     
     /* Снежинки на фоне */
     background-image: 
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
         url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
@@ -86,7 +87,7 @@ body {
     padding: 0 15px !important;
 }
 
-/* --- ЛОГОТИП С ШАПКОЙ (ОБНОВЛЕНО ПО ЗАПРОСУ) --- */
+/* --- ЛОГОТИП С ШАПКОЙ НА БУКВЕ "t" --- */
 .logo-text-wrapper {
     position: relative;
     display: inline-block;
@@ -101,14 +102,13 @@ body {
 
 .santa-hat {
     position: absolute;
-    /* Обновленные координаты от пользователя */
-    top: -18px; 
-    left: -8px; 
-    width: 35px; 
+    width: 0.6em !important; 
     height: auto;
+    top: 0.05em !important; 
+    left: -0.05em !important; 
     z-index: 10;
     pointer-events: none;
-    transform: rotate(0deg); /* Исправлено deg -> 0deg */
+    transform: rotate(0deg); 
     filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
 }
 
@@ -156,7 +156,7 @@ body {
     border: 2px solid rgba(255,255,255,0.5) !important;
 }
 
-/* --- УВЕДОМЛЕНИЯ --- */
+/* --- УВЕДОМЛЕНИЯ (КНОПКА В ХЕДЕРЕ) --- */
 .bell-icon {
     fill: var(--color-primary) !important;
     color: var(--color-primary) !important;
@@ -170,17 +170,42 @@ body {
     box-shadow: 0 0 0 2px var(--bg-main) !important;
 }
 
+/* --- ЗАДАЧА 1: ОКНО УВЕДОМЛЕНИЙ (ТЕМНО-СИНИЙ) --- */
+.notif-dropdown {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    border: 1px solid var(--color-primary) !important; /* Индиго рамка */
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.5) !important;
+    overflow: hidden !important;
+}
+
+.notif-header {
+    background-color: rgba(0, 0, 0, 0.2) !important; /* Чуть темнее шапка */
+    color: #FFFFFF !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.notif-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.notif-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.notif-title {
+    color: #FFFFFF !important;
+}
+.notif-text {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+.notif-time {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
 
 /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
 @media (max-width: 768px) {
     
-    /* Шапки Санты на мобильном */
-    .santa-hat {
-        width: 26px;
-        top: 5px;
-        left: 2px;
-    }
-
     /* Хедер в колонку */
     .mobile-header {
         flex-direction: column !important;
@@ -201,14 +226,14 @@ body {
     }
     .mobile-header .logo-image {
         height: 60px !important;
-        display: none !important; /* Скрываем картинку, если используем текст */
+        display: none !important;
     }
     /* Увеличиваем текст логотипа на мобильных */
     .logo-text-wrapper {
         font-size: 1.5em; 
     }
 
-    /* 2. Группа с балансом и уведомлениями - на всю ширину снизу */
+    /* 2. Группа с балансом и уведомлениями */
     .header-user-group {
         width: 100%;
         display: flex;
@@ -220,24 +245,22 @@ body {
 
     /* --- КАРТОЧКА ИГРОКА (МОБИЛЬНАЯ) --- */
     .profile-balance-box {
-        flex-grow: 1; /* Растягиваем */
+        flex-grow: 1; 
         display: flex;
-        align-items: center !important; /* Центрируем по вертикали */
-        justify-content: flex-start !important; /* Все слева (аватар -> текст) */
-        padding: 10px 25px !important; /* Чуть больше паддинг */
+        align-items: center !important; 
+        justify-content: flex-start !important;
+        padding: 10px 25px !important; 
         margin: 0 !important;
         transform: none !important;
-        gap: 25px !important; /* Отступ между аватаром и текстом */
+        gap: 25px !important; 
     }
     
-    /* Аватарка чуть крупнее */
     .header-avatar-img {
         width: 48px !important;
         height: 48px !important;
         border: 2px solid rgba(255,255,255,0.8) !important;
     }
 
-    /* Текстовый контейнер (Ник + Баланс) */
     .profile-text-content {
         display: flex !important;
         flex-direction: column !important;
@@ -246,29 +269,25 @@ body {
         gap: 2px !important;
     }
 
-    /* 1. Ник - КРУПНЫЙ */
     .mobile-header .profile-name {
-        font-size: 1.8em !important; /* Крупный шрифт */
-        font-weight: 800 !important; /* Жирный */
+        font-size: 1.8em !important; 
+        font-weight: 800 !important; 
         line-height: 1.1 !important;
         color: #FFFFFF !important;
-        text-transform: none !important; /* Или uppercase если хотите */
+        text-transform: none !important; 
     }
 
-    /* 2. Баланс - ПОМЕНЬШЕ */
     .mobile-header .profile-balance-box .balance {
-        font-size: 1.4em !important; /* Чуть меньше ника */
-        font-weight: 500 !important; /* Средняя жирность */
-        opacity: 0.9 !important; /* Слегка прозрачный для иерархии */
+        font-size: 1.4em !important; 
+        font-weight: 500 !important; 
+        opacity: 0.9 !important; 
         color: #FFFFFF !important;
     }
     
-    /* Уведомления */
     .notification-wrapper {
         flex-shrink: 0;
     }
     
-    /* Меню гостя */
     .guest-header-actions {
         width: 100%;
         flex-direction: row !important;
@@ -402,14 +421,27 @@ input:focus { border-color: var(--color-primary) !important; }
 .game-list-title, h1, h2, h3 { color: var(--text-main) !important; }
 .game-list-title::after { background-color: var(--color-primary) !important; }
 
-/* Навигация */
+/* --- НИЖНЯЯ ПАНЕЛЬ ИНДИГО --- */
 .bottom-nav {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    border-top: 1px solid var(--border-color) !important;
+    background-color: var(--color-primary) !important; /* Индиго фон */
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
-.bottom-nav-item.active { color: var(--color-primary) !important; }
+
+.bottom-nav-item {
+    color: rgba(255, 255, 255, 0.7) !important; 
+}
+
+.bottom-nav-item .nav-icon {
+    filter: brightness(0) invert(1) !important; 
+    opacity: 0.7 !important;
+}
+
+.bottom-nav-item.active {
+    color: #FFFFFF !important;
+}
 .bottom-nav-item.active .nav-icon {
-    filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(232deg) brightness(96%) contrast(92%) !important;
+    opacity: 1 !important;
+    filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5)) !important;
 }
 
 /* Сайдбар и Модалки */
@@ -417,20 +449,390 @@ input:focus { border-color: var(--color-primary) !important; }
     background-color: var(--bg-main) !important;
     color: var(--text-main) !important;
 }
-.sidebar-links a:hover { color: var(--color-primary) !important; }
+
+/* --- БЛЕДНЫЙ ФОН ДЛЯ КНОПОК САЙДБАРА --- */
+.sidebar-links a {
+    color: var(--color-primary) !important; /* Индиго текст */
+    font-weight: 800 !important;
+    /* Очень бледный индиго фон */
+    background-color: rgba(79, 70, 229, 0.05) !important; 
+    border: 1px solid var(--border-color) !important;
+    margin-bottom: 10px; 
+}
+.sidebar-links a:hover {
+    color: var(--color-primary-hover) !important;
+    background-color: var(--bg-panel) !important; 
+    border-color: var(--color-primary) !important;
+}
+
+/* --- КНОПКИ КВЕСТОВ (ВК/ТГ) НА ИНДИГО --- */
+.quest-button {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 3px 0 #3730A3 !important; /* Тень под кнопку */
+}
+.quest-button:hover {
+    background-color: var(--color-primary-hover) !important;
+}
+
+/* --- НАСТРОЙКИ ПРОФИЛЯ НА ТЕМНО-СИНЕМ --- */
+#profile-page .profile-container {
+    background-color: var(--text-main) !important; /* Темно-синий фон (#1E1B4B) */
+    color: #FFFFFF !important;
+    border: 1px solid var(--color-primary) !important;
+    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.5) !important;
+}
+
+/* Внутренние блоки (темнее основного фона) */
+#profile-page .profile-box {
+    background-color: rgba(0, 0, 0, 0.4) !important; /* Полупрозрачный черный */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+}
+
+/* Ссылки и заголовки в профиле */
+.profile-link, .profile-subheader, #profile-page label {
+    color: #FFFFFF !important;
+    opacity: 0.9 !important;
+}
+
+/* Инпуты в профиле */
+#profile-page .profile-form .form-group input {
+    background-color: rgba(255, 255, 255, 0.1) !important; /* Прозрачный белый */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+#profile-page .profile-form .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Кнопки привязки соцсетей */
+.social-link-button {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+}
+.social-link-button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Кнопка "Сменить пароль" */
+.profile-form .auth-button {
+    background-color: var(--color-primary) !important;
+}
+
+/* --- СТРАНИЦА РАНГОВ (LVL) НА ТЕМНО-СИНЕМ --- */
+#ranks-page .rank-card-wrapper {
+    background-color: var(--text-main) !important; /* Темно-синий фон */
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Заголовки и текст внутри карточки ранга */
+.rank-card__title {
+    color: #FFFFFF !important;
+}
+.rank-card__info-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.rank-card__info-item strong {
+    color: #FFFFFF !important;
+}
+
+/* Текущий ранг (выделенный) */
+.rank-card-wrapper.current {
+    background-color: var(--text-main) !important;
+    border: 2px solid var(--color-orange) !important;
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.3) !important;
+}
+
+/* --- СТИЛИ ДЛЯ БОНУСОВ (ТЕМНО-СИНИЙ ФОН) --- */
+
+/* 1. Карточка с ежедневным бонусом (где кот) */
+.bonus-display-box {
+    background-color: var(--text-main) !important; /* Темно-синий (#1E1B4B) */
+    color: #FFFFFF !important; /* Белый текст */
+    border: 1px solid var(--color-primary) !important;
+    box-shadow: 0 8px 20px rgba(30, 27, 75, 0.4) !important;
+}
+/* Текст внутри ежедневного бонуса */
+#bonus-amount-display, #bonus-page-text {
+    color: #FFFFFF !important;
+    text-shadow: none !important;
+}
+.bonus-display-box .currency {
+    color: rgba(255,255,255,0.7) !important;
+}
+
+/* 2. Недельные бонусы (Кешбек, Рейкбек) */
+.weekly-bonus-item {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+.weekly-bonus-title, .weekly-bonus-value {
+    color: #FFFFFF !important;
+}
+
+/* 3. Квесты (ВК, Телеграм) */
+.quest-box {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+.quest-title, .quest-subtitle, .quest-text, .quest-text a {
+    color: #FFFFFF !important;
+}
+.quest-subtitle, .quest-text small {
+    opacity: 0.7 !important;
+}
+/* Иконки статуса внутри квестов (кружочки) */
+.quest-status-icon.status-pending {
+    color: rgba(255,255,255,0.5) !important;
+}
+
+/* Заголовок "Промокод" и "Недельные бонусы" в блоках */
+.promocode-header {
+    color: var(--text-main) !important;
+}
+/* Блок с промокодом оставим светлым для контраста полей */
+.promocode-box {
+    background-color: var(--bg-panel) !important; 
+}
+
+
+/* --- АДМИН-ПАНЕЛЬ (ИНДИГО ФОН, БЕЛЫЙ ТЕКСТ) --- */
+.admin-container {
+    background-color: var(--color-primary) !important; /* Индиго */
+    color: #FFFFFF !important;
+}
+
+/* Вкладки в админке */
+#admin-tabs .ref-tab {
+    color: rgba(255, 255, 255, 0.7) !important; 
+}
+#admin-tabs .ref-tab.active {
+    color: #FFFFFF !important;
+    border-bottom-color: #FFFFFF !important; /* Белое подчеркивание активной вкладки */
+}
+#admin-tabs .ref-tab.active::after {
+    background-color: #FFFFFF !important;
+}
+
+/* Внутренние блоки админки (поля поиска и т.д.) */
+#admin-page .form-group label {
+    color: #FFFFFF !important;
+}
+
+.admin-user-table tr, 
+.admin-user-table th, 
+.admin-user-table td {
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+
+/* Мобильные карточки в админке */
+@media (max-width: 768px) {
+    .admin-user-table tr {
+        background-color: var(--text-main) !important; /* Темно-синий фон карточки */
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+}
+
+
+/* --- ПАРТНЕРКА (ИНДИГО ОСНОВА, ТЕМНО-СИНИЕ ЭЛЕМЕНТЫ) --- */
+.ref-container {
+    background-color: var(--color-primary) !important; /* Индиго */
+    color: #FFFFFF !important;
+}
+
+/* Заголовки и текст в партнерке */
+.ref-subheader, .ref-manager-link, .ref-link-box label, .ref-form-header {
+    color: #FFFFFF !important;
+    opacity: 0.9 !important;
+}
+.ref-link {
+    color: #FFD700 !important; /* Золотой для ссылки, чтобы видно было на синем */
+    text-decoration: underline;
+}
+
+/* Темные элементы: Блок ссылки, Формы, Таблицы, Списки */
+.ref-link-box, 
+.ref-form, 
+.ref-table-wrapper, 
+.ref-list {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Вкладки партнерки */
+.ref-tabs .ref-tab {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+.ref-tabs .ref-tab.active {
+    color: #FFFFFF !important;
+}
+.ref-tabs .ref-tab.active::after {
+    background-color: #FFFFFF !important;
+}
+
+/* Под-вкладки (Партнерские/Персональные) */
+.ref-subtab {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+.ref-subtab.active {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    color: #FFFFFF !important;
+}
+
+
+/* --- FAQ (ИНДИГО КАРТОЧКИ, ТЕМНО-СИНИЙ ПРИ РАЗВОРОТЕ) --- */
+.faq-container {
+    gap: 10px;
+}
+
+/* Кнопка вопроса (закрытая) */
+.faq-item .faq-question {
+    background-color: var(--color-primary) !important; /* Индиго */
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    transition: background-color 0.3s ease;
+    border-radius: 8px; /* Скругляем кнопку */
+}
+
+/* Кнопка вопроса (когда FAQ раскрыт) - ИСПРАВЛЕНО: Остается Индиго */
+.faq-item.active .faq-question {
+    background-color: var(--color-primary) !important; /* ОСТАВЛЯЕМ ИНДИГО */
+    border-radius: 8px 8px 0 0; /* Скругляем только верх */
+    border-bottom: none !important;
+}
+
+/* Контейнер всего элемента */
+.faq-item {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Иконка */
+.faq-icon {
+    color: #FFFFFF !important;
+}
+
+/* Ответ (Темно-синий фон) */
+.faq-answer-content {
+    background-color: var(--text-main) !important; /* Темно-синий */
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: none !important; /* Убираем верхнюю границу */
+    border-radius: 0 0 8px 8px; /* Скругляем низ */
+    padding: 20px;
+}
+.faq-answer-content p {
+    opacity: 0.9;
+}
+
+/* Ссылки в FAQ */
+.faq-answer-content a {
+    color: #FFD700 !important; /* Золотой */
+}
+
+
+/* --- КОШЕЛЕК (ФОН КНОПОК И ТЕКСТ ВКЛАДОК) --- */
+
+/* Фон для кнопок выбора метода (FKWallet, Piastrix, SBP) */
+.wallet-method-button {
+    background-color: var(--color-primary) !important; /* Индиго фон */
+    border: 2px solid transparent !important;
+}
+/* Активная кнопка метода */
+.wallet-method-button.active {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-orange) !important; /* Оранжевая рамка */
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important;
+}
+
+/* Текст вкладок "Пополнение" и "Вывод" */
+.wallet-tab {
+    color: var(--color-primary) !important; /* Индиго для неактивных */
+    opacity: 0.6;
+}
+.wallet-tab.active {
+    color: var(--color-primary) !important; /* Индиго для активных */
+    opacity: 1;
+    border-bottom: 2px solid var(--color-primary) !important; /* Индиго подчеркивание */
+}
+/* Убираем оранжевую полоску, если она была */
+.wallet-tab.active::after {
+    background-color: var(--color-primary) !important; 
+}
+
+
+/* --- ЗАДАЧА 2: БОЛЬШИЕ ВЫИГРЫШИ (NEON INDIGO, DARK BLUE BG) --- */
+.high-win-card {
+    /* Компактный размер */
+    width: 125px !important;
+    min-width: 125px !important;
+    
+    /* Темно-синий фон */
+    background: var(--text-main) !important; 
+    
+    /* Индиго рамка + неоновое свечение */
+    border: 2px solid var(--color-primary) !important;
+    box-shadow: 0 0 10px var(--color-primary) !important;
+    
+    padding: 0 !important;
+    border-radius: 14px !important;
+    animation: none !important; /* Убираем золотой перелив */
+}
+
+/* Контент внутри карточки выигрыша */
+.history-item-content {
+    background-color: transparent !important; /* Прозрачный, чтобы видеть фон карточки */
+    padding: 10px 5px !important;
+    gap: 5px !important;
+}
+
+.history-game-img-icon {
+    height: 35px !important; /* Чуть меньше иконка */
+    width: 35px !important;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+
+.history-user {
+    font-size: 0.85em !important;
+    color: #FFFFFF !important;
+}
+
+.history-multiplier-tag {
+    /* Меняем золотой на индиго стиль */
+    background-color: rgba(79, 70, 229, 0.2) !important;
+    color: #FFFFFF !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: none !important;
+}
+
+.history-amount.win {
+    font-size: 1.1em !important;
+    /* Оставляем зеленый для денег, чтобы отличалось */
+    color: #00FF99 !important; 
+    text-shadow: 0 0 5px rgba(0, 255, 153, 0.4);
+}
+
 
 /* Тумблер снега */
 .snow-toggle-wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--bg-panel);
+    background-color: rgba(0, 0, 0, 0.4) !important; /* Темный фон тумблера */
     padding: 15px 20px;
     border-radius: 8px;
     margin-bottom: 15px;
-    border: 1px solid var(--border-color-dark);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 .snow-toggle-label {
     font-weight: bold;
-    color: var(--text-main);
+    color: #FFFFFF !important;
 }
