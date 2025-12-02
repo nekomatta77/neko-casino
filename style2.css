@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 4.6 (Updated: Logo Aligned Left on Mobile)
+ * Version 4.8 (Updated: Fix Gray Background Issue)
  */
 
 :root {
@@ -24,42 +24,75 @@
     --card-radius: 24px;
 }
 
-/* Глобальный фон с КУЧЕЙ снежинок */
+/* =========================================
+   1. ГЛОБАЛЬНЫЙ ФОН (ФИКС)
+   ========================================= */
+
 body {
-    background-color: var(--bg-main) !important;
+    background-color: var(--bg-main) !important; /* Чистый белый */
+    background-image: none !important; /* ОТКЛЮЧАЕМ серый градиент из style.css */
     color: var(--text-main) !important;
-    
-    /* Снежинки на фоне */
-    background-image: 
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snow2.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg');
-    
-    background-position: 
-        5% 5%,   95% 15%,  15% 25%,  85% 35%,
-        25% 45%, 75% 55%,  35% 65%,  65% 75%,
-        45% 85%, 55% 95%,  10% 90%,  90% 10%,
-        20% 60%, 80% 40%,  40% 20%,  60% 80%,
-        2% 50%,  98% 50%;
-        
-    background-repeat: no-repeat;
-    
-    /* Разные размеры для хаоса */
-    background-size: 
-        40px, 25px, 50px, 30px,
-        60px, 20px, 45px, 35px,
-        55px, 25px, 40px, 30px,
-        35px, 50px, 25px, 45px,
-        30px, 20px;
-    
-    background-attachment: fixed;
+    position: relative; /* Для позиционирования фона */
+    min-height: 100vh;
 }
 
-/* Падающий снег (анимация) */
+/* Паттерн фона вынесен в ::before для управления прозрачностью */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0; /* Позади контента */
+    
+    /* Прозрачность 30% (еле заметные узоры) */
+    opacity: 0.3; 
+    
+    background-repeat: no-repeat;
+    
+    /* СМЕСЬ: Снежинки, Снеговики, Олени, Колокольчики */
+    background-image: 
+        url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/bell.svg'),
+        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'),
+        url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'),
+        url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'),
+        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snow1.svg'),
+        url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/deer.svg'),
+        url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'),
+        url('assets/deer.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/bell.svg');
+    
+    /* Хаотичное расположение по всему экрану */
+    background-position: 
+        2% 5%,   8% 12%,  15% 4%,   22% 15%,  28% 6%,
+        35% 10%, 42% 3%,  50% 14%,  58% 5%,   65% 12%,
+        72% 4%,  80% 15%, 88% 6%,   95% 10%,  3% 25%,
+        10% 35%, 18% 28%, 25% 40%,  32% 30%,  40% 45%,
+        48% 35%, 55% 50%, 62% 40%,  70% 55%,  78% 42%,
+        85% 50%, 92% 38%, 5% 60%,   12% 70%,  20% 65%,
+        28% 75%, 35% 62%, 42% 80%,  50% 70%,  58% 85%,
+        65% 75%, 72% 90%, 80% 80%,  88% 95%,  95% 85%;
+        
+    /* Уменьшенные размеры (15px - 35px) */
+    background-size: 
+        20px, 28px, 18px, 32px, 24px,
+        15px, 22px, 25px, 19px, 26px,
+        30px, 16px, 21px, 29px, 17px,
+        23px, 20px, 34px, 18px, 27px,
+        16px, 25px, 22px, 31px, 19px,
+        26px, 15px, 24px, 20px, 33px,
+        18px, 28px, 21px, 25px, 17px,
+        30px, 19px, 27px, 22px, 24px;
+}
+
+/* Поднимаем контент над фоном */
+.app-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Падающий снег (анимация - отдельный слой) */
 .snowflake {
     position: fixed;
     top: -10px;
