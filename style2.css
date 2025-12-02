@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 4.8 (Updated: Fix Gray Background Issue)
+ * Version 5.4 (Updated: Title Color to Dark Blue)
  */
 
 :root {
@@ -52,38 +52,46 @@ body::before {
     
     background-repeat: no-repeat;
     
-    /* СМЕСЬ: Снежинки, Снеговики, Олени, Колокольчики */
+    /* СМЕСЬ: Снежинки, Снеговики, Олени, Колокольчики (60 элементов) */
     background-image: 
-        url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/bell.svg'),
-        url('assets/snow1.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'),
-        url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'),
-        url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'),
-        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snow1.svg'),
-        url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/deer.svg'),
-        url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'),
-        url('assets/deer.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/snow2.svg'), url('assets/bell.svg');
+        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'),
+        url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/bell.svg'), url('assets/deer.svg'),
+        url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'),
+        url('assets/bell.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snowman.svg'),
+        url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'),
+        url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'),
+        url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'),
+        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/deer.svg'),
+        url('assets/deer.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'),
+        url('assets/snowman.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'),
+        url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/bell.svg');
     
-    /* Хаотичное расположение по всему экрану */
+    /* ДЕСКТОП: Широкое хаотичное распределение (60 позиций) */
     background-position: 
-        2% 5%,   8% 12%,  15% 4%,   22% 15%,  28% 6%,
-        35% 10%, 42% 3%,  50% 14%,  58% 5%,   65% 12%,
-        72% 4%,  80% 15%, 88% 6%,   95% 10%,  3% 25%,
-        10% 35%, 18% 28%, 25% 40%,  32% 30%,  40% 45%,
-        48% 35%, 55% 50%, 62% 40%,  70% 55%,  78% 42%,
-        85% 50%, 92% 38%, 5% 60%,   12% 70%,  20% 65%,
-        28% 75%, 35% 62%, 42% 80%,  50% 70%,  58% 85%,
-        65% 75%, 72% 90%, 80% 80%,  88% 95%,  95% 85%;
+        2% 3%,   15% 8%,  30% 2%,  45% 7%,  60% 3%,  75% 8%,  90% 2%,  98% 12%,
+        5% 18%,  20% 15%, 35% 20%, 50% 16%, 65% 21%, 80% 15%, 95% 22%, 8% 28%,
+        25% 32%, 40% 28%, 55% 33%, 70% 29%, 85% 34%, 3% 40%,  18% 45%, 32% 41%,
+        48% 46%, 62% 42%, 78% 47%, 92% 43%, 10% 55%, 28% 52%, 42% 58%, 58% 53%,
+        72% 59%, 88% 54%, 5% 65%,  22% 68%, 38% 64%, 52% 69%, 68% 65%, 82% 70%,
+        96% 63%, 12% 78%, 26% 82%, 40% 77%, 56% 83%, 70% 78%, 86% 84%, 4% 90%,
+        18% 95%, 34% 91%, 50% 96%, 66% 92%, 80% 97%, 94% 91%, 9% 8%,   91% 88%,
+        45% 90%, 55% 10%, 25% 95%, 75% 5%;
         
-    /* Уменьшенные размеры (15px - 35px) */
+    /* Размеры (16px - 26px) */
     background-size: 
-        20px, 28px, 18px, 32px, 24px,
-        15px, 22px, 25px, 19px, 26px,
-        30px, 16px, 21px, 29px, 17px,
-        23px, 20px, 34px, 18px, 27px,
-        16px, 25px, 22px, 31px, 19px,
-        26px, 15px, 24px, 20px, 33px,
-        18px, 28px, 21px, 25px, 17px,
-        30px, 19px, 27px, 22px, 24px;
+        20px, 24px, 18px, 26px, 22px,
+        16px, 20px, 24px, 18px, 22px,
+        25px, 17px, 21px, 23px, 19px,
+        22px, 20px, 26px, 18px, 24px,
+        17px, 23px, 21px, 25px, 19px,
+        24px, 16px, 22px, 20px, 26px,
+        18px, 24px, 22px, 17px, 25px,
+        26px, 19px, 23px, 21px, 20px,
+        22px, 18px, 24px, 17px, 25px,
+        20px, 26px, 22px, 19px, 23px,
+        24px, 18px, 21px, 25px, 16px,
+        23px, 20px, 26px, 18px, 22px;
 }
 
 /* Поднимаем контент над фоном */
@@ -237,9 +245,57 @@ body::before {
 }
 
 
-/* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ХАОТИЧНЫЙ ФОН БЕЗ НАЛОЖЕНИЙ) --- */
 @media (max-width: 768px) {
     
+    /* Переопределяем фон для мобильных: Умный Хаос (Smart Chaos) 
+       Разбиваем экран на условные ячейки, но задаем координаты со смещением, 
+       чтобы избежать пересечений и эффекта "сетки".
+    */
+    body::before {
+        background-position: 
+            /* Сектор 1 (Верхние 10%) */
+            5% 2%,   30% 5%,  55% 3%,  80% 6%, 
+            /* Сектор 2 (10-20%) */
+            15% 15%, 40% 12%, 65% 16%, 90% 13%,
+            /* Сектор 3 (20-30%) */
+            8% 25%,  35% 22%, 60% 26%, 85% 23%,
+            /* Сектор 4 (30-40%) */
+            20% 35%, 45% 32%, 70% 36%, 95% 33%,
+            /* Сектор 5 (40-50%) */
+            5% 45%,  30% 42%, 55% 46%, 80% 43%,
+            /* Сектор 6 (50-60%) */
+            15% 55%, 40% 52%, 65% 56%, 90% 53%,
+            /* Сектор 7 (60-70%) */
+            10% 65%, 35% 62%, 60% 66%, 85% 63%,
+            /* Сектор 8 (70-80%) */
+            20% 75%, 45% 72%, 70% 76%, 95% 73%,
+            /* Сектор 9 (80-90%) */
+            5% 85%,  30% 82%, 55% 86%, 80% 83%,
+            /* Сектор 10 (90-100%) */
+            15% 95%, 40% 92%, 65% 96%, 90% 93%,
+            /* Дополнительные мелкие элементы в пустотах */
+            50% 8%, 98% 30%, 2% 50%, 98% 70%, 50% 98%,
+            25% 10%, 75% 90%, 10% 30%, 90% 60%, 40% 80%,
+            60% 20%, 30% 60%, 80% 30%, 10% 80%, 70% 10%,
+            20% 50%, 50% 30%, 90% 40%, 30% 90%, 60% 70% !important;
+            
+        /* Немного уменьшаем размер для мобилок, чтобы было больше воздуха */
+        background-size: 
+            20px, 18px, 22px, 16px, 24px,
+            19px, 21px, 17px, 23px, 20px,
+            18px, 22px, 20px, 16px, 24px,
+            19px, 21px, 23px, 17px, 20px,
+            22px, 18px, 24px, 16px, 21px,
+            19px, 23px, 20px, 17px, 22px,
+            18px, 24px, 21px, 16px, 20px,
+            23px, 19px, 22px, 17px, 24px,
+            15px, 15px, 15px, 15px, 15px, /* Мелкие заполняющие */
+            15px, 15px, 15px, 15px, 15px,
+            15px, 15px, 15px, 15px, 15px,
+            15px, 15px, 15px, 15px, 15px !important;
+    }
+
     /* Хедер в колонку */
     .mobile-header {
         flex-direction: column !important;
@@ -452,8 +508,45 @@ input[type="text"], input[type="number"], input[type="password"] {
 input:focus { border-color: var(--color-primary) !important; }
 
 /* Тексты */
-.game-list-title, h1, h2, h3 { color: var(--text-main) !important; }
-.game-list-title::after { background-color: var(--color-primary) !important; }
+/* UPDATES FOR TASK: Left Aligned Game List Title */
+.lobby-header {
+    text-align: left !important;
+}
+
+.game-list-title, h1, h2, h3 { 
+    color: var(--text-main) !important; 
+}
+
+.game-list-title {
+    font-size: 0.95em !important; /* Smaller font, like a label */
+    font-weight: 700 !important;
+    /* ИЗМЕНЕНО: Цвет #1E1B4B */
+    color: #1E1B4B !important; 
+    text-transform: none !important; /* No Uppercase */
+    text-align: left !important;
+    margin-left: 5px !important;
+    padding: 0 !important;
+    letter-spacing: 0.5px !important; 
+    text-shadow: none !important;
+    display: flex !important;
+    align-items: center;
+}
+
+.game-list-title::after {
+    display: none !important; /* Remove underline */
+}
+
+/* Mobile override to ensure left align there too */
+@media (max-width: 768px) {
+    .lobby-header {
+        text-align: left !important;
+    }
+    .game-list-title {
+        font-size: 0.9em !important;
+        text-align: left !important;
+    }
+}
+
 
 /* --- НИЖНЯЯ ПАНЕЛЬ ИНДИГО --- */
 .bottom-nav {
@@ -1072,4 +1165,117 @@ input:focus, button:focus {
     background-color: transparent !important; 
     border: none !important;
     box-shadow: none !important;
+}
+/*
+ * style2.css
+ * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
+ * Version 5.5 (Updated: Visual History Modal Styles)
+ */
+/* ... (ВЕСЬ ПРЕДЫДУЩИЙ КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ, ДОБАВЛЯЕМ ЭТО В КОНЕЦ) ... */
+
+/* =========================================
+   14. VISUAL HISTORY MODAL (NEW)
+   ========================================= */
+
+.visual-history-content {
+    width: 95%;
+    max-width: 400px; /* Узкое окно, как телефон */
+    background-color: #3D4654; /* Темный фон модалки */
+    color: #FFFFFF;
+    padding: 20px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.visual-grid-container {
+    background-color: rgba(30, 33, 40, 0.5);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 0 auto;
+    width: 100%;
+    display: grid;
+    /* Центрирование */
+    justify-content: center;
+}
+
+/* Сетка для MINES (5x5) */
+.mines-visual {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    aspect-ratio: 1 / 1;
+}
+
+/* Сетка для KENO (8x5) */
+.keno-visual {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+/* Ячейки внутри визуализации */
+.visual-cell {
+    background-color: #2E3035; /* Темный фон ячейки */
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #FFF;
+    aspect-ratio: 1 / 1;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* Mines Styles inside Modal */
+.visual-cell.mine-cell.safe {
+    background-color: #00A878; /* Зеленый */
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+.visual-cell.mine-cell.revealed-mine {
+    background-color: #2E3035;
+    opacity: 0.8;
+}
+
+/* Keno Styles inside Modal */
+.visual-cell.keno-cell {
+    font-size: 0.8em; /* Поменьше цифры */
+}
+.visual-cell.keno-cell.hit {
+    background-color: #00A878; /* Зеленый */
+    color: transparent; /* Скрываем цифру, показываем лапку */
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+.visual-cell.keno-cell.miss {
+    background-color: #F5A623; /* Желтый (выбрал, но не попал) */
+    color: #FFF;
+    opacity: 0.8;
+}
+
+/* Footer Info */
+.visual-history-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 15px;
+}
+
+.vh-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95em;
+}
+.vh-row span {
+    color: #9CA3AF; /* Серый лейбл */
+}
+.vh-row strong {
+    color: #FFFFFF;
+}
+.vh-row.result-row {
+    margin-top: 5px;
+    font-size: 1.1em;
+}
+.win-text {
+    color: #00A878 !important; /* Зеленый текст выигрыша */
 }

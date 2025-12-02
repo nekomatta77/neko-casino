@@ -141,8 +141,6 @@ function updateMinesUI() {
 
 function placeMines(count) {
     safeCells = Array(MINES_GRID_SIZE).fill(false); // false = Safe (initially empty)
-    // Мы не заполняем бомбы здесь жестко, так как AntiMinus может поменять их положение
-    // Заполним их "виртуально" для честной игры, но будем менять при клике
     const mineIndices = new Set();
     while (mineIndices.size < count) {
         mineIndices.add(Math.floor(Math.random() * MINES_GRID_SIZE));
@@ -178,22 +176,17 @@ function handleCellClick(e) {
     let isBomb = safeCells[index];
 
     // --- ANTI-MINUS LOGIC ---
-    // Если игрок нажал на БЕЗОПАСНУЮ клетку, проверяем, можем ли мы дать ему выиграть этот шаг
     if (!isBomb) {
         const nextMultiplier = getMultiplierForSafeCells(revealedCount + 1, currentMines);
         const potentialProfit = (currentBet * nextMultiplier) - currentBet;
         
-        // Спрашиваем контроллер
         if (!AntiMinus.canUserWin(potentialProfit, currentBet)) {
-            // Если нельзя выиграть -> превращаем эту клетку в бомбу!
             console.warn("Mines: Forced Bomb by Anti-Minus");
             safeCells[index] = true;
             isBomb = true;
-            
-            // Чтобы сохранить кол-во мин, уберем бомбу из другого места (неоткрытого)
             for(let i=0; i<MINES_GRID_SIZE; i++) {
-                if(safeCells[i] && i !== index) { // Нашли другую бомбу
-                    safeCells[i] = false; // Делаем безопасной
+                if(safeCells[i] && i !== index) { 
+                    safeCells[i] = false; 
                     break;
                 }
             }
@@ -209,8 +202,9 @@ function handleCellClick(e) {
         document.getElementById('mines-status').textContent = `Проигрыш ${currentBet.toFixed(2)} RUB`;
         document.getElementById('mines-status').classList.add('loss');
         
+        // UPDATED: Store Mine Count in Result String
         writeBetToHistory({
-            username: currentUser, game: 'mines', result: '💣 BOMB', betAmount: currentBet, amount: -currentBet, multiplier: '0.00x'
+            username: currentUser, game: 'mines', result: `(${currentMines} Mines) 0.00x`, betAmount: currentBet, amount: -currentBet, multiplier: '0.00x'
         });
         endGame(false);
     } else {
@@ -230,8 +224,10 @@ async function cashoutGame() {
     const netProfit = totalWinnings - currentBet;
     
     updateBalance(totalWinnings); 
+    
+    // UPDATED: Store Mine Count in Result String
     writeBetToHistory({
-        username: currentUser, game: 'mines', result: `${finalMultiplier.toFixed(2)}x`, betAmount: currentBet, amount: netProfit, multiplier: `${finalMultiplier.toFixed(2)}x`
+        username: currentUser, game: 'mines', result: `(${currentMines} Mines) ${finalMultiplier.toFixed(2)}x`, betAmount: currentBet, amount: netProfit, multiplier: `${finalMultiplier.toFixed(2)}x`
     });
     
     showAllMines(true); 

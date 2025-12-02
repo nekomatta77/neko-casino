@@ -6,10 +6,7 @@
     <title>CashCat</title>
     
     <link rel="stylesheet" href="style.css?v=2.2">
-    <link rel="stylesheet" href="style2.css?v=3.9"> 
-    <link rel="stylesheet" href="style3.css?v=3.17">
-    <link rel="stylesheet" href="style4.css?v=2.1">
-</head>
+    <link rel="stylesheet" href="style2.css?v=5.6"> </head>
 <body>
 
     <div id="falling-snow-container"></div>
@@ -92,7 +89,7 @@
             <section id="lobby" class="page-section active full-width-lobby">
                 
                 <header class="lobby-header">
-                    <p class="game-list-title">Оригинальные игры CashCat</p>
+                    <p class="game-list-title">CashCat Originals Games</p>
                 </header>
                 
                 <div class="game-cards-list">
@@ -734,14 +731,14 @@
                 </p>
                 <div class="slots-container">
                     <a href="https://www.pragmaticplay.com/ru/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
-                        <img src="https://i.imgur.com/g0AbYvA.png" alt="Pragmatic Play" class="slot-provider-logo">
+                        <img src="assets/card.png" alt="Pragmatic Play" class="slot-provider-logo">
                         <div class="slot-provider-content">
                             <h3>Pragmatic Play</h3>
                             <p>Перейти на официальный сайт и играть в демо</p>
                         </div>
                     </a>
                     <a href="https://www.pgsoft.com/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
-                        <img src="https://i.imgur.com/K4gM5sB.png" alt="PG Soft" class="slot-provider-logo pg-logo">
+                        <img src="assets/card.png" alt="PG Soft" class="slot-provider-logo pg-logo">
                         <div class="slot-provider-content">
                             <h3>PG Soft</h3>
                             <p>Перейти на официальный сайт и играть в демо</p>
@@ -855,7 +852,6 @@
                 </div>
             </section>
             <section id="ref-page" class="page-section hidden">
-                <h2 class="game-list-title">Реферальная программа</h2>
                 
                 <div class="ref-container">
                     
@@ -965,7 +961,6 @@
             </section>
             
             <section id="profile-page" class="page-section hidden">
-                <h2 class="game-list-title">Настройки аккаунта</h2>
                 
                 <div class="profile-container">
                     
@@ -1478,6 +1473,39 @@
                 <button id="hash-verify-button" class="auth-button green-button full-width">Верифицировать</button>
                 <div id="hash-verify-status"></div>
             </div>
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="visual-history-modal-overlay">
+        <div class="user-modal-content wallet-modal-content visual-history-content">
+            
+            <div class="wallet-header">
+                <h3>Детали игры</h3>
+                <button class="wallet-modal-close" id="visual-history-close">&times;</button>
+            </div>
+
+            <div id="visual-history-grid-container" class="visual-grid-container">
+                </div>
+
+            <div class="visual-history-footer">
+                <div class="vh-row">
+                    <span>Игрок:</span>
+                    <strong id="vh-username">...</strong>
+                </div>
+                <div class="vh-row">
+                    <span>Ставка:</span>
+                    <strong id="vh-bet">...</strong>
+                </div>
+                <div class="vh-row">
+                    <span id="vh-extra-label">Инфо:</span>
+                    <strong id="vh-extra-value">...</strong>
+                </div>
+                <div class="vh-row result-row">
+                    <span>Выигрыш:</span>
+                    <strong id="vh-profit" class="win-text">...</strong>
+                </div>
+            </div>
+
         </div>
     </div>
 

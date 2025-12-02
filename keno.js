@@ -160,7 +160,6 @@ async function handlePlayKeno() {
     let multiplier = 0;
     let hitsCount = 0;
 
-    // Пробуем сгенерировать результат (макс 3 попытки), пока не найдем разрешенный
     while (!allowed && attempts < 3) {
         drawnNumbers = [];
         const numberPool = Array.from({ length: KENO_GRID_SIZE }, (_, i) => i + 1);
@@ -179,15 +178,12 @@ async function handlePlayKeno() {
         if (AntiMinus.canUserWin(profit, currentBet)) {
             allowed = true;
         } else {
-            // Если AntiMinus запретил, пытаемся снова (сгенерировать проигрышные числа)
             attempts++;
             console.warn("Keno: Anti-Minus regenerating numbers...");
         }
     }
     
-    // Если после попыток все равно запрещено (редко), форсируем 0 хитов
     if (!allowed) {
-        // Генерируем числа, которых НЕТ в выборе пользователя
         drawnNumbers = [];
         const safePool = Array.from({ length: KENO_GRID_SIZE }, (_, i) => i + 1).filter(n => !selectedNumbers.includes(n));
         for (let i = 0; i < KENO_DRAW_SIZE; i++) {
@@ -207,7 +203,10 @@ async function handlePlayKeno() {
     const winnings = currentBet * multiplier;
     if (winnings > 0) updateBalance(winnings);
 
-    writeBetToHistory({ username: currentUser, game: 'keno', result: `${hitsCount}/${selectedNumbers.length} (${multiplier.toFixed(2)}x)`, betAmount: currentBet, amount: winnings - currentBet, multiplier: `${multiplier.toFixed(2)}x` });
+    // UPDATED: Store Risk/Picks in Result String
+    // e.g., "Easy | 4/10"
+    const resultString = `${currentRisk.charAt(0).toUpperCase() + currentRisk.slice(1)} | ${hitsCount}/${selectedNumbers.length}`;
+    writeBetToHistory({ username: currentUser, game: 'keno', result: resultString, betAmount: currentBet, amount: winnings - currentBet, multiplier: `${multiplier.toFixed(2)}x` });
     
     if (!autoGameActive && kenoResultOverlay) {
         kenoResultMultiplier.textContent = `${multiplier.toFixed(2)}x`;
