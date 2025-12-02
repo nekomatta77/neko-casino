@@ -235,7 +235,7 @@ body {
 
     /* 2. Группа с балансом и уведомлениями */
     .header-user-group {
-        width: 90%;
+        width: 100%;
         display: flex;
         justify-content: space-between !important;
         align-items: center;
