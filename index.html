@@ -1,0 +1,1642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashCat</title>
+    
+    <link rel="stylesheet" href="style.css?v=2.2">
+    <link rel="stylesheet" href="style2.css?v=1.0">
+    <link rel="stylesheet" href="style3.css?v=3.17">
+    <link rel="stylesheet" href="darkstyle.css?v=4.4" id="theme-style" disabled> 
+    <link rel="stylesheet" href="style4.css?v=2.1">
+</head>
+<body>
+
+    <div id="loader-overlay">
+        <div id="loader-bar"></div>
+    </div>
+
+    <div class="app-container">
+        
+        <header class="mobile-header">
+            
+            <div class="logo mobile-logo-adjustment">
+                <img src="assets/CashCat.png" alt="CashCat Logo" class="logo-image">
+                <span class="logo-text"></span>
+            </div>
+            
+            <div class="header-user-group">
+                
+                <div class="profile-balance-box mobile-balance-adjustment hidden" id="header-profile-box">
+                    <img src="assets/avatars/orange_cat_ava.png" alt="Avatar" class="header-avatar-img" id="mobile-header-avatar">
+                    <div class="profile-text-content" id="mobile-profile-text-content">
+                        <span class="profile-name" id="mobile-profile-name">...</span>
+                        <span class="balance" id="mobile-profile-balance">0.00 RUB</span>
+                    </div>
+                </div>
+
+                <div class="notification-wrapper hidden" id="header-notif-box">
+                    <button class="notif-btn" id="notif-toggle-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="bell-icon">
+                            <path d="M12.02 2.90991C8.70997 2.90991 6.01997 5.59991 6.01997 8.90991V11.7999C6.01997 12.4099 5.75997 13.3399 5.44997 13.8599L4.29997 15.7699C3.58997 16.9599 4.07997 18.2999 5.37997 18.2999H18.66C19.96 18.2999 20.45 16.9599 19.74 15.7699L18.59 13.8599C18.28 13.3399 18.02 12.4099 18.02 11.7999V8.90991C18.02 5.60991 15.32 2.90991 12.02 2.90991Z" />
+                            <path d="M13.87 3.20005C13.56 3.11005 13.24 3.04005 12.91 3.01005C11.95 2.93005 11.11 2.52005 10.49 1.86005C10.13 1.47005 10.03 1.00005 10.07 0.610046" />
+                            <path d="M15.02 19.0601C15.02 20.7101 13.67 22.0601 12.02 22.0601C11.2 22.0601 10.44 21.7201 9.90002 21.1801C9.36002 20.6401 9.02002 19.8801 9.02002 19.0601" />
+                        </svg>
+                        <span class="notif-badge">1</span>
+                    </button>
+                    
+                    <div class="notif-dropdown hidden" id="notif-dropdown">
+                        <div class="notif-header">Уведомления</div>
+                        <ul class="notif-list">
+                            <li class="notif-item new">
+                                <span class="notif-title">Добро пожаловать!</span>
+                                <span class="notif-text">Рады видеть вас в CashCat.</span>
+                                <span class="notif-time">Только что</span>
+                            </li>
+                            <li class="notif-item">
+                                <span class="notif-title">Бонус доступен</span>
+                                <span class="notif-text">Не забудьте забрать ежедневную награду.</span>
+                                <span class="notif-time">1ч назад</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="guest-header-actions" id="header-guest-box">
+                <button class="guest-btn login-btn" id="header-login-btn">Вход</button>
+                <button class="guest-btn register-btn" id="header-register-btn">Регистрация</button>
+            </div>
+            
+        </header>
+        
+        
+        <div class="mini-games-nav-container hidden" id="top-game-nav">
+            <nav class="mini-games-nav">
+                <div class="mini-games-nav-item" data-target="dice-game">
+                    <img src="assets/dice_icon.png" alt="Dice" class="nav-game-icon"> Dice
+                </div>
+                <div class="mini-games-nav-item" data-target="mines-game">
+                    <img src="assets/mine_icon.png" alt="Mines" class="nav-game-icon"> Mines
+                </div>
+                <div class="mini-games-nav-item" data-target="crash-game">
+                    <img src="assets/crash_icon.png" alt="Crash" class="nav-game-icon"> Crash
+                </div>
+                <div class="mini-games-nav-item" data-target="coin-game">
+                    <img src="assets/coin_icon.png" alt="Coinflip" class="nav-game-icon"> Coinflip
+                </div>
+                <div class="mini-games-nav-item" data-target="keno-game">
+                    <img src="assets/keno_icon.png" alt="Keno" class="nav-game-icon"> Keno
+                </div>
+                <div class="mini-games-nav-item" data-target="sleepy-game">
+                    <img src="assets/sleepy_icon.png" alt="Sleepy" class="nav-game-icon"> Sleepy
+                </div>
+                <div class="mini-games-nav-item" data-target="wheel-game">
+                    <img src="assets/wheel_icon.png" alt="Wheel" class="nav-game-icon"> Wheel
+                </div>
+            </nav>
+        </div>
+        <main class="content-area">
+            
+            <section id="lobby" class="page-section active full-width-lobby">
+                
+                <header class="lobby-header">
+                    <p class="game-list-title">Оригинальные игры CashCat</p>
+                </header>
+                
+                <div class="game-cards-list">
+                    
+                    <div class="lobby-game-wrapper" data-game-type="dice">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/dice_cat.png" alt="Dice" class="game-card-cat">
+                            </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Dice</span>
+                        </div>
+                    </div>
+                    
+                    <div class="lobby-game-wrapper" data-game-type="mines">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/mines_cat.png" alt="Mines" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Mines</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-game-wrapper" data-game-type="crash">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/crash_cat.png" alt="Crash" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Crash</span>
+                        </div>
+                    </div>
+                    
+                    <div class="lobby-game-wrapper" data-game-type="coin">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/coin_cat.png" alt="Coinflip" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Coinflip</span>
+                        </div>
+                    </div>
+                    
+                    <div class="lobby-game-wrapper" data-game-type="keno">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/keno_cat.png" alt="Keno" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Keno</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-game-wrapper" data-game-type="sleepy">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/sleepy_cat_card.png" alt="Sleepy" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Sleepy</span>
+                        </div>
+                    </div>
+
+                    <div class="lobby-game-wrapper" data-game-type="wheel">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/wheel_cat.png" alt="Wheel" class="game-card-cat">
+                        </button>
+                        <div class="game-card-panel">
+                            <span class="game-card-title">Wheel x30</span>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <hr class="lobby-divider">
+                
+                <div class="bet-history-container">
+                    <h3>Большие выигрыши</h3>
+                    <ul id="bet-history-list">
+                        </ul>
+                </div>
+                
+            </section>
+            
+            <section id="dice-game" class="page-section hidden">
+                <div class="dice-game-container">
+                    
+                    <div id="dice-result" class="dice-result-log hidden">
+                        <span id="dice-result-number">------</span>
+                    </div>
+                    
+                    <div class="dice-controls">
+                        
+                        <div class="dice-input-row">
+                            <div class="dice-input-group">
+                                <label for="dice-bet">Ставка</label>
+                                <input type="number" id="dice-bet" value="10.00" min="1" step="0.01">
+                                
+                                <div class="bet-actions-grid"> 
+                                    <button class="bet-double">X2</button> 
+                                    <button class="bet-half">1/2</button> 
+                                    <button class="bet-min">Мин</button> 
+                                    <button class="bet-max">Макс</button> 
+                                </div>
+                            </div>
+
+                            <div class="dice-input-group">
+                                <label for="dice-chance">Шанс</label>
+                                <input type="number" id="dice-chance" value="49.50" min="1" max="98" step="0.01">
+                                
+                                <div class="bet-actions-grid"> 
+                                    <button class="chance-double">X2</button> 
+                                    <button class="chance-half">1/2</button> 
+                                    <button class="chance-min">Мин</button> 
+                                    <button class="chance-max">Макс</button> 
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div class="dice-calculator-box">
+                        <span id="dice-profit-display" class="profit-amount">9.80</span>
+                        <p class="calc-label">Возможный выигрыш</p> 
+                    </div>
+                    
+                    <div class="dice-roll-area">
+                        <div class="roll-range-display">
+                            <p>0 - <span id="roll-under-value">494999</span></p>
+                            <p><span id="roll-over-value">505000</span> - 999999</p>
+                        </div>
+                        
+                        <div class="dice-buttons">
+                            <button id="roll-under" class="roll-button">Меньше</button>
+                            <button id="roll-over" class="roll-button">Больше</button>
+                        </div>
+                        
+                        </div>
+                    
+                    <div class="dice-status-wrapper">
+                        <div id="dice-status" class="dice-status-bar"></div>
+                        <a href="#" id="dice-check-game" class="game-check-link hidden">Проверить игру</a>
+                    </div>
+                    
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="dice-history-list" class="per-game-history-list">
+                            </ul>
+                    </div>
+                    
+                </div>
+            </section>
+            
+            <section id="mines-game" class="page-section hidden">
+                <div class="mines-game-container">
+                    
+                    <div id="mines-multipliers-bar" class="mines-multipliers-bar">
+                    </div>
+
+                    <div class="mines-grid-wrapper">
+                        <div id="mines-grid" class="mines-grid">
+                        </div>
+                    </div>
+                    
+                    <div id="mines-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="keno-play-row">
+                            <button id="mines-main-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="mines-bet" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+
+                        <div class="mines-count-row">
+                            <label class="mines-count-label">Количество мин</label>
+                            <div class="mines-count-selector">
+                                <button class="mines-count-btn active" data-count="3">3</button>
+                                <button class="mines-count-btn" data-count="5">5</button>
+                                <button class="mines-count-btn" data-count="10">10</button>
+                                <button class="mines-count-btn" data-count="24">24</button>
+                                <div class="keno-input-wrapper mines-custom-input">
+                                    <input type="number" id="mines-count-input" min="1" max="24" value="3">
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="mines-history-list" class="per-game-history-list">
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+            
+            <section id="crash-game" class="page-section hidden">
+                <div class="crash-game-container">
+                    
+                    <div class="crash-graph-wrapper">
+                        <div id="crash-multiplier-display">1.00x</div>
+                        <canvas id="crash-canvas"></canvas>
+                    </div>
+                    
+                    <div id="crash-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="crash-auto-row-styled">
+                            <div class="crash-auto-label-group">
+                                <span class="crash-label-title">Авто-вывод</span>
+                                <label class="switch-toggle">
+                                    <input type="checkbox" id="crash-auto-cashout-toggle">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="keno-input-wrapper crash-auto-input-box">
+                                <span class="currency-icon">x</span>
+                                <input type="number" id="crash-auto-cashout-input" value="2.00" min="1.01" step="0.01" disabled>
+                            </div>
+                        </div>
+
+                        <div class="keno-play-row">
+                            <button id="crash-main-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="crash-bet" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+
+                    </div>
+
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="crash-history-list" class="per-game-history-list">
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="coin-game" class="page-section hidden">
+                <div class="coin-game-container">
+                    <div class="coin-multipliers-bar"></div>
+
+                    <div class="coin-display-wrapper">
+                        <div id="coin-flipper" class="coin-flipper">
+                            <div class="coin-front">
+                                <img src="assets/coin_eagle.png" alt="Орел">
+                            </div>
+                            <div class="coin-back">
+                                <img src="assets/coin_noteagle.png" alt="Решка">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="coin-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="keno-play-row">
+                            <button id="coin-start-button" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
+
+                            <div id="coin-choice-buttons" class="coin-choice-wrapper hidden">
+                                <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-orel" data-choice="orel">
+                                    <img src="assets/coin_eagle.png" alt="Орел">
+                                </button>
+                                <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-reshka" data-choice="reshka">
+                                    <img src="assets/coin_noteagle.png" alt="Решка">
+                                </button>
+                            </div>
+
+                            <button id="coin-cashout-button" class="keno-big-play-btn full-width hidden" style="background: linear-gradient(90deg, #00A878, #00D699); box-shadow: 0 3px 0 #007550;">
+                                ЗАБРАТЬ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="coin-bet" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+
+                    </div>
+
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="coin-history-list" class="per-game-history-list">
+                            </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="keno-game" class="page-section hidden">
+                <div class="keno-game-container">
+                    
+                    <div class="keno-board-area">
+                        
+                        <div class="keno-grid-wrapper">
+                            <div id="keno-grid" class="keno-grid">
+                                </div>
+                            
+                            <div class="keno-result-overlay hidden" id="keno-result-overlay">
+                                <div class="keno-result-box">
+                                    <div class="keno-result-line">
+                                        <span>Множитель</span>
+                                        <span id="keno-result-multiplier">x0.00</span>
+                                    </div>
+                                    <div class="keno-result-line">
+                                        <span>Выигрыш</span>
+                                        <span id="keno-result-winnings">0.00 RUB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="keno-payout-scroll-wrapper">
+                            <div id="keno-payout-bar" class="keno-payout-bar-ref-style">
+                                </div>
+                        </div>
+                    
+                    </div>
+
+                    <div id="keno-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="keno-tabs-visual">
+                            <button class="keno-tab-btn active" data-mode="manual">Ручная</button>
+                            <button class="keno-tab-btn" data-mode="auto">Автоигра</button>
+                        </div>
+
+                        <div id="keno-manual-panel">
+                            <div class="keno-actions-row">
+                                <button id="keno-autopick-button" class="keno-action-btn-ref autopick">
+                                    Случайные клетки
+                                </button>
+                                <button id="keno-clear-button" class="keno-action-btn-ref clear">
+                                    <img src="assets/cat_cleaner.png" alt="Clear">
+                                </button>
+                            </div>
+
+                            <div class="keno-play-row">
+                                <div class="keno-play-wrapper">
+                                    <button id="keno-play-button" class="keno-big-play-btn">
+                                        СДЕЛАТЬ СТАВКУ
+                                    </button>
+                                </div>
+                                <button id="keno-turbo-button" class="keno-turbo-btn">
+                                    <img src="assets/thunder_off.png" alt="Turbo">
+                                </button>
+                            </div>
+
+                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-bet-input-row">
+                                <div class="keno-input-wrapper">
+                                    <span class="currency-icon">₽</span>
+                                    <input type="number" id="keno-bet" value="10.00" min="1" step="0.01">
+                                </div>
+                                <button class="bet-half ref-style">1/2</button>
+                                <button class="bet-double ref-style">2x</button>
+                            </div>
+                        </div>
+
+                        <div id="keno-auto-panel" class="hidden">
+                            
+                            <div class="keno-auto-row">
+                                <label>Количество игр</label>
+                                <div class="keno-auto-count-wrapper">
+                                    <input type="number" id="keno-auto-count" value="0" placeholder="∞">
+                                </div>
+                            </div>
+
+                            <button id="keno-auto-start-button" class="keno-big-play-btn full-width">
+                                ЗАПУСТИТЬ АВТО
+                            </button>
+
+                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-bet-input-row">
+                                <div class="keno-input-wrapper">
+                                    <span class="currency-icon">₽</span>
+                                    <input type="number" id="keno-auto-bet" value="10.00" min="1" step="0.01">
+                                </div>
+                                <button class="bet-half ref-style auto-mod">1/2</button>
+                                <button class="bet-double ref-style auto-mod">2x</button>
+                            </div>
+                        </div>
+
+                        <div class="keno-risk-selector" id="keno-risk-selector">
+                            <button class="keno-risk-btn active" data-risk="easy">Легкий</button>
+                            <button class="keno-risk-btn" data-risk="medium">Средний</button>
+                            <button class="keno-risk-btn" data-risk="high">Сложный</button>
+                        </div>
+
+                    </div>
+
+                </div>
+                
+                <div class="per-game-history-container">
+                    <h3>История игр</h3>
+                    <ul id="keno-history-list" class="per-game-history-list">
+                        </ul>
+                </div>
+            </section>
+
+            <section id="sleepy-game" class="page-section hidden">
+                <div class="sleepy-game-container">
+                    
+                    <div class="sleepy-stats-group">
+                        <div class="coin-multipliers-bar" id="sleepy-multipliers-bar"></div>
+                        <div id="sleepy-risk-display" class="hidden">
+                            <span>⚠️</span> Шанс что кот проснется: 0%
+                        </div>
+                    </div>
+
+                    <div class="sleepy-scene">
+                        <div class="sleepy-zzz" id="sleepy-zzz">Zzz...</div>
+                        <img src="assets/sleepy_cat_sleep.png" alt="Sleepy Cat" id="sleepy-cat-img" class="sleepy-cat">
+                        <div class="sleepy-bowl-wrapper">
+                             <img src="assets/sleepy_bowl.png" alt="Bowl" id="sleepy-bowl-img" class="sleepy-bowl">
+                        </div>
+                    </div>
+                    
+                    <div id="sleepy-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        <div class="keno-play-row">
+                            <button id="sleepy-action-btn" class="keno-big-play-btn full-width">
+                                НАЧАТЬ ИГРУ
+                            </button>
+                            <button id="sleepy-cashout-btn" class="keno-big-play-btn full-width hidden" style="background: linear-gradient(90deg, #00A878, #00D699); box-shadow: 0 3px 0 #007550;">
+                                ЗАБРАТЬ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="sleepy-bet" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+                    </div>
+
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="sleepy-history-list" class="per-game-history-list">
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="wheel-game" class="page-section hidden">
+                <div class="wheel-game-container">
+                    
+                    <div class="wheel-visual-wrapper">
+                        <div class="wheel-pointer"></div>
+                        <div class="wheel-spinner" id="wheel-spinner"></div>
+                        <div class="wheel-center-cap"></div>
+                    </div>
+                    
+                    <div class="history-multiplier-bar" id="wheel-history-bar">
+                        </div>
+
+                    <div id="wheel-status" class="keno-status-bar"></div>
+
+                    <div class="keno-controls-ref-style">
+                        
+                        <div class="keno-play-row">
+                            <button id="wheel-spin-button" class="keno-big-play-btn full-width">
+                                КРУТИТЬ
+                            </button>
+                        </div>
+
+                        <div class="keno-bet-input-header">Сумма ставки</div>
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="wheel-bet-amount" value="10.00" min="1" step="0.01">
+                            </div>
+                            <button class="bet-half ref-style">1/2</button>
+                            <button class="bet-double ref-style">2x</button>
+                        </div>
+                        
+                        <div class="wheel-bet-grid">
+                            <button class="wheel-bet-btn black" data-color="black">
+                                <span>x2</span>
+                                <div class="bet-value" id="bet-val-black">0</div>
+                            </button>
+                            <button class="wheel-bet-btn red" data-color="red">
+                                <span>x3</span>
+                                <div class="bet-value" id="bet-val-red">0</div>
+                            </button>
+                            <button class="wheel-bet-btn green" data-color="green">
+                                <span>x5</span>
+                                <div class="bet-value" id="bet-val-green">0</div>
+                            </button>
+                            <button class="wheel-bet-btn gold" data-color="gold">
+                                <span>x30</span>
+                                <div class="bet-value" id="bet-val-gold">0</div>
+                            </button>
+                        </div>
+                        
+                        <button id="wheel-clear-bets" class="keno-clear-btn" style="margin-top: 10px;">Очистить ставки</button>
+
+                    </div>
+
+                    <div class="per-game-history-container">
+                        <h3>История игр</h3>
+                        <ul id="wheel-history-list" class="per-game-history-list">
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="bonus-page" class="page-section hidden">
+                <div class="dice-game-container"> 
+                    <div class="dice-result-log bonus-display-box">
+                        <img src="assets/gift_cat.png" alt="Бонусный котик" class="bonus-icon">
+                        <span id="bonus-amount-display">До 100 <span class="currency">RUB</span></span>
+                        <p id="bonus-page-text">Ваш ежедневный бонус!</p>
+                        <div class="mines-action-buttons" style="width: 100%; margin-top: 15px;"> 
+                            <button id="claim-bonus-button" class="primary-button full-width">Получить</button>
+                        </div>
+                        <div id="bonus-status" class="dice-status-bar"></div>
+                    </div>
+
+                    <div class="dice-controls bonus-controls-box promocode-box">
+                        <h3 class="promocode-header">Промокод</h3>
+                        <div class="form-group">
+                            <input type="text" id="promo-input" placeholder="Введите промокод">
+                        </div>
+                        <div class="mines-action-buttons"> 
+                            <button id="claim-promo-button" class="primary-button full-width green-button">Активировать</button>
+                        </div>
+                        <div id="promo-status" class="dice-status-bar"></div>
+                    </div>
+
+                    <div class="dice-controls bonus-controls-box weekly-bonus-box">
+                        <h3 class="promocode-header">Недельные бонусы</h3>
+                        <div class="weekly-bonus-item">
+                            <div class="weekly-bonus-info">
+                                <span class="weekly-bonus-title">Кешбек</span>
+                                <span class="weekly-bonus-value" id="cashback-amount">0.00 RUB</span>
+                            </div>
+                            <button id="claim-cashback-button" class="auth-button" disabled>Доступно в ПН</button>
+                        </div>
+                        <div class="weekly-bonus-item">
+                            <div class="weekly-bonus-info">
+                                <span class="weekly-bonus-title">Рейкбек</span>
+                                <span class="weekly-bonus-value" id="rakeback-amount">0.00 RUB</span>
+                            </div>
+                            <button id="claim-rakeback-button" class="auth-button" disabled>Доступно во ВТ</button>
+                        </div>
+                        <div id="weekly-bonus-status" class="profile-status"></div> 
+                    </div>
+                    
+                    <div class="quest-box">
+                        <div class="quest-header">
+                            <img src="assets/vk.png" alt="VK" class="quest-icon">
+                            <div class="quest-title-group">
+                                <span class="quest-title">Котенок Вконтакте</span>
+                                <span class="quest-subtitle">Выполни квесты и получи бонусы</span>
+                            </div>
+                            <button class="quest-button quest-claim-button" id="quest-vk">Получить бонус</button>
+                        </div>
+                        <ul class="quest-list">
+                            <li class="quest-item">
+                                <div class="quest-info">
+                                    <span class="quest-status-icon status-pending">○</span>
+                                    <span class="quest-text">Подпишись на <a href="https://vk.com" target="_blank" rel="noopener noreferrer">Группу ВК</a></span>
+                                </div>
+                                <span class="quest-reward">2Р</span>
+                            </li>
+                            <li class="quest-item">
+                                <div class="quest-info">
+                                    <span class="quest-status-icon status-pending">○</span>
+                                    <span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-vk">Вконтакте</a></span>
+                                </div>
+                                <span class="quest-reward">1Р</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="quest-box">
+                         <div class="quest-header">
+                            <img src="assets/tg.png" alt="TG" class="quest-icon">
+                            <div class="quest-title-group">
+                                <span class="quest-title">Котенок в Telegram</span>
+                                <span class="quest-subtitle">Выполни квесты и получи бонусы</span>
+                            </div>
+                            <button class="quest-button quest-claim-button" id="quest-tg">Получить бонус</button>
+                        </div>
+                        <ul class="quest-list">
+                            <li class="quest-item">
+                                <div class="quest-info">
+                                    <span class="quest-status-icon status-pending">○</span>
+                                    <span class="quest-text">Подпишись на <a href="https://t.me/CashCat_Official" target="_blank" rel="noopener noreferrer">Telegram канал</a></span>
+                                </div>
+                                <span class="quest-reward">2Р</span>
+                            </li>
+                            <li class="quest-item">
+                                <div class="quest-info">
+                                    <span class="quest-status-icon status-pending">○</span>
+                                    <span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-tg">Telegram</a></span>
+                                </div>
+                                <span class="quest-reward">1Р</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="slots-page" class="page-section hidden">
+                <p style="text-align: center; margin-bottom: 20px; color: var(--color-text);">
+                    Официальные демо-версии нельзя встроить на сайт. Пожалуйста, перейдите на сайты провайдеров для игры.
+                </p>
+                <div class="slots-container">
+                    <a href="https://www.pragmaticplay.com/ru/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
+                        <img src="https://i.imgur.com/g0AbYvA.png" alt="Pragmatic Play" class="slot-provider-logo">
+                        <div class="slot-provider-content">
+                            <h3>Pragmatic Play</h3>
+                            <p>Перейти на официальный сайт и играть в демо</p>
+                        </div>
+                    </a>
+                    <a href="https://www.pgsoft.com/" target="_blank" rel="noopener noreferrer" class="slot-provider-card">
+                        <img src="https://i.imgur.com/K4gM5sB.png" alt="PG Soft" class="slot-provider-logo pg-logo">
+                        <div class="slot-provider-content">
+                            <h3>PG Soft</h3>
+                            <p>Перейти на официальный сайт и играть в демо</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
+            
+            <section id="faq-page" class="page-section hidden">
+                <h2 class="game-list-title">Ответы на вопросы</h2>
+                <div class="faq-container">
+                    <div class="faq-item" data-key="q1_payout">
+                        <button class="faq-question">
+                            <span>Через сколько приходит выплата?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                     <div class="faq-item" data-key="q2_wager">
+                        <button class="faq-question">
+                            <span>Бонусы и вагерный баланс</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q3_wager_play">
+                        <button class="faq-question">
+                            <span>Отыгрыш вагерного баланса</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                     <div class="faq-item" data-key="q4_bonus_balance">
+                        <button class="faq-question">
+                            <span>Как узнать сумму бонусного баланса?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q5_multi_account">
+                        <button class="faq-question">
+                            <span>У меня больше 1 аккаунта. Что делать и какие будут последствия?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q6_inactivity">
+                        <button class="faq-question">
+                            <span>Неактивность и обнуление баланса аккаунта</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q7_ref_system">
+                        <button class="faq-question">
+                            <span>Что такое реферальная система?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                     <div class="faq-item" data-key="q8_ref_features">
+                        <button class="faq-question">
+                            <span>Особенности реферальной системы</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q9_ref_missing">
+                        <button class="faq-question">
+                            <span>Реферал зарегистрировался по моей ссылке и не появился в списке</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                    <div class="faq-item" data-key="q10_wrong_details">
+                        <button class="faq-question">
+                            <span>Что делать, если введены неверные реквизиты при выводе средста?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                     <div class="faq-item" data-key="q11_cancel_payout">
+                        <button class="faq-question">
+                            <span>Как отменить выплату?</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="ref-page" class="page-section hidden">
+                <h2 class="game-list-title">Реферальная программа</h2>
+                
+                <div class="ref-container">
+                    
+                    <p class="ref-subheader">
+                        Делитесь ссылкой и зарабатывайте 10% от преимущества казино.
+                        <a href="https://protraffic.com/baza-znaniy/model-oplaty-revshare-revshara-kak-s-nej-ra-3713.html" target="_blank" rel="noopener noreferrer" class="ref-link">
+                            Как работает RevShare?
+                        </a>
+                    </p>
+                    
+                    <div class="ref-link-box">
+                        <label for="ref-link-input">Ваша ссылка</label>
+                        <div class="ref-input-group">
+                            <input type="text" id="ref-link-input" value="https://cash-cat.cc/r/----" readonly>
+                            <button id="ref-copy-button">Копировать</button>
+                        </div>
+                    </div>
+                    
+                    <p class="ref-manager-link">
+                        Для увеличения % реферальной системы напишите менеджеру (поднимаем до 70%)
+                        <a href="https://t.me/" target="_blank" rel="noopener noreferrer">
+                            t.me/manager
+                        </a>
+                    </p>
+                    
+                    <nav class="ref-tabs">
+                        <button class="ref-tab active" data-target="ref-tab-referrals">Рефералы</button>
+                        <button class="ref-tab" data-target="ref-tab-promocodes">Промокоды</button>
+                    </nav>
+                    
+                    <div class="ref-tab-content active" id="ref-tab-referrals">
+                        <div class="ref-table-wrapper">
+                            <table class="ref-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Data</th>
+                                        <th>Deposit</th>
+                                        <th>Withdraw</th>
+                                        <th>Profit</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ref-list-body">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="ref-tab-content" id="ref-tab-promocodes">
+                        
+                        <nav class="ref-subtabs">
+                            <button class="ref-subtab active" data-target="ref-subtab-partner">Партнёрские</button>
+                            <button class="ref-subtab" data-target="ref-subtab-personal">Персональные</button>
+                        </nav>
+                        
+                        <div class="ref-subtab-content active" id="ref-subtab-partner">
+                            <form class="ref-form">
+                                <div class="form-group">
+                                    <label for="ref-partner-link">Канал распространения реферальных кодов</label>
+                                    <input type="text" id="ref-partner-link" placeholder="https://ваша-ссылка.тут/">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ref-partner-tg">Укажите ваш Telegram</label>
+                                    <input type="text" id="ref-partner-tg" placeholder="username">
+                                </div>
+                                <button id="ref-partner-submit" class="auth-button green-button full-width">Отправить заявку</button>
+                            </form>
+                            
+                            <h3 class="ref-list-header">Мои каналы</h3>
+                            <ul class="ref-list" id="ref-partner-channels-list">
+                                </ul>
+                        </div>
+                        
+                        <div class="ref-subtab-content" id="ref-subtab-personal">
+                            <form class="ref-form">
+                                <p class="ref-form-header">Начислится на баланс при активации</p>
+                                <div class="form-group">
+                                    <label for="ref-personal-amount">Сумма промокода</label>
+                                    <input type="number" id="ref-personal-amount" placeholder="10.00">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ref-personal-limit">Лимит использования промокода</label>
+                                    <input type="number" id="ref-personal-limit" placeholder="Количество активаций">
+                                </div>
+                                <button id="ref-personal-create" class="auth-button green-button full-width">Создать промокод</button>
+                            </form>
+                            
+                            <h3 class="ref-list-header">Мои промокоды</h3>
+                            <div class="ref-table-wrapper">
+                                <table class="ref-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Промокод</th>
+                                            <th>Сумма</th>
+                                            <th>Активации</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ref-personal-promos-list">
+                                        </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </section>
+            
+            <section id="profile-page" class="page-section hidden">
+                <h2 class="game-list-title">Настройки аккаунта</h2>
+                
+                <div class="profile-container">
+                    
+                    <button id="theme-toggle-btn" class="auth-button" style="margin-bottom: 15px;">
+                        🌙 Темная тема
+                    </button>
+
+                    <div class="profile-box wager-box">
+                        <span>Для вывода нужно отыграть:</span>
+                        <span id="profile-wager-amount">0.00</span>
+                    </div>
+                    
+                    <a href="#" id="profile-wager-rules-link" class="profile-link">Правила отыгрыша</a>
+                    
+                    <div class="profile-box rank-box">
+                        <span>Ваш ранг:</span>
+                        <span id="profile-rank">без ранга</span>
+                    </div>
+                    
+                    <h3 class="profile-subheader">Смена пароля</h3>
+                    <form id="profile-password-form" class="profile-form">
+                        <div class="form-group">
+                            <label for="profile-old-pass">Старый пароль</label>
+                            <input type="password" id="profile-old-pass" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-new-pass">Новый пароль</label>
+                            <input type="password" id="profile-new-pass" required>
+                        </div>
+                        <button type="submit" class="auth-button">Изменить пароль</button>
+                        <div id="profile-password-status" class="profile-status"></div>
+                    </form>
+                    
+                    <h3 class="profile-subheader">Соцсети</h3>
+                    <div class="profile-socials">
+                        <button id="profile-link-vk" class="social-link-button">
+                            <img src="assets/vk.png" alt="VK">
+                            <span id="profile-vk-text">Привязать Вконтакте</span>
+                        </button>
+                        <button id="profile-link-tg" class="social-link-button">
+                            <img src="assets/tg.png" alt="TG">
+                            <span id="profile-tg-text">Привязать Telegram</span>
+                        </button>
+                    </div>
+                    
+                    <button id="profile-logout-button" class="auth-button danger-button">Выйти из аккаунта</button>
+                    
+                </div>
+            </section>
+            
+            <section id="ranks-page" class="page-section hidden">
+                <h2 class="game-list-title">Lvl котика</h2>
+                <div class="rank-container"> <div class="rank-scroll-container">
+                        
+                        <div class="rank-card-wrapper current">
+                            <img src="assets/ranks/rank_kitten.png" alt="Котенок" class="rank-card__image">
+                            <h3 class="rank-card__title">Котенок</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>0.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>0.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>5%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.05%</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="rank-card-wrapper locked">
+                            <img src="assets/ranks/rank_newfag.png" alt="Кот новичок" class="rank-card__image">
+                            <h3 class="rank-card__title">Кот новичок</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>10 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>250.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>6%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.06%</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="rank-card-wrapper locked">
+                            <img src="assets/ranks/rank_old.png" alt="Бывалый кот" class="rank-card__image">
+                            <h3 class="rank-card__title">Бывалый кот</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>20 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>500.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>7%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.07%</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="rank-card-wrapper locked">
+                            <img src="assets/ranks/rank_street.png" alt="Уличный боец" class="rank-card__image">
+                            <h3 class="rank-card__title">Уличный боец</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>50 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>1 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>8%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.08%</strong>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="rank-card-wrapper locked">
+                            <img src="assets/ranks/rank_horse.png" alt="Победоносец" class="rank-card__image">
+                            <h3 class="rank-card__title">Победоносец</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>100 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>2 500.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>9%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.09%</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="rank-card-wrapper locked">
+                            <img src="assets/ranks/rank_king.png" alt="Король" class="rank-card__image">
+                            <h3 class="rank-card__title">Король</h3>
+                            <ul class="rank-card__info-list">
+                                <li class="rank-card__info-item">
+                                    <span>Сумма депозитов:</span>
+                                    <strong>250 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Награда:</span>
+                                    <strong>5 000.00 ₽</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Кэшбэк:</span>
+                                    <strong>10%</strong>
+                                </li>
+                                <li class="rank-card__info-item">
+                                    <span>Рэйкбек:</span>
+                                    <strong>0.10%</strong>
+                                </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            <section id="contacts-page" class="page-section hidden">
+                <h2>Контакты</h2>
+                <p>Здесь будет контактная информация.</p>
+            </section>
+            
+            <section id="admin-page" class="page-section hidden">
+                <h2 class="game-list-title">Админ-панель</h2>
+                
+                <div class="admin-container">
+                    
+                    <nav class="ref-tabs" id="admin-tabs">
+                        <button class="ref-tab active" data-target="admin-tab-users">Список пользователей</button>
+                        <button class="ref-tab" data-target="admin-tab-promocodes">Промокоды</button>
+                        <button class="ref-tab" data-target="admin-tab-settings">Общие настройки</button>
+                    </nav>
+                    
+                    <div class="ref-tab-content active" id="admin-tab-users">
+                        
+                        <div class="form-group">
+                            <label for="admin-user-search">Поиск по нику</label>
+                            <input type="text" id="admin-user-search" placeholder="Введите ник...">
+                        </div>
+                        
+                        <div class="ref-table-wrapper">
+                            <table class="ref-table admin-user-table">
+                                <thead>
+                                    <tr>
+                                        <th>Ник</th>
+                                        <th>Пароль</th>
+                                        <th>Баланс</th>
+                                        <th>Ранг</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-user-list-body">
+                                    <tr>
+                                        <td colspan="5" class="ref-list-placeholder">Загрузка...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="ref-tab-content" id="admin-tab-promocodes">
+                        
+                        <form class="ref-form" id="admin-promo-form">
+                            <h3 class="ref-list-header">Создать новый промокод</h3>
+                            
+                            <div class="form-group">
+                                <label for="admin-promo-name">Название (TEST100)</label>
+                                <input type="text" id="admin-promo-name" placeholder="Название промокода" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="admin-promo-amount">Сумма (100.00)</label>
+                                <input type="number" id="admin-promo-amount" placeholder="Сумма" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="admin-promo-activations">Кол-во активаций (50)</label>
+                                <input type="number" id="admin-promo-activations" placeholder="Кол-во" step="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="admin-promo-wager">Вейджер (x10, x30)</label>
+                                <input type="number" id="admin-promo-wager" placeholder="e.g. 10" step="1" min="1">
+                            </div>
+                            <button id="admin-promo-create-btn" type="submit" class="auth-button green-button full-width">Создать</button>
+                            
+                            <div id="admin-promo-status" class="profile-status"></div>
+                        </form>
+                        
+                    </div>
+                    
+                    <div class="ref-tab-content" id="admin-tab-settings">
+                        <h3 class="ref-list-header">Управление данными</h3>
+                        <div class="admin-settings-actions">
+                            <button id="admin-clear-history-btn" class="auth-button danger-button full-width">Очистить всю историю игр</button>
+                            <div id="admin-clear-history-status" class="profile-status"></div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+            </main>
+        
+    </div> 
+    <div class="sidebar-overlay hidden" id="sidebar-overlay"></div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+        
+        <div>
+            <div class="logo sidebar-logo">
+                <img src="assets/CashCat2.png" alt="CashCat Logo" class="logo-image">
+                <span class="logo-text">CashCat</span>
+            </div>
+
+            <ul class="sidebar-links">
+                <li><a href="#" data-target="lobby">Главная</a></li>
+                <li><a href="#" data-target="faq-page">FAQ</a></li>
+                <li><a href="#" data-target="ref-page">Рефералы</a></li>
+                <li><a href="#" data-target="bonus-page">Бонусы</a></li>
+                <li><a href="#" data-target="ranks-page">Lvl котика</a></li>
+                <li><a href="#" data-target="profile-page">Настройки</a></li> 
+                <li><a href="#" data-target="contacts-page">Контакты</a></li>
+                <li><a href="#" data-target="admin-page" id="admin-sidebar-link" class="hidden">Админка</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-socials">
+            <a href="https://vk.com" target="_blank" rel="noopener noreferrer">
+                <img src="assets/vk.png" alt="VK" class="social-icon">
+            </a>
+            <a href="https://telegram.org" target="_blank" rel="noopener noreferrer">
+                <img src="assets/tg.png" alt="Telegram" class="social-icon">
+            </a>
+        </div>
+    </nav>
+    
+    <div class="user-modal-overlay hidden" id="wallet-modal-overlay">
+        <div class="user-modal-content wallet-modal-content">
+            
+            <div class="wallet-header">
+                <h3>Кошелёк</h3>
+                <button class="wallet-modal-close" id="wallet-modal-close">&times;</button>
+            </div>
+
+            <div class="wallet-tabs">
+                <button class="wallet-tab active" data-target="wallet-deposit-content">Пополнение</button>
+                <button class="wallet-tab" data-target="wallet-withdrawal-content">Вывод</button>
+            </div>
+
+            <div class="wallet-tab-content active" id="wallet-deposit-content">
+                <div class="wallet-methods">
+                    <button class="wallet-method-button active">
+                        <img src="assets/fkwallet.png" alt="FKWallet">
+                    </button>
+                    <button class="wallet-method-button">
+                        <img src="assets/piastrix.png" alt="Piastrix">
+                    </button>
+                    <button class="wallet-method-button">
+                        <img src="assets/sbp.png" alt="SBP">
+                    </button>
+                </div>
+                
+                <div class="wallet-form">
+                    <div class="form-group">
+                        <label for="deposit-amount">Сумма от 100₽ до 100 000₽</label>
+                        <input type="number" id="deposit-amount" placeholder="Введите сумму">
+                    </div>
+                    <div class="form-group">
+                        <label for="deposit-promo">Промокод</label>
+                        <input type="text" id="deposit-promo" placeholder="Введите промокод">
+                    </div>
+                </div>
+
+                <button id="wallet-deposit-button" class="auth-button green-button full-width">Перейти к оплате</button>
+            </div>
+
+            <div class="wallet-tab-content" id="wallet-withdrawal-content">
+                <div class="wallet-methods">
+                    <button class="wallet-method-button active">
+                        <img src="assets/fkwallet.png" alt="FKWallet">
+                    </button>
+                    <button class="wallet-method-button">
+                        <img src="assets/piastrix.png" alt="Piastrix">
+                    </button>
+                    <button class="wallet-method-button">
+                        <img src="assets/sbp.png" alt="SBP">
+                    </button>
+                </div>
+                
+                <div class="wallet-form">
+                    <div class="form-group">
+                        <label for="withdrawal-requisites">Реквизиты</label>
+                        <input type="text" id="withdrawal-requisites" placeholder="Введите реквизиты">
+                    </div>
+                    <div class="form-group">
+                        <label for="withdrawal-amount">Сумма</label>
+                        <input type="number" id="withdrawal-amount" placeholder="Введите сумму">
+                    </div>
+                </div>
+                
+                <div id="wallet-wager-status" class="wallet-wager-status hidden">
+                    Для вывода необходимо отыграть: 0.00 RUB
+                </div>
+                <button id="wallet-withdrawal-button" class="auth-button blue-button full-width">Вывести</button>
+            </div>
+            
+            <div class="wallet-history-container" id="deposit-history-container">
+                <h4>История пополнений</h4>
+                <ul id="deposit-history-list" class="per-game-history-list">
+                    </ul>
+            </div>
+            
+            <div class="wallet-history-container hidden" id="withdrawal-history-container">
+                <h4>История выводов</h4>
+                <ul id="withdrawal-history-list" class="per-game-history-list">
+                    </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="auth-modal-overlay">
+        <div class="user-modal-content wallet-modal-content"> <div class="wallet-header">
+                <h3 id="auth-modal-title">Вход</h3>
+                <button class="wallet-modal-close" id="auth-modal-close">&times;</button>
+            </div>
+
+            <div class="wallet-tabs">
+                <button class="wallet-tab active" id="tab-btn-login">Вход</button>
+                <button class="wallet-tab" id="tab-btn-register">Регистрация</button>
+            </div>
+
+            <div class="wallet-tab-content active" id="auth-tab-login">
+                <form class="wallet-form" id="modal-login-form">
+                    <div class="form-group">
+                        <label>Никнейм</label>
+                        <input type="text" id="modal-login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="modal-login-password" required>
+                    </div>
+                    <button type="submit" class="auth-button green-button full-width">Войти</button>
+                </form>
+            </div>
+
+            <div class="wallet-tab-content" id="auth-tab-register">
+                <form class="wallet-form" id="modal-register-form">
+                    <div class="form-group">
+                        <label>Никнейм</label>
+                        <input type="text" id="modal-reg-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="modal-reg-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Повторите пароль</label>
+                        <input type="password" id="modal-reg-confirm" required>
+                    </div>
+                    <button type="submit" class="auth-button blue-button full-width">Создать аккаунт</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="hash-modal-overlay">
+        <div class="user-modal-content hash-modal-content">
+            <div class="wallet-header">
+                <h3>Проверка игры <span id="hash-modal-game-id">#...</span></h3>
+                <button class="wallet-modal-close" id="hash-modal-close">&times;</button>
+            </div>
+            
+            <div class="hash-details-list">
+                <div class="hash-detail-item">
+                    <label>Скопировать (Combined String)</label>
+                    <div class="hash-value-box">
+                        <span id="hash-modal-combined">...</span>
+                    </div>
+                </div>
+                <div class="hash-detail-item">
+                    <label>Hash (SHA-256)</label>
+                    <div class="hash-value-box">
+                        <span id="hash-modal-hash">...</span>
+                    </div>
+                </div>
+                <div class="hash-detail-item">
+                    <label>Salt1</label>
+                    <div class="hash-value-box">
+                        <span id="hash-modal-salt1">...</span>
+                    </div>
+                </div>
+                <div class="hash-detail-item">
+                    <label>Number (Результат 0-999999)</label>
+                    <div class="hash-value-box">
+                        <span id="hash-modal-number">...</span>
+                    </div>
+                </div>
+                <div class="hash-detail-item">
+                    <label>Salt2</label>
+                    <div class="hash-value-box">
+                        <span id="hash-modal-salt2">...</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="hash-divider">
+
+            <div class="hash-game-details">
+                <div class="hash-game-item">
+                    <label>Ставка</label>
+                    <span id="hash-modal-bet">...</span>
+                </div>
+                <div class="hash-game-item">
+                    <label>Шанс</label>
+                    <span id="hash-modal-chance">...</span>
+                </div>
+                <div class="hash-game-item">
+                    <label>Результат</label>
+                    <span id="hash-modal-result">...</span>
+                </div>
+            </div>
+
+            <div class="hash-verify-area">
+                <button id="hash-verify-button" class="auth-button green-button full-width">Верифицировать</button>
+                <div id="hash-verify-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="customize-modal-overlay">
+        <div class="user-modal-content customize-modal-content">
+            
+            <div class="wallet-header"> <h3>Кастомизация</h3>
+                <button class="wallet-modal-close" id="customize-modal-close">&times;</button>
+            </div>
+
+            <div class="customize-section">
+                <h4 class="customize-section-title">Аватары</h4>
+                <div class="customize-avatar-grid">
+                    
+                    <img src="assets/custom/orange_cat_custom.png" 
+                         alt="Orange Cat" 
+                         class="customize-avatar-choice" 
+                         data-avatar-src="assets/avatars/orange_cat_ava.png" 
+                         data-custom-src="assets/custom/orange_cat_custom.png">
+                    
+                    <img src="assets/custom/black_cat_custom.png" 
+                         alt="Black Cat" 
+                         class="customize-avatar-choice" 
+                         data-avatar-src="assets/avatars/black_cat_ava.png"
+                         data-custom-src="assets/custom/black_cat_custom.png">
+                         
+                    <img src="assets/custom/grey_cat_custom.png" 
+                         alt="Grey Cat" 
+                         class="customize-avatar-choice" 
+                         data-avatar-src="assets/avatars/grey_cat_ava.png"
+                         data-custom-src="assets/custom/grey_cat_custom.png">
+                         
+                    </div>
+            </div>
+            
+            <div class="customize-section">
+                <h4 class="customize-section-title">Обводка</h4>
+                <div class="customize-color-grid">
+                    <button class="customize-color-choice" 
+                            data-type="border" 
+                            data-value="none">
+                        <span class="no-style-icon">🚫</span>
+                    </button>
+                    <button class="customize-color-choice" 
+                            data-type="border" 
+                            data-value="var(--color-orange)" 
+                            style="background-color: var(--color-orange);"></button>
+                    <button class="customize-color-choice" 
+                            data-type="border" 
+                            data-value="var(--color-secondary)" 
+                            style="background-color: var(--color-secondary);"></button>
+                    <button class="customize-color-choice" 
+                            data-type="border" 
+                            data-value="var(--color-blue)" 
+                            style="background-color: var(--color-blue);"></button>
+                </div>
+            </div>
+            
+            <div class="customize-section">
+                <h4 class="customize-section-title">Фон</h4>
+                <div class="customize-color-grid">
+                    <button class="customize-color-choice" 
+                            data-type="background" 
+                            data-value="none">
+                        <span class="no-style-icon">🚫</span>
+                    </button>
+                    <button class="customize-color-choice" 
+                            data-type="background" 
+                            data-value="#F5A623" 
+                            style="background-color: var(--color-orange);"></button>
+                    <button class="customize-color-choice" 
+                            data-type="background" 
+                            data-value="#00A878" 
+                            style="background-color: var(--color-secondary);"></button>
+                    <button class="customize-color-choice" 
+                            data-type="background" 
+                            data-value="#4A90E2" 
+                            style="background-color: var(--color-blue);"></button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <div class="user-modal-overlay hidden" id="admin-stats-modal-overlay">
+        <div class="user-modal-content admin-stats-modal-content">
+            <div class="wallet-header">
+                <h3>Статистика: <span id="admin-stats-username">...</span></h3>
+                <button class="wallet-modal-close" id="admin-stats-modal-close">&times;</button>
+            </div>
+            
+            <div class="admin-stats-body">
+                <div class="profile-box">
+                    <span>Сумма депозитов:</span>
+                    <span id="admin-stats-deposits">0.00 RUB</span>
+                </div>
+                <div class="profile-box">
+                    <span>Сумма выводов:</span>
+                    <span id="admin-stats-withdrawals">0.00 RUB</span>
+                </div>
+                <div class="profile-box" id="admin-stats-profit-box">
+                    <span>Доход сайта:</span>
+                    <span id="admin-stats-profit">0.00 RUB</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <nav class="bottom-nav">
+        <div class="bottom-nav-row" id="bottom-nav-icon-row">
+            <div class="bottom-nav-item" data-target="bonus-page">
+                <img src="assets/gift.png" alt="Бонусы" class="nav-icon">
+            </div>
+            <div class="bottom-nav-item" data-target="ref-page">
+                <img src="assets/ref.png" alt="Партнерка" class="nav-icon">
+            </div>
+            <div class="bottom-nav-item" id="bottom-nav-profile-button">
+                <img src="assets/card.png" alt="Кошелек" class="nav-icon">
+            </div>
+            <div class="bottom-nav-item" data-target="support-page">
+                <img src="assets/head.png" alt="Поддержка" class="nav-icon">
+            </div>
+            <div class="bottom-nav-item" id="open-sidebar-button">
+                <img src="assets/menu.png" alt="Меню" class="nav-icon nav-icon-menu">
+            </div>
+        </div>
+        <div class="bottom-nav-row" id="bottom-nav-text-row">
+            <div class="bottom-nav-item" data-target="bonus-page">
+                <span class="nav-text">Бонусы</span>
+            </div>
+            <div class="bottom-nav-item" data-target="ref-page">
+                <span class="nav-text">Партнерка</span>
+            </div>
+            <div class="bottom-nav-item" id="bottom-nav-profile-button-text">
+                <span class="nav-text">Кошелек</span>
+            </div>
+            <div class="bottom-nav-item" data-target="support-page">
+                <span class="nav-text">Поддержка</span>
+            </div>
+            <div class="bottom-nav-item" id="open-sidebar-button-text">
+                <span class="nav-text">Меню</span>
+            </div>
+        </div>
+    </nav>
+    <div class="bottom-nav-safe-area"></div>
+    
+    <script>
+        setTimeout(() => {
+            const overlay = document.getElementById('loader-overlay');
+            if (overlay && overlay.style.opacity !== '0') {
+                console.warn("App took too long to load. Forcing loader removal.");
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            }
+        }, 8000);
+    </script>
+
+    <script type="module" src="main.js?v=2.2"></script> 
+</body>
+</html>

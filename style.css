@@ -1,0 +1,4118 @@
+:root {
+    /* --- ИЗМЕНЕНО: (Задание 4) ПАЛИТРА С ТЕМНЫМ UI --- */
+    --color-background: #B6BECB; /* Ваш светлый фон */
+    /* ИЗМЕНЕНО: (Задание 4) --color-sidebar стал темным */
+    --color-sidebar: #3D4654;    /* Темно-серый/сланец */
+    /* --- ИЗМЕНЕНО: (ЗАПРОС) Розовый заменен на оранжевый --- */
+    --color-primary: #F5A623;    /* Оранжевый акцент (бывший розовый) */
+    --color-secondary: #00A878;  /* Темный зеленый (для контраста) */
+    --color-text: #282A36;       /* Темный текст */
+    --color-card: #FFFFFF;       /* Белые карточки */
+    --color-border: #E6E6E6;     /* Светлая граница */
+    
+    /* ДОБАВЛЕНО: (Задание 4) Дополнительные цвета для темного UI */
+    --color-text-light: #F8F8F2; /* Светлый текст (почти белый) */
+    --color-border-dark: #5A6678; /* Темная граница (для hover и фона баланса) */
+    
+    --mobile-nav-height: 60px; 
+    /* --- ИЗМЕНЕНО: (ЗАПРОС) Хедер стал выше --- */
+    --mobile-header-height: 70px; 
+    
+    --color-blue: #4A90E2;       /* Более стандартный синий */
+    --color-orange: #F5A623;     /* Золотой/Оранжевый */
+    
+    /* Дополнительные цвета для Mines */
+    --color-mine-closed: #E0E0E0; /* Светло-серая ячейка */
+    --color-mine-safe: var(--color-secondary); /* Темно-зеленый */
+    --color-mine-bomb: #FF5555;   /* Красный */
+    --color-mines-panel: #FDFDFD; /* Светлая панель */
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ ПАЛИТРЫ --- */
+    
+    --mobile-bet-button-width: 30px; 
+    --mines-bet-input-padding: 2px;
+    --bet-input-gap: 2px; 
+    
+    --mobile-header-padding-x: 15px;
+    
+    /* ИЗМЕНЕHЕНО: (Задание 4) Баланс на темном фоне */
+    --balance-info-bg: var(--color-border-dark); /* Фон баланса (темный) */
+    --balance-info-color: var(--color-secondary); /* Цвет суммы (оставим зеленым) */
+    
+    --dice-input-height: 50px;
+    
+    /* ДОБАВЛЕНО: (Задание 1) Настройка скорости анимации выигрыша */
+    --hot-win-duration: 3s; /* << МЕНЯЙ ЗДЕСЬ (5s = 5 секунд) */
+}
+
+/* Общие стили и сброс */
+html {
+    overflow-x: hidden; 
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* --- ИЗМЕНЕНО: (Задание 2) Фон с новым, более четким SVG-паттерном лапок --- */
+body {
+    /* ИЗМЕНЕНО: (Запрос 1) Добавлен градиентный фон */
+    background-color: var(--color-background); /* Fallback (чистый светлый фон) */
+    
+    /* --- ИЗМЕНЕНО: (ЗАДАНИЕ) Более выраженный градиент (Сверху Вниз) --- */
+    background-image: 
+        linear-gradient(
+            to bottom, /* Сверху вниз */
+            #E0E5ED, /* Заметно светлее (сверху) */
+            var(--color-background) 30%, /* #B6BECB (центр) */
+            #8A96AE 100% /* Заметно темнее (снизу) */
+        );
+    
+    background-attachment: fixed; /* Градиент не скроллится */
+    /* --- КОНЕЦ ИЗМЕНЕНИЯ --- */
+    
+
+    color: var(--color-text);
+    min-height: 100vh;
+    overflow-x: hidden; 
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ ФОНА --- */
+
+/* --- ДОБАВЛЕНО: (ЗАПРОС 3) Стили экрана загрузки --- */
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-sidebar); /* Темный фон, как у сайдбара */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* Плавное исчезновение */
+    transition: opacity 0.5s ease;
+    opacity: 1;
+}
+
+#loader-bar {
+    width: 0%; /* JS будет анимировать это */
+    height: 4px;
+    background-color: var(--color-orange); /* ИЗМЕНЕНО: (Запрос 4) Золотой */
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--color-orange); /* ИЗМЕНЕНО: (Запрос 4) Золотой */
+    /* Плавное движение полоски */
+    transition: width 0.4s ease;
+}
+/* --- КОНЕЦ СТИЛЕЙ ЗАГРУЗКИ --- */
+
+
+/* 1. Контейнер Приложения */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    /* ИЗМЕНЕНО: (Запрос v2.1) Всегда колонка, для 100% ширины хедера */
+    flex-direction: column; 
+}
+
+/* ИЗМЕНЕНО: (Запрос 2/3) .hidden-on-mobile теперь всегда скрыт */
+.hidden-on-mobile {
+    display: none !important; 
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Новый layout хедера --- */
+.mobile-header {
+    display: flex; 
+    justify-content: space-between; /* Лого слева, баланс справа */
+    align-items: flex-end; /* Выравнивание по низу */
+    width: 100%;
+    height: var(--mobile-header-height); /* Стало 70px */
+    padding: 5px 10px; 
+    background-color: var(--color-sidebar); 
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px; 
+    gap: 10px;
+}
+
+/* 2. Боковая Навигация (Сайдбар) - УДАЛЕНО */
+/* ... */
+
+/* 3. Основная Область Контента */
+.content-area {
+    flex-grow: 1;
+    /* УБРАНО: padding-top: var(--mobile-header-height); (т.к. хедер статичный) */
+    /* ИЗМЕНЕНО: (Запрос 2) Отступ снизу для фикс. навигации */
+    padding-bottom: 80px; 
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow-y: auto;
+    min-width: 0; 
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Обновлены стили логотипа в хедере --- */
+.logo {
+    font-size: 1.8em;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 0; 
+    display: flex;
+    align-items: flex-end; /* Выравнивание по низу */
+    justify-content: flex-start; 
+    gap: 10px; 
+    cursor: pointer; 
+    flex-shrink: 0; 
+}
+
+/* ДОБАВЛЕНО: (Задание 3) Стили для картинки логотипа */
+.logo-image {
+    height: 3.0em; 
+    width: auto;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* ИЗМЕНЕНО: (Задание 3) Стили для текста логотипа */
+.logo-text {
+    line-height: 1;
+    font-size: 1.5em; 
+    font-family: cursive; 
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1); 
+    position: relative;
+    
+    /* --- ДОБАВЛЕНО: (ЗАПРОС 1) Анимация текста --- */
+    background: linear-gradient(
+        90deg, 
+        var(--color-orange), 
+        var(--color-text-light), 
+        var(--color-orange)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: gold-shimmer 4s linear infinite;
+
+    /* --- ИЗМЕНЕНО: (ЗАПРОС) Сброс transform --- */
+    transform: translate(0px, 0px); 
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ ЛОГОТИПА --- */
+
+
+/* .nav-links { ... } УДАЛЕНО */
+/* .nav-item { ... } УДАЛЕНО */
+
+
+.page-section { 
+    max-width: 1000px; 
+    margin: 0 auto; /* Центрируем контент */
+}
+.full-width-lobby {
+    max-width: none; 
+    padding: 0 10px; 
+}
+/* --- ИСПРАВЛЕНИЕ: Проблема специфичности CSS --- */
+.hidden { 
+    display: none !important; 
+}
+/* --- КОНЕЦ ИСПРАВЛЕНИЯ --- */
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Стилизация баланса в хедере --- */
+.profile-balance-box {
+    background-color: var(--balance-info-bg);
+    padding: 6px 12px; 
+    border-radius: 10px;
+    border: 1px solid var(--color-border-dark);
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    gap: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    /* ИЗМЕНЕНО: Убраны margin-left/right auto для прижатия вправо */
+    flex-shrink: 0; 
+    flex-grow: 0;
+    min-width: 120px; 
+    text-align: center;
+    margin-bottom: 0; 
+}
+.profile-balance-box:hover {
+    background-color: #6A788C;
+    border-color: var(--color-secondary);
+    /* ИЗМЕНЕНО: (ЗАПРОС 3) Убрано движение при наведении */
+    transform: none; 
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ИЗМЕНЕНО: (Запрос 2) Убираем иконку пользователя */
+.profile-balance-box::after {
+    content: none;
+}
+
+/* ИЗМЕНЕНО: (ЗАПРОС) Убираем лапку из хедера */
+.profile-balance-box::before {
+    content: none;
+}
+
+
+.profile-name {
+    font-weight: bold;
+    color: var(--color-text-light); 
+    font-size: 0.9em;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+    /* --- ДОБАВЛЕНО: (ЗАПРОС) Обводка --- */
+    -webkit-text-stroke: 0.5px #000;
+    paint-order: stroke fill;
+}
+
+.profile-balance-box .balance {
+    /* --- ИЗМЕНЕНО: (ЗАПРОС) Цвет и обводка --- */
+    color: var(--color-text-light) !important; /* Белый */
+    -webkit-text-stroke: 0.5px #000;
+    paint-order: stroke fill;
+    /* --- */
+    font-size: 1.1em;
+    font-weight: bold;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+}
+/* --- УДАЛЕНО: (ЗАПРОС) Стили для кнопок в хедере --- */
+/* .header-actions { ... } */
+/* .header-action-button { ... } */
+/* --- КОНЕЦ УДАЛЕНИЯ --- */
+
+
+/* Кнопки и Формы */
+.primary-button {
+    background-color: var(--color-primary);
+    color: white; /* Белый текст на оранжевом */
+    padding: 12px 25px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.secondary-button {
+    background-color: var(--color-secondary);
+    color: #FFFFFF; /* Белый текст на зеленом */
+}
+
+
+/* --- СТИЛИ ДЛЯ ЛОББИ --- */
+
+/* ИЗМЕНЕНО: (Запрос 3) Корректировка хедера лобби */
+.lobby-header { 
+    margin-bottom: 25px; 
+    padding: 0 15px;
+    /* Убираем flex, т.к. там остался 1 элемент */
+    display: block; 
+    text-align: center; /* Центрируем заголовок "Список игр" */
+} 
+
+/* ДОБАВЛЕНО: (Запрос 3) Стилизация заголовка "Список игр" */
+.game-list-title {
+    font-size: 1.8em;
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: 15px;
+    position: relative;
+    display: inline-block; /* Для ::after */
+    padding-bottom: 5px;
+    /* ИЗМЕНЕНО: (Запрос) Центрирование по умолчанию */
+    text-align: center;
+    /* ИЗМЕНЕНО: (Запрос) Сброс inline-style */
+    width: auto; 
+}
+
+/* ДОБАВЛЕНО: (Запрос 3) Декоративное подчеркивание */
+.game-list-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* ИЗМЕНЕНО: (Запрос) Ширина 100% и черный цвет по умолчанию */
+    width: 100%; 
+    height: 4px;
+    background-color: var(--color-text); 
+    border-radius: 2px;
+    /* ИЗМЕНЕНО: (Запрос) Сброс inline-style */
+    display: block;
+    margin: 0;
+    transform: none;
+}
+
+.game-cards-list {
+    display: grid; 
+    /* ИЗМЕНЕНО: 2 колонки, как в скриншоте-примере */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 15px;
+    padding: 0 15px;
+    /* ДОБАВЛЕНО: Ограничим макс. ширину, чтобы на десктопе не было слишком широко */
+    max-width: 800px;
+    margin: 0 auto; /* Центрируем грид */
+}
+
+/* ДОБАВЛЕНО: (Задание 2) Обёртка для карточки и названия */
+.lobby-game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Отступ между картой и названием */
+}
+
+
+/* ИЗМЕНЕНО: (Задание 2, 3) Новый стиль для кнопок (замена .game-card-frame) */
+.lobby-game-card {
+    /* Основной контейнер кнопки */
+    display: flex;
+    /* ИЗМЕНЕНО: (Задание 2) Убрано flex-direction и justify-content */
+    align-items: center;
+    justify-content: center; /* Центрируем (хотя кот позиционируется абсолютно) */
+    
+    /* --- ИЗМЕНЕНО: (ЗАПРОС 2) Анимированная рамка --- */
+    border: 3px solid transparent;
+    background-image: 
+        /* 1. Внутренний фон (старый) */
+        linear-gradient(145deg, var(--color-card), var(--color-background)),
+        /* 2. Фон рамки (анимированный градиент) */
+        linear-gradient(90deg, var(--color-orange), var(--color-text-light), var(--color-orange));
+    
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
+    
+    background-size: 100% 100%, 200% auto;
+    animation: gold-shimmer-border 4s linear infinite;
+    /* --- КОНЕЦ ИЗМЕНЕНИЯ --- */
+    
+    /* (Req 3) Более округлые */
+    border-radius: 20px; 
+    
+    /* ИЗМЕНЕНО: (Эстетика) Мягкая тень, чтобы кнопки выделялись */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    /* (Req 3) Меньше */
+    padding: 10px;
+    height: 140px; /* Новая высота */
+    width: 100%; /* (Задание 2) Растягиваем на всю ширину wrapper'а */
+    
+    /* Сброс стилей кнопки */
+    cursor: pointer;
+    text-align: left;
+    position: relative; /* Для позиционирования кота и лапки */
+    overflow: hidden; /* Чтобы кот не вылезал */
+}
+
+/* ДОБАВЛЕНО: (Эстетика) Декоративный элемент "Лапка" */
+.lobby-game-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    
+    /* --- ИЗМЕНЕНО: (ЗАПРОС 1a) Уголок с градиентом --- */
+    width: 45px; /* Размер уголка */
+    height: 45px; /* Размер уголка */
+    /* Тот же анимированный фон, что и у рамки */
+    background: linear-gradient(90deg, var(--color-orange), var(--color-text-light), var(--color-orange));
+    background-size: 200% auto;
+    animation: gold-shimmer-border 4s linear infinite;
+    
+    border-top-right-radius: 18px; /* Скругление (совпадает с родителем) */
+    z-index: 10;
+    
+    /* Обрезаем квадрат в треугольник */
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    /* --- КОНЕЦ ИЗМЕНЕНИЯ --- */
+}
+
+/* ДОБАВЛЕНО: (Эстетика) На уголке лапки ставим "пятнышко" */
+.lobby-game-card::before {
+    content: none; /* ИЗМЕНЕНО: (Запрос 2) Убрали лапку */
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 1.2em;
+    line-height: 1;
+    z-index: 11;
+    color: var(--color-text); 
+    transition: color 0.3s;
+}
+
+
+.lobby-game-card:hover {
+    transform: translateY(-5px);
+    /* ИЗМЕНЕНО: (ЗАПРОС 2) Glow стал золотым */
+    box-shadow: 
+        0 8px 20px rgba(0, 0, 0, 0.2),
+        0 0 20px var(--color-orange); /* Золотой Glow */
+    /* border-color: var(--color-primary); <-- Удалено */
+}
+
+.lobby-game-card:active {
+    transform: scale(0.97) translateY(1px);
+    box-shadow: none; 
+}
+
+/* ДОБАВЛЕНО: (Задание 2) Стили для кота */
+.game-card-cat {
+    height: 120px; /* Меньше, чем 140px (высота кнопки) */
+    width: auto;
+    object-fit: contain;
+    position: absolute;
+    top: -10px; /* Слегка высовывается */
+    
+    /* ИЗМЕНЕНО: (Запрос 1) Позиционирование от левой границы */
+    left: 0; 
+    transform: translateX(0);
+    
+    transition: transform 0.3s ease;
+    z-index: 1;
+}
+
+.lobby-game-card:hover .game-card-cat {
+    /* ИЗМЕНЕНО: (Задание 3) Убран transformX */
+    transform: scale(1.08); /* Чуть больший зум при наведении */
+}
+
+/* ДОБАВЛЕНО: (Задание 2) Стили для панельки */
+.game-card-panel {
+    background-color: var(--color-sidebar); /* Темный фон, как у сайдбара */
+    border-radius: 12px; /* (Req 3) Скруглено */
+    padding: 8px 15px;
+    text-align: center;
+    z-index: 5; /* Поверх кота */
+    
+    /* ИЗМЕНЕНО: (Задание 2) Убрано абсолютное позиционирование */
+    width: 90%; /* Ширина относительно .lobby-game-wrapper */
+    margin: 0 auto; /* Центрирование */
+    cursor: pointer; /* <-- ДОБАВЛЕНО: (Запрос 1) */
+}
+
+/* ДОБАВЛЕНО: (Задание 2) Стили для заголовка на панельке */
+.game-card-title {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: var(--color-text-light); /* Светлый текст на темной панельке */
+}
+
+
+/* --- СТИЛИ ДЛЯ ИГРЫ DICE --- */
+
+.dice-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0; 
+    max-width: 500px; 
+    margin: 0 auto;
+    width: 100%; 
+    margin-top: 15px; /* ИЗМЕНЕНО: Добавлен отступ сверху */
+}
+
+.dice-calculator-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center;
+    width: 100%;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Новый отступ */
+    margin: 10px 0; 
+    padding: 15px;
+    background-color: var(--color-mines-panel); 
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dice-calculator-box .calc-item {
+    text-align: center;
+    padding: 0; 
+    width: 100%;
+}
+
+.calc-label {
+    font-size: 0.85em;
+    color: var(--color-text);
+    margin-bottom: 5px;
+}
+
+#dice-profit-display {
+    display: block;
+    font-size: 2.2em; 
+    font-weight: 800;
+    color: var(--color-text); 
+}
+.profit-amount.zero {
+    color: var(--color-text); 
+}
+
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 3) .dice-controls стал прозрачным контейнером */
+.dice-controls {
+    width: 100%;
+    /* background-color: var(--color-sidebar); <-- УБРАН ФОН */
+    padding: 0; /* <-- УБРАН PADDING */
+    /* border-radius: 8px; <-- УБРАН BORDER-RADIUS */
+    margin-bottom: 0; 
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 2, 3) gap теперь отвечает за отступ МЕЖДУ панелями */
+.dice-input-row {
+    display: flex;
+    gap: 10px; /* <-- Отступ МЕЖДУ панелями "Ставка" и "Шанс" */
+    margin-bottom: 0; 
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 3) .dice-input-group ТЕПЕРЬ является панелью */
+.dice-input-group {
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    /* ДОБАВЛЕНО: (ЗАДАНИЕ 3) Стили перенесены с .dice-controls */
+    background-color: var(--color-sidebar);
+    padding: 10px;
+    border-radius: 8px;
+    min-width: 0; /* <-- ИСПРАВЛЕНИЕ: Предотвращает переполнение flex-box */
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для <label> --- */
+.dice-input-group label {
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Стал светлым (почти белым) */
+    margin-bottom: 5px;
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.dice-input-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px; 
+    background-color: #FFFFFF; /* Белый фон инпута */
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+    margin-bottom: 10px; 
+    height: 40px; 
+}
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ) Старые .bet-actions заменены на .bet-actions-grid --- */
+.dice-input-group .bet-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2x2 сетка */
+    gap: 5px; /* Отступ между кнопками */
+}
+
+/* Кнопки в новой сетке */
+.dice-input-group .bet-actions-grid button {
+    flex: 1; 
+    padding: 10px 5px; /* Увеличили высоту кнопок */
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 4px;
+    font-weight: normal;
+    font-size: 0.9em; /* Слегка увеличили шрифт */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.dice-input-group .bet-actions-grid button:hover {
+    background-color: #6A788C;
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ (ЗАДАНИЕ) --- */
+
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Блок вынесен из .dice-controls, отступы изменены */
+.dice-roll-area {
+    width: 100%; /* ДОБАВЛЕНО: (ЗАДАНИЕ 2) */
+    margin-top: 10px;
+    padding-top: 0;
+    border-top: none;
+}
+/* --- ИЗМЕНЕНО: (Запрос) Стили для диапазона --- */
+.roll-range-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9em;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Цвет текста теперь темный, т.к. фон светлый */
+    color: var(--color-text); 
+    margin-bottom: 10px;
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+    opacity: 0.8; /* ДОБАВЛЕНО: (ЗАДАНИЕ 2) */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.dice-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 0; /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Убран отступ */
+}
+/* --- ИЗМЕНЕНО: (Задание 1) Новый стиль кнопок "Меньше" / "Больше" --- */
+.dice-buttons .roll-button {
+    flex-grow: 1;
+    padding: 15px 0;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    
+    /* Новый градиент и тень */
+    background: linear-gradient(145deg, #FFFFFF, #E9E9E9);
+    color: var(--color-text); /* Темный текст */
+    border: 1px solid #CCCCCC;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    transition: all 0.2s ease;
+}
+
+.dice-buttons .roll-button:hover {
+    background: linear-gradient(145deg, #F9F9F9, #E0E0E0);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.dice-buttons .roll-button:active {
+    background: linear-gradient(145deg, #E0E0E0, #F0F0F0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(1px);
+}
+/* --- УДАЛЕНЫ СТАРЫЕ СТИЛИ ID #roll-under / #roll-over --- */
+/* --- КОНЕЦ ИЗМЕНЕНИЙ (Задание 1) --- */
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для статус-бара --- */
+.dice-status-bar {
+    text-align: center;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Цвет текста теперь темный */
+    color: var(--color-text); 
+    min-height: 20px;
+    font-size: 0.9em;
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+    /* ДОБАВЛЕНО: (ЗАДАНИЕ 3) Отступ сверху, чтобы отодвинуть от кнопок */
+    margin-top: 10px;
+    
+    /* ДОБАВЛЕНО: (ЗАДАНИЕ 3) Стили по умолчанию для прямоугольника */
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Прямоугольник скрыт, пока нет класса .win или .loss */
+}
+
+/* ДОБАВЛЕНО: (ЗАДАНИЕ 3) Стили для прямоугольника ВЫИГРЫША */
+.dice-status-bar.win {
+    display: block; /* Показываем */
+    background-color: var(--color-secondary); /* Зеленый */
+    color: var(--color-text-light); /* Белый текст */
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+
+/* ДОБАВЛЕНО: (ЗАДАНИЕ 3) Стили для прямоугольника ПРОИГРЫША */
+.dice-status-bar.loss {
+    display: block; /* Показываем */
+    background-color: var(--color-mine-bomb); /* Красный */
+    color: var(--color-text-light); /* Белый текст */
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.dice-result-log {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 10px;
+    margin-bottom: 10px; /* ДОБАВЛЕНО: (Задание 4) */
+    
+    background-color: var(--color-border-dark); /* ИЗМЕНЕНО: (Задание 3) */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#dice-result-number {
+    display: inline-block;
+    font-size: 3.5em; 
+    font-weight: 900;
+    letter-spacing: 5px;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 4) Текст стал светлым */
+    transition: color 0.3s;
+}
+
+#dice-result-number.win {
+    color: var(--color-secondary);
+    text-shadow: 0 0 15px rgba(0, 168, 120, 0.5); 
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 3) Цвет проигрыша --- */
+#dice-result-number.loss {
+    color: var(--color-mine-bomb); /* <-- ИЗМЕНЕНО */
+    text-shadow: 0 0 15px rgba(255, 85, 85, 0.7); /* <-- ИЗМЕНЕНО */
+}
+
+
+/* --- СТИЛИ ДЛЯ ИГРЫ MINES --- */
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Контейнер теперь всегда в колонку */
+.mines-game-container {
+    display: flex;
+    flex-direction: column; /* Всегда в колонку */
+    align-items: center; /* Центрируем по горизонтали */
+    gap: 15px;
+    padding: 0 10px;
+    max-width: 500px; /* Ограничиваем ширину, как в Dice */
+    margin: 0 auto; /* Центрируем */
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Панель теперь внизу */
+.mines-controls-panel {
+    flex: 0 0 auto; /* Убираем flex-basis */
+    width: 100%; /* На всю ширину контейнера */
+    background-color: var(--color-sidebar); /* ИЗМЕНЕНО: (Задание 2) */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    order: 3; /* 1. Сетка, 2. Статус, 3. Панель */
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для <label> --- */
+.mines-controls label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Стал светлым */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+
+/* ДОБАВЛЕНО: Отступ для новой метки "Количество бомб" */
+.mines-controls label[for="mines-count-input"] {
+    margin-top: 15px;
+}
+
+.mines-controls input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #FFFFFF; /* Белый инпут */
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+}
+
+/* ИЗМЕНЕНО: Убираем отступ снизу у группы ставок */
+.mines-controls .mines-input-group {
+    margin-bottom: 0;
+}
+
+.bet-input-group {
+    display: flex;
+    gap: var(--bet-input-gap); 
+    margin-bottom: 15px;
+}
+
+/* --- ИСПРАВЛЕНИЕ 1 --- */
+.bet-input-group input {
+    flex-grow: 1;
+    min-width: 0; /* <-- ДОБАВЛЕНО: Позволяет инпуту сжиматься (Mines, Crash, Coin) */
+}
+
+.bet-actions {
+    display: flex;
+    gap: var(--bet-input-gap);
+    flex-shrink: 0;
+}
+
+/* --- ИСПРАВЛЕНИЕ 2: Разделил правила --- */
+
+/* Стили для кнопок "1/2" и "x2" (Десктоп) */
+.bet-actions button {
+    width: 45px; 
+    flex-shrink: 0; /* Не сжиматься */
+    padding: 10px 5px;
+    background-color: var(--color-sidebar);
+    color: var(--color-text-light);
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background-color 0.2s;
+    height: 100%;
+}
+
+/* Стили для кнопок "Мин" и "Макс" (Десктоп) */
+.mines-controls .bet-actions-secondary button,
+#coin-bet-controls .bet-actions-secondary button {
+    /* Копируем стили */
+    padding: 10px 5px;
+    background-color: var(--color-sidebar); 
+    color: var(--color-text-light); 
+    border: 1px solid var(--color-border-dark); 
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1em;
+    transition: background-color 0.2s;
+    height: 100%;
+    
+    /* Добавляем Layout */
+    flex: 1; 
+    width: auto; 
+    flex-shrink: 0;
+}
+
+/* Общий Hover-эффект для всех кнопок */
+.bet-actions button:hover,
+.mines-controls .bet-actions-secondary button:hover,
+#coin-bet-controls .bet-actions-secondary button:hover {
+    background-color: var(--color-border-dark); 
+}
+
+/* --- КОНЕЦ ИСПРАВЛЕНИЯ 2 --- */
+
+
+/* --- ДОБАВЛЕНО: (Задание 3) Стили для контейнера кнопок Мин/Макс --- */
+.mines-controls .bet-actions-secondary,
+#coin-bet-controls .bet-actions-secondary {
+    display: flex;
+    gap: var(--bet-input-gap);
+    margin-top: var(--bet-input-gap); /* Отступ сверху */
+}
+
+/* --- ДОБАВЛЕНО: Стили для нового селектора мин --- */
+.mines-count-selector {
+    display: flex;
+    gap: 5px; /* Промежуток между кнопками и инпутом */
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.mines-count-btn {
+    flex: 1; /* Кнопки занимают равное пространство */
+    padding: 10px 5px;
+    font-size: 0.9em;
+    font-weight: bold;
+    color: var(--color-text);
+    background-color: #FFFFFF; /* Белый фон */
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mines-count-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.mines-count-btn.active {
+    background-color: var(--color-secondary);
+    color: #FFFFFF;
+    border-color: var(--color-secondary);
+}
+
+/* Стилизация инпута для мин */
+.mines-count-selector #mines-count-input {
+    flex-basis: 70px; /* Фиксированная ширина */
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #f0f2f5; /* Светло-серый фон */
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+    font-weight: bold;
+}
+/* --- КОНЕЦ СТИЛЕЙ СЕЛЕКТОРА МИН --- */
+
+
+.mines-stats-panel {
+    border-top: 1px solid var(--color-border);
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.mines-stats-panel p {
+    margin-bottom: 5px;
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для stat-label --- */
+.stat-label {
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 2) */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.stat-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--color-secondary);
+    margin-bottom: 15px;
+}
+
+
+.mines-action-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.mines-action-buttons button.full-width {
+    width: 100%;
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 2) Разделены стили кнопок --- */
+#mines-start-button {
+    background-color: var(--balance-info-bg); /* Темно-серый */
+    color: #FFFFFF; /* Белый текст */
+}
+
+#mines-cashout-button {
+    background-color: var(--color-secondary); /* Зеленый */
+    color: #FFFFFF; /* Белый текст */
+}
+
+
+.mines-grid-wrapper {
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 0; /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Убран отступ */
+    padding-top: 10px; 
+    order: 1; /* 1. Сетка */
+}
+
+.mines-grid {
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    grid-gap: 5px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+}
+
+.mine-cell {
+    background-color: var(--color-mine-closed);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    aspect-ratio: 1 / 1;
+    transition: background-color 0.1s, transform 0.1s;
+    /* ДОБАВЛЕНО: (Задача 3) Отступ для иконки бомбы */
+    padding: 10%;
+}
+
+.mine-cell.closed:hover {
+    background-color: #CCCCCC; 
+}
+
+.mine-cell.safe {
+    background-color: var(--color-mine-safe);
+    color: #FFFFFF; /* Белый текст */
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5); 
+    font-size: 1.8em;
+    /* --- ДОБАВЛЕНО: (Задание 1) Отступ для иконки рыбки --- */
+    padding: 10%; /* Даем место для картинки (10% с каждой стороны) */
+}
+
+/* --- ДОБАВЛЕНО: (Задание 1) Стили для иконки рыбки --- */
+.mine-cell-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Анимация появления */
+    animation: bounceIn 0.3s ease;
+}
+/* --- */
+
+
+.mine-cell.bomb {
+    background-color: var(--color-mine-bomb);
+    color: #FFFFFF; /* Белый текст */
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7); 
+    font-size: 1.8em;
+}
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ 1) Статус-бар теперь между сеткой и панелью --- */
+.mines-status-bar {
+    text-align: center;
+    color: var(--color-text); 
+    min-height: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-top: 0; /* ИЗМЕНЕНО: Убран margin-top */
+    margin-bottom: 0; /* ИЗМЕНЕНО: Убран margin-bottom */
+    
+    /* Стили по умолчанию для прямоугольника (как в Dice) */
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Скрыт, пока нет .win/.loss */
+    width: 100%;
+    max-width: 500px; /* Как у Dice */
+    margin-left: auto;
+    margin-right: auto;
+    order: 2; /* 2. Статус-бар */
+}
+
+.mines-status-bar.win {
+    display: block;
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+
+.mines-status-bar.loss {
+    display: block;
+    background-color: var(--color-mine-bomb);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+/* --- Стилизация ползунка --- */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    margin: 10px 0;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 8.4px;
+    cursor: pointer;
+    background: #E0E0E0; 
+    border-radius: 4.2px;
+    border: 1px solid var(--color-border);
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--color-secondary);
+    cursor: pointer;
+    margin-top: -5.3px; 
+    box-shadow: 0 0 5px var(--color-secondary);
+}
+/* --- СТИЛИ ДЛЯ ИГРЫ CRASH --- */
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Контейнер теперь всегда в колонку */
+.crash-game-container {
+    display: flex;
+    flex-direction: column; /* Всегда в колонку */
+    align-items: center; /* Центрируем */
+    gap: 15px;
+    padding: 0 10px;
+    max-width: 800px; /* Ограничиваем ширину (шире, чем Dice/Mines) */
+    margin: 0 auto; /* Центрируем */
+}
+.crash-graph-wrapper {
+    flex-grow: 1;
+    height: 400px; 
+    /* ИЗМЕНЕНИЕ: Цвет фона как у сайдбара */
+    background-color: var(--color-sidebar);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) На всю ширину, т.к. в колонке */
+    width: 100%;
+    order: 1; /* 1. График */
+}
+
+#crash-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#crash-multiplier-display {
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    font-size: 4.5em;
+    font-weight: 900;
+    color: var(--color-text); /* Темный */
+    z-index: 10;
+    text-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    transition: color 0.3s ease;
+}
+
+.crash-multiplier-saved {
+    position: absolute;
+    top: 10px; 
+    left: 10px; 
+    font-size: 2em; 
+    font-weight: bold;
+    color: var(--color-secondary); 
+    z-index: 10; 
+}
+
+#crash-multiplier-display.win {
+    color: var(--color-secondary);
+    text-shadow: 0 0 15px rgba(0, 168, 120, 0.5); 
+}
+/* (ЗАПРОС 3) - В CRASH УЖЕ ИСПОЛЬЗОВАЛСЯ КРАСНЫЙ, МЕНЯТЬ НЕ НУЖНО */
+#crash-multiplier-display.loss {
+    color: #FF5555; 
+    text-shadow: 0 0 15px rgba(255, 85, 85, 0.7); 
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Панель Crash --- */
+.crash-controls-panel {
+    flex: 0 0 auto; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Убран flex-basis */
+    width: 100%; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) На всю ширину */
+    max-width: 500px; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Ограничиваем ширину, как у Dice */
+    background-color: var(--color-sidebar); /* ИЗМЕНЕНО: Стал темным */
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    order: 3; /* 3. Панель */
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для <label> --- */
+.crash-controls label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Стал светлым */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.crash-controls input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+}
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ 1) Стили для Авто-вывода (Новый layout) --- */
+
+.crash-auto-bet-wrapper {
+    display: flex;
+    gap: 10px; /* Отступ между "Авто" и "Ставка" */
+    margin-bottom: 15px; /* Общий отступ снизу */
+}
+
+.auto-cashout-group {
+    flex: 0 0 100px; /* Фиксированная ширина блока "Авто" */
+}
+.auto-cashout-group label {
+    margin-bottom: 5px;
+}
+.auto-cashout-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Отступ между инпутом и тумблером */
+}
+.auto-cashout-input-wrapper input[type="number"] {
+    flex-grow: 1; /* Инпут занимает место */
+    padding: 10px 5px; /* Меньше паддинг */
+    font-size: 1em;
+    min-width: 0; /* Для flex */
+}
+.bet-input-group.crash-bet-group {
+    flex-grow: 1; /* Группа ставки занимает оставшееся место */
+    margin-bottom: 0; /* Сброс отступа */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ (ЗАДАНИЕ 1) --- */
+
+
+/* Стилизация чекбокса как тумблера */
+.toggle-checkbox {
+    display: none; /* Скрываем стандартный чекбокс */
+}
+.toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 44px; /* Ширина тумблера */
+    height: 24px; /* Высота тумблера */
+    background-color: var(--color-border-dark);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0; /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) */
+}
+/* Кружок-переключатель */
+.toggle-label::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: white;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.2s;
+}
+/* Активное состояние */
+.toggle-checkbox:checked + .toggle-label {
+    background-color: var(--color-secondary); /* Зеленый */
+}
+.toggle-checkbox:checked + .toggle-label::after {
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Сдвиг 20px (44 - 20 - 2 - 2) */
+    transform: translateX(20px); 
+}
+/* Отключенное состояние */
+.auto-cashout-input-wrapper.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.bet-input-group.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+/* --- КОНЕЦ СТИЛЕЙ АВТО-ВЫВОДА --- */
+
+
+.crash-action-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.crash-action-buttons button.full-width {
+    width: 100%;
+}
+
+.crash-action-buttons .blue-button {
+    background-color: var(--color-blue);
+    border: 1px solid var(--color-blue);
+    color: #FFFFFF; /* Белый текст */
+}
+.crash-action-buttons .blue-button:hover {
+    background-color: #3a7bc8; 
+}
+
+
+#crash-start-button {
+    background-color: var(--color-orange);
+    color: #FFFFFF; 
+}
+#crash-cashout-button {
+    background-color: var(--color-secondary);
+    color: #FFFFFF; 
+}
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ 3) Стили для статус-бара --- */
+.crash-status-bar {
+    text-align: center;
+    color: var(--color-text); 
+    min-height: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-top: 0; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Убран отступ */
+    
+    /* Стили по умолчанию для прямоугольника (как в Dice) */
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Скрыт, пока нет .win/.loss */
+    
+    width: 100%; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) На всю ширину */
+    max-width: 500px; /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) Ограничиваем ширину */
+    order: 2; /* 2. Статус-бар */
+}
+
+.crash-status-bar.win {
+    display: block;
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+
+.crash-status-bar.loss {
+    display: block;
+    background-color: var(--color-mine-bomb);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+/* --- СТИЛИ ДЛЯ ИГРЫ COINFLIP --- */
+
+.coin-game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 10px;
+    max-width: 500px; /* Ограничиваем ширину */
+    margin: 0 auto;
+    width: 100%;
+}
+
+.coin-multipliers-bar {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 5px;
+    margin-bottom: 20px;
+    /* Скрытие скроллбара (эстетика) */
+    scrollbar-width: none; /* Firefox */
+}
+.coin-multipliers-bar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.coin-multiplier-item {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-sidebar);
+    border: 2px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-right: 8px;
+    min-width: 70px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.coin-multiplier-item .level {
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.coin-multiplier-item .value {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--color-orange);
+}
+
+.coin-multiplier-item.active {
+    background-color: var(--color-orange);
+    border-color: var(--color-orange);
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.7);
+}
+.coin-multiplier-item.active .value {
+    color: #FFFFFF;
+}
+
+.coin-display-wrapper {
+    position: relative; /* Для позиционирования фона */
+    width: 200px; /* Ширина монетки */
+    height: 200px; /* Высота монетки */
+    margin-bottom: 20px;
+    perspective: 1000px; /* Для 3D-эффекта */
+    display: flex; /* Для центрирования монетки внутри фона */
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #2e3b4a 0%, #1a222c 100%); /* Градиентный фон */
+    border-radius: 50%; /* Круглый фон */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(255, 255, 255, 0.1); /* Тень и внутренняя тень */
+    padding: 15px; /* Отступ внутри фона до монетки */
+    box-sizing: content-box; /* Чтобы padding не влиял на width/height */
+    /* Добавляем декоративный ободок */
+    border: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Эффект свечения вокруг монетки */
+.coin-display-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    border: 5px solid transparent;
+    background: linear-gradient(45deg, #f5a623, #f5d635, #f5a623) border-box; /* Золотой градиент */
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: -1; /* За монетой */
+    opacity: 0.8; /* Небольшая прозрачность */
+    filter: blur(5px); /* Размытие для эффекта свечения */
+    animation: pulse-glow 3s infinite alternate; /* Анимация пульсации */
+}
+
+/* Анимация пульсации для свечения */
+@keyframes pulse-glow {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.03); opacity: 1; }
+}
+
+/* Чтобы сама монетка была немного меньше, чем фон */
+.coin-flipper {
+    width: 170px; /* Монетка чуть меньше фона */
+    height: 170px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(0deg);
+}
+
+.coin-flipper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    /* Изначально показываем "Орла" (front) */
+    transform: rotateY(0deg); 
+}
+
+/* Анимации, которые добавляет JS */
+.coin-flipper.flip-orel {
+    /* 3 полных оборота = 1080 градусов */
+    transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+    transform: rotateY(1080deg); 
+}
+.coin-flipper.flip-reshka {
+    /* 3.5 оборота = 1260 градусов */
+    transition: transform 1.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+    transform: rotateY(1260deg);
+}
+
+
+.coin-flipper .coin-front,
+.coin-flipper .coin-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden; /* Скрываем обратную сторону */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.coin-flipper .coin-front img,
+.coin-flipper .coin-back img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.coin-flipper .coin-front {
+    /* "Орел" - лицевая сторона (0 градусов) */
+    transform: rotateY(0deg);
+}
+
+.coin-flipper .coin-back {
+    /* "Решка" - обратная сторона (180 градусов) */
+    transform: rotateY(180deg);
+}
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ 2) Стили для статус-бара --- */
+.coin-status-bar {
+    text-align: center;
+    color: var(--color-text);
+    min-height: 20px;
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    
+    /* Стили по умолчанию для прямоугольника (как в Dice) */
+    padding: 10px;
+    border-radius: 6px;
+    display: none; /* Скрыт, пока нет .win/.loss */
+    
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 2) На всю ширину панели */
+    width: 100%;
+}
+
+.coin-status-bar.win {
+    display: block;
+    background-color: var(--color-secondary);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(0, 168, 120, 0.5);
+}
+
+.coin-status-bar.loss {
+    display: block;
+    background-color: var(--color-mine-bomb);
+    color: var(--color-text-light);
+    box-shadow: 0 0 10px rgba(255, 85, 85, 0.7);
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.coin-controls-panel {
+    width: 100%;
+    background-color: var(--color-sidebar);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ИЗМЕНЕНО: (ЗАДАНИЕ 2) Кнопка "Начать игру" */
+#coin-start-button {
+    /* Использует .primary-button */
+    margin-bottom: 15px; /* Отступ до инпута ставки */
+    background-color: var(--color-orange);
+    color: #FFFFFF;
+    width: 100%; /* На всю ширину */
+}
+
+.coin-choice-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.coin-choice-button {
+    flex: 1;
+    padding: 15px 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border: 2px solid var(--color-border-dark);
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.coin-choice-button:hover {
+    background-color: #6A788C;
+    border-color: #6A788C;
+}
+
+/* Стили для кэшаут кнопки (уже есть в .primary-button) */
+#coin-cashout-button {
+    margin-bottom: 15px;
+    background-color: var(--color-secondary);
+    color: #FFFFFF;
+}
+
+/* Стили для .coin-bet-controls (используют общие .bet-input-group) */
+/* --- ИЗМЕНЕНО: (Запрос) Стили для <label> --- */
+/* ИСПОЛЬЗУЕМ ID для повышения приоритета */
+#coin-bet-controls label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Стал светлым */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.coin-bet-controls .bet-input-group {
+    display: flex; /* Делаем инпут и кнопки в одной строке */
+    gap: 8px; /* Расстояние между элементами */
+    margin-bottom: 15px; /* Отступ снизу */
+}
+/* --- ИСПРАВЛЕНИЕ 4 --- */
+#coin-bet-controls input[type="number"] { /* <-- Используем ID */
+    flex-grow: 1; /* Инпут занимает все доступное место */
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1.1em;
+    text-align: center;
+    height: 40px; /* <-- Высота инпута */
+    min-width: 0; /* <-- Позволяет сжиматься (чинит "x2") */
+}
+
+
+/* --- Адаптация Coinflip --- */
+@media (max-width: 768px) {
+    .coin-game-container {
+        padding: 0;
+    }
+    
+    .coin-display-wrapper {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .coin-controls-panel {
+        padding: 10px;
+    }
+    
+    .coin-choice-button {
+        padding: 12px 8px;
+        font-size: 1.1em;
+    }
+}
+
+
+/* --- СТИЛИ ДЛЯ АВТОРИЗАЦИИ --- */
+.auth-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: var(--color-sidebar); /* ИЗМЕНЕНО: (Задание 4) Фон стал темным */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.auth-container h2 {
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Запрос) Белый */
+    margin-bottom: 25px;
+}
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+/* --- ИЗМЕНЕНО: (Запрос 2) --- */
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Стал светлым */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--color-border-dark); /* ИЗМЕНЕНО: (Задание 4) */
+    border-radius: 6px;
+    background-color: #FFFFFF; /* (Оставлено) Белый инпут */
+    color: var(--color-text);
+    font-size: 1em;
+}
+
+.auth-button {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.auth-button:hover {
+    background-color: #d9901f; /* ИЗМЕНЕНО: (Запрос) Убран розовый */
+}
+
+/* ИЗМЕНЕНИЯ ПО ЗАПРОСУ (Кнопки Войти/Регистрация) */
+#auth .auth-container .auth-button {
+    background-color: var(--color-border); /* Светло-серый */
+    color: var(--color-text); /* Темный текст для читаемости */
+}
+
+#auth .auth-container .auth-button:hover {
+    background-color: #CCCCCC; /* Темнее серый при наведении */
+}
+/* КОНЕЦ ИЗМЕНЕНИЙ ПО ЗАПРОСУ */
+
+
+.switch-auth {
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 4) */
+}
+
+.switch-auth a {
+    color: var(--color-secondary);
+    text-decoration: none;
+}
+.switch-auth a:hover {
+    text-decoration: underline;
+}
+
+/* --- СТИЛИ БЛОКИРОВКИ UI --- */
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Скрытие баланса и кнопок при выходе --- */
+.user-logged-out .mobile-header .profile-balance-box {
+    display: none !important;
+}
+/* ИЗМЕНЕНО: (ЗАПРОС) Удален .header-actions */
+
+.user-logged-out .mobile-header {
+    justify-content: center; /* Центрируем логотип, когда остальное скрыто */
+}
+/* ИЗМЕНЕНО: (Задание 3) Выравнивание для flex */
+.user-logged-out .mobile-header .logo {
+    margin-left: 0;
+    text-align: center;
+    justify-content: center; /* Центрируем, если пользователь вышел */
+}
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОНОГО ОКНА ПОЛЬЗОВАТЕЛЯ (СТАРОЕ) --- */
+/* --- УДАЛЕНО: Все стили .user-modal-overlay и .user-modal-content УДАЛЕНЫ --- */
+/* (Оставлены только стили .wallet-modal-content, которые используют тот же оверлей) */
+
+
+/* --- ДОБАВЛЕНО: СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА КОШЕЛЬКА (НОВОЕ) --- */
+
+/* Используем тот же ID оверлея, но стилизуем контент отдельно */
+/* ИЗМЕНЕНО: ID оверлея теперь только для кошелька */
+.user-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(182, 190, 203, 0.6); 
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px); 
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.user-modal-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.wallet-modal-content {
+    /* Эффект матового стекла */
+    background-color: rgba(40, 42, 54, 0.85); /* --color-text, полупрозрачный */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Легкая обводка */
+    
+    /* Размеры и позиционирование (темный фон, как в скриншоте) */
+    background-color: #3D4654; /* Почти черный фон, как на скриншоте */
+    padding: 20px;
+    border-radius: 12px; /* Более скругленные углы */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5); /* Более сильная тень */
+    text-align: left; /* Сброс text-align: center от .user-modal-content */
+    width: 95%;
+    max-width: 420px; /* Чуть шире */
+    
+    /* ДОБАВЛЕНО: Плавное появление (если нужно) */
+    /* transform: translateY(20px); */
+    /* transition: opacity 0.3s ease, transform 0.3s ease; */
+}
+/* .user-modal-overlay:not(.hidden) .wallet-modal-content { */
+    /* transform: translateY(0); */
+/* } */
+
+
+/* 1. Заголовок и крестик */
+.wallet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.wallet-header h3 {
+    color: var(--color-text-light); /* Белый */
+    font-size: 1.5em;
+    margin-bottom: 0; /* Сброс margin */
+}
+.wallet-modal-close {
+    font-size: 2.2em;
+    color: #888;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.2s;
+}
+.wallet-modal-close:hover {
+    color: #FFF;
+}
+
+/* 2. Вкладки */
+.wallet-tabs {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.wallet-tab {
+    background: none;
+    border: none;
+    color: #888; /* Неактивный */
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 10px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+}
+.wallet-tab:hover {
+    color: #BBB;
+}
+.wallet-tab.active {
+    color: var(--color-text-light); /* Активный (белый) */
+}
+/* Оранжевая полоска */
+.wallet-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; /* Накладывается на border-bottom родителя */
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--color-orange);
+    border-radius: 2px;
+    /* Свечение */
+    box-shadow: 0 0 10px var(--color-orange);
+}
+
+/* Контент вкладок (скрываем неактивные) */
+.wallet-tab-content {
+    display: none;
+}
+.wallet-tab-content.active {
+    display: block;
+}
+
+/* 3. Кнопки платежей */
+.wallet-methods {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    overflow-x: auto; /* На случай, если не влезут */
+}
+.wallet-method-button {
+    background-color: #2E3035; /* Темно-серый фон кнопок */
+    border: 1px solid #2E3035;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1 1 0; /* Равномерное распределение */
+    min-width: 80px; /* Мин. ширина */
+}
+.wallet-method-button:hover {
+    border-color: #555;
+}
+.wallet-method-button.active {
+    border-color: var(--color-orange);
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.5);
+}
+.wallet-method-button img {
+    width: 100%;
+    height: 40px; /* Фикс. высота */
+    object-fit: contain; /* Сохраняем пропорции */
+}
+
+/* 4. Поля ввода (используем .form-group из auth) */
+.wallet-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+/* Наследуем .form-group label и .form-group input */
+.wallet-form .form-group {
+    margin-bottom: 0; /* Сброс margin */
+}
+.wallet-form .form-group input {
+    background-color: #2E3035; /* Фон инпута */
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+}
+.wallet-form .form-group input:focus {
+    border-color: var(--color-orange);
+    box-shadow: none;
+}
+/* Стили для placeholder */
+.wallet-form .form-group input::placeholder {
+    color: #777;
+}
+
+
+/* 5. Кнопка "Перейти к оплате" / "Вывести" */
+#wallet-deposit-button,
+#wallet-withdrawal-button {
+    width: 100%;
+    margin-top: 0;
+}
+
+/* 6. История пополнений / выводов */
+.wallet-history-container {
+    margin-top: 30px;
+    border-top: 1px solid var(--color-border-dark);
+    padding-top: 20px;
+}
+.wallet-history-container h4 {
+    color: #AAA;
+    font-size: 1em;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+/* Используем .per-game-history-list для списка */
+#deposit-history-list,
+#withdrawal-history-list {
+    max-height: 200px; /* Ограничиваем высоту */
+    background-color: transparent; /* Убираем фон (он уже есть у модалки) */
+    border: none;
+    box-shadow: none;
+    padding: 0; /* Сброс отступов */
+}
+/* Корректируем ячейки для истории пополнений/выводов */
+#deposit-history-list .history-cell.user,
+#withdrawal-history-list .history-cell.user { /* Дата */
+    flex-basis: 40%;
+    opacity: 0.7;
+    font-weight: normal;
+}
+#deposit-history-list .history-cell.bet,
+#withdrawal-history-list .history-cell.bet { /* Сумма */
+    flex-basis: 30%;
+    text-align: right;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 1;
+}
+#deposit-history-list .history-cell.payout,
+#withdrawal-history-list .history-cell.payout { /* Статус */
+    flex-basis: 30%;
+    text-align: right;
+    font-weight: bold;
+}
+/* --- КОНЕЦ СТИЛЕЙ КОШЕЛЬКА --- */
+
+/* --- ДОБАВЛЕНО: Стили модального окна хэша --- */
+.hash-modal-content {
+    background-color: #3D4654; /* Темный фон */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    width: 95%;
+    max-width: 500px; /* Шире, чем кошелек, для длинных строк */
+    color: var(--color-text-light);
+}
+
+.hash-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.hash-detail-item {
+    display: flex;
+    flex-direction: column;
+}
+.hash-detail-item label {
+    font-size: 0.85em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+.hash-value-box {
+    background-color: #2E3035; /* Очень темный фон */
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace; /* Моноширинный шрифт */
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    word-break: break-all; /* Перенос длинных строк */
+}
+
+.hash-divider {
+    border: none;
+    height: 1px;
+    background-color: var(--color-border-dark);
+    margin: 20px 0;
+}
+
+.hash-game-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 2 колонки */
+    gap: 15px;
+    margin-bottom: 25px;
+}
+.hash-game-item {
+    display: flex;
+    flex-direction: column;
+}
+.hash-game-item label {
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-bottom: 4px;
+}
+.hash-game-item span {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+}
+
+/* Статус верификации */
+.hash-verify-area {
+    margin-top: 15px;
+}
+#hash-verify-status {
+    text-align: center;
+    font-size: 0.9em;
+    margin-top: 15px;
+    font-weight: bold;
+    min-height: 1.2em;
+    word-break: break-all;
+}
+#hash-verify-status.success {
+    color: var(--color-secondary);
+}
+#hash-verify-status.error {
+    color: var(--color-mine-bomb);
+}
+/* --- КОНЕЦ СТИЛЕЙ ХЭША --- */
+
+
+/* --- СТИЛИ ДЛЯ СТРАНИЦЫ БОНУСОВ --- */
+
+/* ДОБАВЛЕНО: (Задание 1) Темный фон для отображения бонуса */
+.bonus-display-box {
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    /* ИЗМЕНЕНО: (Задание 1) Цвет панельки */
+    background-color: #3D4654; 
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ИЗМЕНЕНО: (Задание 5) Стили для бонусного котика */
+.bonus-display-box .bonus-icon {
+    /* font-size: 3.5em; (Задание 5) Больше не нужно для <img> */
+    height: 120px; /* (Задание 5) Устанавливаем высоту для картинки */
+    width: auto;
+    object-fit: contain;
+    animation: floatCat 4s infinite ease-in-out; /* (Задание 5) Новая анимация */
+}
+
+.bonus-display-box #bonus-amount-display {
+    font-size: 2.8em;
+    font-weight: 900;
+    color: var(--color-secondary); 
+    line-height: 1.1;
+}
+
+.bonus-display-box #bonus-amount-display .currency {
+    font-size: 0.5em;
+    font-weight: normal;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 4) */
+}
+
+/* --- ИЗМЕНЕНО: (Запрос) Стили для текста бонуса --- */
+.bonus-display-box #bonus-page-text {
+    font-size: 1.1em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 4) */
+    font-weight: bold; /* ДОБАВЛЕНО: Жирный шрифт */
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.bonus-controls-box {
+    padding: 20px;
+    margin-top: 15px; 
+    /* ИЗМЕНЕНО: (Задание 1) Меняем цвет на #3D4654 */
+    background-color: #3D4654; 
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+#bonus-status {
+    margin-top: 15px; 
+    /* #bonus-status использует .dice-status-bar, который уже изменен */
+}
+
+#claim-bonus-button {
+    background-color: var(--color-secondary);
+    color: #FFFFFF; 
+}
+#claim-bonus-button:hover {
+    background-color: #008f66; 
+}
+
+#claim-bonus-button:disabled {
+    background-color: var(--color-border);
+    color: var(--color-text);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* --- ДОБАВЛЕНО: (Задание) Стили для секции Промокода --- */
+.promocode-box {
+    margin-top: 10px; /* Отступ от блока "Получить" */
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.promocode-header {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    text-align: center;
+    margin-bottom: 15px;
+}
+.promocode-box .form-group {
+    margin-bottom: 10px; /* Уменьшаем отступ */
+}
+/* Стилизуем инпут промокода, как в auth */
+.promocode-box .form-group input {
+    background-color: #2E3035; /* Темный фон инпута */
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+}
+.promocode-box .form-group input::placeholder {
+    color: #777;
+}
+/* --- КОНЕЦ СТИЛЕЙ ПРОМОКОДА --- */
+
+/* --- ДОБАВЛЕНО: (Задание) Стили для секции Квестов --- */
+.quest-box {
+    width: 100%;
+    background-color: var(--color-sidebar);
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+.quest-header {
+    display: flex;
+    align-items: flex-start; /* ИЗМЕНЕНО: Выравнивание по верху */
+    gap: 12px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.quest-icon {
+    height: 32px;
+    width: 32px;
+    flex-shrink: 0;
+    margin-top: 2px; /* ИЗМЕНЕНО: Небольшой отступ сверху для иконки */
+}
+.quest-title-group {
+    flex-grow: 1;
+    min-width: 0; /* Для flex */
+}
+.quest-title {
+    display: block;
+    font-size: 1.2em; /* ИЗМЕНЕНО: Чуть крупнее */
+    font-weight: bold;
+    color: var(--color-text-light);
+    line-height: 1.2; /* ИЗМЕНЕНО: Для переноса строк */
+}
+.quest-subtitle {
+    display: block;
+    font-size: 0.85em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    margin-top: 4px; /* ИЗМЕНЕНО: Отступ */
+}
+.quest-button {
+    background-color: var(--color-secondary); /* ИЗМЕНЕНО: Зеленый */
+    color: var(--color-text-light);
+    opacity: 1; /* ИЗМЕНЕНО: Полная непрозрачность */
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.9em;
+    font-weight: bold;
+    flex-shrink: 0;
+    cursor: pointer; /* ИЗМЕНЕНО: Кликабельно */
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.quest-button:hover {
+    background-color: #008f66;
+}
+.quest-button.activated { /* ИЗМЕНЕНО: Стиль для неактивной кнопки */
+    background-color: var(--color-border-dark);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.quest-list {
+    list-style: none;
+    padding-top: 10px;
+}
+.quest-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 5px;
+}
+.quest-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    min-width: 0; /* Для flex */
+}
+.quest-status-icon {
+    font-size: 1.1em;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+.quest-status-icon.status-complete {
+    color: var(--color-secondary); /* Зеленый */
+}
+.quest-status-icon.status-pending {
+    color: var(--color-text-light);
+    opacity: 0.5;
+}
+.quest-text {
+    font-size: 0.95em;
+    color: var(--color-text-light);
+}
+.quest-text small {
+    display: block;
+    font-size: 0.8em;
+    opacity: 0.6;
+    line-height: 1.3;
+    margin-top: 2px;
+}
+/* ИЗМЕНЕНО: Стили для ссылок в квестах */
+.quest-text a {
+    color: var(--color-text-light);
+    font-weight: bold;
+    text-decoration: underline;
+    text-decoration-color: var(--color-orange);
+    text-decoration-thickness: 2px;
+}
+.quest-text a:hover {
+    color: var(--color-orange);
+}
+
+.quest-reward {
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--color-secondary); /* Зеленый */
+    flex-shrink: 0;
+    margin-left: 10px;
+}
+/* --- КОНЕЦ СТИЛЕЙ КВЕСТОВ --- */
+
+
+/* --- ДОБАВЛЕНО: Стили для страницы слотов --- */
+
+.slots-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+}
+
+.slot-provider-card {
+    background-color: var(--color-card);
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slot-provider-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.slot-provider-logo {
+    height: 80px;
+    width: 80px;
+    object-fit: contain;
+    margin-right: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 5px;
+}
+/* Отдельный стиль для PG, т.к. у их логотипа нет фона */
+.slot-provider-logo.pg-logo {
+    background-color: #1d1d1d;
+}
+
+.slot-provider-content h3 {
+    font-size: 1.5em;
+    color: var(--color-primary);
+    margin-bottom: 5px;
+}
+
+.slot-provider-content p {
+    font-size: 0.9em;
+    color: var(--color-text);
+}
+
+/* ДОБАВЛЕНО: (Задание 4) Разделитель для лобби */
+.lobby-divider {
+    border: none;
+    height: 1px;
+    background-color: var(--color-border);
+    margin: 25px auto; /* Отступ сверху и снизу */
+    max-width: 800px; /* Та же ширина, что и у .game-cards-list */
+}
+
+
+/* --- ДОБАВЛЕНО: СТИЛИ ДЛЯ ИСТОРИИ СТАВОK (ЭСТЕТИЧНАЯ ВЕРСЯ) --- */
+
+.bet-history-container {
+    margin: 0 auto; /* ИЗМЕНЕНО: (Задание 4) Центрируем */
+    padding: 0 15px; 
+    max-width: 800px; /* ИЗМЕНЕНО: (Задание 4) Ограничиваем ширину */
+}
+
+.bet-history-container h3 {
+    font-size: 1.2em; /* ИЗМЕНЕНО: (Задание 4) Уменьшено */
+    color: var(--color-text);
+    opacity: 0.8; /* ИЗМЕНЕНО: (Задание 4) Менее заметно */
+    margin-bottom: 10px; /* ИЗМЕНЕНО: (Задание 4) Уменьшено */
+    padding: 0; 
+}
+
+#bet-history-list {
+    list-style: none;
+    padding: 10px 0; /* Паддинг для "воздуха" */
+    
+    /* ДОБАВЛЕНО: Горизонтальный скролл */
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    
+    /* УЛУЧШЕНИЕ: Плавный скролл на тач-устройствах */
+    -webkit-overflow-scrolling: touch;
+    
+    /* ДОБАВЛЕНО: Компенсируем паддинг контейнера, чтобы скролл был от края до края */
+    margin: 0 -15px; 
+    padding-left: 15px; /* Восстанавливаем отступ для первого элемента */
+
+    /* ДОБАВЛЕНО: Скрытие скроллбара (эстетика) */
+    scrollbar-width: none; /* Firefox */
+}
+/* Скрытие скроллбара для Chrome/Safari */
+#bet-history-list::-webkit-scrollbar {
+    display: none;
+}
+
+/* ИЗМЕНЕНО: (Задание 2) Стили для <li>, который теперь обертка */
+#bet-history-list > li {
+    display: flex;
+    flex-direction: column; /* ИЗМЕНЕНО: (Задание 1) В колонку */
+    flex-shrink: 0;
+    margin-right: 12px;
+    
+    /* ИЗМЕНЕНО: (Задание 1) Новый дизайн - темный фон */
+    background-color: var(--color-sidebar);
+    border-radius: 12px; /* (Задание) Скругляем всю обертку */
+    overflow: hidden; /* (Задание) Для скругления */
+    
+    /* ИЗМЕНЕНО: (Задание 1) Убраны старые border и shadow */
+    
+    /* (Задание) Переносим эффект ховера на всю обертку */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+/* ИЗМЕНЕНО: (Задание 1) Анимация и свечение для .win */
+#bet-history-list > li.win {
+    /* Градиент для анимации */
+    background: linear-gradient(
+        110deg, 
+        var(--color-sidebar) 35%, 
+        var(--color-secondary) 50%, 
+        var(--color-sidebar) 65%
+    );
+    background-size: 300% 180%;
+    /* Анимация "Огня" (шиммер) */
+    /* ИЗМЕНЕНО: (Задание 1) Используем переменную */
+    animation: hotWinShimmer var(--hot-win-duration) infinite linear;
+    /* Легкое свечение */
+    box-shadow: 0 2px 10px rgba(0, 168, 120, 0.4);
+}
+
+
+#bet-history-list > li:hover {
+     transform: translateY(-4px) scale(1.02); /* ИЗМЕНЕНО: (Задание) Эффект при наведении */
+     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* ИЗМЕНЕНО: (Задание 1) Усиленная тень */
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Усиленное свечение при ховере */
+#bet-history-list > li.win:hover {
+    box-shadow: 0 8px 25px rgba(0, 168, 120, 0.6);
+}
+
+
+#bet-history-list > li:last-child {
+    /* ДОБАВЛЕНО: Отступ справа для последнего, чтобы он не "прилипал" */
+    margin-right: 15px; 
+}
+
+/* ИЗМЕНЕНО: (Задание 2) Плейсхолдер для пустой истории */
+.history-item-placeholder {
+    /* ИЗМЕНЕНО: (Задание 1) Стили плейсхолдера под темный фон */
+    min-width: 110px;
+    padding: 10px 15px;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    background-color: var(--color-sidebar);
+    border-radius: 12px;
+}
+
+.history-item {
+    /* ИЗМЕНЕНО: Это теперь "карточка" (часть <li>) */
+    display: flex;
+    flex-direction: column; /* Элементы в колонку */
+    align-items: center; /* Центрируем */
+    justify-content: center;
+    
+    min-width: 110px; /* ИЗМЕНЕНО: (Задание 4) Уменьшено (было 140px) */
+    
+    /* ИЗМЕНЕНО: (Задание 1) Фон прозрачный, чтобы было видно li.win */
+    background: transparent;
+    
+    /* ИЗМЕНЕНО: (Задание 2) Убраны радиусы */
+    
+    /* ИЗМЕНЕНО: (Задание 1) Убраны старые стили */
+    border: none;
+    box-shadow: none;
+    border-left: none;
+    
+    padding: 10px 8px 5px 8px; /* ИЗМЕНЕНО: (Задание 1) Новые отступы */
+    border-bottom: none; 
+    font-size: 0.9em;
+    
+    position: relative;
+}
+
+/* ИЗМЕНЕНО: (Задание 2) Ховер убран с .history-item */
+.history-item:hover {
+     transform: none;
+     box-shadow: none;
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Убран border */
+.history-item.loss {
+    border-left-color: none;
+}
+
+
+/* ИЗМЕНЕНО: (Задание 2) :last-child убрано */
+.history-item:last-child {
+    border-bottom: none;
+    margin-right: 0;
+}
+
+/* ИЗМЕНЕНО: Стили для элементов внутри карточки */
+
+/* ДОБАВЛЕНО: Название игры */
+.history-game-name {
+    font-weight: bold;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 1) */
+    opacity: 0.9; /* ИЗМЕНЕНО: (Задание 1) */
+    font-size: 0.9em; 
+    margin-bottom: 4px; 
+}
+
+/* ИЗМЕНЕНО: (Задания 2-5) Старый стиль для смайлика (скрыт) */
+.history-game-icon {
+    font-size: 2.0em; 
+    line-height: 1;
+    margin-bottom: 5px; 
+    display: none; /* Скрываем */
+}
+
+/* ДОБАВЛЕНО: (Задания 2-5) Новый стиль для иконки-картинки */
+.history-game-img-icon {
+    height: 2.0em; /* Такой же размер, как у смайлика */
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 5px;
+}
+/* --- */
+
+
+.history-amount {
+    flex-basis: auto; /* Сброс */
+    font-weight: bold;
+    font-size: 1.1em; 
+    text-align: center; /* Сброс */
+    margin-bottom: 2px; 
+}
+
+.history-user {
+    flex-basis: auto; /* Сброс */
+    font-weight: normal;
+    font-size: 0.8em; 
+    color: var(--color-text-light); /* ИЗМЕНЕНО: (Задание 1) */
+    opacity: 0.6; /* ИЗМЕНЕНО: (Задание 1) */
+}
+
+/* ИЗМЕНЕНО: .history-game больше не используется, скрываем на всякий случай */
+.history-game {
+    display: none;
+}
+
+/* ИЗМЕНЕНО: (Задание 2) Цвета для .history-amount */
+.history-amount.win {
+    color: var(--color-secondary); /* Зеленый */
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 3) Цвет проигрыша --- */
+.history-amount.loss {
+    color: var(--color-mine-bomb); /* Красный */
+}
+
+/* ИЗМЕНЕНО: (Задание 2) Скрываем старый множитель */
+.history-multiplier {
+    display: none;
+}
+
+/* ДОБАВЛЕНО: (Задание 2) Стили для новой плашки множителя */
+.history-multiplier-bar {
+    background: transparent; /* ИЗМЕНЕНО: (Задание 1) */
+    color: var(--color-secondary); /* ИЗМЕНЕНО: (Задание 1) */
+    text-shadow: 0 0 8px rgba(0, 168, 120, 0.7); /* ИЗМЕНЕНО: (Задание 1) */
+    font-weight: bold;
+    font-size: 1.3em; /* ИЗМЕНЕНО: (Задание 1) */
+    text-align: center;
+    padding: 6px 5px; /* ИЗМЕНЕНО: (Задание 1) */
+    
+    min-width: 110px; 
+    width: 100%;
+    box-sizing: border-box;
+    
+    /* ИЗМЕНЕНО: (Задание 1) Убрана левая рамка, добавлена верхняя */
+    border-left: none;
+    border-top: 1px solid var(--color-border-dark);
+    margin-left: 0;
+    padding-left: 5px;
+}
+
+/* (Задание) Стили для проигрыша (применяются к li) */
+#bet-history-list > li.loss .history-item {
+    border-left-color: transparent; /* ИЗМЕНЕНО: (Задание 1) */
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 3) Цвет проигрыша --- */
+#bet-history-list > li.loss .history-multiplier-bar {
+    background-color: transparent; /* ИЗМЕНЕНО: (Задание 1) */
+    border-left-color: transparent; /* ИЗМЕНЕНО: (Задание 1) */
+    border-top: 1px solid var(--color-border-dark); /* ИЗМЕНЕНО: (Задание 1) */
+    color: var(--color-mine-bomb); /* <-- ИЗМЕНЕНО */
+    text-shadow: 0 0 8px rgba(255, 85, 85, 0.7); /* <-- ИЗМЕНЕНО */
+}
+
+
+/* --- ИЗМЕНЕНО: (Задание 1) СТИЛИ ДЛЯ ИСТОРИИ ИГР (ВНУТРИ ИГРЫ) --- */
+
+.per-game-history-container {
+    /* Используем тот же max-width, что и в лобби, для единообразия */
+    max-width: 800px; 
+    margin: 30px auto 10px; /* Отступ сверху */
+    padding: 0 10px;
+    width: 100%;
+}
+
+.per-game-history-container h3 {
+    font-size: 1.2em;
+    color: var(--color-text);
+    opacity: 0.8;
+    margin-bottom: 10px;
+    padding-left: 5px; 
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Темный фон, как в скриншоте-референсе */
+.per-game-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--color-sidebar); /* Темный фон */
+    border: 1px solid var(--color-border-dark); /* Темная обводка */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Тень */
+    
+    /* Ограничим высоту и добавим скролл */
+    max-height: 400px;
+    overflow-y: auto;
+    
+    /* Стилизация скроллбара (как в #bet-history-list) */
+    scrollbar-width: none; /* Firefox */
+}
+
+.per-game-history-list::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+}
+
+.game-history-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px; /* Отступы в строке */
+    border-bottom: 1px solid var(--color-border-dark); /* Темный разделитель */
+    font-size: 0.9em;
+}
+
+.game-history-item:last-child {
+    border-bottom: none;
+}
+
+.history-cell {
+    display: block;
+    padding: 0 5px; /* Небольшой отступ в ячейке */
+    /* JS-порядок: [User] [Bet] [Multiplier] [Payout] */
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Светлый текст на темном фоне */
+.history-cell.user {
+    flex-basis: 30%;
+    flex-grow: 1;
+    text-align: left;
+    font-weight: bold;
+    color: var(--color-text-light); /* Светлый текст */
+    /* Для обрезки длинных ников */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Светлый текст на темном фоне */
+.history-cell.bet {
+    flex-basis: 20%;
+    flex-grow: 1;
+    text-align: right;
+    color: var(--color-text-light); /* Светлый текст */
+    opacity: 0.8;
+}
+
+.history-cell.multiplier {
+    flex-basis: 20%;
+    flex-grow: 1;
+    text-align: right;
+    font-weight: bold;
+    color: var(--color-blue); /* Множитель синим (оставляем, он виден) */
+}
+
+.history-cell.payout {
+    flex-basis: 30%;
+    flex-grow: 1;
+    text-align: right;
+    font-weight: bold;
+}
+
+/* Цвета для выигрыша/проигрыша (в JS .win/.loss на .payout не ставится, используем .game-history-item) */
+.game-history-item.win .history-cell.payout {
+    color: var(--color-secondary); /* Зеленый */
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС 3) Цвет проигрыша --- */
+.game-history-item.loss .history-cell.payout {
+    color: var(--color-mine-bomb); /* Красный */
+}
+/* ДОБАВЛЕНО: Стили для статуса пополнения */
+.game-history-item.pending .history-cell.payout {
+    color: var(--color-orange); /* Желтый */
+}
+
+
+/* ИЗМЕНЕНО: (Задание 1) Плейсхолдер для темного фона */
+.game-history-item.placeholder {
+    text-align: center;
+    justify-content: center;
+    color: var(--color-text-light); /* Светлый текст */
+    opacity: 0.6;
+    padding: 20px;
+}
+/* --- КОНЕЦ СТИЛЕЙ ИСТОРИИ ИГР --- */
+
+
+/* --- ИЗМЕНЕНО: (Запрос 3) Новый дизайн меню мини-игр --- */
+.mini-games-nav {
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); 
+    background-color: transparent; 
+    border-radius: 0; 
+    padding: 0; 
+    gap: 10px;
+    margin: 0 auto 15px; 
+    max-width: 1000px;
+    
+    scrollbar-width: none; 
+    -ms-overflow-style: none;  
+}
+.mini-games-nav::-webkit-scrollbar {
+    display: none; 
+}
+
+.mini-games-nav-item {
+    display: flex;
+    flex-direction: row; /* <-- ИЗМЕНЕНО: Возвращаем в ряд */
+    align-items: center;
+    justify-content: center; 
+    gap: 8px; /* <-- ИЗМЕНЕНО: Отступ между иконкой и текстом */
+    
+    background-color: var(--color-sidebar); 
+    border: 2px solid var(--color-border-dark); 
+
+    padding: 8px 15px; /* <-- ИЗМЕНЕНО: Меньше по высоте, шире */
+    color: var(--color-text-light);
+    font-weight: bold;
+    font-size: 0.9em; /* <-- ИЗМЕНЕНО: Шрифт чуть крупнее */
+    border-radius: 10px; /* <-- ИЗМЕНЕНО: Менее округлый */
+    cursor: pointer;
+    transition: all 0.2s ease; /* ИЗМЕНЕНО: (Запрос) Анимируем 'all' */
+    -webkit-tap-highlight-color: transparent;
+    
+    /* min-height: 70px; <-- ИЗМЕНЕНО: Убрана мин. высота */
+    text-align: center; 
+}
+
+/* ИЗМЕНЕНО: (Задания 2-5) Старый стиль для смайлика (скрыт) */
+.mini-games-nav-item .icon {
+    font-size: 1.3em; 
+    margin-bottom: 0; 
+    display: none; /* Скрываем */
+}
+
+/* ДОБАВЛЕНО: (Задания 2-5) Новый стиль для иконки-картинки */
+.nav-game-icon {
+    height: 1.3em; /* Такой же размер, как у смайлика */
+    width: auto;
+    object-fit: contain;
+    /* gap: 8px; уже есть у родителя */
+}
+/* --- */
+
+
+.mini-games-nav-item:hover {
+    background-color: var(--color-border-dark);
+    border-color: var(--color-border-dark); /* ИЗМЕНЕНО: (Запрос) Убран розовый */
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Обновлен стиль активного элемента (Пункт 2) --- */
+.mini-games-nav-item.active {
+    background-color: #6A788C; /* ИЗМЕНЕНО: (Запрос) Убран розовый, фон светлее */
+    border-color: var(--color-text-light); /* ИЗМЕНЕНО: (Запрос) Светлая рамка */
+    color: var(--color-text-light);
+    transform: scale(1.05); /* ИЗМЕНЕНО: (Запрос) Увеличение */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* ИЗМЕНЕНО: (Запрос) Легкая тень вместо свечения */
+}
+
+
+/* !!! АДАПТАЦИЯ ДЛЯ МОБИЛЬНЫХ ЭКРАНОВ !!! */
+@media (max-width: 768px) {
+    
+    /* --- ИЗМЕНЕНО: (ЗАПРОС) Адаптация хедера --- */
+    .mobile-header {
+        padding: 5px 8px; /* Еще меньше паддинг */
+        gap: 5px; /* Меньше gap */
+        /* ИЗМЕНЕНО: (ЗАПРОС) Лого слева, баланс справа */
+        justify-content: space-between;
+    }
+    
+    .content-area {
+        padding-bottom: 80px; 
+        padding-left: 10px;
+        padding-right: 10px;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+    
+    /* ИЗМЕНЕНО: (ЗАПРОС) Адаптация логотипа */
+    .mobile-header .logo {
+        font-size: 1.8em; /* ИЗМЕНЕНО: Увеличено */
+        margin-bottom: 0;
+        flex-grow: 0; 
+        margin-left: 0; 
+        justify-content: flex-start; 
+        gap: 5px; 
+        min-width: 0; 
+        flex-shrink: 1; 
+        align-items: flex-end; /* ИЗМЕНЕНО */
+    }
+
+    /* ИЗМЕНЕНО: (ЗАПРОС) Сброс transform */
+    .mobile-header .logo .logo-image {
+        height: 80px; 
+        font-size: 10em; 
+        transform: translate(-4px, 4px); 
+    }
+    
+    .mobile-header .logo-text {
+        /* ИЗМЕНЕНО: (ЗАПРОС) Сброс transform */
+        transform: translate(-13px, -8px);
+    }
+    
+    .mobile-header .logo-text::before,
+    .mobile-header .logo-text::after {
+        content: none;
+    }
+
+    /* ИЗМЕНЕНО: (ЗАПРОС) Адаптация баланса */
+    .mobile-header .profile-balance-box {
+        /* ИЗМЕНЕНО: Убраны margin-left/right auto и transform */
+        margin-left: 0; 
+        margin-right: 0;
+        transform: translate(0px, -10px); 
+        /* --- */
+        font-size: 0.8em;
+        padding: 6px 12px; 
+        border-radius: 6px;
+        gap: 2px;
+        flex-shrink: 0; 
+        margin-bottom: 0; 
+        min-width: 100px; 
+    }
+    
+    /* --- ДОБАВЛЕНО: (ЗАПРОС) Обводка для мобильного баланса --- */
+    .mobile-header .profile-name {
+        color: var(--color-text-light);
+        -webkit-text-stroke: 0px #000;
+        paint-order: stroke fill;
+    }
+    .mobile-header .profile-balance-box .balance {
+        color: var(--color-text-light) !important;
+        -webkit-text-stroke: 0px #000;
+        paint-order: stroke fill;
+    }
+    /* --- КОНЕЦ ДОБАВЛЕНИЯ --- */
+
+
+    /* ИЗМЕНЕНО: (Запрос 4) Скрываем иконку на мобилке */
+    .mobile-header .profile-balance-box::after {
+        content: none;
+    }
+    
+    /* ДОБАВЛЕНО: (Запрос 2) Скрываем вотермарк на мобилке */
+    .mobile-header .profile-balance-box::before {
+        content: none;
+    }
+    
+    /* ИЗМЕНЕНО: (ЗАПРОС 3) Убираем ховер-эффекты (уже было, но дублируем) */
+    .mobile-header .profile-balance-box:hover {
+        transform: none;
+        box-shadow: none;
+        border-color: var(--color-border-dark);
+    }
+    
+    /* --- УДАЛЕНО: (ЗАПРОС) Адаптация кнопок хедера --- */
+    /* .header-actions { ... } */
+    /* .header-action-button { ... } */
+    /* --- КОНЕЦ АДАПТАЦИИ ХЕДЕРА --- */
+
+    
+    /* УДАЛЕНО: .hamburger-menu { ... } */
+    /* УДАЛЕНО: .hamburger-menu.active { ... } */
+    /* УДАЛЕНО: .mobile-sidebar { ... } */
+    /* УДАЛЕНО: .mobile-sidebar.active { ... } */
+    /* УДАЛЕНО: .nav-links-mobile { ... } */
+    /* УДАЛЕНО: .nav-item-mobile { ... } */
+    
+    .lobby-header { 
+        padding-top: 10px;
+        /* ИЗМЕНЕНО: (Запрос 3) Центрируем заголовок */
+        text-align: center;
+    }
+    
+    /* ДОБАВЛЕНО: (Запрос 3) Адаптация заголовка "Список игр" */
+    .game-list-title {
+        font-size: 1.5em; /* Чуть меньше */
+        margin-bottom: 10px;
+    }
+
+    /* ИЗМЕНЕНО: (Запрос) .game-list-title::after на мобильных */
+    .game-list-title::after {
+        width: 100%; /* На мобильном делаем на всю ширину */
+        left: 50%;
+        transform: translateX(-50%);
+        /* ИЗМЕНЕНО: (Запрос) Сброс inline-style */
+        display: block;
+        margin: 0;
+    }
+
+    /* ИЗМЕНЕНО: Адаптация лобби (2 колонки) */
+    .game-cards-list {
+        max-width: none; /* Сбрасываем макс. ширину на мобильных */
+        padding: 0; /* Убираем боковые отступы у грида */
+    }
+    
+    /* ДОБАВЛЕНО: (Задание 2) Адаптация обертки */
+    .lobby-game-wrapper {
+        gap: 8px; /* Меньше отступ */
+    }
+    
+    /* ИЗМЕНЕНО: (Задание 2, 3) Адаптация новых кнопок */
+    .lobby-game-card {
+        height: 120px; /* (Req 3) Меньше (было 140px desktop) */
+        border-radius: 16px; /* Чуть меньше */
+    }
+    
+    /* ДОБАВЛЕНО: (Эстетика) Адаптация декоративного элемента "Лапка" */
+    .lobby-game-card::after {
+        /* border-width: 0 35px 35px 0; <-- Удалено */
+        /* border-top-right-radius: 14px; <-- Удалено */
+        width: 35px; /* <-- ИЗМЕНЕНО (ЗАПРОС 1a) */
+        height: 35px; /* <-- ИЗМЕНЕНО (ЗАПРОС 1a) */
+        border-top-right-radius: 14px; /* (Req 3) */
+    }
+    .lobby-game-card::before {
+        font-size: 1em;
+    }
+    
+    .game-card-cat {
+        height: 100px; /* (Req 3) Меньше */
+        top: 0px;
+        /* ИЗМЕНЕНО: (Запрос 1) Позиционирование от левой границы */
+        left: 0;
+        transform: translateX(0);
+    }
+    .game-card-panel {
+        padding: 6px 10px;
+        border-radius: 10px;
+        width: 90%; /* (Задание 2) */
+    }
+    .game-card-title {
+        font-size: 1.0em;
+    }
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ ЛОББИ --- */
+    
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Адаптация Мин (теперь идентична десктопу) */
+    .mines-game-container {
+        flex-direction: column;
+        padding: 0; 
+        padding-bottom: 0; 
+    }
+    
+    .mines-controls-panel {
+        width: 100%;
+        max-width: none; 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .mines-grid-wrapper {
+        max-width: 100%;
+        padding-top: 0; 
+    }
+    
+    .mines-grid {
+        max-width: 100%;
+        width: 100%; 
+    }
+    
+    /* --- ИСПРАВЛЕНИЕ 4: Разделяем мобильные правила --- */
+    
+    /* Мобильный стиль для "1/2" и "x2" */
+    .bet-actions button {
+        width: 40px; 
+        min-width: 40px; 
+        padding: 5px 2px;
+        font-size: 0.9em; 
+    }
+
+    /* Мобильный стиль для "Мин" и "Макс" */
+    .mines-controls .bet-actions-secondary button,
+    #coin-bet-controls .bet-actions-secondary button {
+        /* Копируем стили */
+        padding: 5px 2px;
+        font-size: 0.9em; 
+        
+        /* Layout (наследуется из десктопа, но дублируем для надежности) */
+        flex: 1;
+        width: auto;
+    }
+    
+    /* --- КОНЕЦ ИСПРАВЛЕНИЯ 4 --- */
+
+    
+    .dice-game-container {
+        /* ИЗМЕНЕНО: (ЗАДАНИЕ 1) Убран padding */
+        padding: 0; 
+        max-width: none;
+    }
+    
+    /* ИЗМЕНЕНО: (ЗАДАНИЕ 3) .dice-controls стал прозрачным */
+    .dice-controls {
+        padding: 0;
+    }
+    
+    .dice-calculator-box {
+        margin: 10px 0 5px;
+        padding: 10px;
+    }
+    
+    #dice-profit-display {
+        font-size: 1.8em; 
+        font-weight: 800;
+    }
+
+    /* --- ИЗМЕНЕНО: (ЗАДАНИЕ 3) Адаптация Краша (теперь идентична десктопу) --- */
+    .crash-game-container {
+        flex-direction: column; /* Ставим в колонку */
+        padding: 0;
+    }
+
+    .crash-controls-panel {
+        flex-basis: auto; /* Сбрасываем flex-basis */
+        width: 100%;    /* На всю ширину */
+    }
+
+    .crash-graph-wrapper {
+        width: 100%;    /* График на всю ширину */
+        height: 350px;  /* Фиксированная высота для мобильных */
+        flex-grow: 0;   /* Отключаем рост, т.к. мы в колонке */
+    }
+    /* --- КОНЕЦ ИСПРАВЛЕНИЯ CRASH --- */
+    
+    /* ДОБАВЛЕНО: (Задание 4) Разделитель на мобильных */
+    .lobby-divider {
+        max-width: 100%;
+        margin: 20px 10px;
+    }
+    
+    /* --- ДОБАВЛЕНО: Адаптация истории ставок (ЭСТЕТИЧНАЯ ВЕРСЯ) --- */
+    .bet-history-container {
+        margin-top: 0;
+         /* На мобильных отступы уже есть у .content-area, убираем их */
+         padding: 0;
+         max-width: 100%; /* (Задание 4) */
+    }
+     .bet-history-container h3 {
+        padding: 0; 
+    }
+    #bet-history-list {
+        /* Восстанавливаем отступы для скролла */
+        margin: 0 -10px;
+        padding-left: 10px;
+    }
+    
+    /* ИЗМЕНЕНО: (Задание 2) Адаптация li-обертки */
+    #bet-history-list > li {
+        margin-right: 10px;
+    }
+    #bet-history-list > li:last-child {
+        margin-right: 10px;
+    }
+    
+    .history-item {
+        min-width: 100px; /* (Req 4) Еще меньше */
+        padding: 6px;
+    }
+    
+    /* ИЗМЕНЕНО: (Задания 2-5) Адаптация иконок-картинок */
+    .history-game-img-icon {
+        height: 1.6em; /* (Req 4) */
+    }
+    .history-amount {
+        font-size: 0.9em; /* (Req 4) */
+    }
+    
+    /* ИЗМЕНЕНО: (Задание 2) Адаптация плашки множителя */
+    .history-multiplier-bar {
+        font-size: 1.0em; /* Чуть меньше на мобильных */
+        padding: 6px 5px;
+        min-width: 100px;
+        margin-left: 0; /* ИЗМЕНЕНО: (Задание 1) */
+        padding-left: 5px; /* ИЗМЕНЕНО: (Задание 1) */
+    }
+    
+    /* --- КОНЕЦ АДАПТАЦИИ ИСТОРИИ --- */
+    
+    /* --- ДОБАВЛЕНО: (Задание 2) Адаптация истории игр --- */
+    .per-game-history-container {
+        padding: 0;
+        margin-top: 20px;
+    }
+    
+    .game-history-item {
+        padding: 8px 10px;
+        font-size: 0.85em;
+    }
+    
+    /* Уменьшаем ячейки для мобильных */
+    .history-cell.user {
+        flex-basis: 25%;
+    }
+    .history-cell.bet {
+        flex-basis: 20%;
+    }
+    .history-cell.multiplier {
+        flex-basis: 20%;
+    }
+    .history-cell.payout {
+        flex-basis: 35%;
+    }
+
+    /* ИЗМЕНЕНО: (Запрос 3) Адаптация меню мини-игр */
+    .mini-games-nav {
+        border-radius: 0; 
+        gap: 8px; /* Уменьшаем gap */
+    }
+    
+    .mini-games-nav-item {
+        font-size: 0.75em; /* Еще меньше шрифт */
+        padding: 10px 5px; /* Меньше паддинг */
+        /* min-height: 60px; <-- Убрано, пусть будет авто */
+    }
+    
+    /* ИЗМЕНЕНО: (Задания 2-5) Адаптация иконок-картинок */
+    .nav-game-icon {
+        font-size: 1.2em; /* <-- ИЗМЕНЕНО: Еще меньше иконка */
+    }
+    
+    /* ДОБАВЛЕНО: Адаптация модального окна кошелька */
+    .wallet-modal-content {
+        padding: 15px;
+    }
+    .wallet-header {
+        margin-bottom: 15px;
+    }
+    .wallet-header h3 {
+        font-size: 1.3em;
+    }
+    .wallet-tabs {
+        margin-bottom: 20px;
+        gap: 15px;
+    }
+    .wallet-tab {
+        font-size: 1em;
+    }
+    .wallet-methods {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .wallet-method-button {
+        padding: 8px;
+        min-width: 70px;
+    }
+    .wallet-method-button img {
+        height: 35px;
+    }
+    .wallet-form {
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    /* Адаптация истории пополнений/выводов */
+    #deposit-history-list .history-cell.user,
+    #withdrawal-history-list .history-cell.user { /* Дата */
+        flex-basis: 40%;
+        font-size: 0.9em;
+    }
+    #deposit-history-list .history-cell.bet,
+    #withdrawal-history-list .history-cell.bet { /* Сумма */
+        flex-basis: 30%;
+    }
+    #deposit-history-list .history-cell.payout,
+    #withdrawal-history-list .history-cell.payout { /* Статус */
+        flex-basis: 30%;
+    }
+}
+
+/* --- ИЗМЕНЕНО: (Задание 1) Стили для новой нижней навигации --- */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px; 
+    display: flex;
+    /* ИЗМЕНЕНО: (Задание 1) Ставим ряды друг под другом */
+    flex-direction: column; 
+    justify-content: center; /* Центрируем по вертикали */
+    align-items: center; /* Центрируем по горизонтали */
+    
+    /* Эффект "матового стекла" */
+    background-color: rgba(61, 70, 84, 0.75); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1500;
+    
+    padding: 5px 0; /* Общий отступ */
+}
+
+/* ДОБАВЛЕНО: (Задание 1) Стиль для горизонтальных рядов */
+.bottom-nav-row {
+    display: flex;
+    flex-direction: row; /* Горизонтально */
+    justify-content: space-around; /* Равномерно */
+    align-items: center;
+    width: 100%;
+}
+
+/* ДОБАВЛЕНО: (Задание 1) Отступ для ряда с иконками */
+#bottom-nav-icon-row {
+    margin-bottom: 4px; 
+}
+
+/* ИЗМЕНЕНО: (Задание 1) .bottom-nav-item теперь элемент ряда */
+.bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-light);
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+    flex-grow: 1;
+    flex-basis: 0; /* Равномерное распределение */
+    padding: 0;
+    -webkit-tap-highlight-color: transparent; 
+}
+
+/* ИЗМЕНЕНО: (Задание 1) Убран margin-bottom */
+.bottom-nav-item .nav-icon {
+    height: 28px; 
+    width: auto;  
+    margin-bottom: 0; 
+}
+
+/* --- ДОБАВЛЕНО: (Задание 2) Уменьшаем иконку "Меню" --- */
+.bottom-nav-item .nav-icon-menu {
+    height: 24px;
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+.bottom-nav-item .nav-text {
+    font-size: 0.75em;
+    font-weight: bold;
+    /* ИЗМЕНЕНО: (Задание 1) Убираем margin-top, так как текст в своем ряду */
+}
+
+.bottom-nav-item:hover {
+    opacity: 1;
+}
+
+/* --- ИЗМЕНЕНО: (ЗАПРОС) Обновлен стиль активного элемента (Пункт 3) --- */
+/* ИЗМЕНЕНО: (Задание 1) Теперь .active должен применяться к .bottom-nav-item */
+.bottom-nav-item.active {
+    opacity: 1;
+    color: var(--color-orange); 
+}
+/* ИЗМЕНЕНО: (Задание 1) Иконка тоже должна менять цвет */
+.bottom-nav-item.active .nav-icon {
+    /* (Если иконки .png, цвет не поменяется, но если .svg, можно добавить filter) */
+    /* Для PNG можно сделать так, чтобы только текст менял цвет */
+    opacity: 1; 
+}
+
+/* Компенсатор, чтобы меню не перекрывало контент */
+.bottom-nav-safe-area {
+    height: 70px;
+}
+
+/* --- ИСПРАВЛЕНИЕ: Селекторы позиционирования котов --- */
+
+/* --- Dice --- */
+.lobby-game-wrapper[data-game-type="dice"] .game-card-cat {
+    /* translateX: 0px (сдвиг вправо/влево)
+    translateY: 0px (сдвиг вверх/вниз)
+    scale: 1 (размер)
+    */
+    transform: translateX(-10px) translateY(10px) scale(1.1);
+}
+
+/* --- Mines --- */
+.lobby-game-wrapper[data-game-type="mines"] .game-card-cat {
+    transform: translateX(-10px) translateY(10px) scale(1.15);
+}
+
+/* --- Crash --- */
+.lobby-game-wrapper[data-game-type="crash"] .game-card-cat {
+    transform: translateX(-10px) translateY(10px) scale(1.15);
+}
+
+/* --- Coinflip --- */
+.lobby-game-wrapper[data-game-type="coin"] .game-card-cat {
+    /* Оригинальные значения были: translateX(-15px) scale(0.8333) */
+    transform: translateX(-15px) translateY(15px) scale(1);
+}
+
+
+/* --- Наведение (Hover) --- */
+
+.lobby-game-wrapper[data-game-type="dice"]:hover .game-card-cat {
+    transform: scale(1.08); 
+}
+.lobby-game-wrapper[data-game-type="mines"]:hover .game-card-cat {
+    transform: scale(1.08); 
+}
+.lobby-game-wrapper[data-game-type="crash"]:hover .game-card-cat {
+    transform: scale(1.08); 
+}
+.lobby-game-wrapper[data-game-type="coin"]:hover .game-card-cat {
+    transform: translateX(-15px) translateY(0px) scale(0.9);
+}
+
+/* --- ДОБАВЛЕНО: (Задание 2) Стили для Сайдбара --- */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 2500;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+.sidebar-overlay.active {
+    opacity: 1;
+}
+/* ИЗМЕНЕНО: (Задание 2) .hidden теперь не используется для сайдбара */
+.sidebar-overlay:not(.active) {
+    pointer-events: none;
+}
+
+
+.sidebar-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 60%; /* Ширина 60% */
+    max-width: 250px; /* Но не более 250px */
+    
+    /* ИЗМЕНЕНО: (Задание 1) Эффект "матового стекла" */
+    background-color: rgba(61, 70, 84, 0.85); /* Полупрозрачный --color-sidebar */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1); /* Легкая граница */
+    
+    z-index: 2501;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    padding: 30px 20px;
+    padding-top: var(--mobile-header-height); /* Отступ сверху, как у хедера */
+    
+    /* ИЗМЕНЕНО: (Задание 2) Добавляем Flex для прижатия соц. иконок к низу */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Прижимает .sidebar-links к верху, .sidebar-socials к низу */
+}
+.sidebar-nav.active {
+    transform: translateX(0);
+}
+.sidebar-nav:not(.active) {
+    pointer-events: none;
+}
+
+/* --- ДОБАВЛЕНО: Стили для логотипа в сайдбаре --- */
+.sidebar-logo {
+    /* --- МЕНЯЙ ЗДЕСЬ --- */
+    /* Отступ снизу (двигает логотип ВНИЗ, а ссылки ВВЕРХ) */
+    margin-bottom: 20px; 
+    /* Отступ внутри блока (двигает ссылки ВНИЗ, логотип ВВЕРХ) */
+    padding-bottom: 20px; 
+    /* --- */
+    
+    /* Используем flex, как в хедере */
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 8px; /* Чуть меньше gap */
+    
+    border-bottom: 1px solid var(--color-border-dark); /* Разделитель */
+    cursor: default; /* Не кликабельный */
+}
+
+/* Адаптируем размер картинки и текста для сайдбара */
+.sidebar-logo .logo-image {
+    height: 2.5em; /* Чуть меньше, чем в хедере */
+    /* Убираем старые transform'ы из хедера */
+    transform: none; 
+}
+
+.sidebar-logo .logo-text {
+    font-size: 1.3em; /* Чуть меньше */
+    /* Убираем старые transform'ы из хедера */
+    transform: none;
+    /* Анимация (наследуется от .logo-text) */
+}
+/* --- КОНЕЦ СТИЛЕЙ ЛОГОТИПА В САЙДБАРЕ --- */
+
+
+.sidebar-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* (Задание 2) Эта часть теперь не прижата к низу */
+}
+.sidebar-links li {
+    margin-bottom: 10px;
+}
+.sidebar-links a {
+    display: block;
+    padding: 12px 15px;
+    text-decoration: none;
+    color: var(--color-text-light);
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.sidebar-links a:hover,
+.sidebar-links a:active {
+    background-color: var(--color-border-dark);
+}
+
+/* --- ДОБАВЛЕНО: (Задание 2) Стили для иконок соц. сетей --- */
+.sidebar-socials {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px; /* Расстояние между иконками */
+    padding: 20px 0;
+    border-top: 1px solid var(--color-border-dark); /* Разделитель */
+}
+.social-icon {
+    height: 30px; /* Фиксированная высота */
+    width: 30px; /* Фиксированная ширина */
+    object-fit: contain; /* Сохраняем пропорции */
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+.social-icon:hover {
+    opacity: 1;
+}
+/* --- КОНЕЦ СТИЛЕЙ САЙДБАРА --- */
+
+/* --- ДОБАВЛЕНО: (Задание) Стили для FAQ Аккордеона --- */
+.faq-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Расстояние между вкладышами */
+    max-width: 800px; /* Ограничиваем ширину */
+    margin: 20px auto;
+}
+
+.faq-item {
+    background-color: var(--color-sidebar); /* Темный фон, как на скриншоте */
+    border-radius: 8px;
+    overflow: hidden; /* Важно для анимации max-height */
+    border: 1px solid var(--color-border-dark);
+}
+
+.faq-question {
+    /* Стилизуем <button> */
+    background: none;
+    border: none;
+    width: 100%;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    padding: 18px 20px;
+    cursor: pointer;
+    
+    color: var(--color-text-light); /* Светлый текст */
+    font-size: 1.1em;
+    font-weight: bold;
+    text-align: left;
+    
+    transition: background-color 0.2s;
+}
+
+.faq-question:hover {
+    background-color: var(--color-border-dark); /* Легкое выделение при наведении */
+}
+
+.faq-icon {
+    font-size: 1.4em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    transition: transform 0.3s ease;
+}
+
+/* Стили для ответа */
+.faq-answer {
+    /* Анимация открытия/закрытия */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out;
+}
+
+.faq-answer-content {
+    padding: 0 20px 20px 20px; /* Отступы только для контента */
+    color: var(--color-text-light);
+    opacity: 0.9;
+    line-height: 1.6;
+    border-top: 1px solid var(--color-border-dark); /* Разделитель */
+    padding-top: 20px; /* Отступ от разделителя */
+}
+
+/* Стили для текста внутри ответа */
+.faq-answer-content p {
+    margin-bottom: 15px; /* Отступ между параграфами */
+}
+.faq-answer-content p:last-child {
+    margin-bottom: 0;
+}
+.faq-answer-content ul,
+.faq-answer-content ol {
+    margin: 15px 0 15px 25px; /* Отступы для списков */
+}
+.faq-answer-content li {
+    margin-bottom: 8px;
+}
+/* --- ИСПРАВЛЕНИЕ: Цвет ссылки в FAQ --- */
+.faq-answer-content a {
+    color: var(--color-orange); /* Оранжевый цвет */
+    text-decoration: underline;
+}
+.faq-answer-content a:hover {
+    color: var(--color-primary); /* Тот же оранжевый */
+    text-decoration: none;
+}
+/* --- КОНЕЦ ИСПРАВЛЕНИЯ --- */
+
+
+/* Когда .faq-item.active, мы "открываем" ответ */
+.faq-item.active .faq-answer {
+    max-height: 2000px; /* Достаточно большое значение, чтобы вместить любой текст */
+    transition: max-height 0.5s ease-in;
+}
+
+/* Поворачиваем иконку */
+.faq-item.active .faq-icon {
+    transform: rotate(45deg);
+}
+
+/* Адаптация FAQ для мобильных */
+@media (max-width: 768px) {
+    #faq-page .game-list-title {
+        font-size: 1.5em; /* Уменьшаем заголовок "Ответы на вопросы" */
+    }
+    .faq-container {
+        gap: 8px;
+        margin-top: 10px;
+    }
+    .faq-question {
+        padding: 15px;
+        font-size: 1em; /* Чуть меньше шрифт вопроса */
+    }
+    .faq-answer-content {
+        padding: 15px;
+        font-size: 0.9em; /* Чуть меньше шрифт ответа */
+    }
+}
+/* --- КОНЕЦ СТИЛЕЙ FAQ --- */
+
+/* --- ИЗМЕНЕНО: (Задание) Стили для Реферальной страницы --- */
+.ref-container {
+    /* ИЗМЕНЕНО: Эстетика */
+    background-color: var(--color-sidebar);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    max-width: 800px;
+    margin: 0 auto;
+    color: var(--color-text-light); /* Весь текст светлый */
+}
+
+#ref-page .game-list-title {
+    /* ИЗМЕНЕНО: (Запрос 2) Цвет как в FAQ (темный) */
+    color: var(--color-text); 
+    /* ИЗМЕНЕНО: (Запрос 2) Увеличен отступ снизу */
+    margin-bottom: 25px; 
+}
+
+#ref-page .game-list-title::after {
+    /* ИЗМЕНЕНО: (Запрос 2) Цвет как в FAQ (темный) */
+    background-color: var(--color-text);
+    transform: none;
+    /* ИЗМЕНЕНО: (Запрос 2) На всю ширину */
+    width: 100%; 
+    left: 0;
+    /* ИЗМЕНЕНО: (Запрос 2) Показываем полоску */
+    display: block; 
+}
+
+/* 2. Описание */
+.ref-subheader {
+    text-align: center;
+    font-size: 1.1em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Светлый текст */
+    opacity: 0.9;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+.ref-link {
+    display: block;
+    color: var(--color-orange); /* Оранжевый */
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-top: 5px;
+}
+.ref-link:hover {
+    text-decoration: underline;
+}
+
+/* 3. Ссылка */
+.ref-link-box {
+    background-color: #2E3035; /* ИЗМЕНЕНО: Темнее фон */
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid var(--color-border-dark);
+}
+.ref-link-box label {
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    opacity: 0.8;
+    margin-bottom: 5px;
+    display: block;
+}
+.ref-input-group {
+    display: flex;
+    gap: 10px;
+}
+.ref-input-group input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid var(--color-border-dark);
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: var(--color-text);
+    font-size: 1em;
+    min-width: 0; /* Для flex */
+}
+.ref-input-group button {
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+}
+.ref-input-group button:hover {
+    background-color: #6A788C;
+}
+
+/* 4. Ссылка на менеджера */
+.ref-manager-link {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--color-text-light); /* ИЗМЕНЕНО: Светлый текст */
+    opacity: 0.8;
+    margin-bottom: 25px;
+}
+.ref-manager-link a {
+    color: var(--color-orange); /* Оранжевый */
+    font-weight: bold;
+    text-decoration: none;
+    display: block;
+    margin-top: 4px;
+}
+
+/* 5. Главные вкладки */
+.ref-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--color-border-dark);
+}
+.ref-tab {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    font-size: 1.2em;
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+.ref-tab.active {
+    opacity: 1;
+    color: var(--color-orange); /* Оранжевый */
+}
+.ref-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--color-orange);
+}
+
+/* 6. Контент главных вкладок */
+.ref-tab-content {
+    display: none;
+}
+.ref-tab-content.active {
+    display: block;
+}
+
+/* 7. Вложенные вкладки */
+.ref-subtabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.ref-subtab {
+    flex: 1;
+    background-color: var(--color-border-dark); /* Серый фон */
+    color: var(--color-text-light);
+    opacity: 0.7;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 0.9em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.ref-subtab.active {
+    background-color: #2E3035; /* ИЗМЕНЕНО: Темно-серый активный */
+    color: var(--color-text-light);
+    opacity: 1;
+}
+
+/* 8. Контент вложенных вкладок */
+.ref-subtab-content {
+    display: none;
+}
+.ref-subtab-content.active {
+    display: block;
+}
+
+/* 9. Формы во вложенных вкладках */
+.ref-form {
+    background-color: #2E3035; /* ИЗМЕНЕНЕО: Темнее фон */
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Используем gap вместо .form-group margin */
+}
+.ref-form .form-group {
+    margin-bottom: 0; /* Сбрасываем margin */
+}
+.ref-form-header {
+    font-size: 0.9em;
+    color: var(--color-text-light);
+    opacity: 0.8;
+    text-align: center;
+    margin-bottom: -5px; /* Ближе к полю */
+}
+/* Используем стили из auth.js */
+.ref-form .form-group input {
+    background-color: var(--color-sidebar); /* ИЗМЕНЕНО: Фон инпута */
+    border-color: var(--color-border-dark); /* ИЗМЕНЕНО: Граница */
+    color: var(--color-text-light);
+}
+.ref-form .form-group input::placeholder {
+    color: #777;
+}
+
+/* 10. Таблицы/Списки */
+.ref-list-header {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--color-text-light);
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.ref-table-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Горизонтальный скролл для таблиц */
+    background-color: #2E3035; /* ИЗМЕНЕНО: Темнее фон */
+    border-radius: 8px;
+    border: 1px solid var(--color-border-dark);
+}
+.ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+}
+.ref-table th,
+.ref-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.ref-table th {
+    font-size: 0.8em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.ref-table td {
+    color: var(--color-text-light);
+}
+.ref-table tr:last-child td {
+    border-bottom: none;
+}
+/* Плейсхолдер для пустых списков (таблица) */
+.ref-list-placeholder {
+    text-align: center;
+    color: var(--color-text-light);
+    opacity: 0.6;
+    padding: 20px;
+    font-style: italic;
+    font-size: 0.9em;
+}
+/* Стили для списка каналов (ul) */
+.ref-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: #2E3035; /* ИЗМЕНЕНО: Темнее фон */
+    border-radius: 8px;
+    border: 1px solid var(--color-border-dark);
+    font-size: 0.9em;
+}
+.ref-list li {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+.ref-list li:last-child {
+    border-bottom: none;
+}
+/* --- КОНЕЦ СТИЛЕЙ РЕФЕРАЛОВ --- */
+
+/* --- ИЗМЕНЕНО: (ЗАДАНИЕ 1) ЭСТЕТИКА СТРАНИЦЫ ПРОФИЛЯ --- */
+.profile-container {
+    max-width: 500px; /* Ограничиваем ширину, как у игр */
+    margin: 0 auto;
+    
+    /* ИЗМЕНЕНО: (Эстетика) Единая карточка */
+    background-color: #3D4654; /* Тот же фон, что у кошелька */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Отступ между блоками */
+}
+
+/* ИЗМЕНЕНО: (Эстетика + Задача 1) Обновлен .game-list-title для профиля */
+#profile-page .game-list-title {
+    color: var(--color-text); /* <-- ЗАДАЧА 1: Темный цвет, как в FAQ */
+    /* text-align: center; <-- Убрано, наследуется из .game-list-title */
+    margin-bottom: 10px;
+    font-size: 1.6em;
+}
+#profile-page .game-list-title::after {
+    display: block; /* Показываем подчеркивание */
+    background-color: var(--color-text); /* Темное подчеркивание */
+    /* ИЗМЕНЕНО: (Запрос 1) На всю ширину */
+    width: 100%; 
+    margin: 0 auto; /* Центрируем */
+    left: auto;
+    transform: none;
+}
+
+
+/* ИЗМЕНЕНО: (Эстетика) Стили для блоков "Отыгрыш" и "Ранг" */
+.profile-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #2E3035; /* Фон блоков */
+    color: var(--color-text-light);
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-size: 1em; /* Уменьшен шрифт */
+}
+.profile-box span:first-child {
+    opacity: 0.7;
+}
+.profile-box span:last-child {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: var(--color-text-light); /* Значение теперь белое */
+}
+/* Отдельный стиль для значения ранга */
+#profile-rank {
+    color: var(--color-orange); /* Ранг оранжевым */
+    text-transform: capitalize; /* "без ранга" -> "Без ранга" */
+}
+
+
+/* ИЗМЕНЕНО: (Эстетика) Ссылка "Правила отыгрыша" */
+.profile-link {
+    color: var(--color-text-light);
+    opacity: 0.6;
+    font-size: 0.9em;
+    text-align: center; /* Центрируем */
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: -5px; /* Ближе к блоку */
+    margin-bottom: 10px;
+    padding-left: 0;
+}
+.profile-link:hover {
+    opacity: 1;
+}
+
+/* ИЗМЕНЕНО: (Эстетика) Подзаголовки "Смена пароля", "Соцсети" */
+.profile-subheader {
+    font-size: 1.1em;
+    color: var(--color-text-light);
+    opacity: 0.7;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 15px;
+    margin-bottom: 10px; /* Увеличен отступ */
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--color-border-dark);
+}
+/* Иконки-эмодзи для подзаголовков */
+.profile-subheader.pass-header::before {
+    content: '🔒 ';
+}
+.profile-subheader.social-header::before {
+    content: '🌐 ';
+}
+
+/* ИЗМЕНЕНО: (Эстетика) Форма смены пароля */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background-color: transparent; /* Убираем фон, т.к. он на .profile-container */
+    padding: 0; /* Убираем паддинг */
+}
+/* Используем .form-group и .auth-button из общих стилей */
+.profile-form .form-group input {
+    background-color: #2E3035; /* Темный инпут */
+    border-color: var(--color-border-dark);
+    color: var(--color-text-light);
+}
+
+.profile-form .form-group input {
+    background-color: #2E3035; /* Темный инпут */
+    border-color: var(--color-border-dark);
+    color: var(--color-text-light);
+}
+.profile-form .form-group input::placeholder {
+    color: #777;
+}
+/* Кнопка "Изменить пароль" */
+.profile-form .auth-button {
+    background-color: var(--color-border-dark);
+    color: var(--color-text-light);
+}
+.profile-form .auth-button:hover {
+    background-color: #6A788C;
+}
+
+
+/* Статус смены пароля */
+.profile-status {
+    color: var(--color-orange);
+    text-align: center;
+    font-size: 0.9em;
+    min-height: 1.2em; /* Резервируем место */
+}
+
+/* Блок "Соцсети" */
+.profile-socials {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+/* Стили для кнопок привязки */
+.social-link-button {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #2E3035; /* Фон кнопок */
+    color: var(--color-text-light);
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 1px solid #2E3035;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+.social-link-button:hover {
+    background-color: #3a3d44;
+    border-color: var(--color-border-dark);
+}
+.social-link-button img {
+    height: 24px;
+    width: 24px;
+}
+
+/* Кнопка "Выйти" */
+.danger-button {
+    background-color: var(--color-mine-bomb); /* Красный */
+    color: white;
+    margin-top: 15px; /* Отступ сверху */
+}
+.danger-button:hover {
+    background-color: #e04848; /* Чуть темнее красный */
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    #profile-page .game-list-title {
+        font-size: 1.5em; /* Уменьшаем заголовок "Настройки" */
+        text-align: center; /* Центрируем на мобилке */
+    }
+    .profile-container {
+        padding: 15px; /* Уменьшаем паддинг карточки */
+    }
+    .profile-box {
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+    .profile-link {
+        text-align: center;
+    }
+    .profile-subheader {
+        font-size: 1em;
+    }
+    .social-link-button {
+        padding: 12px 15px;
+        font-size: 1em;
+    }
+}
+
+/* --- КОНЕЦ СТИЛЕЙ ПРОФИЛЯ --- */
+
+/* ДОБАВЛЕНО: Ссылка "Проверить игру" */
+.game-check-link {
+    color: var(--color-text);
+    opacity: 0.7;
+    font-size: 0.9em;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    display: block; /* Убедимся, что она блочная для центрирования */
+}
+.game-check-link:hover {
+    opacity: 1;
+}
