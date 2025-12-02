@@ -106,7 +106,6 @@ async function rollDice(rollType) {
     reduceWager(bet);
 
     // --- ANTI-MINUS LOGIC ---
-    // 1. Генерируем честное число
     let rollRaw = Math.floor(Math.random() * 1000000);
     let targetNumber;
     let isWinNatural = false;
@@ -119,18 +118,14 @@ async function rollDice(rollType) {
         if (rollRaw >= targetNumber) isWinNatural = true;
     }
 
-    // 2. Спрашиваем контроллер
     let win = isWinNatural;
     if (isWinNatural) {
         const profit = potentialWin - bet;
         if (!AntiMinus.canUserWin(profit, bet)) {
             win = false;
-            // Подменяем число на проигрышное
             if (rollType === 'under') {
-                // Нужно число БОЛЬШЕ targetNumber
                 rollRaw = targetNumber + Math.floor(Math.random() * (999999 - targetNumber));
             } else {
-                // Нужно число МЕНЬШЕ targetNumber
                 rollRaw = Math.floor(Math.random() * targetNumber);
             }
         }
@@ -140,10 +135,15 @@ async function rollDice(rollType) {
     const rollDisplay = rollRaw.toString().padStart(6, '0'); 
     document.getElementById('dice-result-number').textContent = rollDisplay;
 
+    // --- ОБНОВЛЕННЫЙ ФОРМАТ РЕЗУЛЬТАТА ДЛЯ ИСТОРИИ ---
+    // Сохраняем: "123456 | 49.50% | <" (Например)
+    const directionSymbol = rollType === 'under' ? '<' : '>';
+    const resultString = `${rollDisplay} | ${diceChance.toFixed(2)}% | ${directionSymbol}`;
+
     const betData = {
         username: currentUser,
         game: 'dice',
-        result: rollDisplay,
+        result: resultString, // Новый формат
         betAmount: bet,
         amount: 0
     };
@@ -153,7 +153,7 @@ async function rollDice(rollType) {
         statusElement.textContent = `Выигрыш ${potentialWin.toFixed(2)} RUB`; 
         statusElement.classList.add('win');
         betData.amount = potentialWin - bet;
-        betData.result = `${multiplier.toFixed(2)}x`;
+        // betData.result = `${multiplier.toFixed(2)}x`; // УБРАНО, чтобы сохранить resultString
         betData.multiplier = `${multiplier.toFixed(2)}x`;
     } else {
         statusElement.textContent = `Выпало: ${rollDisplay}`; 

@@ -203,10 +203,19 @@ async function handlePlayKeno() {
     const winnings = currentBet * multiplier;
     if (winnings > 0) updateBalance(winnings);
 
-    // UPDATED: Store Risk/Picks in Result String
-    // e.g., "Easy | 4/10"
-    const resultString = `${currentRisk.charAt(0).toUpperCase() + currentRisk.slice(1)} | ${hitsCount}/${selectedNumbers.length}`;
-    writeBetToHistory({ username: currentUser, game: 'keno', result: resultString, betAmount: currentBet, amount: winnings - currentBet, multiplier: `${multiplier.toFixed(2)}x` });
+    // --- ОБНОВЛЕНИЕ: Сохраняем полную информацию для модального окна ---
+    // Формат: "Risk | Hits/Picks ::: s:1,2,3;d:4,5,6"
+    // s = selected numbers, d = drawn numbers
+    const resultString = `${currentRisk.charAt(0).toUpperCase() + currentRisk.slice(1)} | ${hitsCount}/${selectedNumbers.length} ::: s:${selectedNumbers.join(',')};d:${drawnNumbers.join(',')}`;
+    
+    writeBetToHistory({ 
+        username: currentUser, 
+        game: 'keno', 
+        result: resultString, 
+        betAmount: currentBet, 
+        amount: winnings - currentBet, 
+        multiplier: `${multiplier.toFixed(2)}x` 
+    });
     
     if (!autoGameActive && kenoResultOverlay) {
         kenoResultMultiplier.textContent = `${multiplier.toFixed(2)}x`;

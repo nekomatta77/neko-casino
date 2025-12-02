@@ -239,7 +239,6 @@ export function setLocalWager(amount) {
 // 4. ИСТОРИЯ ИГР (ОБНОВЛЕННАЯ ЛОГИКА КЛИКОВ)
 // ==========================================
 
-// Глобальный слушатель кликов (делегирование)
 document.addEventListener('click', (e) => {
     const card = e.target.closest('.high-win-card');
     if (card) {
@@ -322,7 +321,6 @@ function renderHistoryList(bets, type) {
             else if (bet.game === 'sleepy') gameIconSrc = 'assets/sleepy_icon.png'; 
             else if (bet.game === 'wheel') gameIconSrc = 'assets/wheel_icon.png';
 
-            // Добавляем data-атрибуты для клика
             const dataAttrs = `data-game="${bet.game}" data-username="${bet.username}" data-bet="${bet.bet_amount}" data-result="${bet.result}" data-profit="${totalWin}"`;
 
             if (type === 'highwins') {
@@ -369,161 +367,283 @@ function handleHistoryItemClick(card) {
     const profit = parseFloat(card.getAttribute('data-profit'));
 
     if (game === 'dice') {
-        // 1. Dice: Открыть Hash Modal (Check Game), но с ником в заголовке
-        const hashModal = document.getElementById('hash-modal-overlay');
-        if (hashModal) {
-            document.getElementById('hash-modal-game-id').textContent = username; // Замена ID на Ник
-            // Заполняем фейковыми/частичными данными, так как хеша нет в БД
-            document.getElementById('hash-modal-bet').textContent = `${bet.toFixed(2)} RUB`;
-            document.getElementById('hash-modal-result').textContent = profit > 0 ? 'Выигрыш' : 'Проигрыш';
-            // Скрываем технические поля, которых нет
-            document.getElementById('hash-modal-combined').textContent = "Hidden (Archive)";
-            document.getElementById('hash-modal-hash').textContent = "Hidden (Archive)";
-            hashModal.classList.remove('hidden');
-        }
-
+        openVisualHistoryModal('dice', { username, bet, result, profit });
     } else if (game === 'mines') {
-        // 2. Mines: Визуализация мин
         openVisualHistoryModal('mines', { username, bet, result, profit });
-
     } else if (game === 'keno') {
-        // 3. Keno: Визуализация кено
         openVisualHistoryModal('keno', { username, bet, result, profit });
     }
 }
 
-// --- ГЕНЕРАТОР ВИЗУАЛЬНОЙ ИСТОРИИ ---
+// --- ГЕНЕРАТОР ВИЗУАЛЬНОЙ ИСТОРИИ (ОБНОВЛЕННЫЙ) ---
 function openVisualHistoryModal(game, data) {
     const modal = document.getElementById('visual-history-modal-overlay');
     const container = document.getElementById('visual-history-grid-container');
     if (!modal || !container) return;
 
-    // Заполняем футер
+    // Сброс контента и классов
+    container.innerHTML = '';
+    container.className = 'visual-grid-container'; 
+
+    // Обновление футера 
     document.getElementById('vh-username').textContent = data.username;
     document.getElementById('vh-bet').textContent = `${data.bet.toFixed(2)} RUB`;
     document.getElementById('vh-profit').textContent = `${data.profit.toFixed(2)} RUB`;
-
-    container.innerHTML = ''; // Очистка
+    
+    // Сброс дополнительного инфо
+    const extraLabel = document.getElementById('vh-extra-label');
+    const extraValue = document.getElementById('vh-extra-value');
+    extraLabel.textContent = '';
+    extraValue.textContent = '';
 
     if (game === 'mines') {
-        // Парсим результат: "(3 Mines) 2.45x" -> mines=3
-        let minesCount = 3; // Default
+        // Парсинг
+        let minesCount = 3;
         const match = data.result.match(/\((\d+)\s*Mines\)/);
         if (match) minesCount = parseInt(match[1]);
 
-        document.getElementById('vh-extra-label').textContent = 'Кол-во мин:';
-        document.getElementById('vh-extra-value').textContent = minesCount;
+        extraLabel.textContent = 'Кол-во мин:';
+        extraValue.textContent = minesCount;
 
-        // Генерируем сетку 5x5
-        generateMinesVisual(container, minesCount);
+        // Попытка извлечь реальные данные
+        let realMines = null;
+        let realRevealed = null;
+        
+        if (data.result.includes(':::')) {
+            try {
+                const parts = data.result.split(':::')[1]; 
+                const segments = parts.split(';');
+                segments.forEach(seg => {
+                    const [key, vals] = seg.split(':');
+                    if(key === 'm') realMines = vals ? vals.split(',').map(Number) : [];
+                    if(key === 'r') realRevealed = vals ? vals.split(',').map(Number) : [];
+                });
+            } catch(e) { console.error("Error parsing history", e); }
+        }
+
+        generateMinesVisual(container, minesCount, data.profit > 0, realMines, realRevealed);
 
     } else if (game === 'keno') {
-        // Парсим: "Easy | 4/10"
+        // Парсинг: "Easy | 4/10 ::: s:1,2;d:3,4"
         let risk = 'Classic';
         let hits = 0;
         let total = 10;
+        let realSelected = null;
+        let realDrawn = null;
         
-        const parts = data.result.split('|');
-        if (parts.length > 0) risk = parts[0].trim();
-        if (parts.length > 1) {
-            const score = parts[1].trim().split('/');
+        const mainParts = data.result.split(':::');
+        const infoPart = mainParts[0]; // "Easy | 4/10"
+        
+        if (mainParts.length > 1) {
+            // Парсим реальные данные
+            try {
+                const dataPart = mainParts[1];
+                const segments = dataPart.split(';');
+                segments.forEach(seg => {
+                    const [key, vals] = seg.split(':');
+                    if(key.trim() === 's') realSelected = vals ? vals.split(',').map(Number) : [];
+                    if(key.trim() === 'd') realDrawn = vals ? vals.split(',').map(Number) : [];
+                });
+            } catch(e) { console.error("Error parsing Keno history", e); }
+        }
+
+        const infoSegments = infoPart.split('|');
+        if (infoSegments.length > 0) risk = infoSegments[0].trim();
+        if (infoSegments.length > 1) {
+            const score = infoSegments[1].trim().split('/');
             if (score.length === 2) {
                 hits = parseInt(score[0]);
                 total = parseInt(score[1]);
             }
         }
+        
+        // Перевод сложности
+        const difficultyMap = {
+            'Easy': 'Легкая', 'Medium': 'Средняя', 'High': 'Сложная',
+            'easy': 'Легкая', 'medium': 'Средняя', 'high': 'Сложная'
+        };
+        const ruRisk = difficultyMap[risk] || risk;
 
-        document.getElementById('vh-extra-label').textContent = 'Сложность / Совпадения:';
-        document.getElementById('vh-extra-value').textContent = `${risk} (${hits}/${total})`;
+        extraLabel.innerHTML = `Сложность:<br>Совпадения:`;
+        extraValue.innerHTML = `${ruRisk}<br>${hits} из ${total}`;
 
-        // Генерируем сетку 8x5
-        generateKenoVisual(container, hits, total);
+        generateKenoVisual(container, hits, total, realSelected, realDrawn);
+
+    } else if (game === 'dice') {
+        const parts = data.result.split('|');
+        let rolled = parts[0]?.trim() || "???";
+        let chance = parts[1]?.trim() || "---%";
+        let direction = parts[2]?.trim() || "";
+        
+        if (direction === '<') direction = "Меньше";
+        else if (direction === '>') direction = "Больше";
+
+        generateDiceVisual(container, {
+            rolled: rolled,
+            chance: chance,
+            direction: direction,
+            bet: data.bet,
+            profit: data.profit
+        });
+        
+        extraLabel.textContent = '';
+        extraValue.textContent = '';
     }
 
     modal.classList.remove('hidden');
     
-    // Закрытие
     const closeBtn = document.getElementById('visual-history-close');
-    if(closeBtn) {
-        closeBtn.onclick = () => modal.classList.add('hidden');
-    }
-    modal.onclick = (e) => {
-        if (e.target === modal) modal.classList.add('hidden');
-    }
+    if(closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
+    modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); }
 }
 
-function generateMinesVisual(container, minesCount) {
-    container.className = 'visual-grid-container mines-visual'; // Для CSS
+function generateMinesVisual(container, minesCount, isWin, realMines, realRevealed) {
+    container.className = 'visual-grid-container mines-visual';
     const totalCells = 25;
-    
-    // Создаем случайное поле: где мины, где звезды
-    let cells = Array(totalCells).fill('safe');
-    
-    // Расставляем мины случайно
-    let placed = 0;
-    while(placed < minesCount) {
-        const idx = Math.floor(Math.random() * totalCells);
-        if(cells[idx] === 'safe') {
-            cells[idx] = 'mine';
-            placed++;
+    let cells = Array(totalCells).fill('safe-closed'); 
+
+    if (realMines && realRevealed) {
+        for(let i=0; i<totalCells; i++) {
+            if (realRevealed.includes(i)) {
+                cells[i] = 'safe-opened'; 
+            } else if (realMines.includes(i)) {
+                cells[i] = 'bomb'; 
+            }
+        }
+    } else {
+        // Fallback simulation
+        let minesPlaced = 0;
+        while(minesPlaced < minesCount) {
+            const idx = Math.floor(Math.random() * totalCells);
+            if(cells[idx] === 'safe-closed') {
+                cells[idx] = 'bomb';
+                minesPlaced++;
+            }
+        }
+        const safeIndices = cells.map((type, idx) => type === 'safe-closed' ? idx : -1).filter(i => i !== -1);
+        let toOpenCount = isWin ? Math.floor(Math.random() * 5) + 3 : Math.floor(Math.random() * 2) + 1;
+        toOpenCount = Math.min(toOpenCount, safeIndices.length);
+        for(let i=0; i<toOpenCount; i++) {
+            if(safeIndices.length === 0) break;
+            const randPick = Math.floor(Math.random() * safeIndices.length);
+            const cellIdx = safeIndices.splice(randPick, 1)[0];
+            cells[cellIdx] = 'safe-opened'; 
         }
     }
 
-    // Рисуем
     cells.forEach(type => {
         const div = document.createElement('div');
-        div.className = 'visual-cell mine-cell';
-        if (type === 'safe') {
-            div.classList.add('safe');
-            div.innerHTML = `<img src="assets/mines_fish.png" class="mine-cell-icon">`;
-        } else {
-            // В выигрышной истории мы обычно показываем, где были мины (серые/прозрачные), 
-            // либо если игрок проиграл - взрыв.
-            // Для красоты покажем просто иконки мин.
-            div.classList.add('revealed-mine'); 
-            div.innerHTML = `<img src="assets/mines_mine.png" class="mine-cell-icon" style="opacity:0.5">`;
-        }
+        div.className = `visual-cell mine-cell ${type}`;
+        const img = document.createElement('img');
+        img.className = 'mine-cell-icon';
+        if (type === 'bomb') img.src = 'assets/mines_mine.png';
+        else img.src = 'assets/mines_fish.png';
+        div.appendChild(img);
         container.appendChild(div);
     });
 }
 
-function generateKenoVisual(container, hits, totalPicks) {
+function generateKenoVisual(container, hits, totalPicks, realSelected, realDrawn) {
     container.className = 'visual-grid-container keno-visual';
     const totalCells = 40;
     
-    // 1. Выбираем случайные числа, которые выбрал игрок (totalPicks)
-    let playerPicks = new Set();
-    while(playerPicks.size < totalPicks) {
-        playerPicks.add(Math.floor(Math.random() * totalCells) + 1);
-    }
-    
-    // 2. Из них выбираем 'hits' выигрышных
-    let hitNumbers = new Set();
-    const picksArray = Array.from(playerPicks);
-    // Перемешиваем
-    for (let i = picksArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [picksArray[i], picksArray[j]] = [picksArray[j], picksArray[i]];
-    }
-    // Берем первые N как совпадения
-    for(let i=0; i<hits; i++) hitNumbers.add(picksArray[i]);
+    // Используем реальные данные если есть, иначе симуляция
+    let selectedSet = new Set();
+    let drawnSet = new Set();
 
-    // Рисуем 1..40
+    if (realSelected && realDrawn) {
+        selectedSet = new Set(realSelected);
+        drawnSet = new Set(realDrawn);
+    } else {
+        // Fallback Simulation
+        while(selectedSet.size < totalPicks) selectedSet.add(Math.floor(Math.random() * totalCells) + 1);
+        const picksArray = Array.from(selectedSet);
+        // Перемешиваем
+        for (let i = picksArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [picksArray[i], picksArray[j]] = [picksArray[j], picksArray[i]];
+        }
+        // Симулируем попадания
+        for(let i=0; i<hits; i++) drawnSet.add(picksArray[i]);
+        // Добиваем до 10 рандомными
+        while(drawnSet.size < 10) {
+            const r = Math.floor(Math.random() * totalCells) + 1;
+            if(!drawnSet.has(r)) drawnSet.add(r);
+        }
+    }
+
     for(let i=1; i<=totalCells; i++) {
         const div = document.createElement('div');
         div.className = 'visual-cell keno-cell';
         div.textContent = i;
         
-        if (playerPicks.has(i)) {
-            if (hitNumbers.has(i)) {
-                div.classList.add('hit'); // Зеленый (совпало)
-                div.innerHTML = `<img src="assets/keno_paw.png" class="keno-cell-icon">`;
+        // Логика отображения:
+        // 1. Выбрал и выпало = HIT (Зеленый)
+        // 2. Выбрал и НЕ выпало = MISS (Индиго/Синий)
+        // 3. Не выбрал, но выпало = DRAWN (Серый, опционально, но сделаем для полноты)
+        
+        if (selectedSet.has(i)) {
+            if (drawnSet.has(i)) {
+                div.classList.add('hit'); 
+                div.innerHTML = `<img src="assets/keno_paw.png" class="keno-cell-icon" style="width:80%; height:80%;">`;
             } else {
-                div.classList.add('miss'); // Желтый/Серый (мимо)
+                div.classList.add('miss');
             }
+        } else if (drawnSet.has(i)) {
+            div.classList.add('drawn-history'); // Новый класс для истории
         }
+        
         container.appendChild(div);
     }
+}
+
+function generateDiceVisual(container, data) {
+    container.className = 'visual-grid-container dice-visual-box';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '15px';
+    container.style.padding = '15px';
+    container.style.background = 'transparent'; 
+    container.style.boxShadow = 'none';
+
+    // Шкала
+    const progressBar = document.createElement('div');
+    progressBar.className = 'dice-visual-bar-container';
+    
+    const resultPercent = Math.min(100, Math.max(0, (parseInt(data.rolled) / 1000000) * 100));
+    const fillBar = document.createElement('div');
+    fillBar.className = 'dice-visual-bar-fill';
+    fillBar.style.width = `${resultPercent}%`;
+    
+    progressBar.appendChild(fillBar);
+    
+    // Сетка статистики
+    const statsGrid = document.createElement('div');
+    statsGrid.style.display = 'grid';
+    statsGrid.style.gridTemplateColumns = '1fr 1fr';
+    statsGrid.style.gap = '10px';
+    
+    const createStatItem = (label, value) => {
+        const div = document.createElement('div');
+        div.style.background = '#2E3035';
+        div.style.padding = '10px';
+        div.style.borderRadius = '8px';
+        div.style.textAlign = 'center';
+        div.innerHTML = `
+            <div style="font-size: 0.8em; color: #4F46E5; margin-bottom: 4px; font-weight: bold;">${label}</div>
+            <div style="font-size: 1.1em; color: #4F46E5; font-weight: bold;">${value}</div>
+        `;
+        return div;
+    };
+
+    statsGrid.appendChild(createStatItem("Выпало", data.rolled));
+    statsGrid.appendChild(createStatItem("Ставка", data.direction));
+    statsGrid.appendChild(createStatItem("Шанс", data.chance));
+    const winText = data.profit > 0 ? `+${data.profit.toFixed(2)}` : "0.00";
+    statsGrid.appendChild(createStatItem("Выигрыш", winText));
+
+    container.appendChild(progressBar);
+    container.appendChild(statsGrid);
 }
 
 

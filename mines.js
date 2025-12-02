@@ -6,8 +6,9 @@ import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, curr
 let isGameActive = false;
 let currentMines = 3;
 let currentBet = 10.00;
-let safeCells = []; 
+let safeCells = []; // true = MINE, false = SAFE
 let revealedCount = 0;
+let revealedIndices = []; // Хранит индексы, которые открыл игрок
 let mainButton;
 
 function getMultiplierForSafeCells(safeCount, totalMines) {
@@ -87,6 +88,7 @@ async function startGame() {
     
     isGameActive = true;
     revealedCount = 0;
+    revealedIndices = []; // Сброс истории ходов
     updateBalance(-currentBet);
     reduceWager(currentBet);
     
@@ -168,6 +170,16 @@ function showAllMines(didWin) {
     });
 }
 
+// Вспомогательная функция для генерации строки истории
+function serializeGameData() {
+    // Формат: "m:1,2,3;r:4,5" (m = mines indices, r = revealed indices)
+    const mines = [];
+    safeCells.forEach((isMine, idx) => {
+        if (isMine) mines.push(idx);
+    });
+    return `:::m:${mines.join(',')};r:${revealedIndices.join(',')}`;
+}
+
 function handleCellClick(e) {
     if (!isGameActive) return;
     const cell = e.currentTarget;
@@ -202,16 +214,28 @@ function handleCellClick(e) {
         document.getElementById('mines-status').textContent = `Проигрыш ${currentBet.toFixed(2)} RUB`;
         document.getElementById('mines-status').classList.add('loss');
         
-        // UPDATED: Store Mine Count in Result String
+        // Добавляем текущий индекс (взрыв) в revealed для истории, чтобы показать красный крест, если нужно
+        // Но визуально мы просто покажем все бомбы.
+        // Сохраняем историю
+        const gameDataStr = serializeGameData();
+        
         writeBetToHistory({
-            username: currentUser, game: 'mines', result: `(${currentMines} Mines) 0.00x`, betAmount: currentBet, amount: -currentBet, multiplier: '0.00x'
+            username: currentUser, 
+            game: 'mines', 
+            result: `(${currentMines} Mines) 0.00x${gameDataStr}`, 
+            betAmount: currentBet, 
+            amount: -currentBet, 
+            multiplier: '0.00x'
         });
         endGame(false);
     } else {
         cell.classList.remove('closed');
         cell.classList.add('safe');
         cell.innerHTML = `<img src="assets/mines_fish.png" alt="Fish" class="mine-cell-icon">`;
+        
         revealedCount++;
+        revealedIndices.push(index); // Запоминаем ход
+        
         if (revealedCount === MINES_GRID_SIZE - currentMines) cashoutGame(); 
         else updateMinesUI();
     }
@@ -225,9 +249,15 @@ async function cashoutGame() {
     
     updateBalance(totalWinnings); 
     
-    // UPDATED: Store Mine Count in Result String
+    const gameDataStr = serializeGameData();
+
     writeBetToHistory({
-        username: currentUser, game: 'mines', result: `(${currentMines} Mines) ${finalMultiplier.toFixed(2)}x`, betAmount: currentBet, amount: netProfit, multiplier: `${finalMultiplier.toFixed(2)}x`
+        username: currentUser, 
+        game: 'mines', 
+        result: `(${currentMines} Mines) ${finalMultiplier.toFixed(2)}x${gameDataStr}`, 
+        betAmount: currentBet, 
+        amount: netProfit, 
+        multiplier: `${finalMultiplier.toFixed(2)}x`
     });
     
     showAllMines(true); 
