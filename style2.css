@@ -1,29 +1,26 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 7.1 (FULL CARD CONFIG: Size, X, Y + Perfect Coming Soon)
+ * Version 7.4 (VISUAL FIXES: Ref Links Color)
  */
 
 :root {
     /* =========================================
        НАСТРОЙКИ КАРТОЧЕК (РАЗМЕР И ПОЗИЦИЯ)
-       Меняйте значения здесь, чтобы двигать котов
-       X - горизонт (положительное вправо, отрицательное влево)
-       Y - вертикаль (положительное вниз, отрицательное вверх)
        ========================================= */
 
     /* DICE */
-    --img-size-dice: 155px;
+    --img-size-dice: 100px;
     --img-x-dice: 0px;
     --img-y-dice: 0px;
 
     /* MINES */
-    --img-size-mines: 155px;
+    --img-size-mines: 100px;
     --img-x-mines: 0px;
     --img-y-mines: -5px;
 
     /* KENO */
-    --img-size-keno: 155px;
+    --img-size-keno: 120px;
     --img-x-keno: 0px;
     --img-y-keno: 0px;
 
@@ -298,7 +295,6 @@ body::before {
             19px, 23px, 20px, 17px, 22px,
             18px, 24px, 21px, 16px, 20px,
             23px, 19px, 22px, 17px, 24px,
-            15px, 15px, 15px, 15px, 15px,
             15px, 15px, 15px, 15px, 15px,
             15px, 15px, 15px, 15px, 15px !important;
     }
@@ -952,4 +948,48 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
 .keno-big-play-btn.stop-mode {
     background-color: var(--bg-input) !important;
     color: var(--text-muted) !important;
+}
+
+/* =========================================
+   18. UPDATES (TASK LIST FIXES)
+   ========================================= */
+
+/* 1 & 2. Wallet Labels (Deposit & Withdraw) -> Dark Blue */
+.wallet-form .form-group label {
+    color: var(--text-main) !important; /* #1E1B4B */
+    font-weight: 700 !important;
+}
+
+/* 3. Theme Toggle Button Text -> White */
+#theme-toggle-btn {
+    color: #FFFFFF !important;
+}
+
+/* 4. Profile Rank Text -> Indigo */
+#profile-rank {
+    color: var(--color-primary) !important; /* Indigo */
+    font-weight: 900 !important;
+}
+
+/* 5. FAQ Link Color -> Indigo (Make sure it stands out) */
+.faq-answer-content a {
+    color: var(--color-primary) !important;
+    text-decoration: underline !important;
+    font-weight: bold !important;
+}
+
+/* =========================================
+   19. UPDATES (LINKS & UNDERLINES)
+   ========================================= */
+
+/* 1. Referral Links -> Dark Blue (Using var(--text-main)) */
+.ref-subheader .ref-link,
+.ref-manager-link a {
+    color: var(--text-main) !important;
+    font-weight: 800 !important;
+}
+
+/* 2. Bonus Quest Links Underline -> Indigo (KEEP THIS) */
+.quest-text a {
+    text-decoration-color: var(--color-primary) !important;
 }
