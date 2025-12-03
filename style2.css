@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 6.5 (Fix Sleepy Card Animation)
+ * Version 6.6 (Notification Bell 2x & Position Fix)
  */
 
 :root {
@@ -1474,4 +1474,52 @@ input:focus, button:focus {
     background-color: #4F46E5 !important; /* Indigo for active */
     box-shadow: 0 0 15px rgba(79, 70, 229, 0.6) !important; /* Glow */
     transform: scale(1.05);
+}
+
+/* =========================================
+   16. NOTIFICATION BELL UPDATE (Right Corner & 2x Size)
+   ========================================= */
+
+/* Увеличиваем иконку в 2 раза (было 24px -> 48px) */
+.bell-icon {
+    width: 36px !important;
+    height: 36px !important;
+}
+
+/* Увеличиваем кнопку под иконку */
+.notif-btn {
+    width: 40px !important; /* Чуть больше иконки */
+    height: 40px !important;
+}
+
+/* Адаптируем бейдж (счетчик) под новый размер */
+.notif-badge {
+    top: 5px !important;
+    right: 5px !important;
+    font-size: 0.9em !important; /* Крупнее текст */
+    min-width: 20px !important;
+    height: 20px !important;
+    border-radius: 10px !important;
+}
+
+/* МОБИЛЬНАЯ ВЕРСИЯ: Жестко в правый угол */
+@media (max-width: 768px) {
+    /* Выносим из потока в правый верхний угол */
+    #header-notif-box {
+        position: absolute !important;
+        top: 25% !important;
+        right: 10px !important;
+        transform: translateY(-50%) !important;
+        z-index: 100 !important;
+    }
+
+    /* Добавляем отступ группе пользователя, чтобы баланс не налез на звонок */
+    .header-user-group {
+        padding-right: 70px !important; /* Место под большой звонок */
+    }
+    
+    /* Убираем лишние отступы у группы, если были */
+    .mobile-header {
+        overflow: visible !important; /* Чтобы абсолютный элемент не обрезался */
+    }
 }
