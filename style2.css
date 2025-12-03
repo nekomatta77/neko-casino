@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 6.6 (Notification Bell 2x & Position Fix)
+ * Version 6.8 (FULL ICE CARD & CORNER)
  */
 
 :root {
@@ -22,6 +22,12 @@
     --border-color-dark: #C7D2FE;
     
     --card-radius: 24px;
+    
+    /* НОВЫЕ ЦВЕТА ДЛЯ ЛЬДА */
+    --ice-white: #FFFFFF;
+    --ice-light: #A5F3FC;           /* Светло-голубой лед */
+    --ice-mid: #22D3EE;             /* Голубой */
+    --ice-deep: #0284C7;            /* Глубокий синий */
 }
 
 /* =========================================
@@ -383,7 +389,9 @@ body::before {
 }
 
 
-/* --- КАРТОЧКИ ИГР --- */
+/* --- КАРТОЧКИ ИГР (ICE EDITION) --- */
+/* Задача 1: Красивая обводка с текстурой льда */
+
 .game-cards-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -398,25 +406,75 @@ body::before {
     width: 100%;
 }
 
+@keyframes ice-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .lobby-game-card {
     width: 100% !important;
     height: 140px !important; 
     aspect-ratio: auto !important;
     border-radius: var(--card-radius) !important;
-    background: var(--bg-card) !important;
-    border: 2px solid var(--border-color) !important;
-    box-shadow: 0 4px 0 var(--border-color-dark) !important;
+    
+    /* УБИРАЕМ ОБЫЧНУЮ ГРАНИЦУ */
+    border: 3px solid transparent !important;
+    
+    /* --- ICE TEXTURE MAGIC --- */
+    /* 1. Внутренний фон (светлый для контента) */
+    /* 2. Градиент обводки (Лед: Белый -> Голубой -> Синий -> Голубой -> Белый) */
+    background-image: 
+        linear-gradient(var(--bg-card), var(--bg-card)), 
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    
+    background-origin: padding-box, border-box !important;
+    background-clip: padding-box, border-box !important;
+    background-size: 100% 100%, 200% 200% !important;
+    
+    /* Анимация переливания льда */
+    animation: ice-shimmer 4s ease infinite !important;
+    
+    /* Холодное голубое свечение */
+    box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25), inset 0 0 20px rgba(165, 243, 252, 0.1) !important;
+    
     position: relative;
     overflow: hidden;
-    transition: transform 0.1s ease !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
     margin-bottom: 0 !important;
-    background-image: none !important;
-    animation: none !important;
+}
+
+.lobby-game-card:hover {
+    transform: translateY(-3px) !important;
+    /* Усиленное свечение при наведении */
+    box-shadow: 0 8px 25px rgba(34, 211, 238, 0.4) !important;
 }
 
 .lobby-game-card:active {
-    transform: translateY(4px) !important;
+    transform: translateY(2px) !important;
     box-shadow: none !important;
+}
+
+/* --- ИЗМЕНЕНО: ЛЕДЯНОЙ УГОЛОК (Вместо Золотого) --- */
+.lobby-game-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    
+    /* ИСПОЛЬЗУЕМ ТОТ ЖЕ ЛЕДЯНОЙ ГРАДИЕНТ */
+    background: linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    background-size: 200% 200% !important;
+    animation: ice-shimmer 4s ease infinite !important; /* Синхронная анимация */
+    
+    border-top-right-radius: 20px; /* Скругление под карточку */
+    z-index: 10;
+    
+    /* Обрезаем квадрат в треугольник */
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    box-shadow: none !important; /* Тень не нужна, она внутри clip-path обрежется */
 }
 
 /* Картинка кота */
@@ -429,6 +487,7 @@ body::before {
     left: 50%;
     transform: translate(-50%, -50%) !important;
     z-index: 1;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
 }
 
 /* SLEEPY CAT FIX */
@@ -449,7 +508,8 @@ body::before {
     bottom: 8px;
     left: 8px;
     right: 8px;
-    background-color: rgba(255, 255, 255, 0.9) !important;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(4px);
     border: 1px solid var(--border-color) !important;
     border-radius: 12px !important;
     padding: 4px !important;
@@ -471,10 +531,18 @@ body::before {
     filter: grayscale(0.8) !important;
 }
 .lobby-game-wrapper.locked-game .lobby-game-card {
-    background: #E0E7FF !important;
-    border-color: #C7D2FE !important;
+    background: #E0E7FF !important; /* Серый фон */
+    border: 2px solid #C7D2FE !important; /* Обычная граница для закрытых */
+    animation: none !important; /* Без анимации */
+    box-shadow: none !important;
     cursor: not-allowed;
 }
+/* У заблокированных убираем ледяной уголок, или делаем его серым */
+.lobby-game-wrapper.locked-game .lobby-game-card::after {
+    background: #C7D2FE !important;
+    animation: none !important;
+}
+
 .lobby-game-wrapper.locked-game .lobby-game-card::before {
     content: '🔒';
     font-size: 2.5em;
