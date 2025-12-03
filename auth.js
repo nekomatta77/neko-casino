@@ -315,6 +315,16 @@ export function initAuth() {
         bottomNavProfileButtonText.addEventListener('click', showWalletModal); 
     }
 
+    // --- НОВОЕ: Обработчик для кнопки быстрого кошелька ---
+    const quickWalletBtn = document.getElementById('header-quick-wallet-btn');
+    if (quickWalletBtn) {
+        quickWalletBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Чтобы клик не открывал профиль (если есть вложенность)
+            showWalletModal();
+        });
+    }
+    // --- КОНЕЦ НОВОГО ---
+
     const walletOverlay = document.getElementById('wallet-modal-overlay');
     const walletCloseButton = document.getElementById('wallet-modal-close');
     

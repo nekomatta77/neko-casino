@@ -6,7 +6,7 @@
     <title>CashCat</title>
     
     <link rel="stylesheet" href="style.css?v=2.2">
-    <link rel="stylesheet" href="style2.css?v=5.6"> </head>
+    <link rel="stylesheet" href="style2.css?v=6.7"> </head>
 <body>
 
     <div id="falling-snow-container"></div>
@@ -29,10 +29,16 @@
                 
                 <div class="profile-balance-box mobile-balance-adjustment hidden" id="header-profile-box">
                     <img src="assets/avatars/orange_cat_ava.png" alt="Avatar" class="header-avatar-img" id="mobile-header-avatar">
+                    
                     <div class="profile-text-content" id="mobile-profile-text-content">
                         <span class="profile-name" id="mobile-profile-name">...</span>
                         <span class="balance" id="mobile-profile-balance">0.00 RUB</span>
                     </div>
+
+                    <button class="header-wallet-btn" id="header-quick-wallet-btn">
+                        <img src="assets/card.png" alt="Wallet">
+                        <span class="wallet-btn-plus">+</span>
+                    </button>
                 </div>
 
                 <div class="notification-wrapper hidden" id="header-notif-box">
@@ -259,7 +265,9 @@
                             </button>
                         </div>
 
-                        <div class="keno-bet-input-header">Ставка</div>
+                        <div class="keno-label-wrapper">
+                            <label class="keno-bet-input-header">Ставка</label>
+                        </div>
                         <div class="keno-bet-input-row">
                             <div class="keno-input-wrapper">
                                 <span class="currency-icon">₽</span>
@@ -463,7 +471,9 @@
                                 </button>
                             </div>
 
-                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-label-wrapper">
+                                <label class="keno-bet-input-header">Сумма ставки</label>
+                            </div>
                             <div class="keno-bet-input-row">
                                 <div class="keno-input-wrapper">
                                     <span class="currency-icon">₽</span>
@@ -487,7 +497,9 @@
                                 ЗАПУСТИТЬ АВТО
                             </button>
 
-                            <div class="keno-bet-input-header">Ставка</div>
+                            <div class="keno-label-wrapper">
+                                <label class="keno-bet-input-header">Сумма ставки</label>
+                            </div>
                             <div class="keno-bet-input-row">
                                 <div class="keno-input-wrapper">
                                     <span class="currency-icon">₽</span>

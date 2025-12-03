@@ -1523,3 +1523,57 @@ input:focus, button:focus {
         overflow: visible !important; /* Чтобы абсолютный элемент не обрезался */
     }
 }
+/* =========================================
+   17. HEADER WALLET BUTTON
+   ========================================= */
+
+/* Кнопка кошелька внутри карточки */
+.header-wallet-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    background-color: rgba(255, 255, 255, 0.15); /* Полупрозрачный фон */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto; /* Прижимаем к правому краю внутри flex-контейнера */
+}
+
+.header-wallet-btn:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.header-wallet-btn:active {
+    transform: translateY(1px);
+}
+
+/* Иконка кошелька */
+.header-wallet-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Делаем иконку белой */
+}
+
+/* Плюсик */
+.wallet-btn-plus {
+    color: #FFFFFF;
+    font-weight: 900;
+    font-size: 1.2em;
+    line-height: 1;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .header-wallet-btn {
+        padding: 8px 12px; /* Чуть больше область нажатия */
+    }
+    .header-wallet-btn img {
+        width: 22px;
+        height: 22px;
+    }
+}
