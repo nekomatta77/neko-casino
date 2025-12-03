@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 5.8 (Updated: Dice Visual Bar)
+ * Version 6.5 (Fix Sleepy Card Animation)
  */
 
 :root {
@@ -436,6 +436,11 @@ body::before {
     transform: translate(-50%, -50%) !important; 
     height: 100px !important; 
     top: 45% !important; 
+}
+
+/* FIX: Анимация при наведении для Sleepy теперь плавная */
+.lobby-game-wrapper[data-game-type="sleepy"]:hover .game-card-cat {
+    transform: translate(-50%, -50%) scale(1.1) !important;
 }
 
 /* Название игры */
@@ -1201,7 +1206,20 @@ input:focus, button:focus {
 .mines-visual {
     grid-template-columns: repeat(5, 1fr);
     gap: 5px;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1; /* Клетки квадратные */
+    /* ФИКС БАГА: */
+    overflow: hidden; /* Обрезаем всё что торчит */
+    position: relative; /* Для позиционирования */
+}
+
+/* ФИКС БАГА: Принудительно ограничиваем картинку */
+.visual-cell.mine-cell img.mine-cell-icon {
+    width: 80% !important; 
+    height: 80% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    position: static !important; /* Сбрасываем позиционирование */
 }
 
 .visual-cell.mine-cell {
@@ -1247,7 +1265,18 @@ input:focus, button:focus {
     font-weight: bold;
     font-size: 0.8em;
     color: rgba(255,255,255,0.5);
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1 / 1; /* Квадрат */
+    /* ФИКС БАГА ДЛЯ КЕНО */
+    overflow: hidden; 
+    position: relative;
+}
+
+/* ФИКС БАГА: Ограничиваем лапку */
+.visual-cell.keno-cell img.keno-cell-icon {
+    width: 80% !important; 
+    height: 80% !important;
+    object-fit: contain !important;
+    position: static !important;
 }
 
 /* 1. Выбранные но не угаданные (Синие) */
@@ -1331,4 +1360,118 @@ input:focus, button:focus {
 
 #vh-extra-value {
     line-height: 1.4;
+}
+
+/* =========================================
+   15. KENO VISUAL UPDATE (TASK 1-6)
+   ========================================= */
+
+/* Task 1: Dark Grid (Like Modal) */
+#keno-grid .keno-cell {
+    background-color: #2E3035 !important; /* Dark background */
+    border: 1px solid #373D49 !important; /* Subtle border */
+    color: rgba(255, 255, 255, 0.6) !important; /* Dimmed numbers */
+    border-radius: 8px !important; /* Rounded corners */
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3) !important; /* Depth */
+}
+#keno-grid .keno-cell:hover {
+    background-color: #3D4654 !important;
+    transform: translateY(-1px);
+}
+/* Selected/Hit states need to stay visible */
+#keno-grid .keno-cell.selected {
+    /* ЗАДАЧА 1.1: Желтые клетки теперь Индиго */
+    background-color: var(--color-primary) !important; 
+    color: #fff !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 10px var(--color-primary) !important;
+    opacity: 1 !important;
+}
+#keno-grid .keno-cell.hit {
+    background-color: var(--color-secondary) !important; /* Green */
+    border-color: var(--color-secondary) !important;
+    color: #fff !important;
+}
+
+/* Task 2: Random Cells Text - Dark Blue */
+#keno-autopick-button {
+    color: #1E1B4B !important; /* Dark Blue */
+    border-color: #1E1B4B !important; /* Optional: border to match */
+}
+#keno-autopick-button:hover {
+    background-color: rgba(30, 27, 75, 0.05) !important;
+}
+
+/* Task 3 & 1.2: Play Button & Auto Start - Indigo */
+#keno-play-button,
+#keno-auto-start-button { /* ЗАДАЧА 1.2: Кнопка Авто тоже Индиго */
+    background: #4F46E5 !important; /* Indigo */
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 0 #3730A3 !important; /* Darker Indigo Shadow */
+}
+#keno-play-button:active,
+#keno-auto-start-button:active {
+    box-shadow: 0 2px 0 #3730A3 !important;
+    transform: translateY(2px);
+}
+
+/* Task 4: Bet Input - White */
+#keno-game .keno-bet-input-row .keno-input-wrapper {
+    background-color: #FFFFFF !important;
+    border: 2px solid #E0E7FF !important;
+}
+#keno-game .keno-bet-input-row .keno-input-wrapper input {
+    color: #1E1B4B !important; /* Dark text */
+}
+#keno-game .keno-bet-input-row .keno-input-wrapper .currency-icon {
+    color: #1E1B4B !important;
+    opacity: 0.5;
+}
+
+/* Task 5: Aux Buttons (Clear, Turbo, x2, 1/2) - Dark Blue */
+#keno-clear-button,
+#keno-turbo-button,
+#keno-game .bet-half,
+#keno-game .bet-double {
+    background-color: #1E1B4B !important; /* Dark Blue */
+    color: #FFFFFF !important;
+    border: 1px solid #1E1B4B !important;
+}
+/* Turbo icon brightness fix since bg is dark */
+#keno-turbo-button img, #keno-clear-button img {
+    filter: brightness(0) invert(1) !important; /* Make icons white */
+    opacity: 0.8;
+}
+
+/* FIX (Task 6.2): Restore original color (Yellow) when active */
+#keno-turbo-button.active img {
+    filter: none !important; /* Remove white filter */
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 5px var(--color-orange)) !important; /* Optional glow */
+}
+
+#keno-game .bet-half:hover,
+#keno-game .bet-double:hover,
+#keno-clear-button:hover,
+#keno-turbo-button:hover {
+    background-color: #312E81 !important; /* Slightly lighter dark blue */
+}
+
+/* Task 6: Risk Buttons - Dark Blue & Active State */
+.keno-risk-selector {
+    background-color: transparent !important; /* Remove container bg */
+    gap: 8px !important;
+}
+.keno-risk-btn {
+    background-color: #1E1B4B !important; /* Dark Blue */
+    color: #FFFFFF !important;
+    opacity: 0.6 !important; /* Dimmed when not active */
+    border-radius: 8px !important;
+    border: none !important;
+}
+.keno-risk-btn.active {
+    opacity: 1 !important;
+    background-color: #4F46E5 !important; /* Indigo for active */
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.6) !important; /* Glow */
+    transform: scale(1.05);
 }
