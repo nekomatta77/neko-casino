@@ -1,0 +1,32 @@
+<section id="coin-game" class="page-section hidden">
+    <div class="coin-game-container">
+        <div class="coin-multipliers-bar"></div>
+        <div class="coin-display-wrapper">
+            <div id="coin-flipper" class="coin-flipper">
+                <div class="coin-front"><img src="assets/coin_eagle.png" alt="Орел"></div>
+                <div class="coin-back"><img src="assets/coin_noteagle.png" alt="Решка"></div>
+            </div>
+        </div>
+        <div id="coin-status" class="keno-status-bar"></div>
+        <div class="keno-controls-ref-style">
+            <div class="keno-play-row">
+                <button id="coin-start-button" class="keno-big-play-btn full-width">НАЧАТЬ ИГРУ</button>
+                <div id="coin-choice-buttons" class="coin-choice-wrapper hidden">
+                    <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-orel" data-choice="orel"><img src="assets/coin_eagle.png" alt="Орел"></button>
+                    <button class="keno-turbo-btn coin-choice-btn" id="coin-choice-reshka" data-choice="reshka"><img src="assets/coin_noteagle.png" alt="Решка"></button>
+                </div>
+                <button id="coin-cashout-button" class="keno-big-play-btn full-width hidden" style="background: linear-gradient(90deg, #00A878, #00D699); box-shadow: 0 3px 0 #007550;">ЗАБРАТЬ</button>
+            </div>
+            <div class="keno-bet-input-header">Ставка</div>
+            <div class="keno-bet-input-row">
+                <div class="keno-input-wrapper"><span class="currency-icon">₽</span><input type="number" id="coin-bet" value="10.00" min="1" step="0.01"></div>
+                <button class="bet-half ref-style">1/2</button>
+                <button class="bet-double ref-style">2x</button>
+            </div>
+        </div>
+        <div class="per-game-history-container">
+            <h3>История игр</h3>
+            <ul id="coin-history-list" class="per-game-history-list"></ul>
+        </div>
+    </div>
+</section>

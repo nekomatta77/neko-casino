@@ -1,0 +1,77 @@
+<div class="user-modal-overlay hidden" id="wallet-modal-overlay">
+    <div class="user-modal-content wallet-modal-content">
+        <div class="wallet-header"><h3>Кошелёк</h3><button class="wallet-modal-close" id="wallet-modal-close">&times;</button></div>
+        <div class="wallet-tabs"><button class="wallet-tab active" data-target="wallet-deposit-content">Пополнение</button><button class="wallet-tab" data-target="wallet-withdrawal-content">Вывод</button></div>
+        <div class="wallet-tab-content active" id="wallet-deposit-content">
+            <div class="wallet-methods"><button class="wallet-method-button active"><img src="assets/fkwallet.png"></button><button class="wallet-method-button"><img src="assets/piastrix.png"></button><button class="wallet-method-button"><img src="assets/sbp.png"></button></div>
+            <div class="wallet-form"><div class="form-group"><label>Сумма</label><input type="number" id="deposit-amount"></div><div class="form-group"><label>Промокод</label><input type="text" id="deposit-promo"></div></div>
+            <button id="wallet-deposit-button" class="auth-button green-button full-width">Перейти к оплате</button>
+        </div>
+        <div class="wallet-tab-content" id="wallet-withdrawal-content">
+            <div class="wallet-methods"><button class="wallet-method-button active"><img src="assets/fkwallet.png"></button></div>
+            <div class="wallet-form"><div class="form-group"><label>Реквизиты</label><input type="text" id="withdrawal-requisites"></div><div class="form-group"><label>Сумма</label><input type="number" id="withdrawal-amount"></div></div>
+            <div id="wallet-wager-status" class="wallet-wager-status hidden"></div>
+            <button id="wallet-withdrawal-button" class="auth-button blue-button full-width">Вывести</button>
+        </div>
+        <div class="wallet-history-container" id="deposit-history-container"><h4>История пополнений</h4><ul id="deposit-history-list" class="per-game-history-list"></ul></div>
+        <div class="wallet-history-container hidden" id="withdrawal-history-container"><h4>История выводов</h4><ul id="withdrawal-history-list" class="per-game-history-list"></ul></div>
+    </div>
+</div>
+
+<div class="user-modal-overlay hidden" id="auth-modal-overlay">
+    <div class="user-modal-content wallet-modal-content">
+        <div class="wallet-header"><h3 id="auth-modal-title">Вход</h3><button class="wallet-modal-close" id="auth-modal-close">&times;</button></div>
+        <div class="wallet-tabs"><button class="wallet-tab active" id="tab-btn-login">Вход</button><button class="wallet-tab" id="tab-btn-register">Регистрация</button></div>
+        <div class="wallet-tab-content active" id="auth-tab-login"><form class="wallet-form" id="modal-login-form"><div class="form-group"><label>Никнейм</label><input type="text" id="modal-login-username" required></div><div class="form-group"><label>Пароль</label><input type="password" id="modal-login-password" required></div><button type="submit" class="auth-button green-button full-width">Войти</button></form></div>
+        <div class="wallet-tab-content" id="auth-tab-register"><form class="wallet-form" id="modal-register-form"><div class="form-group"><label>Никнейм</label><input type="text" id="modal-reg-username" required></div><div class="form-group"><label>Пароль</label><input type="password" id="modal-reg-password" required></div><div class="form-group"><label>Повторите пароль</label><input type="password" id="modal-reg-confirm" required></div><button type="submit" class="auth-button blue-button full-width">Создать аккаунт</button></form></div>
+    </div>
+</div>
+
+<div class="user-modal-overlay hidden" id="hash-modal-overlay">
+    <div class="user-modal-content hash-modal-content">
+        <div class="wallet-header"><h3>Проверка игры <span id="hash-modal-game-id">#...</span></h3><button class="wallet-modal-close" id="hash-modal-close">&times;</button></div>
+        <div class="hash-details-list">
+            <div class="hash-detail-item"><label>Скопировать</label><div class="hash-value-box"><span id="hash-modal-combined">...</span></div></div>
+            <div class="hash-detail-item"><label>Hash</label><div class="hash-value-box"><span id="hash-modal-hash">...</span></div></div>
+            <div class="hash-detail-item"><label>Number</label><div class="hash-value-box"><span id="hash-modal-number">...</span></div></div>
+            <div class="hash-detail-item"><label>Salt1</label><div class="hash-value-box"><span id="hash-modal-salt1">...</span></div></div>
+            <div class="hash-detail-item"><label>Salt2</label><div class="hash-value-box"><span id="hash-modal-salt2">...</span></div></div>
+        </div>
+        <hr class="hash-divider">
+        <div class="hash-game-details"><div class="hash-game-item"><label>Ставка</label><span id="hash-modal-bet">...</span></div><div class="hash-game-item"><label>Результат</label><span id="hash-modal-result">...</span></div></div>
+        <div class="hash-verify-area"><button id="hash-verify-button" class="auth-button green-button full-width">Верифицировать</button><div id="hash-verify-status"></div></div>
+    </div>
+</div>
+
+<div class="user-modal-overlay hidden" id="visual-history-modal-overlay">
+    <div class="user-modal-content wallet-modal-content visual-history-content">
+        <div class="wallet-header"><h3>Детали игры</h3><button class="wallet-modal-close" id="visual-history-close">&times;</button></div>
+        <div id="visual-history-grid-container" class="visual-grid-container"></div>
+        <div class="visual-history-footer">
+            <div class="vh-row"><span>Игрок:</span><strong id="vh-username">...</strong></div>
+            <div class="vh-row"><span>Ставка:</span><strong id="vh-bet">...</strong></div>
+            <div class="vh-row"><span id="vh-extra-label">Инфо:</span><strong id="vh-extra-value">...</strong></div>
+            <div class="vh-row result-row"><span>Выигрыш:</span><strong id="vh-profit" class="win-text">...</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="user-modal-overlay hidden" id="customize-modal-overlay">
+    <div class="user-modal-content customize-modal-content">
+        <div class="wallet-header"><h3>Кастомизация</h3><button class="wallet-modal-close" id="customize-modal-close">&times;</button></div>
+        <div class="customize-section"><h4 class="customize-section-title">Аватары</h4><div class="customize-avatar-grid"><img src="assets/custom/orange_cat_custom.png" class="customize-avatar-choice" data-avatar-src="assets/avatars/orange_cat_ava.png" data-custom-src="assets/custom/orange_cat_custom.png"><img src="assets/custom/black_cat_custom.png" class="customize-avatar-choice" data-avatar-src="assets/avatars/black_cat_ava.png" data-custom-src="assets/custom/black_cat_custom.png"><img src="assets/custom/grey_cat_custom.png" class="customize-avatar-choice" data-avatar-src="assets/avatars/grey_cat_ava.png" data-custom-src="assets/custom/grey_cat_custom.png"></div></div>
+        <div class="customize-section"><h4 class="customize-section-title">Обводка</h4><div class="customize-color-grid"><button class="customize-color-choice" data-type="border" data-value="none"><span class="no-style-icon">🚫</span></button><button class="customize-color-choice" data-type="border" data-value="var(--color-orange)" style="background-color: var(--color-orange);"></button><button class="customize-color-choice" data-type="border" data-value="var(--color-secondary)" style="background-color: var(--color-secondary);"></button><button class="customize-color-choice" data-type="border" data-value="var(--color-blue)" style="background-color: var(--color-blue);"></button></div></div>
+        <div class="customize-section"><h4 class="customize-section-title">Фон</h4><div class="customize-color-grid"><button class="customize-color-choice" data-type="background" data-value="none"><span class="no-style-icon">🚫</span></button><button class="customize-color-choice" data-type="background" data-value="#F5A623" style="background-color: var(--color-orange);"></button><button class="customize-color-choice" data-type="background" data-value="#00A878" style="background-color: var(--color-secondary);"></button><button class="customize-color-choice" data-type="background" data-value="#4A90E2" style="background-color: var(--color-blue);"></button></div></div>
+    </div>
+</div>
+
+<div class="user-modal-overlay hidden" id="admin-stats-modal-overlay">
+    <div class="user-modal-content admin-stats-modal-content">
+        <div class="wallet-header"><h3>Статистика: <span id="admin-stats-username">...</span></h3><button class="wallet-modal-close" id="admin-stats-modal-close">&times;</button></div>
+        <div class="admin-stats-body">
+            <div class="profile-box"><span>Сумма депозитов:</span><span id="admin-stats-deposits">0.00 RUB</span></div>
+            <div class="profile-box"><span>Сумма выводов:</span><span id="admin-stats-withdrawals">0.00 RUB</span></div>
+            <div class="profile-box" id="admin-stats-profit-box"><span>Доход сайта:</span><span id="admin-stats-profit">0.00 RUB</span></div>
+        </div>
+    </div>
+</div>

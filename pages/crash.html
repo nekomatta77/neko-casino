@@ -1,0 +1,34 @@
+<section id="crash-game" class="page-section hidden">
+    <div class="crash-game-container">
+        <div class="crash-graph-wrapper">
+            <div id="crash-multiplier-display">1.00x</div>
+            <canvas id="crash-canvas"></canvas>
+        </div>
+        <div id="crash-status" class="keno-status-bar"></div>
+        <div class="keno-controls-ref-style">
+            <div class="crash-auto-row-styled">
+                <div class="crash-auto-label-group">
+                    <span class="crash-label-title">Авто-вывод</span>
+                    <label class="switch-toggle"><input type="checkbox" id="crash-auto-cashout-toggle"><span class="slider round"></span></label>
+                </div>
+                <div class="keno-input-wrapper crash-auto-input-box">
+                    <span class="currency-icon">x</span>
+                    <input type="number" id="crash-auto-cashout-input" value="2.00" min="1.01" step="0.01" disabled>
+                </div>
+            </div>
+            <div class="keno-play-row">
+                <button id="crash-main-button" class="keno-big-play-btn full-width">НАЧАТЬ ИГРУ</button>
+            </div>
+            <div class="keno-bet-input-header">Ставка</div>
+            <div class="keno-bet-input-row">
+                <div class="keno-input-wrapper"><span class="currency-icon">₽</span><input type="number" id="crash-bet" value="10.00" min="1" step="0.01"></div>
+                <button class="bet-half ref-style">1/2</button>
+                <button class="bet-double ref-style">2x</button>
+            </div>
+        </div>
+        <div class="per-game-history-container">
+            <h3>История игр</h3>
+            <ul id="crash-history-list" class="per-game-history-list"></ul>
+        </div>
+    </div>
+</section>

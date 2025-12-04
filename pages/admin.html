@@ -1,0 +1,37 @@
+<section id="admin-page" class="page-section hidden">
+    <h2 class="game-list-title">Админ-панель</h2>
+    <div class="admin-container">
+        <nav class="ref-tabs" id="admin-tabs">
+            <button class="ref-tab active" data-target="admin-tab-users">Список пользователей</button>
+            <button class="ref-tab" data-target="admin-tab-promocodes">Промокоды</button>
+            <button class="ref-tab" data-target="admin-tab-settings">Общие настройки</button>
+        </nav>
+        <div class="ref-tab-content active" id="admin-tab-users">
+            <div class="form-group"><label for="admin-user-search">Поиск по нику</label><input type="text" id="admin-user-search" placeholder="Введите ник..."></div>
+            <div class="ref-table-wrapper">
+                <table class="ref-table admin-user-table">
+                    <thead><tr><th>Ник</th><th>Пароль</th><th>Баланс</th><th>Ранг</th><th>Действия</th></tr></thead>
+                    <tbody id="admin-user-list-body"><tr><td colspan="5" class="ref-list-placeholder">Загрузка...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="ref-tab-content" id="admin-tab-promocodes">
+            <form class="ref-form" id="admin-promo-form">
+                <h3 class="ref-list-header">Создать новый промокод</h3>
+                <div class="form-group"><label>Название (TEST100)</label><input type="text" id="admin-promo-name" required></div>
+                <div class="form-group"><label>Сумма (100.00)</label><input type="number" id="admin-promo-amount" step="0.01" required></div>
+                <div class="form-group"><label>Кол-во активаций (50)</label><input type="number" id="admin-promo-activations" step="1" required></div>
+                <div class="form-group"><label>Вейджер (x10, x30)</label><input type="number" id="admin-promo-wager" step="1" min="1"></div>
+                <button id="admin-promo-create-btn" type="submit" class="auth-button green-button full-width">Создать</button>
+                <div id="admin-promo-status" class="profile-status"></div>
+            </form>
+        </div>
+        <div class="ref-tab-content" id="admin-tab-settings">
+            <h3 class="ref-list-header">Управление данными</h3>
+            <div class="admin-settings-actions">
+                <button id="admin-clear-history-btn" class="auth-button danger-button full-width">Очистить всю историю игр</button>
+                <div id="admin-clear-history-status" class="profile-status"></div>
+            </div>
+        </div>
+    </div>
+</section>

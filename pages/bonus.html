@@ -1,0 +1,67 @@
+<section id="bonus-page" class="page-section hidden">
+    <div class="dice-game-container"> 
+        <div class="dice-result-log bonus-display-box">
+            <img src="assets/gift_cat.png" alt="Бонусный котик" class="bonus-icon">
+            <span id="bonus-amount-display">До 100 <span class="currency">RUB</span></span>
+            <p id="bonus-page-text">Ваш ежедневный бонус!</p>
+            <div class="mines-action-buttons" style="width: 100%; margin-top: 15px;"> 
+                <button id="claim-bonus-button" class="primary-button full-width">Получить</button>
+            </div>
+            <div id="bonus-status" class="dice-status-bar"></div>
+        </div>
+        <div class="dice-controls bonus-controls-box promocode-box">
+            <h3 class="promocode-header">Промокод</h3>
+            <div class="form-group"><input type="text" id="promo-input" placeholder="Введите промокод"></div>
+            <div class="mines-action-buttons"> 
+                <button id="claim-promo-button" class="primary-button full-width green-button">Активировать</button>
+            </div>
+            <div id="promo-status" class="dice-status-bar"></div>
+        </div>
+        <div class="dice-controls bonus-controls-box weekly-bonus-box">
+            <h3 class="promocode-header">Недельные бонусы</h3>
+            <div class="weekly-bonus-item">
+                <div class="weekly-bonus-info"><span class="weekly-bonus-title">Кешбек</span><span class="weekly-bonus-value" id="cashback-amount">0.00 RUB</span></div>
+                <button id="claim-cashback-button" class="auth-button" disabled>Доступно в ПН</button>
+            </div>
+            <div class="weekly-bonus-item">
+                <div class="weekly-bonus-info"><span class="weekly-bonus-title">Рейкбек</span><span class="weekly-bonus-value" id="rakeback-amount">0.00 RUB</span></div>
+                <button id="claim-rakeback-button" class="auth-button" disabled>Доступно во ВТ</button>
+            </div>
+            <div id="weekly-bonus-status" class="profile-status"></div> 
+        </div>
+        <div class="quest-box">
+            <div class="quest-header">
+                <img src="assets/vk.png" alt="VK" class="quest-icon">
+                <div class="quest-title-group"><span class="quest-title">Котенок Вконтакте</span><span class="quest-subtitle">Выполни квесты и получи бонусы</span></div>
+                <button class="quest-button quest-claim-button" id="quest-vk">Получить бонус</button>
+            </div>
+            <ul class="quest-list">
+                <li class="quest-item">
+                    <div class="quest-info"><span class="quest-status-icon status-pending">○</span><span class="quest-text">Подпишись на <a href="https://vk.com" target="_blank" rel="noopener noreferrer">Группу ВК</a></span></div>
+                    <span class="quest-reward">2Р</span>
+                </li>
+                <li class="quest-item">
+                    <div class="quest-info"><span class="quest-status-icon status-pending">○</span><span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-vk">Вконтакте</a></span></div>
+                    <span class="quest-reward">1Р</span>
+                </li>
+            </ul>
+        </div>
+        <div class="quest-box">
+             <div class="quest-header">
+                <img src="assets/tg.png" alt="TG" class="quest-icon">
+                <div class="quest-title-group"><span class="quest-title">Котенок в Telegram</span><span class="quest-subtitle">Выполни квесты и получи бонусы</span></div>
+                <button class="quest-button quest-claim-button" id="quest-tg">Получить бонус</button>
+            </div>
+            <ul class="quest-list">
+                <li class="quest-item">
+                    <div class="quest-info"><span class="quest-status-icon status-pending">○</span><span class="quest-text">Подпишись на <a href="https://t.me/CashCat_Official" target="_blank" rel="noopener noreferrer">Telegram канал</a></span></div>
+                    <span class="quest-reward">2Р</span>
+                </li>
+                <li class="quest-item">
+                    <div class="quest-info"><span class="quest-status-icon status-pending">○</span><span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-tg">Telegram</a></span></div>
+                    <span class="quest-reward">1Р</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
