@@ -10,17 +10,17 @@
        ========================================= */
 
     /* DICE */
-    --img-size-dice: 100px;
+    --img-size-dice: 85px;
     --img-x-dice: 0px;
     --img-y-dice: 0px;
 
     /* MINES */
-    --img-size-mines: 100px;
+    --img-size-mines: 85px;
     --img-x-mines: 0px;
     --img-y-mines: -5px;
 
     /* KENO */
-    --img-size-keno: 125px;
+    --img-size-keno: 105px;
     --img-x-keno: 0px;
     --img-y-keno: 0px;
 
