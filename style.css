@@ -4546,12 +4546,6 @@ body.logged-out .guest-header-actions {
     text-align: center;
 }
 
-/* ИСПРАВЛЕНИЕ: Убираем pointer-events: none; отсюда */
-.mini-games-nav-item .nav-game-icon {
-    /* pointer-events: none; */
-}
-
-
 /* Адаптация скролла для мобильных */
 @media (max-width: 768px) {
     .mini-games-nav-container {
@@ -7038,12 +7032,6 @@ input:checked + .slider:before {
     -webkit-tap-highlight-color: transparent;
     text-align: center;
 }
-
-/* ИСПРАВЛЕНИЕ: Убираем pointer-events: none; отсюда */
-.mini-games-nav-item .nav-game-icon {
-    /* pointer-events: none; */
-}
-
 
 /* Адаптация скролла для мобильных */
 @media (max-width: 768px) {

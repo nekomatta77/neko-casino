@@ -1,6 +1,6 @@
 /*
  * main.js
- * Version 3.0 - Dynamic Component Loader
+ * Default theme is now Light
  */
 
 import { showSection, currentUser, fetchUser } from './global.js'; 
@@ -17,36 +17,23 @@ import { initCustomize } from './customize.js';
 import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
 import { initSleepy } from './sleepy.js';
-import { initWheel } from './wheel.js';
+import { initWheel } from './wheel.js'; // NEW IMPORT
 
-/* --- СПИСОК КОМПОНЕНТОВ ДЛЯ ЗАГРУЗКИ --- */
-const PAGES = [
-    { file: 'pages/lobby.html' },
-    { file: 'pages/dice.html' },
-    { file: 'pages/mines.html' },
-    { file: 'pages/crash.html' },
-    { file: 'pages/coin.html' },
-    { file: 'pages/keno.html' },
-    { file: 'pages/sleepy.html' },
-    { file: 'pages/wheel.html' },
-    { file: 'pages/bonus.html' },
-    { file: 'pages/slots.html' },
-    { file: 'pages/faq.html' },
-    { file: 'pages/ref.html' },
-    { file: 'pages/profile.html' },
-    { file: 'pages/ranks.html' },
-    { file: 'pages/contacts.html' },
-    { file: 'pages/admin.html' }
-];
-
-const MODALS_FILE = 'pages/modals.html';
-
+/**
+ * Вспомогательная функция для применения темы до полной загрузки JS.
+ * Default: Light Mode (style4 disabled).
+ */
 function applySavedTheme() {
-    const currentTheme = localStorage.getItem('cashcat_theme');
-    if (currentTheme === 'dark') {
-        document.body.classList.add('dark-theme');
-    } else {
-        document.body.classList.remove('dark-theme');
+    const themeStyle = document.getElementById('theme-style');
+    const currentTheme = localStorage.getItem('cashcat_theme'); // Может быть null
+    
+    if (themeStyle) {
+        if (currentTheme === 'dark') {
+            themeStyle.disabled = false; // Включаем темный
+        } else {
+            // Если 'light' или null (первый вход) -> отключаем темный (Light default)
+            themeStyle.disabled = true; 
+        }
     }
 }
 
@@ -90,41 +77,14 @@ async function updateRanksDisplay() {
     });
 }
 
-/**
- * Загружает HTML фрагмент и вставляет в DOM
- */
-async function loadHtml(url, targetElement) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const html = await response.text();
-        targetElement.insertAdjacentHTML('beforeend', html);
-    } catch (e) {
-        console.error(`Failed to load ${url}:`, e);
-    }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
-    applySavedTheme(); 
+    
+    applySavedTheme(); // Apply theme ASAP
 
     const loaderOverlay = document.getElementById('loader-overlay');
     const loaderBar = document.getElementById('loader-bar');
-    const mainArea = document.getElementById('main-content-area');
-    const modalsContainer = document.getElementById('modals-container');
-
-    if (loaderBar) loaderBar.style.width = '10%';
-
-    // 1. Загрузка Модальных окон
-    await loadHtml(MODALS_FILE, modalsContainer);
-    if (loaderBar) loaderBar.style.width = '30%';
-
-    // 2. Загрузка Страниц (параллельно для скорости)
-    const pagePromises = PAGES.map(p => loadHtml(p.file, mainArea));
-    await Promise.all(pagePromises);
+    if (loaderBar) loaderBar.style.width = '20%';
     
-    if (loaderBar) loaderBar.style.width = '60%';
-
-    // 3. Инициализация логики после того, как HTML появился в DOM
     try {
         try { initMines(); } catch(e){ console.error("Mines init failed", e); }
         try { initDice(); } catch(e){ console.error("Dice init failed", e); }
@@ -139,11 +99,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initKeno(); } catch(e){ console.error("Keno init failed", e); }
         try { initAdmin(); } catch(e){ console.error("Admin init failed", e); }
         try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); }
-        try { initWheel(); } catch(e){ console.error("Wheel init failed", e); }
+        try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } // NEW INIT
         
-        if (loaderBar) loaderBar.style.width = '80%';
+        if (loaderBar) loaderBar.style.width = '60%';
         
-        // --- Навигация и сайдбар (перенесено из старого main.js) ---
         const openSidebarButton = document.getElementById('open-sidebar-button');
         const openSidebarButtonText = document.getElementById('open-sidebar-button-text');
         const sidebarNav = document.getElementById('sidebar-nav');
@@ -191,16 +150,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         
+        // --- ЛОГИКА УВЕДОМЛЕНИЙ ---
         const notifBtn = document.getElementById('notif-toggle-btn');
         const notifDropdown = document.getElementById('notif-dropdown');
+        
         if (notifBtn && notifDropdown) {
             notifBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 notifDropdown.classList.toggle('hidden');
             });
+            
             document.addEventListener('click', (e) => {
-                if (!notifDropdown.classList.contains('hidden') && !notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
-                    notifDropdown.classList.add('hidden');
+                if (!notifDropdown.classList.contains('hidden')) {
+                    if (!notifDropdown.contains(e.target) && !notifBtn.contains(e.target)) {
+                        notifDropdown.classList.add('hidden');
+                    }
                 }
             });
         }
@@ -212,15 +176,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (gameType === 'coin') showSection('coin-game');
             else if (gameType === 'keno') showSection('keno-game');
             else if (gameType === 'sleepy') showSection('sleepy-game');
-            else if (gameType === 'wheel') showSection('wheel-game'); 
+            else if (gameType === 'wheel') showSection('wheel-game'); // NEW NAV
         }
 
-        // Делегирование событий для кнопок игр (т.к. они загружаются динамически, лучше навесить на document или container, но они уже в DOM)
         const lobbyGameWrappers = document.querySelectorAll('.lobby-game-wrapper');
         lobbyGameWrappers.forEach(wrapper => {
             wrapper.addEventListener('click', (e) => {
                 e.preventDefault();
+                // --- ИЗМЕНЕНИЕ: Блокировка перехода, если игра заблокирована ---
                 if (wrapper.classList.contains('locked-game')) return; 
+                // -------------------------------------------------------------
                 const gameType = e.currentTarget.getAttribute('data-game-type'); 
                 if (gameType) navigateToGame(gameType);
             });
