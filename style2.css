@@ -10,12 +10,12 @@
        ========================================= */
 
     /* DICE */
-    --img-size-dice: 85px;
+    --img-size-dice: 80px;
     --img-x-dice: 0px;
     --img-y-dice: 0px;
 
     /* MINES */
-    --img-size-mines: 85px;
+    --img-size-mines: 80px;
     --img-x-mines: 0px;
     --img-y-mines: -5px;
 
