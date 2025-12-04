@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 7.7 (USERNAME COLOR UPDATE)
+ * Version 7.8 (CUSTOMIZE MODAL COLORS FIXED)
  */
 
 :root {
@@ -688,7 +688,7 @@ input:focus { border-color: var(--color-primary) !important; }
 .bottom-nav-item.active { color: #FFFFFF !important; }
 .bottom-nav-item.active .nav-icon { opacity: 1 !important; filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5)) !important; }
 
-.sidebar-nav, .wallet-modal-content, .customize-modal-content {
+.sidebar-nav, .wallet-modal-content {
     background-color: var(--bg-main) !important;
     color: var(--text-main) !important;
 }
@@ -1154,4 +1154,30 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     color: var(--text-main) !important; /* #1E1B4B */
     border-bottom: 1px solid var(--color-border-dark); /* Keep border */
     opacity: 1; /* Make sure it's fully visible */
+}
+
+/* =========================================
+   22. CUSTOMIZE MODAL UPDATE (TASK: Dark Blue BG & Indigo Text)
+   ========================================= */
+
+.customize-modal-content {
+    /* 1. Фон темно-синий */
+    background-color: #1E1B4B !important; /* var(--text-main) */
+    border: 1px solid var(--color-primary) !important; /* Индиго рамка для стиля */
+    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.6) !important;
+}
+
+.customize-section-title {
+    /* 2. Надписи индиго */
+    color: #4F46E5 !important; /* var(--color-primary) */
+    border-bottom: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго разделитель */
+    opacity: 1 !important;
+}
+
+/* Также поправим кнопку закрытия, чтобы ее было видно на темном фоне */
+#customize-modal-close {
+    color: #FFFFFF !important;
+}
+#customize-modal-close:hover {
+    color: #4F46E5 !important;
 }
