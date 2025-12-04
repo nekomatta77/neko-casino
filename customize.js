@@ -1,35 +1,27 @@
 /*
- * (ИЗМЕНЕНО: ФИКС ФОНА В DARK MODE - ПРИОРИТЕТ СТИЛЕЙ)
- * 1. Удалена логика Firebase paths ('customization/avatar').
- * 2. Реализован паттерн "Fetch -> Merge -> Update Full Object" для корректной работы с JSONB в Supabase.
- * 3. updateColorGridSelection теперь безопасен для null значений.
- * 4. applyStyleToProfileBox теперь использует setProperty(..., 'important'), чтобы пробивать темную тему.
+ * customize.js
+ * Version 2.1 - Strict Profile-Only Trigger
  */
 
 import { currentUser, patchUser, fetchUser } from './global.js';
 
 let modalOverlay, closeModalButton, avatarGrid;
+let headerAvatars; // All avatar images (header + profile)
 let headerProfileBoxes; 
-let headerAvatars; 
 let colorGrids; 
 
 /**
- * Вспомогательная функция для безопасного обновления JSONB-поля customization.
- * Получает текущий объект, меняет одно свойство и перезаписывает весь объект.
+ * Safe JSONB update helper
  */
 async function updateCustomizationProperty(username, key, value) {
-    // 1. Получаем текущего пользователя
     const userData = await fetchUser(username);
-    // 2. Берем текущую кастомизацию или пустой объект
     const currentCustomization = userData?.customization || {};
     
-    // 3. Обновляем нужное поле
     const newCustomization = {
         ...currentCustomization,
         [key]: value
     };
     
-    // 4. Отправляем ВЕСЬ объект кастомизации обратно
     return await patchUser(username, { customization: newCustomization });
 }
 
@@ -47,7 +39,6 @@ function hideCustomizeModal() {
 }
 
 function applyStyleToProfileBox(key, value) {
-    // Обновляем селекторы, если они вдруг потерялись
     if (!headerProfileBoxes || headerProfileBoxes.length === 0) {
         headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
     }
@@ -55,14 +46,10 @@ function applyStyleToProfileBox(key, value) {
     if (key === 'border') {
         headerProfileBoxes.forEach(box => {
             if (value === 'none' || !value) {
-                // Сбрасываем на дефолт (удаляем инлайн стиль)
-                // CSS сам подставит дефолтную рамку из style.css/style4.css
                 box.style.removeProperty('border');
-                box.style.removeProperty('padding'); // Сброс паддинга к дефолту
+                box.style.removeProperty('padding');
             } else {
-                // Ставим кастомную рамку с приоритетом
                 box.style.setProperty('border', `3px solid ${value}`, 'important');
-                // Корректируем паддинг для толстой рамки
                 box.style.padding = '5px 8px'; 
             }
         });
@@ -70,11 +57,8 @@ function applyStyleToProfileBox(key, value) {
     } else if (key === 'background') {
         headerProfileBoxes.forEach(box => {
             if (value === 'none' || !value) {
-                // СБРОС: Удаляем инлайн-стиль полностью.
-                // Это позволит CSS-файлам (darkstyle.css или style.css) применить правильный дефолтный фон.
                 box.style.removeProperty('background-color');
             } else {
-                // УСТАНОВКА: Используем 'important', чтобы перебить !important в darkstyle.css
                 box.style.setProperty('background-color', value, 'important');
             }
         });
@@ -88,12 +72,13 @@ async function handleAvatarSelect(e) {
     const newAvatarSrc = clickedAvatar.getAttribute('data-avatar-src');
     if (!newAvatarSrc) return;
 
-    // ИЗМЕНЕНО: Безопасное обновление для SQL/JSONB
     if (currentUser) {
         await updateCustomizationProperty(currentUser, 'avatar', newAvatarSrc);
     }
 
-    headerAvatars.forEach(img => {
+    // Update all avatars in DOM
+    const allAvatars = document.querySelectorAll('.header-avatar-img, .profile-large-avatar');
+    allAvatars.forEach(img => {
         img.src = newAvatarSrc;
     });
 
@@ -107,10 +92,9 @@ async function handleColorSelect(e) {
     const clickedColor = e.target.closest('.customize-color-choice');
     if (!clickedColor) return;
 
-    const type = clickedColor.getAttribute('data-type'); // 'border' или 'background'
-    let value = clickedColor.getAttribute('data-value'); // Цвет или 'none'
+    const type = clickedColor.getAttribute('data-type'); 
+    let value = clickedColor.getAttribute('data-value'); 
     
-    // ИЗМЕНЕНО: Безопасное обновление для SQL/JSONB
     if (currentUser) {
         await updateCustomizationProperty(currentUser, type, value);
     }
@@ -127,16 +111,14 @@ async function handleColorSelect(e) {
 export function applyCustomization(customs) {
     const data = customs || {}; 
     
-    if (!headerAvatars || headerAvatars.length === 0) {
-        headerAvatars = document.querySelectorAll('.header-avatar-img');
-        headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
-    }
+    const allAvatars = document.querySelectorAll('.header-avatar-img, .profile-large-avatar');
+    headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
     
     const savedAvatarSrc = data.avatar;
     const defaultAvatarSrc = 'assets/avatars/orange_cat_ava.png';
     const currentAvatarSrc = savedAvatarSrc || defaultAvatarSrc;
     
-    headerAvatars.forEach(img => {
+    allAvatars.forEach(img => {
         img.src = currentAvatarSrc;
     });
 
@@ -182,7 +164,10 @@ export function initCustomize() {
     closeModalButton = document.getElementById('customize-modal-close');
     avatarGrid = document.querySelector('.customize-avatar-grid');
     
-    headerAvatars = document.querySelectorAll('.header-avatar-img'); 
+    // CHANGED: Only target elements inside the profile page
+    // This removes the listener from the header avatar
+    const profileTriggers = document.querySelectorAll('#profile-avatar-display, #profile-change-avatar-btn');
+
     headerProfileBoxes = document.querySelectorAll('.profile-balance-box'); 
     
     colorGrids = document.querySelectorAll('.customize-color-grid');
@@ -195,12 +180,12 @@ export function initCustomize() {
         }
     });
 
-    if (!modalOverlay || headerAvatars.length === 0) {
-        return;
-    }
+    if (!modalOverlay) return;
     
-    headerAvatars.forEach(avatar => {
-        avatar.addEventListener('click', showCustomizeModal);
+    // Attach listener only to profile triggers
+    profileTriggers.forEach(el => {
+        el.removeEventListener('click', showCustomizeModal); // clean old
+        el.addEventListener('click', showCustomizeModal);
     });
 
     if (closeModalButton) {
@@ -213,7 +198,7 @@ export function initCustomize() {
         }
     });
 
-    avatarGrid.addEventListener('click', handleAvatarSelect); 
+    if (avatarGrid) avatarGrid.addEventListener('click', handleAvatarSelect); 
 
     colorGrids.forEach(grid => {
         grid.addEventListener('click', handleColorSelect);

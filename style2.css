@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 7.4 (VISUAL FIXES: Ref Links Color)
+ * Version 7.6 (PREMIUM USER CARD + DARK BLUE MODAL TEXT)
  */
 
 :root {
@@ -10,17 +10,17 @@
        ========================================= */
 
     /* DICE */
-    --img-size-dice: 100px;
+    --img-size-dice: 155px;
     --img-x-dice: 0px;
     --img-y-dice: 0px;
 
     /* MINES */
-    --img-size-mines: 100px;
+    --img-size-mines: 155px;
     --img-x-mines: 0px;
     --img-y-mines: -5px;
 
     /* KENO */
-    --img-size-keno: 120px;
+    --img-size-keno: 155px;
     --img-x-keno: 0px;
     --img-y-keno: 0px;
 
@@ -992,4 +992,254 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
 /* 2. Bonus Quest Links Underline -> Indigo (KEEP THIS) */
 .quest-text a {
     text-decoration-color: var(--color-primary) !important;
+}
+
+/* =========================================
+   20. USER CARD IN PROFILE (NEW)
+   ========================================= */
+
+.user-info-card {
+    display: flex;
+    align-items: center;
+    background-color: #2E3035; /* Темный фон карточки (как у рангов) */
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+/* Левая часть (Аватар + Кнопка) */
+.user-info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.profile-large-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--color-primary);
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.profile-large-avatar:hover {
+    transform: scale(1.05);
+}
+
+/* Правая часть (Инфо + Кнопка) */
+.user-info-right {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+
+#profile-username-display {
+    color: #FFFFFF;
+    font-size: 1.5em;
+    font-weight: 900;
+    margin: 0;
+}
+
+.user-info-subtitle {
+    font-size: 0.9em;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 10px;
+}
+
+/* Кнопки в карточке */
+.user-info-card .auth-button {
+    margin-top: 0;
+    width: auto;
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+.user-info-left .auth-button.small {
+    font-size: 0.8em;
+    padding: 5px 10px;
+    background-color: var(--bg-input); /* Темнее для "Выбрать аватар" */
+    border: 1px solid var(--border-color);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 480px) {
+    .user-info-card {
+        flex-direction: column;
+        text-align: center;
+    }
+    .user-info-right {
+        align-items: center;
+    }
+    .user-info-card .auth-button {
+        width: 100%;
+    }
+}
+
+/* =========================================
+   21. STYLISH CUSTOMIZE MODAL TITLES
+   ========================================= */
+
+/* Заголовки в модальном окне кастомизации -> Темно-синие */
+.customize-section-title {
+    color: var(--text-main) !important; /* #1E1B4B */
+    border-bottom: 1px solid var(--color-border-dark); /* Keep border */
+    opacity: 1; /* Make sure it's fully visible */
+}
+/* =========================================
+   20. USER CARD IN PROFILE (PREMIUM DARK BLUE REDESIGN)
+   ========================================= */
+
+.user-info-card {
+    display: flex;
+    align-items: center;
+    /* Глубокий темно-синий градиент с легкой прозрачностью */
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(49, 46, 129, 0.9) 100%) !important;
+    /* Эффект матового стекла */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Тонкая ледяная рамка */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    /* Глубокая мягкая тень */
+    box-shadow: 0 15px 35px rgba(30, 27, 75, 0.25) !important;
+    border-radius: 24px; /* Более скругленные углы */
+    padding: 25px;
+    margin-bottom: 25px;
+    gap: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Легкий блик сверху для объема */
+.user-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Левая часть (Аватар + Кнопка) */
+.user-info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-large-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    /* Более выразительная рамка с свечением */
+    border: 4px solid var(--color-primary);
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.profile-large-avatar:hover {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 0 30px rgba(79, 70, 229, 0.6);
+}
+
+/* Правая часть (Инфо + Кнопка) */
+.user-info-right {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+#profile-username-display {
+    color: #FFFFFF;
+    font-size: 1.8em; /* Крупнее */
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Тень текста */
+}
+
+.user-info-subtitle {
+    font-size: 0.95em;
+    color: #A5B4FC; /* Светлый индиго для контраста */
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+/* --- Кнопки в карточке --- */
+
+.user-info-card .auth-button {
+    margin-top: 5px;
+    width: fit-content;
+    padding: 10px 20px;
+    font-size: 0.95em;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* Маленькая кнопка "Выбрать аватар" - Контурный стиль */
+.user-info-left .auth-button.small {
+    font-size: 0.85em;
+    padding: 6px 12px;
+    background-color: transparent !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    font-weight: 700;
+    box-shadow: none !important;
+}
+.user-info-left .auth-button.small:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* Главная кнопка "Сменить/Оплатить" - Градиентный стиль */
+#profile-change-name-btn {
+    background: linear-gradient(to right, var(--color-primary), #6366F1) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4) !important;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+#profile-change-name-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6) !important;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 480px) {
+    .user-info-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        gap: 15px;
+    }
+    .user-info-right {
+        align-items: center;
+        width: 100%;
+    }
+    #profile-username-display {
+        font-size: 1.5em;
+    }
+    .user-info-card .auth-button, 
+    #profile-change-name-btn {
+        width: 100%; /* Кнопки на всю ширину на мобилках */
+        justify-content: center;
+    }
 }

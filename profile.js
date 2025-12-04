@@ -1,19 +1,22 @@
 /*
  * profile.js
- * Обновлено: Добавлена логика падающего снега
+ * Версия 2.1 - Fix 409 Error Handling & Use changeUsername
  */
 
-import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser } from './global.js';
+import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
+import { initCustomize } from './customize.js'; 
 
 // --- Элементы DOM ---
 let wagerAmountEl, rankEl, wagerRulesLink;
 let passwordForm, oldPassInput, newPassInput, passwordStatusEl;
 let vkLinkBtn, tgLinkBtn, logoutBtn;
 let themeToggleBtn; 
-let snowToggleInput; // Новый тумблер
+let snowToggleInput;
+
+// Новые элементы профиля
+let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 
 // --- ЛОГИКА ТЕМЫ И СНЕГА ---
-
 function initTheme() {
     const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     
@@ -44,12 +47,10 @@ async function handleThemeToggle() {
 }
 
 // --- ЛОГИКА ПАДАЮЩЕГО СНЕГА ---
-
 function initSnow() {
     const snowContainer = document.getElementById('falling-snow-container');
     if (!snowContainer) return;
 
-    // Читаем настройку (по умолчанию true)
     const isSnowEnabled = localStorage.getItem('cashcat_snow') !== 'false';
     
     if (snowToggleInput) {
@@ -57,11 +58,8 @@ function initSnow() {
         snowToggleInput.addEventListener('change', handleSnowToggle);
     }
 
-    if (isSnowEnabled) {
-        startSnow(snowContainer);
-    } else {
-        stopSnow(snowContainer);
-    }
+    if (isSnowEnabled) startSnow(snowContainer);
+    else stopSnow(snowContainer);
 }
 
 function handleSnowToggle(e) {
@@ -75,20 +73,18 @@ function handleSnowToggle(e) {
 
 function startSnow(container) {
     if (!container) return;
-    container.innerHTML = ''; // Очистка
+    container.innerHTML = ''; 
     container.style.display = 'block';
     
-    // Создаем 30 снежинок (чтобы не нагружать)
     for (let i = 0; i < 30; i++) {
         const flake = document.createElement('div');
         flake.classList.add('snowflake');
-        flake.textContent = '❄'; // Или '•'
+        flake.textContent = '❄'; 
         
-        // Рандомные свойства
         const size = Math.random() * 1.5 + 0.5 + 'em';
         const left = Math.random() * 100 + 'vw';
-        const duration = Math.random() * 5 + 5 + 's'; // 5-10s
-        const delay = Math.random() * -10 + 's'; // Отрицательная задержка чтобы сразу падали
+        const duration = Math.random() * 5 + 5 + 's'; 
+        const delay = Math.random() * -10 + 's'; 
         
         flake.style.fontSize = size;
         flake.style.left = left;
@@ -150,10 +146,7 @@ async function handleChangePassword(e) {
         return;
     }
 
-    const success = await updateUser(currentUser, {
-        ...userData,
-        password: newPass
-    });
+    const success = await patchUser(currentUser, { password: newPass });
 
     if (success) {
         passwordStatusEl.textContent = 'Пароль успешно изменен!';
@@ -163,17 +156,85 @@ async function handleChangePassword(e) {
     }
 }
 
+// --- СМЕНА НИКА (ИСПРАВЛЕННАЯ ЛОГИКА 409) ---
+
+async function handleChangeUsername() {
+    if (!currentUser) return;
+
+    const userData = await fetchUser(currentUser);
+    if (!userData) return;
+
+    const freeChanges = userData.free_username_changes || 0;
+    const COST = 250.00;
+
+    // 1. Бесплатная смена
+    if (freeChanges > 0) {
+        const newName = prompt(`У вас есть ${freeChanges} бесплатных смен.\nВведите новый никнейм:`);
+        if (newName && newName.trim() !== "") {
+            if (newName.length < 3) return alert("Никнейм слишком короткий!");
+            
+            // Используем новую функцию для безопасного обновления
+            const result = await changeUsername(currentUser, newName, freeChanges - 1);
+
+            if (result.success) {
+                alert("Никнейм успешно изменен! Пожалуйста, войдите снова.");
+                await handleLogout(); 
+            } else {
+                // Проверяем код ошибки
+                if (result.error.code === '23505' || result.error.status === 409) {
+                     alert("Ошибка: Этот никнейм уже занят!");
+                } else {
+                     alert("Произошла ошибка при смене ника: " + (result.error.message || "Unknown"));
+                }
+            }
+        }
+    } 
+    // 2. Платная смена
+    else {
+        if (confirm(`Смена ника стоит ${COST} RUB. С вашего баланса будет списано ${COST} RUB. Продолжить?`)) {
+            if (currentBalance < COST) {
+                return alert("Недостаточно средств на балансе!");
+            }
+            
+            const newName = prompt("Введите новый никнейм:");
+            if (newName && newName.trim() !== "") {
+                 if (newName.length < 3) return alert("Никнейм слишком короткий!");
+                 
+                 // Сначала меняем ник (бесплатно пока, но без списания смен)
+                 // Передаем null в freeChanges, чтобы не менять счетчик (он уже 0)
+                 const result = await changeUsername(currentUser, newName, null);
+                 
+                 if (result.success) {
+                    // Если удалось занять ник, списываем деньги
+                    await updateBalance(-COST);
+                    alert("Оплата прошла успешно. Никнейм изменен! Пожалуйста, войдите снова.");
+                    await handleLogout();
+                 } else {
+                     if (result.error.code === '23505' || result.error.status === 409) {
+                         alert("Ошибка: Этот никнейм уже занят. Средства не списаны.");
+                     } else {
+                         alert("Ошибка: " + (result.error.message || "Unknown"));
+                     }
+                 }
+            }
+        }
+    }
+}
+
+
 export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
     if (rankEl) rankEl.textContent = '...';
 
+    initCustomize();
     initTheme();
 
-    if (currentUser && rankEl && wagerAmountEl) {
+    if (currentUser) {
         const userData = await fetchUser(currentUser);
-        const dbRank = userData?.rank || 'None Rang';
-        let displayRank = 'Котенок'; 
+        if (!userData) return;
 
+        const dbRank = userData.rank || 'None Rang';
+        let displayRank = 'Котенок'; 
         switch (dbRank) {
             case 'None Rang': displayRank = 'Котенок'; break;
             case 'Kitten': displayRank = 'Котенок'; break;
@@ -183,16 +244,32 @@ export async function updateProfileData() {
             case 'Horse': displayRank = 'Победоносец'; break;
             case 'King': displayRank = 'Король'; break;
             case 'admin': displayRank = 'Владелец'; break;
-            default: displayRank = 'Котенок';
         }
-        rankEl.textContent = displayRank;
+        if (rankEl) rankEl.textContent = displayRank;
         
-        const dbWager = userData?.wager_balance || 0;
-        wagerAmountEl.textContent = dbWager.toFixed(2);
+        const dbWager = userData.wager_balance || 0;
+        if (wagerAmountEl) wagerAmountEl.textContent = dbWager.toFixed(2);
+
+        if (profileUsernameDisplay) profileUsernameDisplay.textContent = currentUser;
+        
+        const freeChanges = userData.free_username_changes !== undefined ? userData.free_username_changes : 1; 
+        
+        if (profileChangeNameInfo && profileChangeNameBtn) {
+            if (freeChanges > 0) {
+                profileChangeNameInfo.textContent = `Бесплатная смена имени пользователя: ${freeChanges}`;
+                profileChangeNameBtn.textContent = "Сменить";
+                profileChangeNameBtn.classList.remove('green-button'); 
+            } else {
+                profileChangeNameInfo.textContent = `Стоимость смены имени пользователя: 250₽`;
+                profileChangeNameBtn.textContent = "Оплатить";
+                profileChangeNameBtn.classList.add('green-button'); 
+            }
+        }
         
     } else {
         if (rankEl) rankEl.textContent = 'Котенок';
         if (wagerAmountEl) wagerAmountEl.textContent = '0.00';
+        if (profileUsernameDisplay) profileUsernameDisplay.textContent = 'Гость';
     }
 }
 
@@ -208,22 +285,28 @@ export function initProfile() {
     tgLinkBtn = document.getElementById('profile-link-tg');
     logoutBtn = document.getElementById('profile-logout-button');
     
-    // Тема и Снег
+    profileUsernameDisplay = document.getElementById('profile-username-display');
+    profileChangeNameInfo = document.getElementById('profile-change-name-info');
+    profileChangeNameBtn = document.getElementById('profile-change-name-btn');
+
     themeToggleBtn = document.getElementById('theme-toggle-btn');
-    snowToggleInput = document.getElementById('snow-toggle-input'); // Получаем элемент
+    snowToggleInput = document.getElementById('snow-toggle-input'); 
 
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', handleThemeToggle);
     }
     
-    // Инициализация
     initTheme();
-    initSnow(); // Запускаем снег
+    initSnow(); 
 
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);
     if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
     
+    if (profileChangeNameBtn) {
+        profileChangeNameBtn.addEventListener('click', handleChangeUsername);
+    }
+
     if (vkLinkBtn) vkLinkBtn.addEventListener('click', () => alert('В разработке'));
     if (tgLinkBtn) tgLinkBtn.addEventListener('click', () => alert('В разработке'));
 }

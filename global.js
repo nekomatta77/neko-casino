@@ -1,5 +1,6 @@
 /*
  * GLOBAL.JS - SUPABASE EDITION + SMART ANTI-MINUS SYSTEM
+ * v2.4 - Fix 406 & 409 Errors
  */
 
 // Инициализация Supabase
@@ -27,28 +28,23 @@ let depositPoller = null;
 let withdrawalPoller = null;
 
 // ==========================================
-// 0. ANTI-MINUS SYSTEM (THE BRAIN)
+// 0. ANTI-MINUS SYSTEM
 // ==========================================
 
 export const AntiMinus = {
     settings: {
-        targetRTP: 70, // % который возвращается игрокам
-        minBankReserve: 1000, // Минимальный резерв
+        targetRTP: 70, 
+        minBankReserve: 1000, 
         adminWinMode: false, 
         active: true 
     },
-    
-    stats: {
-        totalIn: 0, 
-        totalOut: 0 
-    },
+    stats: { totalIn: 0, totalOut: 0 },
 
     async init() {
         const savedSettings = localStorage.getItem('cashcat_antiminus_settings');
         if (savedSettings) {
             this.settings = JSON.parse(savedSettings);
         }
-        
         if (supabase) {
             const { data: bets } = await supabase.from('bets').select('bet_amount, profit_amount');
             if (bets) {
@@ -67,7 +63,6 @@ export const AntiMinus = {
     saveSettings(newSettings) {
         this.settings = { ...this.settings, ...newSettings };
         localStorage.setItem('cashcat_antiminus_settings', JSON.stringify(this.settings));
-        console.log("Anti-Minus Updated:", this.settings);
     },
 
     canUserWin(potentialWinAmount, betAmount) {
@@ -75,7 +70,6 @@ export const AntiMinus = {
         const estimatedBank = 50000 + (this.stats.totalIn - this.stats.totalOut); 
         
         if ((estimatedBank - potentialWinAmount) < this.settings.minBankReserve) {
-            console.warn("Anti-Minus: Bank protection triggered!");
             return false; 
         }
 
@@ -83,23 +77,17 @@ export const AntiMinus = {
         const currentTotalWins = this.stats.totalOut + potentialWinAmount;
         const projectedRTP = (currentTotalWins / currentTotalBets) * 100;
 
-        console.log(`[Anti-Minus] Projected RTP: ${projectedRTP.toFixed(2)}% | Target: ${this.settings.targetRTP}%`);
-
         if (projectedRTP > this.settings.targetRTP) {
             const multiplier = potentialWinAmount / betAmount;
             if (multiplier < 2.0 && Math.random() > 0.7) return true; 
-            console.warn("Anti-Minus: RTP Limit triggered. Forcing Loss.");
             return false;
         }
-
         return true; 
     },
 
     registerGame(bet, profit) {
         this.stats.totalIn += bet;
-        if (profit > 0) {
-            this.stats.totalOut += profit;
-        }
+        if (profit > 0) this.stats.totalOut += profit;
     }
 };
 
@@ -126,9 +114,7 @@ export async function setCurrentUser(username) {
             currentRank = 'None Rang';
             localWagerBalance = 0.00;
         }
-    } catch (e) {
-         console.error("Session storage error", e);
-    }
+    } catch (e) { console.error("Session storage error", e); }
     updateUI();
 }
 
@@ -139,8 +125,13 @@ export async function setCurrentUser(username) {
 export async function fetchUser(username, updateGlobal = false) {
     if (!supabase) return null;
     try {
-        const { data, error } = await supabase.from('users').select('*').eq('username', username).single();
-        if (error) return null;
+        // ИЗМЕНЕНО: используем maybeSingle(), чтобы не было ошибки 406, если юзер не найден
+        const { data, error } = await supabase.from('users').select('*').eq('username', username).maybeSingle();
+        
+        if (error) {
+            // Ошибки соединения и т.д., но не "Row not found"
+            return null;
+        }
 
         if (updateGlobal && data) {
             currentBalance = parseFloat(data.balance || 0);
@@ -197,6 +188,28 @@ export async function patchUser(username, partialData) {
     return !error;
 }
 
+// --- НОВАЯ ФУНКЦИЯ: Безопасная смена ника ---
+export async function changeUsername(currentUsername, newUsername, newFreeChangesVal) {
+    if (!supabase) return { error: { message: 'No connection' } };
+    
+    const updateData = { username: newUsername };
+    if (newFreeChangesVal !== null && newFreeChangesVal !== undefined) {
+        updateData.free_username_changes = newFreeChangesVal;
+    }
+
+    // Пытаемся обновить. Если ник занят, Supabase вернет ошибку 409 (Conflict)
+    const { data, error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('username', currentUsername)
+        .select();
+
+    if (error) {
+        return { success: false, error };
+    }
+    return { success: true, data };
+}
+
 export async function deleteUser(username) {
     if (!supabase) return false;
     const { error } = await supabase.from('users').delete().eq('username', username);
@@ -236,7 +249,7 @@ export function setLocalWager(amount) {
 }
 
 // ==========================================
-// 4. ИСТОРИЯ ИГР (ОБНОВЛЕННАЯ ЛОГИКА КЛИКОВ)
+// 4. ИСТОРИЯ ИГР
 // ==========================================
 
 document.addEventListener('click', (e) => {
@@ -245,7 +258,6 @@ document.addEventListener('click', (e) => {
         handleHistoryItemClick(card);
     }
 });
-
 
 export async function writeBetToHistory(betData) {
     AntiMinus.registerGame(betData.betAmount, betData.amount);
@@ -358,7 +370,6 @@ function renderHistoryList(bets, type) {
     });
 }
 
-// --- ЛОГИКА КЛИКА ПО ИСТОРИИ ---
 function handleHistoryItemClick(card) {
     const game = card.getAttribute('data-game');
     const username = card.getAttribute('data-username');
@@ -375,29 +386,25 @@ function handleHistoryItemClick(card) {
     }
 }
 
-// --- ГЕНЕРАТОР ВИЗУАЛЬНОЙ ИСТОРИИ (ОБНОВЛЕННЫЙ) ---
+// --- ГЕНЕРАТОР ВИЗУАЛЬНОЙ ИСТОРИИ ---
 function openVisualHistoryModal(game, data) {
     const modal = document.getElementById('visual-history-modal-overlay');
     const container = document.getElementById('visual-history-grid-container');
     if (!modal || !container) return;
 
-    // Сброс контента и классов
     container.innerHTML = '';
     container.className = 'visual-grid-container'; 
 
-    // Обновление футера 
     document.getElementById('vh-username').textContent = data.username;
     document.getElementById('vh-bet').textContent = `${data.bet.toFixed(2)} RUB`;
     document.getElementById('vh-profit').textContent = `${data.profit.toFixed(2)} RUB`;
     
-    // Сброс дополнительного инфо
     const extraLabel = document.getElementById('vh-extra-label');
     const extraValue = document.getElementById('vh-extra-value');
     extraLabel.textContent = '';
     extraValue.textContent = '';
 
     if (game === 'mines') {
-        // Парсинг
         let minesCount = 3;
         const match = data.result.match(/\((\d+)\s*Mines\)/);
         if (match) minesCount = parseInt(match[1]);
@@ -405,7 +412,6 @@ function openVisualHistoryModal(game, data) {
         extraLabel.textContent = 'Кол-во мин:';
         extraValue.textContent = minesCount;
 
-        // Попытка извлечь реальные данные
         let realMines = null;
         let realRevealed = null;
         
@@ -424,7 +430,6 @@ function openVisualHistoryModal(game, data) {
         generateMinesVisual(container, minesCount, data.profit > 0, realMines, realRevealed);
 
     } else if (game === 'keno') {
-        // Парсинг: "Easy | 4/10 ::: s:1,2;d:3,4"
         let risk = 'Classic';
         let hits = 0;
         let total = 10;
@@ -432,10 +437,9 @@ function openVisualHistoryModal(game, data) {
         let realDrawn = null;
         
         const mainParts = data.result.split(':::');
-        const infoPart = mainParts[0]; // "Easy | 4/10"
+        const infoPart = mainParts[0]; 
         
         if (mainParts.length > 1) {
-            // Парсим реальные данные
             try {
                 const dataPart = mainParts[1];
                 const segments = dataPart.split(';');
@@ -457,7 +461,6 @@ function openVisualHistoryModal(game, data) {
             }
         }
         
-        // Перевод сложности
         const difficultyMap = {
             'Easy': 'Легкая', 'Medium': 'Средняя', 'High': 'Сложная',
             'easy': 'Легкая', 'medium': 'Средняя', 'high': 'Сложная'
@@ -511,7 +514,6 @@ function generateMinesVisual(container, minesCount, isWin, realMines, realReveal
             }
         }
     } else {
-        // Fallback simulation
         let minesPlaced = 0;
         while(minesPlaced < minesCount) {
             const idx = Math.floor(Math.random() * totalCells);
@@ -547,7 +549,6 @@ function generateKenoVisual(container, hits, totalPicks, realSelected, realDrawn
     container.className = 'visual-grid-container keno-visual';
     const totalCells = 40;
     
-    // Используем реальные данные если есть, иначе симуляция
     let selectedSet = new Set();
     let drawnSet = new Set();
 
@@ -555,17 +556,13 @@ function generateKenoVisual(container, hits, totalPicks, realSelected, realDrawn
         selectedSet = new Set(realSelected);
         drawnSet = new Set(realDrawn);
     } else {
-        // Fallback Simulation
         while(selectedSet.size < totalPicks) selectedSet.add(Math.floor(Math.random() * totalCells) + 1);
         const picksArray = Array.from(selectedSet);
-        // Перемешиваем
         for (let i = picksArray.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [picksArray[i], picksArray[j]] = [picksArray[j], picksArray[i]];
         }
-        // Симулируем попадания
         for(let i=0; i<hits; i++) drawnSet.add(picksArray[i]);
-        // Добиваем до 10 рандомными
         while(drawnSet.size < 10) {
             const r = Math.floor(Math.random() * totalCells) + 1;
             if(!drawnSet.has(r)) drawnSet.add(r);
@@ -577,11 +574,6 @@ function generateKenoVisual(container, hits, totalPicks, realSelected, realDrawn
         div.className = 'visual-cell keno-cell';
         div.textContent = i;
         
-        // Логика отображения:
-        // 1. Выбрал и выпало = HIT (Зеленый)
-        // 2. Выбрал и НЕ выпало = MISS (Индиго/Синий)
-        // 3. Не выбрал, но выпало = DRAWN (Серый, опционально, но сделаем для полноты)
-        
         if (selectedSet.has(i)) {
             if (drawnSet.has(i)) {
                 div.classList.add('hit'); 
@@ -590,9 +582,8 @@ function generateKenoVisual(container, hits, totalPicks, realSelected, realDrawn
                 div.classList.add('miss');
             }
         } else if (drawnSet.has(i)) {
-            div.classList.add('drawn-history'); // Новый класс для истории
+            div.classList.add('drawn-history');
         }
-        
         container.appendChild(div);
     }
 }
@@ -606,7 +597,6 @@ function generateDiceVisual(container, data) {
     container.style.background = 'transparent'; 
     container.style.boxShadow = 'none';
 
-    // Шкала
     const progressBar = document.createElement('div');
     progressBar.className = 'dice-visual-bar-container';
     
@@ -617,7 +607,6 @@ function generateDiceVisual(container, data) {
     
     progressBar.appendChild(fillBar);
     
-    // Сетка статистики
     const statsGrid = document.createElement('div');
     statsGrid.style.display = 'grid';
     statsGrid.style.gridTemplateColumns = '1fr 1fr';
