@@ -1,3 +1,1252 @@
+/*
+ * style2.css
+ * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
+ * Version 8.3 (REF PAGE: WHITE HEADERS & INDIGO REVSHARE)
+ */
+
+:root {
+    /* =========================================
+       НАСТРОЙКИ КАРТОЧЕК (РАЗМЕР И ПОЗИЦИЯ)
+       ========================================= */
+
+    /* DICE */
+    --img-size-dice: 80px;
+    --img-x-dice: 0px;
+    --img-y-dice: 0px;
+
+    /* MINES */
+    --img-size-mines: 80px;
+    --img-x-mines: 0px;
+    --img-y-mines: -5px;
+
+    /* KENO */
+    --img-size-keno: 105px;
+    --img-x-keno: 0px;
+    --img-y-keno: 0px;
+
+    /* CRASH */
+    --img-size-crash: 100px;
+    --img-x-crash: 0px;
+    --img-y-crash: 0px;
+
+    /* COIN */
+    --img-size-coin: 100px;
+    --img-x-coin: 0px;
+    --img-y-coin: 0px;
+
+    /* SLEEPY */
+    --img-size-sleepy: 100px;
+    --img-x-sleepy: 0px;
+    --img-y-sleepy: 0px;
+
+    /* WHEEL */
+    --img-size-wheel: 100px;
+    --img-x-wheel: 0px;
+    --img-y-wheel: 0px;
+
+    /* --- ПАЛИТРА --- */
+    --color-primary: #4F46E5;       /* Индиго (Яркий) */
+    --color-primary-hover: #4338ca;
+    
+    --bg-main: #FFFFFF;             /* Белый фон страницы */
+    --bg-card: #F5F7FF;             /* Светлый фон карточек */
+    --bg-panel: #EEF2FF;            /* Светлый фон панелей */
+    
+    /* ТЕКСТ */
+    --text-main: #1E1B4B;           /* Темно-синий текст (Dark Blue) */
+    --text-muted: #6366F1;          /* Индиго текст */
+    --text-white: #FFFFFF;          /* Белый */
+    
+    --border-color: #E0E7FF;
+    --border-color-dark: #C7D2FE;
+    
+    --card-radius: 24px;
+    
+    /* ЦВЕТА ДЛЯ ЛЬДА */
+    --ice-white: #FFFFFF;
+    --ice-light: #A5F3FC;           /* Светло-голубой лед */
+    --ice-mid: #22D3EE;             /* Голубой */
+    --ice-deep: #0284C7;            /* Глубокий синий */
+}
+
+/* =========================================
+   1. ГЛОБАЛЬНЫЙ ФОН
+   ========================================= */
+
+body {
+    background-color: var(--bg-main) !important;
+    background-image: none !important;
+    color: var(--text-main) !important;
+    position: relative;
+    min-height: 100vh;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.3; 
+    
+    background-repeat: no-repeat;
+    background-image: 
+        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'),
+        url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'), url('assets/bell.svg'), url('assets/deer.svg'),
+        url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'), url('assets/snowman.svg'),
+        url('assets/bell.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'),
+        url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snowman.svg'),
+        url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'),
+        url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'), url('assets/bell.svg'),
+        url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/snow1.svg'),
+        url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'), url('assets/deer.svg'),
+        url('assets/deer.svg'), url('assets/snow1.svg'), url('assets/bell.svg'), url('assets/snow2.svg'), url('assets/snowman.svg'),
+        url('assets/snowman.svg'), url('assets/deer.svg'), url('assets/snow2.svg'), url('assets/bell.svg'), url('assets/snow1.svg'),
+        url('assets/snow2.svg'), url('assets/snow1.svg'), url('assets/deer.svg'), url('assets/snowman.svg'), url('assets/bell.svg');
+    
+    background-position: 
+        2% 3%,   15% 8%,  30% 2%,  45% 7%,  60% 3%,  75% 8%,  90% 2%,  98% 12%,
+        5% 18%,  20% 15%, 35% 20%, 50% 16%, 65% 21%, 80% 15%, 95% 22%, 8% 28%,
+        25% 32%, 40% 28%, 55% 33%, 70% 29%, 85% 34%, 3% 40%,  18% 45%, 32% 41%,
+        48% 46%, 62% 42%, 78% 47%, 92% 43%, 10% 55%, 28% 52%, 42% 58%, 58% 53%,
+        72% 59%, 88% 54%, 5% 65%,  22% 68%, 38% 64%, 52% 69%, 68% 65%, 82% 70%,
+        96% 63%, 12% 78%, 26% 82%, 40% 77%, 56% 83%, 70% 78%, 86% 84%, 4% 90%,
+        18% 95%, 34% 91%, 50% 96%, 66% 92%, 80% 97%, 94% 91%, 9% 8%,   91% 88%,
+        45% 90%, 55% 10%, 25% 95%, 75% 5%;
+        
+    background-size: 
+        20px, 24px, 18px, 26px, 22px,
+        16px, 20px, 24px, 18px, 22px,
+        25px, 17px, 21px, 23px, 19px,
+        22px, 20px, 26px, 18px, 24px,
+        17px, 23px, 21px, 25px, 19px,
+        24px, 16px, 22px, 20px, 26px,
+        18px, 24px, 22px, 17px, 25px,
+        26px, 19px, 23px, 21px, 20px,
+        22px, 18px, 24px, 17px, 25px,
+        20px, 26px, 22px, 19px, 23px,
+        24px, 18px, 21px, 25px, 16px,
+        23px, 20px, 26px, 18px, 22px;
+}
+
+.app-container {
+    position: relative;
+    z-index: 1;
+}
+
+/* Снежинки */
+.snowflake {
+    position: fixed;
+    top: -10px;
+    color: #A5B4FC;
+    user-select: none;
+    pointer-events: none;
+    z-index: 9999;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+    100% { transform: translateY(105vh) rotate(360deg); opacity: 0.2; }
+}
+
+/* --- ХЕДЕР --- */
+.mobile-header {
+    background-color: var(--bg-main) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 20px rgba(79, 70, 229, 0.05) !important;
+    height: 70px !important;
+    display: flex !important; 
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 15px !important;
+}
+
+.logo-text-wrapper {
+    position: relative;
+    display: inline-block;
+    font-weight: 900;
+    color: var(--color-primary);
+}
+
+.letter-with-hat {
+    position: relative;
+    display: inline-block;
+}
+
+.santa-hat {
+    position: absolute;
+    width: 0.6em !important; 
+    height: auto;
+    top: 0.05em !important; 
+    left: -0.08em !important; 
+    z-index: 10;
+    pointer-events: none;
+    transform: rotate(0deg); 
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+}
+
+.logo-text {
+    background: none !important;
+    -webkit-text-fill-color: var(--color-primary) !important; 
+    color: var(--color-primary) !important;
+    text-shadow: none !important;
+    font-weight: 900 !important;
+}
+
+.header-user-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.profile-balance-box {
+    background-color: var(--color-primary) !important; 
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 5px 15px !important;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3) !important;
+}
+
+.profile-name {
+    color: #FFFFFF !important; 
+    opacity: 0.9;
+    font-weight: normal !important;
+}
+
+.profile-balance-box .balance {
+    color: #FFFFFF !important;
+    font-weight: 900 !important;
+    text-shadow: none !important;
+}
+
+.header-avatar-img {
+    border: 2px solid rgba(255,255,255,0.5) !important;
+}
+
+/* Уведомления */
+.bell-icon {
+    fill: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+.notif-btn:hover {
+    background-color: var(--bg-panel) !important;
+}
+.notif-badge {
+    background-color: var(--color-orange) !important;
+    color: #FFF !important;
+    box-shadow: 0 0 0 2px var(--bg-main) !important;
+}
+
+.notif-dropdown {
+    background-color: var(--text-main) !important;
+    border: 1px solid var(--color-primary) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.5) !important;
+    overflow: hidden !important;
+}
+
+.notif-header {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.notif-item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.notif-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.notif-title { color: #FFFFFF !important; }
+.notif-text { color: rgba(255, 255, 255, 0.8) !important; }
+.notif-time { color: rgba(255, 255, 255, 0.5) !important; }
+
+/* --- МОБИЛЬНАЯ АДАПТАЦИЯ ФОНА И ХЕДЕРА --- */
+@media (max-width: 768px) {
+    body::before {
+        background-position: 
+            5% 2%,   30% 5%,  55% 3%,  80% 6%, 
+            15% 15%, 40% 12%, 65% 16%, 90% 13%,
+            8% 25%,  35% 22%, 60% 26%, 85% 23%,
+            20% 35%, 45% 32%, 70% 36%, 95% 33%,
+            5% 45%,  30% 42%, 55% 46%, 80% 43%,
+            15% 55%, 40% 52%, 65% 56%, 90% 53%,
+            10% 65%, 35% 62%, 60% 66%, 85% 63%,
+            20% 75%, 45% 72%, 70% 76%, 95% 73%,
+            5% 85%,  30% 82%, 55% 86%, 80% 83%,
+            15% 95%, 40% 92%, 65% 96%, 90% 93%,
+            50% 8%, 98% 30%, 2% 50%, 98% 70%, 50% 98%,
+            25% 10%, 75% 90%, 10% 30%, 90% 60%, 40% 80%,
+            60% 20%, 30% 60%, 80% 30%, 10% 80%, 70% 10%,
+            20% 50%, 50% 30%, 90% 40%, 30% 90%, 60% 70% !important;
+            
+        background-size: 
+            20px, 18px, 22px, 16px, 24px,
+            19px, 21px, 17px, 23px, 20px,
+            18px, 22px, 20px, 16px, 24px,
+            19px, 21px, 23px, 17px, 20px,
+            22px, 18px, 24px, 16px, 21px,
+            19px, 23px, 20px, 17px, 22px,
+            18px, 24px, 21px, 16px, 20px,
+            23px, 19px, 22px, 17px, 24px,
+            15px, 15px, 15px, 15px, 15px !important;
+    }
+
+    .mobile-header {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: auto !important;
+        padding: 10px 15px !important;
+        gap: 10px !important;
+    }
+
+    .mobile-header .logo {
+        position: static !important;
+        width: 100%;
+        display: flex;
+        justify-content: flex-start !important; 
+        transform: none !important;
+        margin: 0 !important;
+    }
+    .mobile-header .logo-image {
+        height: 60px !important;
+        display: none !important;
+    }
+    .logo-text-wrapper {
+        font-size: 1.5em; 
+    }
+
+    .header-user-group {
+        width: 100%;
+        display: flex;
+        justify-content: space-between !important;
+        align-items: center;
+        margin: 0 !important;
+        gap: 10px !important;
+    }
+
+    .profile-balance-box {
+        flex-grow: 1; 
+        display: flex;
+        align-items: center !important; 
+        justify-content: flex-start !important;
+        padding: 10px 25px !important; 
+        margin: 0 !important;
+        transform: none !important;
+        gap: 25px !important; 
+    }
+    
+    .header-avatar-img {
+        width: 48px !important;
+        height: 48px !important;
+        border: 2px solid rgba(255,255,255,0.8) !important;
+    }
+
+    .profile-text-content {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        justify-content: center !important;
+        gap: 2px !important;
+    }
+
+    .mobile-header .profile-name {
+        font-size: 1.7em !important; 
+        font-weight: 800 !important; 
+        line-height: 1.1 !important;
+        color: #FFFFFF !important;
+        text-transform: none !important; 
+    }
+
+    .mobile-header .profile-balance-box .balance {
+        font-size: 1.3em !important; 
+        font-weight: 500 !important; 
+        opacity: 0.9 !important; 
+        color: #FFFFFF !important;
+    }
+    
+    .notification-wrapper { flex-shrink: 0; }
+    
+    .guest-header-actions {
+        width: 100%;
+        flex-direction: row !important;
+        gap: 10px !important;
+    }
+}
+
+/* =========================================
+   2. КАРТОЧКИ ИГР (ICE & GRADIENTS & BLUR)
+   ========================================= */
+
+.game-cards-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    padding: 0 15px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.lobby-game-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+@keyframes ice-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Основной стиль карточки */
+.lobby-game-card {
+    width: 100% !important;
+    height: 140px !important; 
+    aspect-ratio: auto !important;
+    border-radius: var(--card-radius) !important;
+    border: 3px solid transparent !important;
+    
+    /* Дефолтный фон (если не переопределен) */
+    background-image: 
+        linear-gradient(var(--bg-card), var(--bg-card)), 
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    
+    background-origin: padding-box, border-box !important;
+    background-clip: padding-box, border-box !important;
+    background-size: 100% 100%, 200% 200% !important;
+    
+    animation: ice-shimmer 4s ease infinite !important;
+    box-shadow: 0 4px 15px rgba(34, 211, 238, 0.25), inset 0 0 20px rgba(165, 243, 252, 0.1) !important;
+    
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+    margin-bottom: 0 !important;
+}
+
+/* --- УНИКАЛЬНЫЕ ГРАДИЕНТЫ ДЛЯ ИГР --- */
+
+/* DICE - Приятный голубой/индиго */
+.lobby-game-wrapper[data-game-type="dice"] .lobby-game-card {
+    background-image: 
+        linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%), /* Внутренний фон */
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important; /* Обводка */
+}
+
+/* MINES - Приятный мятный/зеленый */
+.lobby-game-wrapper[data-game-type="mines"] .lobby-game-card {
+    background-image: 
+        linear-gradient(135deg, #F0FDF4 0%, #D1FAE5 100%), 
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+}
+
+/* KENO - Приятный лавандовый/розовый */
+.lobby-game-wrapper[data-game-type="keno"] .lobby-game-card {
+    background-image: 
+        linear-gradient(135deg, #FAF5FF 0%, #F3E8FF 100%), 
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+}
+
+
+.lobby-game-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 25px rgba(34, 211, 238, 0.4) !important;
+}
+.lobby-game-card:active {
+    transform: translateY(2px) !important;
+    box-shadow: none !important;
+}
+
+/* Ледяной уголок */
+.lobby-game-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    background-size: 200% 200% !important;
+    animation: ice-shimmer 4s ease infinite !important;
+    border-top-right-radius: 20px;
+    z-index: 10;
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    box-shadow: none !important;
+}
+
+/* --- ОБЩИЙ СТИЛЬ КАРТИНКИ --- */
+.game-card-cat {
+    width: auto !important;
+    object-fit: contain;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+/* --- КОНФИГУРАЦИЯ ИЗОБРАЖЕНИЙ ПОКАРТОЧНО --- */
+
+/* Dice */
+.lobby-game-wrapper[data-game-type="dice"] .game-card-cat {
+    height: var(--img-size-dice) !important;
+    transform: translate(calc(-50% + var(--img-x-dice)), calc(-50% + var(--img-y-dice))) !important;
+}
+.lobby-game-wrapper[data-game-type="dice"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-dice)), calc(-50% + var(--img-y-dice))) scale(1.1) !important;
+}
+
+/* Mines */
+.lobby-game-wrapper[data-game-type="mines"] .game-card-cat {
+    height: var(--img-size-mines) !important;
+    transform: translate(calc(-50% + var(--img-x-mines)), calc(-50% + var(--img-y-mines))) !important;
+}
+.lobby-game-wrapper[data-game-type="mines"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-mines)), calc(-50% + var(--img-y-mines))) scale(1.1) !important;
+}
+
+/* Keno */
+.lobby-game-wrapper[data-game-type="keno"] .game-card-cat {
+    height: var(--img-size-keno) !important;
+    transform: translate(calc(-50% + var(--img-x-keno)), calc(-50% + var(--img-y-keno))) !important;
+}
+.lobby-game-wrapper[data-game-type="keno"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-keno)), calc(-50% + var(--img-y-keno))) scale(1.1) !important;
+}
+
+/* Crash */
+.lobby-game-wrapper[data-game-type="crash"] .game-card-cat {
+    height: var(--img-size-crash) !important;
+    transform: translate(calc(-50% + var(--img-x-crash)), calc(-50% + var(--img-y-crash))) !important;
+}
+.lobby-game-wrapper[data-game-type="crash"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-crash)), calc(-50% + var(--img-y-crash))) scale(1.1) !important;
+}
+
+/* Coin */
+.lobby-game-wrapper[data-game-type="coin"] .game-card-cat {
+    height: var(--img-size-coin) !important;
+    transform: translate(calc(-50% + var(--img-x-coin)), calc(-50% + var(--img-y-coin))) !important;
+}
+.lobby-game-wrapper[data-game-type="coin"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-coin)), calc(-50% + var(--img-y-coin))) scale(1.1) !important;
+}
+
+/* Sleepy */
+.lobby-game-wrapper[data-game-type="sleepy"] .game-card-cat {
+    height: var(--img-size-sleepy) !important;
+    transform: translate(calc(-50% + var(--img-x-sleepy)), calc(-50% + var(--img-y-sleepy))) !important;
+}
+.lobby-game-wrapper[data-game-type="sleepy"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-sleepy)), calc(-50% + var(--img-y-sleepy))) scale(1.1) !important;
+}
+
+/* Wheel */
+.lobby-game-wrapper[data-game-type="wheel"] .game-card-cat {
+    height: var(--img-size-wheel) !important;
+    transform: translate(calc(-50% + var(--img-x-wheel)), calc(-50% + var(--img-y-wheel))) !important;
+}
+.lobby-game-wrapper[data-game-type="wheel"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-wheel)), calc(-50% + var(--img-y-wheel))) scale(1.1) !important;
+}
+
+
+/* Название игры */
+.game-card-panel {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    background-color: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(4px);
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    padding: 4px !important;
+    text-align: center;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.game-card-title {
+    font-size: 0.85em !important;
+    font-weight: 800 !important;
+    color: var(--color-primary) !important;
+    text-transform: uppercase;
+}
+
+/* --- COMING SOON И БЛЮР --- */
+
+.lobby-game-wrapper.locked-game {
+    opacity: 1 !important; /* Убираем прозрачность блока */
+    filter: none !important; /* Убираем ч/б фильтр */
+}
+
+/* Сама карточка светлая, не серая */
+.lobby-game-wrapper.locked-game .lobby-game-card {
+    background: #E0E7FF !important; /* Легкий голубой оттенок */
+    border: 2px solid #C7D2FE !important; /* Рамка */
+    animation: none !important; 
+    box-shadow: none !important;
+    cursor: not-allowed;
+    overflow: hidden; /* Важно для обрезки блюра */
+}
+
+/* Блюрим ТОЛЬКО картинку внутри */
+.lobby-game-wrapper.locked-game .game-card-cat {
+    filter: blur(8px) grayscale(0.3) !important; /* Сильный блюр + немного серости */
+    opacity: 0.6 !important; /* Полупрозрачность */
+}
+
+/* Убираем ледяной уголок у закрытых (или делаем его простым) */
+.lobby-game-wrapper.locked-game .lobby-game-card::after {
+    display: none !important;
+}
+
+/* Текст COMING SOON поверх всего */
+.lobby-game-wrapper.locked-game .lobby-game-card::before {
+    content: 'COMING SOON';
+    position: absolute;
+    top: 50%; /* Идеальный центр */
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    width: 100%; /* На всю ширину для гарантии центровки */
+    
+    font-size: 1.4em;
+    font-weight: 900;
+    color: var(--color-primary); /* Индиго */
+    text-transform: uppercase;
+    text-align: center;
+    white-space: nowrap;
+    
+    /* Обводка текста для читаемости */
+    text-shadow: 
+        0 2px 0 #fff,
+        0 -1px 0 #fff,
+        1px 0 0 #fff,
+        -1px 0 0 #fff,
+        0 0 10px rgba(255,255,255,0.8);
+        
+    filter: none !important; /* Текст должен быть четким */
+}
+
+/* --- ОСТАЛЬНЫЕ СТИЛИ ИНТЕРФЕЙСА (Индиго) --- */
+.dice-controls, .mines-controls-panel, .crash-controls-panel, .coin-controls-panel, .keno-controls-ref-style {
+    background-color: var(--bg-panel) !important;
+    border: 1px solid var(--border-color-dark) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.1) !important;
+}
+
+.primary-button, .auth-button, .wallet-deposit-button, .wallet-withdrawal-button, #mines-start-button, #crash-start-button, #coin-start-button, #keno-play-button, #wheel-spin-button {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 0 #3730A3 !important;
+}
+
+input[type="text"], input[type="number"], input[type="password"] {
+    background-color: var(--bg-input) !important;
+    border: 2px solid var(--border-color) !important;
+    color: var(--text-main) !important;
+}
+input:focus { border-color: var(--color-primary) !important; }
+
+.lobby-header { text-align: left !important; }
+.game-list-title {
+    font-size: 0.95em !important;
+    font-weight: 700 !important;
+    color: #1E1B4B !important; 
+    text-transform: none !important;
+    text-align: left !important;
+    margin-left: 5px !important;
+    padding: 0 !important;
+    letter-spacing: 0.5px !important; 
+    text-shadow: none !important;
+    display: flex !important;
+    align-items: center;
+}
+.game-list-title::after { display: none !important; }
+
+@media (max-width: 768px) {
+    .lobby-header { text-align: left !important; }
+    .game-list-title { font-size: 0.9em !important; text-align: left !important; }
+}
+
+.bottom-nav {
+    background-color: var(--color-primary) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.bottom-nav-item { color: rgba(255, 255, 255, 0.7) !important; }
+.bottom-nav-item .nav-icon { filter: brightness(0) invert(1) !important; opacity: 0.7 !important; }
+.bottom-nav-item.active { color: #FFFFFF !important; }
+.bottom-nav-item.active .nav-icon { opacity: 1 !important; filter: brightness(0) invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.5)) !important; }
+
+.sidebar-nav, .wallet-modal-content {
+    background-color: var(--bg-main) !important;
+    color: var(--text-main) !important;
+}
+
+.sidebar-links a {
+    color: var(--color-primary) !important;
+    font-weight: 800 !important;
+    background-color: rgba(79, 70, 229, 0.05) !important; 
+    border: 1px solid var(--border-color) !important;
+    margin-bottom: 10px; 
+}
+.sidebar-links a:hover {
+    color: var(--color-primary-hover) !important;
+    background-color: var(--bg-panel) !important; 
+    border-color: var(--color-primary) !important;
+}
+
+.quest-button {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 3px 0 #3730A3 !important;
+}
+.quest-button:hover { background-color: var(--color-primary-hover) !important; }
+
+#profile-page .profile-container {
+    background-color: var(--text-main) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--color-primary) !important;
+    box-shadow: 0 4px 20px rgba(30, 27, 75, 0.5) !important;
+}
+#profile-page .profile-box {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+}
+.profile-link, .profile-subheader, #profile-page label {
+    color: #FFFFFF !important;
+    opacity: 0.9 !important;
+}
+#profile-page .profile-form .form-group input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+#profile-page .profile-form .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+.social-link-button {
+    background-color: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #FFFFFF !important;
+}
+.social-link-button:hover { background-color: rgba(255, 255, 255, 0.1) !important; }
+.profile-form .auth-button { background-color: var(--color-primary) !important; }
+
+#ranks-page .rank-card-wrapper {
+    background-color: var(--text-main) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.rank-card__title { color: #FFFFFF !important; }
+.rank-card__info-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+.rank-card__info-item strong { color: #FFFFFF !important; }
+.rank-card-wrapper.current {
+    background-color: var(--text-main) !important;
+    border: 2px solid var(--color-orange) !important;
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.3) !important;
+}
+
+.bonus-display-box {
+    background-color: var(--text-main) !important;
+    color: #FFFFFF !important;
+    border: 1px solid var(--color-primary) !important;
+    box-shadow: 0 8px 20px rgba(30, 27, 75, 0.4) !important;
+}
+#bonus-amount-display, #bonus-page-text { color: #FFFFFF !important; text-shadow: none !important; }
+.bonus-display-box .currency { color: rgba(255,255,255,0.7) !important; }
+
+.weekly-bonus-item {
+    background-color: var(--text-main) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+.weekly-bonus-title, .weekly-bonus-value { color: #FFFFFF !important; }
+
+.quest-box {
+    background-color: var(--text-main) !important;
+    color: #FFFFFF !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+}
+.quest-title, .quest-subtitle, .quest-text, .quest-text a { color: #FFFFFF !important; }
+.quest-subtitle, .quest-text small { opacity: 0.7 !important; }
+.quest-status-icon.status-pending { color: rgba(255,255,255,0.5) !important; }
+
+.promocode-header { color: var(--text-main) !important; }
+.promocode-box { background-color: var(--bg-panel) !important; }
+
+.admin-container { background-color: var(--color-primary) !important; color: #FFFFFF !important; }
+#admin-tabs .ref-tab { color: rgba(255, 255, 255, 0.7) !important; }
+#admin-tabs .ref-tab.active { color: #FFFFFF !important; border-bottom-color: #FFFFFF !important; }
+#admin-tabs .ref-tab.active::after { background-color: #FFFFFF !important; }
+#admin-page .form-group label { color: #FFFFFF !important; }
+.admin-user-table tr, .admin-user-table th, .admin-user-table td { border-color: rgba(255, 255, 255, 0.2) !important; color: #FFFFFF !important; }
+@media (max-width: 768px) {
+    .admin-user-table tr { background-color: var(--text-main) !important; border-color: rgba(255, 255, 255, 0.2) !important; }
+}
+
+/* --- ПАРТНЕРКА (ТЕМНО-СИНИЙ ФОН) --- */
+.ref-container {
+    background-color: var(--text-main) !important; /* #1E1B4B */
+    color: #FFFFFF !important;
+}
+
+.ref-subheader, .ref-manager-link, .ref-link-box label, .ref-form-header { color: #FFFFFF !important; opacity: 0.9 !important; }
+
+/* ЗАДАЧА 1: "Мои Каналы" и "Мои Промокоды" - БЕЛЫЕ */
+.ref-list-header {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+/* ЗАДАЧА 2: Ссылка RevShare - ИНДИГО (Исправление) */
+.ref-link {
+    color: #4F46E5 !important; /* Indigo */
+    text-decoration: underline;
+    font-weight: 800 !important;
+}
+
+/* Ссылка на менеджера - Оставляем БЕЛОЙ (как просили ранее) */
+.ref-manager-link a {
+    color: #FFFFFF !important;
+    text-decoration: underline;
+    font-weight: 800 !important;
+}
+
+/* Текст внутри инпута ссылки */
+#ref-link-input {
+    color: #4F46E5 !important; /* Indigo */
+    font-weight: bold !important;
+}
+
+/* ЗАДАЧА 3: Обводка разделов (Индиго) и темный фон */
+.ref-link-box, /* Ваша ссылка */
+.ref-table-wrapper, /* Таблицы (Рефералы/Промокоды) */
+.ref-form /* Формы создания */
+{
+    background-color: rgba(30, 27, 75, 0.5) !important; /* Полупрозрачный темный */
+    border: 2px solid var(--color-primary) !important; /* Индиго обводка */
+}
+
+/* Кнопка "Копировать" - ИНДИГО */
+#ref-copy-button {
+    background-color: #4F46E5 !important; /* Индиго */
+    color: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 4px 0 #3730A3 !important; /* Тень */
+}
+#ref-copy-button:active {
+    box-shadow: 0 2px 0 #3730A3 !important;
+    transform: translateY(2px);
+}
+
+/* Остальные стили партнерки */
+.ref-tabs .ref-tab { color: rgba(255, 255, 255, 0.7) !important; }
+.ref-tabs .ref-tab.active { color: #FFFFFF !important; }
+.ref-tabs .ref-tab.active::after { background-color: #FFFFFF !important; }
+.ref-subtab { background-color: rgba(0, 0, 0, 0.2) !important; color: rgba(255, 255, 255, 0.7) !important; }
+.ref-subtab.active { background-color: var(--text-main) !important; color: #FFFFFF !important; }
+/* --- КОНЕЦ ПАРТНЕРКИ --- */
+
+.faq-container { gap: 10px; }
+.faq-item .faq-question { background-color: var(--color-primary) !important; color: #FFFFFF !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; transition: background-color 0.3s ease; border-radius: 8px; }
+.faq-item.active .faq-question { background-color: var(--color-primary) !important; border-radius: 8px 8px 0 0; border-bottom: none !important; }
+.faq-item { background-color: transparent !important; border: none !important; }
+.faq-icon { color: #FFFFFF !important; }
+.faq-answer-content { background-color: var(--text-main) !important; color: #FFFFFF !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-top: none !important; border-radius: 0 0 8px 8px; padding: 20px; }
+.faq-answer-content p { opacity: 0.9; }
+.faq-answer-content a { color: var(--color-primary) !important; text-decoration: underline !important; font-weight: bold !important; }
+
+/* =========================================
+   2. КОШЕЛЕК (BUTTONS, TABS, HISTORY)
+   ========================================= */
+
+/* 1. Кнопки методов оплаты (FK, Piastrix, SBP) */
+.wallet-method-button {
+    background-color: #1E1B4B !important; /* Темно-синий фон */
+    border: 1px solid var(--color-primary) !important; /* Индиго обводка */
+    border-radius: 8px !important; /* На всякий случай */
+}
+
+/* При наведении */
+.wallet-method-button:hover {
+    background-color: #2D2A5E !important; /* Чуть светлее темно-синий */
+    border-color: var(--color-primary) !important;
+}
+
+/* Активная кнопка (выбранная) */
+.wallet-method-button.active {
+    background-color: #1E1B4B !important; 
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 15px var(--color-primary) !important; /* Индиго свечение */
+}
+
+/* 2. Полоска и свечение вкладок */
+.wallet-tab.active::after {
+    background-color: var(--color-primary) !important; /* Индиго полоска */
+    box-shadow: 0 0 10px var(--color-primary) !important; /* Индиго свечение */
+    height: 2px !important; /* Тонкая полоска */
+    bottom: 0 !important;
+}
+/* Убираем border-bottom у самого элемента, чтобы не двоилось с ::after */
+.wallet-tab.active {
+    border-bottom: none !important; /* Полагаемся на ::after для свечения */
+    color: var(--color-primary) !important;
+    opacity: 1;
+}
+.wallet-tab { 
+    color: var(--color-primary) !important; 
+    opacity: 0.6; 
+}
+
+/* ЗАДАЧА 1: ФОН МОДАЛКИ КОШЕЛЬКА */
+.wallet-modal-content {
+    /* Изменено на насыщенный темно-синий */
+    background-color: #1E1B4B !important; 
+    color: var(--text-main) !important;
+}
+
+/* ЗАДАЧА 2 & 3: ЦВЕТ ТЕКСТА ЗАГОЛОВКОВ (LABELS) В КОШЕЛЬКЕ */
+.wallet-form .form-group label {
+    color: #FFFFFF !important; /* Белый цвет принудительно */
+    font-weight: 700 !important;
+}
+
+.high-win-card { width: 125px !important; min-width: 125px !important; background: var(--text-main) !important; border: 2px solid var(--color-primary) !important; box-shadow: 0 0 10px var(--color-primary) !important; padding: 0 !important; border-radius: 14px !important; animation: none !important; }
+.history-item-content { background-color: transparent !important; padding: 10px 5px !important; gap: 5px !important; }
+.history-game-img-icon { height: 35px !important; width: 35px !important; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
+.history-user { font-size: 0.85em !important; color: #FFFFFF !important; }
+.history-multiplier-tag { background-color: rgba(79, 70, 229, 0.2) !important; color: #FFFFFF !important; border-color: var(--color-primary) !important; box-shadow: none !important; }
+.history-amount.win { font-size: 1.1em !important; color: #00FF99 !important; text-shadow: 0 0 5px rgba(0, 255, 153, 0.4); }
+
+.snow-toggle-wrapper { display: flex; align-items: center; justify-content: space-between; background-color: rgba(0, 0, 0, 0.4) !important; padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+.snow-toggle-label { font-weight: bold; color: #FFFFFF !important; }
+
+.dice-input-group { background-color: #FFFFFF !important; border: 2px solid #E0E7FF !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; }
+.dice-input-group input[type="number"] { background-color: #F3F4F6 !important; color: #111827 !important; border-color: #D1D5DB !important; }
+.dice-input-group label { color: #4B5563 !important; }
+.dice-input-group .bet-actions-grid button { background-color: #E5E7EB !important; color: #374151 !important; border: 1px solid #D1D5DB !important; }
+.dice-input-group .bet-actions-grid button:hover { background-color: #D1D5DB !important; }
+
+.game-history-item { background-color: rgba(79, 70, 229, 0.05) !important; border: 1px solid rgba(79, 70, 229, 0.1) !important; border-radius: 8px !important; margin-bottom: 5px !important; }
+.history-cell.user { color: #9CA3AF !important; font-weight: 600 !important; }
+.history-cell.bet { color: #9CA3AF !important; }
+.game-history-item.win .history-cell.payout { color: #00A878 !important; }
+.game-history-item.loss .history-cell.payout { color: #FF5555 !important; }
+
+.mines-multiplier-item { background-color: #FFFFFF !important; border: 1px solid var(--color-border-dark) !important; }
+.mines-multiplier-item .multiplier-value { color: var(--color-primary) !important; }
+.mines-multiplier-item .step-label { color: #9CA3AF !important; }
+.mines-multiplier-item.active { background-color: var(--color-primary) !important; }
+.mines-multiplier-item.active .multiplier-value, .mines-multiplier-item.active .step-label { color: #FFFFFF !important; }
+
+.mines-grid-wrapper { background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+.mine-cell { border: none !important; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15) !important; background-color: #F3F4F6 !important; }
+.mine-cell:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2) !important; }
+.mine-cell.bomb { background-color: #FF5555 !important; color: #FFFFFF !important; }
+.mine-cell.safe { background-color: #FFFFFF !important; }
+#mines-main-button { background: var(--color-primary) !important; color: #FFFFFF !important; box-shadow: 0 4px 0 #3730A3 !important; }
+#mines-main-button:active { box-shadow: 0 2px 0 #3730A3 !important; transform: translateY(2px); }
+
+.mines-controls-panel { background-color: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+#mines-game .keno-controls-ref-style .keno-input-wrapper { background-color: #FFFFFF !important; border: 2px solid var(--color-border-dark) !important; box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important; }
+#mines-game .keno-controls-ref-style .keno-input-wrapper input { background-color: transparent !important; color: var(--text-main) !important; outline: none !important; }
+#mines-game .keno-controls-ref-style .keno-input-wrapper .currency-icon { color: var(--text-main) !important; opacity: 0.7; }
+#mines-game .keno-controls-ref-style .bet-half, #mines-game .keno-controls-ref-style .bet-double, .mines-count-btn, .mines-custom-input { background-color: #1E1B4B !important; color: #FFFFFF !important; border: 1px solid #1E1B4B !important; border-radius: 8px !important; }
+#mines-game .keno-controls-ref-style .bet-half:hover, #mines-game .keno-controls-ref-style .bet-double:hover, .mines-count-btn:hover { background-color: #2D2A5E !important; opacity: 1; }
+.mines-count-btn.active { border: 2px solid var(--color-primary) !important; box-shadow: 0 0 10px var(--color-primary) !important; }
+.mines-custom-input { background-color: #FFFFFF !important; border: 2px solid var(--color-border-dark) !important; }
+.mines-custom-input input { color: var(--text-main) !important; background-color: transparent !important; outline: none !important; }
+input:focus, button:focus { outline: none !important; box-shadow: none !important; }
+#mines-game .keno-controls-ref-style .keno-input-wrapper:focus-within { border-color: var(--color-primary) !important; }
+.per-game-history-list { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+
+.visual-history-content { width: 95%; max-width: 400px; background-color: #3D4654; color: #FFFFFF; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 15px; border: 1px solid var(--color-primary); box-shadow: 0 0 20px rgba(79, 70, 229, 0.2); }
+.visual-grid-container { background-color: rgba(30, 33, 40, 0.5); border-radius: 12px; padding: 10px; margin: 0 auto; width: 100%; display: grid; justify-content: center; }
+.mines-visual { grid-template-columns: repeat(5, 1fr); gap: 5px; aspect-ratio: 1 / 1; overflow: hidden; position: relative; }
+.visual-cell.mine-cell img.mine-cell-icon { width: 80% !important; height: 80% !important; max-width: 100% !important; max-height: 100% !important; object-fit: contain !important; position: static !important; }
+.visual-cell.mine-cell { border-radius: 6px; display: flex; justify-content: center; align-items: center; font-size: 1.2em; aspect-ratio: 1 / 1; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
+.visual-cell.mine-cell.safe-opened { background-color: #00A878 !important; color: #FFF; box-shadow: 0 0 10px rgba(0, 168, 120, 0.5); }
+.visual-cell.mine-cell.safe-closed { background-color: #FFFFFF !important; color: #000; }
+.visual-cell.mine-cell.bomb { background-color: #FF5555 !important; color: #FFF; box-shadow: 0 0 10px rgba(255, 85, 85, 0.5); }
+.keno-visual { grid-template-columns: repeat(8, 1fr); gap: 4px; }
+.visual-cell.keno-cell { background-color: #2E3035; border-radius: 6px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 0.8em; color: rgba(255,255,255,0.5); aspect-ratio: 1 / 1; overflow: hidden; position: relative; }
+.visual-cell.keno-cell img.keno-cell-icon { width: 80% !important; height: 80% !important; object-fit: contain !important; position: static !important; }
+.visual-cell.keno-cell.miss { background-color: var(--color-primary) !important; color: #FFF; opacity: 1; box-shadow: 0 0 5px var(--color-primary); }
+.visual-cell.keno-cell.hit { background-color: #00A878 !important; color: transparent; box-shadow: 0 0 10px rgba(0, 168, 120, 0.6); opacity: 1; }
+.visual-cell.keno-cell.drawn-history { background-color: #4B5563 !important; color: #FFF; opacity: 0.7; }
+.dice-visual-box div { color: var(--color-primary) !important; }
+.dice-visual-bar-container { width: 100%; height: 16px; background-color: #E0E7FF !important; border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--color-primary); }
+.dice-visual-bar-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #6366F1) !important; border-radius: 8px; transition: width 0.5s ease; box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); }
+.visual-history-footer { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+.vh-row { display: flex; justify-content: space-between; font-size: 0.95em; align-items: flex-start; }
+.vh-row span { color: var(--color-primary) !important; font-weight: bold; }
+.vh-row strong { color: var(--color-primary) !important; text-align: right; }
+.vh-row.result-row strong { color: var(--color-primary) !important; }
+#vh-extra-value { line-height: 1.4; }
+
+#keno-grid .keno-cell { background-color: #2E3035 !important; border: 1px solid #373D49 !important; color: rgba(255, 255, 255, 0.6) !important; border-radius: 8px !important; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.3) !important; }
+#keno-grid .keno-cell:hover { background-color: #3D4654 !important; transform: translateY(-1px); }
+#keno-grid .keno-cell.selected { background-color: var(--color-primary) !important; color: #fff !important; border-color: var(--color-primary) !important; box-shadow: 0 0 10px var(--color-primary) !important; opacity: 1 !important; }
+#keno-grid .keno-cell.hit { background-color: var(--color-secondary) !important; border-color: var(--color-secondary) !important; color: #fff !important; }
+#keno-autopick-button { color: #1E1B4B !important; border-color: #1E1B4B !important; }
+#keno-autopick-button:hover { background-color: rgba(30, 27, 75, 0.05) !important; }
+#keno-play-button, #keno-auto-start-button { background: #4F46E5 !important; color: #FFFFFF !important; box-shadow: 0 4px 0 #3730A3 !important; }
+#keno-play-button:active, #keno-auto-start-button:active { box-shadow: 0 2px 0 #3730A3 !important; transform: translateY(2px); }
+#keno-game .keno-bet-input-row .keno-input-wrapper { background-color: #FFFFFF !important; border: 2px solid #E0E7FF !important; }
+#keno-game .keno-bet-input-row .keno-input-wrapper input { color: #1E1B4B !important; }
+#keno-game .keno-bet-input-row .keno-input-wrapper .currency-icon { color: #1E1B4B !important; opacity: 0.5; }
+#keno-clear-button, #keno-turbo-button, #keno-game .bet-half, #keno-game .bet-double { background-color: #1E1B4B !important; color: #FFFFFF !important; border: 1px solid #1E1B4B !important; }
+#keno-turbo-button img, #keno-clear-button img { filter: brightness(0) invert(1) !important; opacity: 0.8; }
+#keno-turbo-button.active img { filter: none !important; opacity: 1 !important; filter: drop-shadow(0 0 5px var(--color-orange)) !important; }
+#keno-game .bet-half:hover, #keno-game .bet-double:hover, #keno-clear-button:hover, #keno-turbo-button:hover { background-color: #312E81 !important; }
+.keno-risk-selector { background-color: transparent !important; gap: 8px !important; }
+.keno-risk-btn { background-color: #1E1B4B !important; color: #FFFFFF !important; opacity: 0.6 !important; border-radius: 8px !important; border: none !important; }
+.keno-risk-btn.active { opacity: 1 !important; background-color: #4F46E5 !important; box-shadow: 0 0 15px rgba(79, 70, 229, 0.6) !important; transform: scale(1.05); }
+
+.bell-icon { width: 36px !important; height: 36px !important; }
+.notif-btn { width: 40px !important; height: 40px !important; }
+.notif-badge { top: 5px !important; right: 5px !important; font-size: 0.9em !important; min-width: 20px !important; height: 20px !important; border-radius: 10px !important; }
+@media (max-width: 768px) {
+    #header-notif-box { position: absolute !important; top: 25% !important; right: 10px !important; transform: translateY(-50%) !important; z-index: 100 !important; }
+    .header-user-group { padding-right: 70px !important; }
+    .mobile-header { overflow: visible !important; }
+}
+
+.header-wallet-btn { display: flex; align-items: center; justify-content: center; gap: 5px; background-color: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; padding: 6px 10px; cursor: pointer; transition: all 0.2s ease; margin-left: auto; }
+.header-wallet-btn:hover { background-color: rgba(255, 255, 255, 0.25); transform: translateY(-1px); }
+.header-wallet-btn:active { transform: translateY(1px); }
+.header-wallet-btn img { width: 20px; height: 20px; object-fit: contain; filter: brightness(0) invert(1); }
+.wallet-btn-plus { color: #FFFFFF; font-weight: 900; font-size: 1.2em; line-height: 1; }
+@media (max-width: 768px) {
+    .header-wallet-btn { padding: 8px 12px; }
+    .header-wallet-btn img { width: 22px; height: 22px; }
+}
+
+#theme-toggle-btn {
+    color: #FFFFFF !important;
+}
+
+/* Stop button style (Keno/General) */
+.keno-big-play-btn.stop-mode {
+    background-color: var(--bg-input) !important;
+    color: var(--text-muted) !important;
+}
+
+/* 4. Profile Rank Text -> Indigo */
+#profile-rank {
+    color: var(--color-primary) !important; /* Indigo */
+    font-weight: 900 !important;
+}
+
+/* 2. Bonus Quest Links Underline -> Indigo (KEEP THIS) */
+.quest-text a {
+    text-decoration-color: var(--color-primary) !important;
+}
+
+/* =========================================
+   20. USER CARD IN PROFILE (PREMIUM DARK BLUE REDESIGN)
+   ========================================= */
+
+.user-info-card {
+    display: flex;
+    align-items: center;
+    /* Глубокий темно-синий градиент с легкой прозрачностью */
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(49, 46, 129, 0.9) 100%) !important;
+    /* Эффект матового стекла */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    /* Тонкая ледяная рамка */
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    /* Глубокая мягкая тень */
+    box-shadow: 0 15px 35px rgba(30, 27, 75, 0.25) !important;
+    border-radius: 24px; /* Более скругленные углы */
+    padding: 25px;
+    margin-bottom: 25px;
+    gap: 25px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Легкий блик сверху для объема */
+.user-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.05) 0%, transparent 100%);
+    pointer-events: none;
+}
+
+/* Левая часть (Аватар + Кнопка) */
+.user-info-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.profile-large-avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    /* Более выразительная рамка с свечением */
+    border: 4px solid var(--color-primary);
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    object-fit: cover;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.profile-large-avatar:hover {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 0 30px rgba(79, 70, 229, 0.6);
+}
+
+/* Правая часть (Инфо + Кнопка) */
+.user-info-right {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+#profile-username-display {
+    color: var(--color-primary) !important; /* <-- ИЗМЕНЕНО НА INDIGO */
+    font-size: 1.8em; /* Крупнее */
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3); /* Тень текста */
+}
+
+.user-info-subtitle {
+    font-size: 0.95em;
+    color: #A5B4FC; /* Светлый индиго для контраста */
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+/* --- Кнопки в карточке --- */
+
+.user-info-card .auth-button {
+    margin-top: 5px;
+    width: fit-content;
+    padding: 10px 20px;
+    font-size: 0.95em;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* Маленькая кнопка "Выбрать аватар" - Контурный стиль */
+.user-info-left .auth-button.small {
+    font-size: 0.85em;
+    padding: 6px 12px;
+    background-color: transparent !important;
+    border: 2px solid var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    font-weight: 700;
+    box-shadow: none !important;
+}
+.user-info-left .auth-button.small:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+}
+
+/* Главная кнопка "Сменить/Оплатить" - Градиентный стиль */
+#profile-change-name-btn {
+    background: linear-gradient(to right, var(--color-primary), #6366F1) !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4) !important;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+#profile-change-name-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6) !important;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 480px) {
+    .user-info-card {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        gap: 15px;
+    }
+    .user-info-right {
+        align-items: center;
+        width: 100%;
+    }
+    #profile-username-display {
+        font-size: 1.5em;
+    }
+    .user-info-card .auth-button, 
+    #profile-change-name-btn {
+        width: 100%; /* Кнопки на всю ширину на мобилках */
+        justify-content: center;
+    }
+}
+
+/* =========================================
+   21. STYLISH CUSTOMIZE MODAL TITLES
+   ========================================= */
+
+/* Заголовки в модальном окне кастомизации -> Темно-синие */
+.customize-section-title {
+    color: var(--text-main) !important; /* #1E1B4B */
+    border-bottom: 1px solid var(--color-border-dark); /* Keep border */
+    opacity: 1; /* Make sure it's fully visible */
+}
+
+/* =========================================
+   22. CUSTOMIZE MODAL UPDATE (TASK: Dark Blue BG & Indigo Text)
+   ========================================= */
+
+.customize-modal-content {
+    /* 1. Фон темно-синий */
+    background-color: #1E1B4B !important; /* var(--text-main) */
+    border: 1px solid var(--color-primary) !important; /* Индиго рамка для стиля */
+    box-shadow: 0 10px 30px rgba(30, 27, 75, 0.6) !important;
+}
+
+.customize-section-title {
+    /* 2. Надписи индиго */
+    color: #4F46E5 !important; /* var(--color-primary) */
+    border-bottom: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго разделитель */
+    opacity: 1 !important;
+}
+
+/* Также поправим кнопку закрытия, чтобы ее было видно на темном фоне */
+#customize-modal-close {
+    color: #FFFFFF !important;
+}
+#customize-modal-close:hover {
+    color: #4F46E5 !important;
+}
+
 /* =========================================
    23. LOADER (INDIGO CAT)
    ========================================= */
