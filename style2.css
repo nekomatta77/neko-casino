@@ -1,7 +1,7 @@
 /*
  * style2.css
  * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 8.1 (Fixed Indigo Rank Pattern)
+ * Version 8.3 (Wallet Buttons & Tab Glow Fixed)
  */
 
 :root {
@@ -755,43 +755,12 @@ input:focus { border-color: var(--color-primary) !important; }
     border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 .rank-card__info-item strong { color: #FFFFFF !important; }
-
-/* ЗАДАЧА 1: Текущий ранг - Цвет Индиго */
 .rank-card-wrapper.current {
     background-color: var(--text-main) !important;
-    
-    /* 1. Граница */
-    border: 2px solid var(--color-primary) !important;
-    
-    /* 2. Тень */
-    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4) !important;
-    
-    /* 3. Узор (полоски) - меняем оранжевый на индиго (rgba(79, 70, 229, ...)) */
-    background-image: repeating-linear-gradient(
-        45deg,
-        transparent,
-        transparent 10px,
-        rgba(79, 70, 229, 0.05) 10px,
-        rgba(79, 70, 229, 0.05) 12px
-    ) !important;
+    border: 2px solid var(--color-orange) !important;
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.3) !important;
 }
 
-/* Заголовки и цифры внутри текущего ранга */
-.rank-card-wrapper.current .rank-card__title {
-    color: var(--color-primary) !important;
-    text-shadow: 0 0 10px rgba(79, 70, 229, 0.4) !important;
-}
-
-.rank-card-wrapper.current .rank-card__info-item strong {
-    color: var(--color-primary) !important;
-}
-
-/* Фильтр для картинки (если был оранжевый drop-shadow) */
-.rank-card-wrapper.current .rank-card__image {
-    filter: drop-shadow(0 0 10px var(--color-primary)) !important;
-}
-
-/* ЗАДАЧА 2: Бонусные блоки - Темно-синий фон */
 .bonus-display-box {
     background-color: var(--text-main) !important;
     color: #FFFFFF !important;
@@ -801,42 +770,13 @@ input:focus { border-color: var(--color-primary) !important; }
 #bonus-amount-display, #bonus-page-text { color: #FFFFFF !important; text-shadow: none !important; }
 .bonus-display-box .currency { color: rgba(255,255,255,0.7) !important; }
 
-/* Промокоды и Еженедельные - Темно-синий (как просили) */
-.promocode-box,
-.weekly-bonus-box {
-    background-color: var(--text-main) !important; /* Темно-синий фон */
-    border: 1px solid var(--color-primary) !important; /* Индиго рамка для стиля */
-    box-shadow: 0 8px 20px rgba(30, 27, 75, 0.4) !important;
-    color: #FFFFFF !important;
-    border-radius: 16px !important;
-}
-
-/* Заголовки белые */
-.promocode-header { 
-    color: #FFFFFF !important; 
-}
-
-/* Инпуты внутри промокода адаптированы под темный фон */
-.promocode-box input {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #FFFFFF !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-.promocode-box input::placeholder {
-    color: rgba(255, 255, 255, 0.5) !important;
-}
-
-/* ЗАДАЧА 3: Эстетичные рамки для Рейкбека и Кэшбека */
 .weekly-bonus-item {
-    background-color: rgba(0, 0, 0, 0.2) !important; /* Чуть темнее родителя */
+    background-color: var(--text-main) !important;
     color: #FFFFFF !important;
-    /* Эстетичная рамка Индиго с прозрачностью */
-    border: 1px solid rgba(79, 70, 229, 0.6) !important;
-    box-shadow: inset 0 0 10px rgba(79, 70, 229, 0.1) !important; /* Легкое внутреннее свечение */
+    border: 1px solid rgba(255,255,255,0.1) !important;
 }
 .weekly-bonus-title, .weekly-bonus-value { color: #FFFFFF !important; }
 
-/* --- Остальные блоки --- */
 .quest-box {
     background-color: var(--text-main) !important;
     color: #FFFFFF !important;
@@ -845,6 +785,9 @@ input:focus { border-color: var(--color-primary) !important; }
 .quest-title, .quest-subtitle, .quest-text, .quest-text a { color: #FFFFFF !important; }
 .quest-subtitle, .quest-text small { opacity: 0.7 !important; }
 .quest-status-icon.status-pending { color: rgba(255,255,255,0.5) !important; }
+
+.promocode-header { color: var(--text-main) !important; }
+.promocode-box { background-color: var(--bg-panel) !important; }
 
 .admin-container { background-color: var(--color-primary) !important; color: #FFFFFF !important; }
 #admin-tabs .ref-tab { color: rgba(255, 255, 255, 0.7) !important; }
@@ -875,11 +818,60 @@ input:focus { border-color: var(--color-primary) !important; }
 .faq-answer-content p { opacity: 0.9; }
 .faq-answer-content a { color: #FFD700 !important; }
 
-.wallet-method-button { background-color: var(--color-primary) !important; border: 2px solid transparent !important; }
-.wallet-method-button.active { background-color: var(--color-primary) !important; border-color: var(--color-orange) !important; box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important; }
-.wallet-tab { color: var(--color-primary) !important; opacity: 0.6; }
-.wallet-tab.active { color: var(--color-primary) !important; opacity: 1; border-bottom: 2px solid var(--color-primary) !important; }
-.wallet-tab.active::after { background-color: var(--color-primary) !important; }
+/* =========================================
+   2. КОШЕЛЕК (BUTTONS, TABS, HISTORY)
+   ========================================= */
+
+/* 1. Кнопки методов оплаты (FK, Piastrix, SBP) */
+.wallet-method-button {
+    background-color: #1E1B4B !important; /* Темно-синий фон */
+    border: 1px solid var(--color-primary) !important; /* Индиго обводка */
+    border-radius: 8px !important; /* На всякий случай */
+}
+
+/* При наведении */
+.wallet-method-button:hover {
+    background-color: #2D2A5E !important; /* Чуть светлее темно-синий */
+    border-color: var(--color-primary) !important;
+}
+
+/* Активная кнопка (выбранная) */
+.wallet-method-button.active {
+    background-color: #1E1B4B !important; 
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 15px var(--color-primary) !important; /* Индиго свечение */
+}
+
+/* 2. Полоска и свечение вкладок */
+.wallet-tab.active::after {
+    background-color: var(--color-primary) !important; /* Индиго полоска */
+    box-shadow: 0 0 10px var(--color-primary) !important; /* Индиго свечение */
+    height: 2px !important; /* Тонкая полоска */
+    bottom: 0 !important;
+}
+/* Убираем border-bottom у самого элемента, чтобы не двоилось с ::after */
+.wallet-tab.active {
+    border-bottom: none !important; /* Полагаемся на ::after для свечения */
+    color: var(--color-primary) !important;
+    opacity: 1;
+}
+.wallet-tab { 
+    color: var(--color-primary) !important; 
+    opacity: 0.6; 
+}
+
+/* ЗАДАЧА 1: ФОН МОДАЛКИ КОШЕЛЬКА */
+.wallet-modal-content {
+    /* Изменено на насыщенный темно-синий */
+    background-color: #1E1B4B !important; 
+    color: var(--text-main) !important;
+}
+
+/* ЗАДАЧА 2 & 3: ЦВЕТ ТЕКСТА ЗАГОЛОВКОВ (LABELS) В КОШЕЛЬКЕ */
+.wallet-form .form-group label {
+    color: #FFFFFF !important; /* Белый цвет принудительно */
+    font-weight: 700 !important;
+}
 
 .high-win-card { width: 125px !important; min-width: 125px !important; background: var(--text-main) !important; border: 2px solid var(--color-primary) !important; box-shadow: 0 0 10px var(--color-primary) !important; padding: 0 !important; border-radius: 14px !important; animation: none !important; }
 .history-item-content { background-color: transparent !important; padding: 10px 5px !important; gap: 5px !important; }
@@ -1011,10 +1003,7 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
    ========================================= */
 
 /* 1 & 2. Wallet Labels (Deposit & Withdraw) -> Dark Blue */
-.wallet-form .form-group label {
-    color: var(--text-main) !important; /* #1E1B4B */
-    font-weight: 700 !important;
-}
+/* [OVERRIDDEN LATER IN FILE] */
 
 /* 3. Theme Toggle Button Text -> White */
 #theme-toggle-btn {
