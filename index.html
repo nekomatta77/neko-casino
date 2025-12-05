@@ -5,14 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CashCat</title>
     
-    <link rel="stylesheet" href="style.css?v=2.2">
-    <link rel="stylesheet" href="style2.css?v=7.5"> </head>
+    <link rel="stylesheet" href="style.css?v=2.5">
+    <link rel="stylesheet" href="style2.css?v=7.7"> 
+</head>
 <body>
 
     <div id="falling-snow-container"></div>
 
     <div id="loader-overlay">
-        <div id="loader-bar"></div>
+        <div class="loader-content">
+            <svg class="drawing-cat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <g class="cat-lines">
+                    <line x1="8.5" y1="4.5" x2="8.5" y2="5"></line>
+                    <line x1="11.5" y1="4.5" x2="11.5" y2="5"></line>
+                    <polyline points="7.5,23.5 7.5,8 5.5,5.5 5.5,0.5 9,2.5 11.5,2.5 14.5,0.5 14.5,5.5 12.5,8 20.5,14 22.5,20 20.5,23.5 5,23.5 2.5,21 5,16.5 1.5,13"></polyline>
+                    <line x1="12.5" y1="23.5" x2="12.5" y2="13.5"></line>
+                    <line x1="9.5" y1="23.5" x2="9.5" y2="13.5"></line>
+                    <polyline points="17.5,17.5 15,17.5 12.5,21.5"></polyline>
+                    <polyline points="9.5,7 10,6.5 10.5,7"></polyline>
+                </g>
+            </svg>
+            <div class="loader-text">Loading...</div>
+        </div>
     </div>
 
     <div class="app-container">
@@ -57,11 +71,6 @@
                                 <span class="notif-title">Добро пожаловать!</span>
                                 <span class="notif-text">Рады видеть вас в CashCat.</span>
                                 <span class="notif-time">Только что</span>
-                            </li>
-                            <li class="notif-item">
-                                <span class="notif-title">Бонус доступен</span>
-                                <span class="notif-text">Не забудьте забрать ежедневную награду.</span>
-                                <span class="notif-time">1ч назад</span>
                             </li>
                         </ul>
                     </div>
@@ -1674,17 +1683,6 @@
     </nav>
     <div class="bottom-nav-safe-area"></div>
     
-    <script>
-        setTimeout(() => {
-            const overlay = document.getElementById('loader-overlay');
-            if (overlay && overlay.style.opacity !== '0') {
-                console.warn("App took too long to load. Forcing loader removal.");
-                overlay.style.opacity = '0';
-                overlay.style.pointerEvents = 'none';
-            }
-        }, 8000);
-    </script>
-
-    <script type="module" src="main.js?v=2.2"></script> 
+    <script type="module" src="main.js?v=2.6"></script> 
 </body>
 </html>

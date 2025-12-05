@@ -17,7 +17,7 @@ import { initCustomize } from './customize.js';
 import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
 import { initSleepy } from './sleepy.js';
-import { initWheel } from './wheel.js'; // NEW IMPORT
+import { initWheel } from './wheel.js'; 
 
 /**
  * Вспомогательная функция для применения темы до полной загрузки JS.
@@ -81,9 +81,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     applySavedTheme(); // Apply theme ASAP
 
+    // --- ЛОГИКА АНИМАЦИИ ЗАГРУЗЧИКА (SVG КОТ) ---
+    const paths = document.querySelectorAll('.cat-lines line, .cat-lines polyline');
+    paths.forEach(path => {
+        let length = 100;
+        // Вычисляем длину для анимации рисования
+        if (path.getTotalLength) {
+            length = path.getTotalLength();
+        }
+        // Сбрасываем стили и запускаем анимацию
+        path.style.transition = path.style.WebkitTransition = 'none';
+        path.style.strokeDasharray = length + ' ' + length;
+        path.style.strokeDashoffset = length;
+        path.getBoundingClientRect(); // Trigger layout
+        path.style.animation = "drawLine 3s ease-in-out forwards";
+    });
+
     const loaderOverlay = document.getElementById('loader-overlay');
-    const loaderBar = document.getElementById('loader-bar');
-    if (loaderBar) loaderBar.style.width = '20%';
     
     try {
         try { initMines(); } catch(e){ console.error("Mines init failed", e); }
@@ -99,9 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initKeno(); } catch(e){ console.error("Keno init failed", e); }
         try { initAdmin(); } catch(e){ console.error("Admin init failed", e); }
         try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); }
-        try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } // NEW INIT
-        
-        if (loaderBar) loaderBar.style.width = '60%';
+        try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } 
         
         const openSidebarButton = document.getElementById('open-sidebar-button');
         const openSidebarButtonText = document.getElementById('open-sidebar-button-text');
@@ -176,16 +188,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (gameType === 'coin') showSection('coin-game');
             else if (gameType === 'keno') showSection('keno-game');
             else if (gameType === 'sleepy') showSection('sleepy-game');
-            else if (gameType === 'wheel') showSection('wheel-game'); // NEW NAV
+            else if (gameType === 'wheel') showSection('wheel-game'); 
         }
 
         const lobbyGameWrappers = document.querySelectorAll('.lobby-game-wrapper');
         lobbyGameWrappers.forEach(wrapper => {
             wrapper.addEventListener('click', (e) => {
                 e.preventDefault();
-                // --- ИЗМЕНЕНИЕ: Блокировка перехода, если игра заблокирована ---
                 if (wrapper.classList.contains('locked-game')) return; 
-                // -------------------------------------------------------------
                 const gameType = e.currentTarget.getAttribute('data-game-type'); 
                 if (gameType) navigateToGame(gameType);
             });
@@ -213,12 +223,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error("INIT ERROR:", error);
     } finally {
-        if (loaderBar) loaderBar.style.width = '100%';
+        // Убираем лоадер через 3 секунды (время анимации кота)
         setTimeout(() => {
             if (loaderOverlay) {
+                // 1. Делаем прозрачным
                 loaderOverlay.style.opacity = '0';
+                // 2. Отключаем клики сразу, чтобы кнопки стали доступны
                 loaderOverlay.style.pointerEvents = 'none';
+                
+                // 3. Полностью удаляем из верстки через полсекунды (после fade out)
+                setTimeout(() => {
+                    loaderOverlay.style.display = 'none';
+                }, 500); 
             }
-        }, 500);
+        }, 3000);
     }
 });
