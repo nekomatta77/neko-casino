@@ -218,3 +218,26 @@
 .admin-user-table .button.admin-button {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
 }
+/* ОБНОВЛЕНИЕ: АДМИНКА, КОНТАКТЫ, FAQ 
+   Добавить в конец файла
+*/
+
+/* 1. Удаляем надпись "Админ-панель" */
+#admin-page .game-list-title {
+    display: none !important;
+}
+
+/* 2. Скрываем все содержимое на странице контактов */
+#contacts-page * {
+    display: none !important;
+}
+#contacts-page {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 3. Обводка вкладок FAQ темно-синего цвета */
+.faq-item .faq-question {
+    border: 2px solid #1E1B4B !important; /* Темно-синий */
+}
