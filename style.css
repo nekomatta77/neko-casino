@@ -10695,6 +10695,12 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
 #customize-modal-close:hover {
     color: #4F46E5 !important;
 }
+/*
+ * style2.css
+ * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
+ * Version 8.3 (REF PAGE: WHITE HEADERS & INDIGO REVSHARE)
+ */
+
 :root {
     /* =========================================
        НАСТРОЙКИ КАРТОЧЕК (РАЗМЕР И ПОЗИЦИЯ)
@@ -11490,15 +11496,68 @@ input:focus { border-color: var(--color-primary) !important; }
     .admin-user-table tr { background-color: var(--text-main) !important; border-color: rgba(255, 255, 255, 0.2) !important; }
 }
 
-.ref-container { background-color: var(--color-primary) !important; color: #FFFFFF !important; }
+/* --- ПАРТНЕРКА (ТЕМНО-СИНИЙ ФОН) --- */
+.ref-container {
+    background-color: var(--text-main) !important; /* #1E1B4B */
+    color: #FFFFFF !important;
+}
+
 .ref-subheader, .ref-manager-link, .ref-link-box label, .ref-form-header { color: #FFFFFF !important; opacity: 0.9 !important; }
-.ref-link { color: #FFD700 !important; text-decoration: underline; }
-.ref-link-box, .ref-form, .ref-table-wrapper, .ref-list { background-color: var(--text-main) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+
+/* ЗАДАЧА 1: "Мои Каналы" и "Мои Промокоды" - БЕЛЫЕ */
+.ref-list-header {
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+}
+
+/* ЗАДАЧА 2: Ссылка RevShare - ИНДИГО (Исправление) */
+.ref-link {
+    color: #4F46E5 !important; /* Indigo */
+    text-decoration: underline;
+    font-weight: 800 !important;
+}
+
+/* Ссылка на менеджера - Оставляем БЕЛОЙ (как просили ранее) */
+.ref-manager-link a {
+    color: #FFFFFF !important;
+    text-decoration: underline;
+    font-weight: 800 !important;
+}
+
+/* Текст внутри инпута ссылки */
+#ref-link-input {
+    color: #4F46E5 !important; /* Indigo */
+    font-weight: bold !important;
+}
+
+/* ЗАДАЧА 3: Обводка разделов (Индиго) и темный фон */
+.ref-link-box, /* Ваша ссылка */
+.ref-table-wrapper, /* Таблицы (Рефералы/Промокоды) */
+.ref-form /* Формы создания */
+{
+    background-color: rgba(30, 27, 75, 0.5) !important; /* Полупрозрачный темный */
+    border: 2px solid var(--color-primary) !important; /* Индиго обводка */
+}
+
+/* Кнопка "Копировать" - ИНДИГО */
+#ref-copy-button {
+    background-color: #4F46E5 !important; /* Индиго */
+    color: #FFFFFF !important;
+    border: none !important;
+    box-shadow: 0 4px 0 #3730A3 !important; /* Тень */
+}
+#ref-copy-button:active {
+    box-shadow: 0 2px 0 #3730A3 !important;
+    transform: translateY(2px);
+}
+
+/* Остальные стили партнерки */
 .ref-tabs .ref-tab { color: rgba(255, 255, 255, 0.7) !important; }
 .ref-tabs .ref-tab.active { color: #FFFFFF !important; }
 .ref-tabs .ref-tab.active::after { background-color: #FFFFFF !important; }
 .ref-subtab { background-color: rgba(0, 0, 0, 0.2) !important; color: rgba(255, 255, 255, 0.7) !important; }
 .ref-subtab.active { background-color: var(--text-main) !important; color: #FFFFFF !important; }
+/* --- КОНЕЦ ПАРТНЕРКИ --- */
 
 .faq-container { gap: 10px; }
 .faq-item .faq-question { background-color: var(--color-primary) !important; color: #FFFFFF !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; transition: background-color 0.3s ease; border-radius: 8px; }
@@ -11507,7 +11566,7 @@ input:focus { border-color: var(--color-primary) !important; }
 .faq-icon { color: #FFFFFF !important; }
 .faq-answer-content { background-color: var(--text-main) !important; color: #FFFFFF !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-top: none !important; border-radius: 0 0 8px 8px; padding: 20px; }
 .faq-answer-content p { opacity: 0.9; }
-.faq-answer-content a { color: #FFD700 !important; }
+.faq-answer-content a { color: var(--color-primary) !important; text-decoration: underline !important; font-weight: bold !important; }
 
 /* =========================================
    2. КОШЕЛЕК (BUTTONS, TABS, HISTORY)
@@ -11676,11 +11735,7 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
 }
 
 #theme-toggle-btn {
-    background-color: var(--bg-input) !important;
-    border: 1px solid var(--border-color) !important;
-    color: var(--text-main) !important;
-    margin-top: 10px;
-    cursor: pointer;
+    color: #FFFFFF !important;
 }
 
 /* Stop button style (Keno/General) */
@@ -11689,40 +11744,10 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     color: var(--text-muted) !important;
 }
 
-/* =========================================
-   18. UPDATES (TASK LIST FIXES)
-   ========================================= */
-
-/* 1 & 2. Wallet Labels (Deposit & Withdraw) -> Dark Blue */
-/* [OVERRIDDEN LATER IN FILE] */
-
-/* 3. Theme Toggle Button Text -> White */
-#theme-toggle-btn {
-    color: #FFFFFF !important;
-}
-
 /* 4. Profile Rank Text -> Indigo */
 #profile-rank {
     color: var(--color-primary) !important; /* Indigo */
     font-weight: 900 !important;
-}
-
-/* 5. FAQ Link Color -> Indigo (Make sure it stands out) */
-.faq-answer-content a {
-    color: var(--color-primary) !important;
-    text-decoration: underline !important;
-    font-weight: bold !important;
-}
-
-/* =========================================
-   19. UPDATES (LINKS & UNDERLINES)
-   ========================================= */
-
-/* 1. Referral Links -> Dark Blue (Using var(--text-main)) */
-.ref-subheader .ref-link,
-.ref-manager-link a {
-    color: var(--text-main) !important;
-    font-weight: 800 !important;
 }
 
 /* 2. Bonus Quest Links Underline -> Indigo (KEEP THIS) */
@@ -11919,8 +11944,62 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     color: #4F46E5 !important;
 }
 
+/* =========================================
+   23. LOADER (INDIGO CAT)
+   ========================================= */
+   
+#loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-main); /* Белый фон */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
 
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
 
+.drawing-cat {
+    width: 150px; 
+    height: 150px;
+    overflow: visible;
+}
 
+.cat-lines line,
+.cat-lines polyline {
+    fill: none;
+    stroke: var(--color-primary); /* Индиго */
+    stroke-width: 1.5px; /* Чуть толще для видимости */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* stroke-dasharray/offset задаются в JS */
+}
 
+@keyframes drawLine {
+    to { stroke-dashoffset: 0; }
+}
 
+.loader-text {
+    font-size: 1.2em;
+    font-weight: 800;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0.6; transform: scale(0.98); }
+}
