@@ -1,1 +1,220 @@
-/*ПИШИ КОД ЗДЕСЬ
+/*
+ * style2.css
+ * Только запрошенные обновления: Модалки, Бонусы, Кешбек
+ */
+
+/* =========================================
+   ЗАДАЧА 1: МОДАЛЬНЫЕ ОКНА ИСТОРИИ (Dice, Mines, Keno)
+   ========================================= */
+
+/* Делаем весь текст внутри модального окна белым */
+.visual-history-content {
+    color: #FFFFFF !important;
+}
+
+/* Принудительно красим заголовки, значения и детали (для Dice) в белый */
+.visual-history-content .vh-row span,
+.visual-history-content .vh-row strong,
+.visual-history-content #vh-extra-label,
+.visual-history-content #vh-extra-value,
+.dice-visual-box div {
+    color: #FFFFFF !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 2: ВКЛАДКА БОНУСЫ
+   ========================================= */
+
+/* Фон для разделов "Промокод" и "Недельные бонусы" - Темно-синий */
+.promocode-box,
+.weekly-bonus-box {
+    background-color: #1E1B4B !important; /* Темно-синий */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Названия разделов - Белым цветом */
+.promocode-header {
+    color: #FFFFFF !important;
+}
+
+/* Дополнительно: Подстраиваем инпут промокода под темный фон, чтобы его было видно */
+.promocode-box .form-group input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+.promocode-box .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 3: КЕШБЕК И РЕЙКБЕК
+   ========================================= */
+
+/* Обводка цвета Индиго для карточек внутри недельных бонусов */
+.weekly-bonus-item {
+    border: 2px solid #4F46E5 !important; /* Индиго */
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Легкий фон для контраста */
+}
+
+/* Убедимся, что текст внутри карточек тоже читаемый (белый) */
+.weekly-bonus-title, 
+.weekly-bonus-value {
+    color: #FFFFFF !important;
+}
+/*
+
+/* =========================================
+   ЗАДАЧА 1: ЗАГОЛОВКИ МОДАЛОК
+   ========================================= */
+
+/* Заголовки "Кошелек", "Детали игры" и т.д. - Белым */
+.wallet-header h3 {
+    color: #FFFFFF !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 2: ПЛАТЕЖНЫЕ МЕТОДЫ (ОБВОДКА)
+   ========================================= */
+
+/* Активный метод оплаты: Убираем свечение (box-shadow), оставляем четкую границу */
+.wallet-method-button.active {
+    box-shadow: none !important; /* Убираем свечение */
+    border: 2px solid #4F46E5 !important; /* Четкая неоновая (индиго) граница */
+}
+
+
+/* =========================================
+   ЗАДАЧА 3: УДАЛЕНИЕ ССЫЛКИ REVSHARE
+   ========================================= */
+
+/* Скрываем ссылку "Как работает RevShare?" в подзаголовке партнерки */
+.ref-subheader .ref-link {
+    display: none !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 4: ЦВЕТ ССЫЛКИ ПАРТНЕРКИ
+   ========================================= */
+
+/* Ссылка пользователя (в инпуте) - Белым */
+#ref-link-input {
+    color: #FFFFFF !important;
+}
+/*
+ * style2.css
+ * Updates: Ref Subtabs Outline & Admin Aesthetics (Dark Blue + Indigo)
+ */
+
+/* =========================================
+   ЗАДАЧА 1: ОБВОДКА КНОПОК ПАРТНЕРКИ
+   ========================================= */
+
+/* Кнопки "Партнерские" и "Персональные" */
+.ref-subtab {
+    /* Добавляем обводку Индиго */
+    border: 2px solid var(--color-primary) !important; 
+    /* Сохраняем темный полупрозрачный фон */
+    background-color: rgba(30, 27, 75, 0.5) !important; 
+    color: #FFFFFF !important;
+    transition: all 0.2s ease;
+}
+
+/* Активная кнопка - заливаем Индиго */
+.ref-subtab.active {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 2: ДИЗАЙН АДМИНКИ (ТЕМНО-СИНИЙ + ИНДИГО)
+   ========================================= */
+
+/* 1. Основной фон Админки - Темно-синий */
+.admin-container {
+    background-color: #1E1B4B !important; /* Dark Blue */
+    color: #FFFFFF !important;
+    border: 1px solid var(--color-primary) !important; /* Индиго рамка снаружи */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 2. Абсолютно весь текст - Белый */
+.admin-container h1, 
+.admin-container h2, 
+.admin-container h3, 
+.admin-container label, 
+.admin-container p, 
+.admin-container span,
+.admin-container th,
+.admin-container td,
+.admin-container input {
+    color: #FFFFFF !important;
+}
+
+/* 3. Внутренние окошки (Таблицы, Формы) - Индиго */
+.admin-container .ref-table-wrapper, 
+.admin-container .ref-form,
+.admin-settings-actions {
+    background-color: #4F46E5 !important; /* Indigo */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 20px !important; /* Добавляем воздух */
+}
+
+/* --- ЭСТЕТИКА ВНУТРИ ОКОШЕК --- */
+
+/* Инпуты внутри Индиго-окошек делаем Темно-синими для контраста */
+.admin-container input,
+.admin-container select {
+    background-color: #1E1B4B !important; /* Dark Blue input */
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+}
+.admin-container input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Заголовки таблиц */
+.admin-user-table th {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    font-size: 0.85em !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Строки таблицы */
+.admin-user-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.admin-user-table tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* Вкладки Админки (на темном фоне) */
+#admin-tabs .ref-tab {
+    color: rgba(255, 255, 255, 0.6) !important;
+    border-bottom: 2px solid transparent !important;
+}
+#admin-tabs .ref-tab.active {
+    color: #FFFFFF !important;
+    border-bottom: 2px solid #4F46E5 !important; /* Индиго подчеркивание */
+}
+/* Убираем старую полоску псевдоэлемента, используем border */
+#admin-tabs .ref-tab.active::after {
+    display: none !important;
+}
+
+/* Кнопки действий внутри таблицы (уже красивые, но убедимся, что они выделяются) */
+.admin-user-table .button.admin-button {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
