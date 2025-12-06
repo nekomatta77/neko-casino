@@ -1344,6 +1344,31 @@
         </div>
     </nav>
     
+    <div class="user-modal-overlay hidden" id="daily-bonus-modal-overlay">
+        <div class="daily-bonus-card">
+            <button class="wallet-modal-close" id="daily-bonus-modal-close" style="position: absolute; top: 10px; right: 10px; z-index: 2;">&times;</button>
+            
+            <div class="daily-bonus-content">
+                <div class="daily-bonus-header">Ежедневный Бонус</div>
+                
+                <img src="assets/gift_cat.png" alt="Gift Cat" class="daily-bonus-img">
+                
+                <div class="daily-bonus-value-box">
+                    <div class="daily-bonus-amount">
+                        <span id="daily-bonus-modal-amount">0.00</span>
+                        <span class="daily-bonus-currency">RUB</span>
+                    </div>
+                </div>
+                
+                <p style="color: rgba(255,255,255,0.7); font-size: 0.9em; margin: 0;">
+                    Заходите завтра за новой наградой!
+                </p>
+                
+                <button class="daily-bonus-btn" id="daily-bonus-ok-btn">Отлично!</button>
+            </div>
+        </div>
+    </div>
+    
     <div class="user-modal-overlay hidden" id="wallet-modal-overlay">
         <div class="user-modal-content wallet-modal-content">
             

@@ -1,13 +1,49 @@
 /*
- * BONUS.JS - ИСПРАВЛЕННАЯ ЛОГИКА АКТИВАЦИИ ПРОМОКОДА
+ * BONUS.JS - RANDOM BONUS & NEW UI
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
 
-const DAILY_BONUS_AMOUNT = 25.00; 
-const DAILY_BONUS_WAGER = 10; 
+// Удаляем фиксированную константу, теперь сумма динамическая
+const DAILY_BONUS_WAGER_MULTIPLIER = 10; 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; 
 
 let dailyBonusInterval = null;
+
+// --- ГЕНЕРАТОР СЛУЧАЙНОЙ СУММЫ ---
+function generateDailyBonusAmount() {
+    const chance = Math.random() * 100; // 0 - 100
+    
+    let amount = 0;
+
+    if (chance < 90) {
+        // 90% шанс: от 1 до 10 руб
+        amount = Math.random() * (10 - 1) + 1;
+    } else if (chance < 99) {
+        // 9% шанс: от 10 до 30 руб
+        amount = Math.random() * (30 - 10) + 10;
+    } else {
+        // 1% шанс: от 30 до 100 руб
+        amount = Math.random() * (100 - 30) + 30;
+    }
+
+    return parseFloat(amount.toFixed(2));
+}
+
+// --- ОТОБРАЖЕНИЕ КРАСИВОГО ОКНА ---
+function showDailyBonusModal(amount) {
+    const overlay = document.getElementById('daily-bonus-modal-overlay');
+    const amountEl = document.getElementById('daily-bonus-modal-amount');
+    
+    if (overlay && amountEl) {
+        amountEl.textContent = amount.toFixed(2);
+        overlay.classList.remove('hidden');
+        
+        // Анимация конфетти или лучей (через CSS класс)
+        overlay.querySelector('.daily-bonus-card').classList.add('pop-in');
+    } else {
+        alert(`Поздравляем! Вы получили ${amount.toFixed(2)} RUB`);
+    }
+}
 
 function getRankStats(dbRank) {
     switch (dbRank) {
@@ -55,14 +91,14 @@ export async function updateBonusPage() {
             bonusButton.disabled = false;
             bonusButton.textContent = "Получить";
             bonusButton.style.backgroundColor = "var(--color-secondary)"; 
-            bonusStatus.textContent = "Бонус доступен!";
+            if(bonusStatus) bonusStatus.textContent = "Бонус доступен!";
             if (dailyBonusInterval) clearInterval(dailyBonusInterval);
         } else {
             bonusButton.disabled = true;
             bonusButton.style.backgroundColor = "var(--color-border-dark)"; 
             const remaining = COOLDOWN_MS - diff;
             bonusButton.textContent = formatTime(remaining);
-            bonusStatus.textContent = `До следующего бонуса: ${formatTime(remaining)}`;
+            if(bonusStatus) bonusStatus.textContent = `До следующего бонуса: ${formatTime(remaining)}`;
         }
     };
 
@@ -130,16 +166,23 @@ async function handleClaimBonus(e) {
     }
 
     try {
-        const amount = DAILY_BONUS_AMOUNT; 
-        const wager = amount * DAILY_BONUS_WAGER;
+        // Генерируем случайную сумму
+        const amount = generateDailyBonusAmount(); 
+        const wager = amount * DAILY_BONUS_WAGER_MULTIPLIER;
+        
+        // Обновляем баланс
         updateBalance(amount, wager);
+        
         const success = await patchUser(currentUser, { 
             last_daily_bonus: new Date().toISOString() 
         });
 
         if (success) {
-            bonusStatus.textContent = `Вы получили ${amount.toFixed(2)} RUB!`;
-            alert(`Поздравляем!\nВы получили ежедневный бонус: ${amount.toFixed(2)} RUB`);
+            if(bonusStatus) bonusStatus.textContent = `Получено ${amount.toFixed(2)} RUB!`;
+            
+            // Показываем красивое окно вместо алерта
+            showDailyBonusModal(amount);
+            
             updateBonusPage();
         } else {
             throw new Error("Не удалось сохранить дату бонуса в БД.");
@@ -148,13 +191,13 @@ async function handleClaimBonus(e) {
     } catch (error) {
         console.error("Bonus claim error:", error);
         alert("Ошибка при получении бонуса:\n" + error.message);
-        bonusStatus.textContent = "Ошибка.";
+        if(bonusStatus) bonusStatus.textContent = "Ошибка.";
         bonusButton.disabled = false;
         bonusButton.textContent = "Получить";
     }
 }
 
-// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА (ОБНОВЛЕНО ДЛЯ ЗАДАЧ 1 и 2) ---
+// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА ---
 async function handlePromoActivate(e) {
     e.preventDefault();
     const input = document.getElementById('promo-input');
@@ -192,7 +235,6 @@ async function handlePromoActivate(e) {
         statusEl.className = 'profile-status'; 
         input.value = ""; 
     } else {
-        // Убраны смайлики из ошибки
         statusEl.textContent = `${result.message}`;
         statusEl.classList.add('loss');
         statusEl.classList.remove('success'); 
@@ -232,7 +274,6 @@ function handleClaimRakeback(e) {
     alert("Рейкбек получен! (Симуляция)");
 }
 
-
 export function initBonus() {
     const bonusButton = document.getElementById('claim-bonus-button');
     if (bonusButton) {
@@ -243,6 +284,21 @@ export function initBonus() {
     if (promoButton) {
         promoButton.addEventListener('click', handlePromoActivate);
     }
+    
+    // Инициализация кнопки закрытия модалки бонуса
+    const dailyBonusOverlay = document.getElementById('daily-bonus-modal-overlay');
+    const dailyBonusClose = document.getElementById('daily-bonus-modal-close');
+    const dailyBonusOkBtn = document.getElementById('daily-bonus-ok-btn');
+    
+    const closeDailyModal = () => {
+        if(dailyBonusOverlay) dailyBonusOverlay.classList.add('hidden');
+    };
+
+    if(dailyBonusOverlay) dailyBonusOverlay.addEventListener('click', (e) => {
+        if(e.target === dailyBonusOverlay) closeDailyModal();
+    });
+    if(dailyBonusClose) dailyBonusClose.addEventListener('click', closeDailyModal);
+    if(dailyBonusOkBtn) dailyBonusOkBtn.addEventListener('click', closeDailyModal);
     
     initQuestButtons();
     

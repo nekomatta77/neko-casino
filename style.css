@@ -7866,9 +7866,7 @@ input:checked + .slider:before {
     transform: translateX(0px) translateY(5px) scale(1.2); /* Hover state */
 }
 /*
- * style2.css
- * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 6.8 (FULL ICE CARD & CORNER)
+
  */
 
 :root {
@@ -9105,9 +9103,6 @@ input:focus, button:focus {
 }
 
 /*
- * style2.css - ДОПОЛНЕНИЕ ДЛЯ VISUAL HISTORY MODAL
- * Version 5.9 (Updated: Keno Real History Styling)
- */
 
 /* =========================================
    14. VISUAL HISTORY MODAL (INDIGO STYLE)
@@ -9513,9 +9508,7 @@ input:focus, button:focus {
     }
 }
 /*
- * style2.css
- * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 7.8 (CUSTOMIZE MODAL COLORS FIXED)
+
  */
 
 :root {
@@ -10696,9 +10689,7 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     color: #4F46E5 !important;
 }
 /*
- * style2.css
- * GLOBAL REDESIGN: White & Indigo + Dense Winter + Mobile Player Card Update
- * Version 8.3 (REF PAGE: WHITE HEADERS & INDIGO REVSHARE)
+
  */
 
 :root {
@@ -12002,4 +11993,863 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     0% { opacity: 0.6; transform: scale(0.98); }
     50% { opacity: 1; transform: scale(1.02); }
     100% { opacity: 0.6; transform: scale(0.98); }
+}
+/*
+
+/* =========================================
+   ЗАДАЧА 1: МОДАЛЬНЫЕ ОКНА ИСТОРИИ (Dice, Mines, Keno)
+   ========================================= */
+
+/* Делаем весь текст внутри модального окна белым */
+.visual-history-content {
+    color: #FFFFFF !important;
+}
+
+/* Принудительно красим заголовки, значения и детали (для Dice) в белый */
+.visual-history-content .vh-row span,
+.visual-history-content .vh-row strong,
+.visual-history-content #vh-extra-label,
+.visual-history-content #vh-extra-value,
+.dice-visual-box div {
+    color: #FFFFFF !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 2: ВКЛАДКА БОНУСЫ
+   ========================================= */
+
+/* Фон для разделов "Промокод" и "Недельные бонусы" - Темно-синий */
+.promocode-box,
+.weekly-bonus-box {
+    background-color: #1E1B4B !important; /* Темно-синий */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Названия разделов - Белым цветом */
+.promocode-header {
+    color: #FFFFFF !important;
+}
+
+/* Дополнительно: Подстраиваем инпут промокода под темный фон */
+.promocode-box .form-group input {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #FFFFFF !important;
+}
+.promocode-box .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 3: КЕШБЕК И РЕЙКБЕК
+   ========================================= */
+
+/* Обводка цвета Индиго для карточек внутри недельных бонусов */
+.weekly-bonus-item {
+    border: 2px solid #4F46E5 !important; /* Индиго */
+    background-color: rgba(255, 255, 255, 0.05) !important; /* Легкий фон */
+}
+
+/* Текст внутри карточек (белый) */
+.weekly-bonus-title, 
+.weekly-bonus-value {
+    color: #FFFFFF !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 4: КОШЕЛЕК И МОДАЛКИ
+   ========================================= */
+
+/* Заголовки "Кошелек", "Детали игры" и т.д. - Белым */
+.wallet-header h3 {
+    color: #FFFFFF !important;
+}
+
+/* Активный метод оплаты: Убираем свечение, оставляем четкую границу */
+.wallet-method-button.active {
+    box-shadow: none !important; 
+    border: 2px solid #4F46E5 !important; /* Индиго */
+}
+
+
+/* =========================================
+   ЗАДАЧА 5: ПАРТНЕРСКАЯ ПРОГРАММА
+   ========================================= */
+
+/* Скрываем ссылку "Как работает RevShare?" */
+.ref-subheader .ref-link {
+    display: none !important;
+}
+
+/* Ссылка пользователя (в инпуте) - Белым */
+#ref-link-input {
+    color: #FFFFFF !important;
+}
+
+/* Кнопки "Партнерские" и "Персональные" */
+.ref-subtab {
+    border: 2px solid var(--color-primary) !important; 
+    background-color: rgba(30, 27, 75, 0.5) !important; 
+    color: #FFFFFF !important;
+    transition: all 0.2s ease;
+}
+
+/* Активная кнопка - заливаем Индиго */
+.ref-subtab.active {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5) !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 6: ДИЗАЙН АДМИНКИ (ТЕМНО-СИНИЙ + ИНДИГО)
+   ========================================= */
+
+/* Основной фон Админки */
+.admin-container {
+    background-color: #1E1B4B !important; /* Dark Blue */
+    color: #FFFFFF !important;
+    border: 1px solid var(--color-primary) !important; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Весь текст в админке - Белый */
+.admin-container h1, .admin-container h2, .admin-container h3, 
+.admin-container label, .admin-container p, .admin-container span,
+.admin-container th, .admin-container td, .admin-container input {
+    color: #FFFFFF !important;
+}
+
+/* Внутренние окошки (Таблицы, Формы) - Индиго */
+.admin-container .ref-table-wrapper, 
+.admin-container .ref-form,
+.admin-settings-actions {
+    background-color: #4F46E5 !important; /* Indigo */
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+}
+
+/* Инпуты внутри Индиго-окошек */
+.admin-container input,
+.admin-container select {
+    background-color: #1E1B4B !important; /* Dark Blue input */
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    color: #FFFFFF !important;
+}
+.admin-container input::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Таблицы */
+.admin-user-table th {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    font-size: 0.85em !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+.admin-user-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+.admin-user-table tr:last-child td {
+    border-bottom: none !important;
+}
+
+/* Вкладки Админки */
+#admin-tabs .ref-tab {
+    color: rgba(255, 255, 255, 0.6) !important;
+    border-bottom: 2px solid transparent !important;
+}
+#admin-tabs .ref-tab.active {
+    color: #FFFFFF !important;
+    border-bottom: 2px solid #4F46E5 !important;
+}
+#admin-tabs .ref-tab.active::after {
+    display: none !important;
+}
+
+/* Кнопки действий */
+.admin-user-table .button.admin-button {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2) !important;
+}
+
+/* Скрываем лишние элементы */
+#admin-page .game-list-title { display: none !important; }
+#contacts-page * { display: none !important; }
+#contacts-page { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+/* FAQ Обводка */
+.faq-item .faq-question {
+    border: 2px solid #1E1B4B !important; 
+}
+
+
+/* =========================================
+   НОВЫЕ ИСПРАВЛЕНИЯ (ВАШИ ЗАДАЧИ)
+   ========================================= */
+
+/* --- ЗАДАЧА 1: УБРАТЬ ДВОЙНЫЕ РАМКИ В KENO/MINES --- */
+/* Убираем стили у внутреннего инпута, оставляем только у контейнера */
+.keno-input-wrapper, 
+.mines-custom-input {
+    border: 2px solid #4F46E5 !important; /* Основная рамка (Индиго) */
+    background-color: transparent !important;
+}
+.keno-input-wrapper input,
+.mines-custom-input input {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* --- ЗАДАЧА 2: СТИЛИ ДЛЯ ВСПЛЫВАШКИ СОЗДАНИЯ ПРОМОКОДА --- */
+.admin-promo-result-card {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+    border: 2px solid #4F46E5;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 15px;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+    animation: slideUpFade 0.3s ease-out;
+}
+.admin-promo-result-header {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #A5F3FC; /* Голубой акцент */
+    margin-bottom: 10px;
+    text-align: center;
+    text-transform: uppercase;
+}
+.admin-promo-result-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 0.9em;
+}
+.admin-promo-detail-item span:first-child {
+    color: rgba(255,255,255,0.6);
+    display: block;
+    font-size: 0.8em;
+}
+.admin-promo-detail-item span:last-child {
+    color: #fff;
+    font-weight: bold;
+}
+@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- ЗАДАЧА 4 & 5: БЕЛЫЙ ТЕКСТ ПРИ ВВОДЕ (ВХОД/РЕГИСТРАЦИЯ/КОШЕЛЕК) --- */
+#auth-modal-overlay input,
+#wallet-modal-overlay input {
+    color: #FFFFFF !important;
+}
+#auth-modal-overlay input::placeholder,
+#wallet-modal-overlay input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+/* =========================================
+   ЗАДАЧА: КРАСИВАЯ КАРТОЧКА АКТИВАЦИИ БОНУСА
+   ========================================= */
+
+.bonus-promo-result-card {
+    /* Темный фон с легким градиентом */
+    background: linear-gradient(135deg, #1E1B4B 0%, #2A2665 100%);
+    /* Яркая зеленая обводка */
+    border: 2px solid #00D26A; 
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 20px;
+    
+    /* Зеленое неоновое свечение */
+    box-shadow: 0 0 20px rgba(0, 210, 106, 0.25);
+    
+    text-align: center;
+    animation: slideUpFade 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавное появление с отскоком */
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Заголовок "Промокод активирован" */
+.bonus-promo-title {
+    color: #00D26A; /* Ярко-зеленый текст */
+    font-size: 1.3em;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.4);
+    
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Блок с информацией о вейджере */
+.bonus-promo-wager-box {
+    background-color: rgba(0, 210, 106, 0.1); /* Полупрозрачный зеленый фон */
+    border: 1px solid rgba(0, 210, 106, 0.3);
+    border-radius: 8px;
+    padding: 8px 15px;
+    width: 100%;
+}
+
+.bonus-promo-wager-text {
+    color: #FFFFFF;
+    font-size: 0.95em;
+    font-weight: bold;
+    opacity: 0.9;
+}
+
+/* Для текста суммы (если есть) */
+.bonus-promo-amount {
+    font-size: 1.1em;
+    color: #FFFFFF;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+/* =========================================
+   ЗАДАЧА 3: ОКОШКО ОТЫГРЫША В ВЫВОДЕ
+   ========================================= */
+
+.wallet-wager-card {
+    /* Полупрозрачный красный фон (предупреждение) */
+    background: rgba(255, 85, 85, 0.1); 
+    border: 1px solid #FF5555;
+    border-radius: 12px;
+    padding: 15px;
+    
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    margin-bottom: 20px; /* Отступ до кнопки вывода */
+    animation: fadeIn 0.3s ease;
+}
+
+.wager-icon {
+    font-size: 1.8em;
+    /* Убираем лишние отступы */
+    line-height: 1;
+    filter: drop-shadow(0 0 5px rgba(255, 85, 85, 0.5));
+}
+
+.wager-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.wager-label {
+    font-size: 0.85em;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.wager-amount {
+    font-size: 1.2em;
+    color: #FF5555; /* Красный текст суммы */
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(255, 85, 85, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* =========================================
+   ЗАДАЧА 1: АДМИНКА - СПИСОК ПРОМОКОДОВ
+   ========================================= */
+
+/* Кнопка "мусорки" */
+.icon-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 5px;
+}
+.icon-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Сетка кнопок в модалке удаления */
+.delete-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* Действия над списком (кнопка удалить сверху) */
+.admin-list-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+/* Таблица промокодов */
+.admin-promo-table th:nth-child(1), .admin-promo-table td:nth-child(1) { width: 40%; text-align: left; }
+.admin-promo-table th:nth-child(2), .admin-promo-table td:nth-child(2) { width: 25%; text-align: center; }
+.admin-promo-table th:nth-child(3), .admin-promo-table td:nth-child(3) { width: 20%; text-align: center; }
+.admin-promo-table th:nth-child(4), .admin-promo-table td:nth-child(4) { width: 15%; text-align: center; }
+
+
+/* =========================================
+   ЗАДАЧА 2: ЗЕЛЕНЫЙ ФОН ДЛЯ ВЫИГРЫШНЫХ МИН
+   ========================================= */
+
+/* .mine-cell.safe-opened - это класс для открытой безопасной ячейки.
+   Переопределяем его фон на зеленый.
+   !important нужен, чтобы перебить стили из style.css или style4.css
+*/
+
+.mine-cell.safe {
+    background-color: #00D26A !important; /* Яркий зеленый */
+    border-color: #00D26A !important;
+    
+    /* Добавляем зеленое свечение */
+    box-shadow: 0 0 15px rgba(0, 210, 106, 0.6) !important;
+    
+    /* Делаем иконку (рыбку) хорошо видимой на зеленом */
+    /* Обычно иконки белые или цветные, на зеленом фоне будет ок */
+}
+
+/* Если в JS используется класс safe-opened для истории */
+.visual-cell.mine-cell.safe-opened {
+    background-color: #00D26A !important;
+}
+/* =========================================
+   РЕДИЗАЙН: КАРТОЧКИ ПОЛЬЗОВАТЕЛЕЙ (CYBER-GLASS)
+   ========================================= */
+
+/* Контейнер списка (теперь это сетка, а не таблица) */
+.admin-users-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Сама карточка пользователя */
+.admin-user-card {
+    background: linear-gradient(145deg, #1E1B4B, #23214A); /* Глубокий синий фон */
+    border: 1px solid rgba(79, 70, 229, 0.3); /* Тонкая индиго рамка */
+    border-radius: 20px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.admin-user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(79, 70, 229, 0.15);
+    border-color: #4F46E5;
+}
+
+/* --- ВЕРХНЯЯ ЧАСТЬ КАРТОЧКИ (Ник + Ранг) --- */
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.user-card-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Аватар-плейсхолдер (генерируется CSS) */
+.user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4F46E5, #818CF8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #FFF;
+    font-size: 1.2em;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+}
+
+.user-card-name {
+    font-size: 1.1em;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+}
+
+/* Инпут ранга (выглядит как бейдж) */
+.user-rank-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    color: #A5B4FC; /* Светлый индиго */
+    font-size: 0.8em;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: right;
+    outline: none;
+    transition: all 0.2s;
+}
+.user-rank-select:focus {
+    background-color: rgba(79, 70, 229, 0.2);
+    border-color: #4F46E5;
+    color: #FFF;
+}
+
+/* --- ОСНОВНАЯ ЧАСТЬ (Пароль, Баланс) --- */
+.user-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две колонки */
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.user-input-group {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.user-input-label {
+    font-size: 0.7em;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+/* Стильные инпуты */
+.user-card-input {
+    width: 100%;
+    background-color: #15171C; /* Очень темный фон */
+    border: 1px solid #373D49;
+    border-radius: 10px;
+    padding: 10px 35px 10px 12px; /* Место справа для кнопки */
+    color: #FFF;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.9em;
+    transition: border-color 0.2s;
+}
+.user-card-input:focus {
+    border-color: #4F46E5;
+}
+
+/* Кнопка сохранения внутри инпута (Маленькая дискета) */
+.input-save-btn {
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+    width: 28px;
+    height: 28px;
+    background: rgba(79, 70, 229, 0.2);
+    border: none;
+    border-radius: 6px;
+    color: #818CF8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1em;
+    transition: all 0.2s;
+}
+.input-save-btn:hover {
+    background: #4F46E5;
+    color: #FFF;
+}
+
+/* --- НИЖНЯЯ ЧАСТЬ (Действия) --- */
+.user-card-footer {
+    display: flex;
+    gap: 10px;
+}
+
+.card-action-btn {
+    flex: 1; /* Растягиваем кнопки */
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.9em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.1s, opacity 0.2s;
+}
+.card-action-btn:active { transform: scale(0.97); }
+
+.btn-stats-card {
+    background: rgba(0, 168, 120, 0.15);
+    color: #00D26A;
+    border: 1px solid rgba(0, 168, 120, 0.3);
+}
+.btn-block-card {
+    background: rgba(255, 85, 85, 0.15);
+    color: #FF5555;
+    border: 1px solid rgba(255, 85, 85, 0.3);
+}
+
+/* Адаптация для очень маленьких экранов */
+@media (max-width: 380px) {
+    .user-card-body {
+        grid-template-columns: 1fr; /* Одна колонка */
+    }
+}
+/*
+
+/* =========================================
+   ЗАДАЧА 3: УБРАТЬ ЗЕЛЕНОЕ СВЕЧЕНИЕ В MINES
+   ========================================= */
+
+/* Переопределяем стиль активного множителя, чтобы убрать box-shadow */
+.mines-multiplier-item.active {
+    background-color: var(--color-primary) !important; /* Индиго фон */
+    border-color: var(--color-primary) !important;
+    transform: scale(1.05);
+    /* ИЗМЕНЕНО: Убрано зеленое свечение, оставлена легкая тень */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important; 
+}
+
+.mines-multiplier-item.active .multiplier-value,
+.mines-multiplier-item.active .step-label {
+    color: #FFFFFF !important;
+}
+
+
+/* =========================================
+   ЗАДАЧА 2: КРАСИВАЯ ТАБЛИЧКА ЕЖЕДНЕВНОГО БОНУСА
+   ========================================= */
+
+.daily-bonus-card {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%); /* Темно-синий градиент */
+    border: 2px solid #F5A623; /* Золотая обводка */
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(245, 166, 35, 0.3); /* Золотое свечение */
+    width: 90%;
+    max-width: 350px;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Декоративное сияние сзади */
+.daily-bonus-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(245, 166, 35, 0.2) 0%, transparent 70%);
+    animation: rotateGlow 10s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes rotateGlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.daily-bonus-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.daily-bonus-header {
+    font-size: 1.4em;
+    font-weight: 900;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.daily-bonus-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+    animation: floatCat 3s infinite ease-in-out;
+}
+
+.daily-bonus-value-box {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    width: 100%;
+}
+
+.daily-bonus-amount {
+    font-size: 2.2em;
+    font-weight: 900;
+    color: #F5A623; /* Золотой текст */
+    text-shadow: 0 0 10px rgba(245, 166, 35, 0.5);
+}
+
+.daily-bonus-currency {
+    font-size: 0.5em;
+    color: #FFFFFF;
+    font-weight: bold;
+    opacity: 0.8;
+}
+
+.daily-bonus-btn {
+    background: linear-gradient(90deg, #F5A623, #FFD700);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    color: #1E1B4B; /* Темный текст на золотом */
+    font-weight: 800;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 166, 35, 0.4);
+    transition: transform 0.2s;
+    width: 100%;
+}
+
+.daily-bonus-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 166, 35, 0.6);
+}
+
+.daily-bonus-btn:active {
+    transform: translateY(1px);
+}
+/* =========================================
+   ЗАДАЧА: ОБНОВЛЕНИЕ ЕЖЕДНЕВНОГО БОНУСА (GREEN & INDIGO)
+   ========================================= */
+
+.daily-bonus-card {
+    background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%) !important;
+    /* 3. Убрано желтое свечение, заменено на тонкую индиго рамку и тень */
+    border: 2px solid #4F46E5 !important; 
+    box-shadow: 0 0 30px rgba(79, 70, 229, 0.3) !important;
+    
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    width: 90%;
+    max-width: 350px;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Обновляем заднее свечение на Индиго */
+.daily-bonus-card::before {
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.2) 0%, transparent 70%) !important;
+    animation: rotateGlow 10s linear infinite;
+}
+
+/* 1. Сумма бонуса - ЗЕЛЕНАЯ */
+.daily-bonus-amount {
+    font-size: 2.2em;
+    font-weight: 900;
+    color: #00D26A !important; /* Зеленый */
+    text-shadow: 0 0 15px rgba(0, 210, 106, 0.5) !important; /* Зеленое свечение */
+}
+
+/* 2. Кнопка "Отлично" - ИНДИГО ГРАДИЕНТ */
+.daily-bonus-btn {
+    background: linear-gradient(90deg, #4F46E5, #6366F1) !important; /* Индиго градиент */
+    border: none;
+    border-radius: 10px;
+    padding: 12px 30px;
+    color: #FFFFFF !important; /* Белый текст */
+    font-weight: 800;
+    font-size: 1.1em;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4) !important; /* Индиго тень */
+    transition: transform 0.2s;
+    width: 100%;
+}
+
+.daily-bonus-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6) !important;
+}
+
+.daily-bonus-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================
+   ЗАДАЧА 4: RANK CARD (ТЕКУЩИЙ РАНГ - ИНДИГО)
+   ========================================= */
+
+/* Карточка текущего ранга (была желтая/золотая) */
+.rank-card-wrapper.current {
+    /* Фон с полосками цвета Индиго */
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(79, 70, 229, 0.05) 10px,
+        rgba(79, 70, 229, 0.05) 12px
+    ) !important;
+    
+    background-color: #2E3035 !important;
+    
+    /* Рамка Индиго */
+    border: 2px solid #4F46E5 !important;
+    
+    /* Свечение Индиго */
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.5), 
+                0 4px 15px rgba(0, 0, 0, 0.2) !important;
+                
+    transform: scale(1.03); 
+}
+
+/* Картинка ранга (убираем ч/б, добавляем Индиго тень) */
+.rank-card-wrapper.current .rank-card__image {
+    opacity: 1;
+    filter: grayscale(0%) drop-shadow(0 0 10px #4F46E5) !important;
+}
+
+/* Заголовок ранга (Индиго) */
+.rank-card-wrapper.current .rank-card__title {
+    color: #4F46E5 !important;
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.4) !important;
+}
+
+/* Значения статистики (Индиго) */
+.rank-card-wrapper.current .rank-card__info-item strong {
+    color: #4F46E5 !important;
 }
