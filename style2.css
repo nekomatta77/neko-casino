@@ -698,3 +698,182 @@
         border-radius: 12px !important;
     }
 }
+/* =========================================
+   СТРАНИЦА ДОСТИЖЕНИЙ (ACHIEVEMENTS)
+   ========================================= */
+
+#achievements-page .game-list-title {
+    color: var(--text-main) !important;
+    font-size: 1.6em;
+    margin-bottom: 20px;
+}
+
+.achievements-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.achievement-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* Темный фон карточки */
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3); /* Тонкая индиго рамка */
+    border-radius: 16px;
+    padding: 15px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* Эффект для выполненного достижения */
+.achievement-card.unlocked {
+    border-color: #00D26A; /* Зеленая рамка */
+    background: linear-gradient(145deg, #1E1B4B, #163E2B); /* Легкий зеленый оттенок */
+    box-shadow: 0 0 15px rgba(0, 210, 106, 0.2);
+}
+
+.ach-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.ach-icon-wrapper img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    /* Если не выполнено - черно-белое */
+    filter: grayscale(100%) opacity(0.6);
+    transition: all 0.3s;
+}
+
+.achievement-card.unlocked .ach-icon-wrapper img {
+    filter: grayscale(0%) opacity(1) drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+
+.ach-content {
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.ach-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.ach-title {
+    color: #FFFFFF;
+    font-weight: 800;
+    font-size: 1em;
+}
+
+.ach-badge {
+    color: #00D26A;
+    font-weight: 900;
+}
+
+.ach-desc {
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85em;
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+/* Прогресс бар */
+.ach-progress-container {
+    width: 100%;
+    height: 6px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ach-progress-bar {
+    height: 100%;
+    background-color: var(--color-primary); /* Индиго */
+    transition: width 0.5s ease;
+}
+
+.achievement-card.unlocked .ach-progress-bar {
+    background-color: #00D26A; /* Зеленый */
+}
+
+/* Статус справа */
+.ach-status {
+    font-size: 0.85em;
+    font-weight: 700;
+    color: #FFFFFF;
+    background-color: rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+}
+
+.achievement-card.unlocked .ach-status {
+    color: #00D26A;
+    background-color: rgba(0, 210, 106, 0.1);
+}
+
+/* --- TOAST NOTIFICATION (Всплывашка) --- */
+.achievement-toast {
+    position: fixed;
+    bottom: 80px; /* Над навбаром */
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #1E1B4B, #4F46E5);
+    border: 2px solid #FFD700; /* Золотая рамка */
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 9999;
+    animation: slideUpToast 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    width: 90%;
+    max-width: 350px;
+}
+
+.achievement-toast.fade-out {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.ach-toast-icon {
+    font-size: 2em;
+}
+
+.ach-toast-text {
+    color: #FFF;
+}
+
+.ach-toast-header {
+    font-size: 0.8em;
+    color: #FFD700;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.ach-toast-title {
+    font-size: 1.1em;
+    font-weight: 900;
+}
+
+@keyframes slideUpToast {
+    from { transform: translateX(-50%) translateY(100px); opacity: 0; }
+    to { transform: translateX(-50%) translateY(0); opacity: 1; }
+}

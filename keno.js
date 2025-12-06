@@ -2,6 +2,7 @@
  * KENO.JS - С ВНЕДРЕННЫМ ANTI-MINUS
  */
 import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
+import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
 
 const KENO_GRID_SIZE = 40;
 const KENO_DRAW_SIZE = 10; 
@@ -152,6 +153,10 @@ async function handlePlayKeno() {
     updateControlsUI(); 
     updateBalance(-currentBet);
     reduceWager(currentBet);
+    
+    // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
+    checkBetAchievement('keno_cinema', currentBet);
+    // ---------------------------
 
     // --- ANTI-MINUS LOGIC ---
     drawnNumbers = [];

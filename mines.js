@@ -2,6 +2,7 @@
  * MINES.JS - С ВНЕДРЕННЫМ ANTI-MINUS
  */
 import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
+import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
 
 let isGameActive = false;
 let currentMines = 3;
@@ -91,6 +92,10 @@ async function startGame() {
     revealedIndices = []; // Сброс истории ходов
     updateBalance(-currentBet);
     reduceWager(currentBet);
+    
+    // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
+    checkBetAchievement('mines_sapper', currentBet);
+    // ---------------------------
     
     createMinesGrid(); 
     placeMines(currentMines); 

@@ -2,6 +2,7 @@
  * BONUS.JS - RANDOM BONUS & NEW UI
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
+import { checkDailyStreak } from './achievements.js'; // ИМПОРТ
 
 // Удаляем фиксированную константу, теперь сумма динамическая
 const DAILY_BONUS_WAGER_MULTIPLIER = 10; 
@@ -182,6 +183,10 @@ async function handleClaimBonus(e) {
             
             // Показываем красивое окно вместо алерта
             showDailyBonusModal(amount);
+            
+            // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
+            checkDailyStreak(); 
+            // ---------------------------
             
             updateBonusPage();
         } else {

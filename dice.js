@@ -2,6 +2,7 @@
  * DICE.JS - С ВНЕДРЕННЫМ ANTI-MINUS
  */
 import { currentBalance, updateBalance, showSection, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
+import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
 
 let diceBet = 10.00;
 let diceChance = 50.00; 
@@ -104,6 +105,10 @@ async function rollDice(rollType) {
 
     updateBalance(-bet);
     reduceWager(bet);
+    
+    // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
+    checkBetAchievement('dice_backgammon', bet);
+    // ---------------------------
 
     // --- ANTI-MINUS LOGIC ---
     let rollRaw = Math.floor(Math.random() * 1000000);

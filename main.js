@@ -18,6 +18,7 @@ import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
 import { initSleepy } from './sleepy.js';
 import { initWheel } from './wheel.js'; 
+import { renderAchievementsPage } from './achievements.js'; // ИМПОРТ ДОСТИЖЕНИЙ
 
 /**
  * Вспомогательная функция для применения темы до полной загрузки JS.
@@ -142,6 +143,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (target === 'admin-page') updateAdminData();
                     if (target === 'ranks-page') updateRanksDisplay();
                     if (target === 'bonus-page') updateBonusPage();
+                    if (target === 'achievements-page') renderAchievementsPage(); // ЛОГИКА ДОСТИЖЕНИЙ
+                    
                     showSection(target);
                     toggleSidebar(); 
                 }
