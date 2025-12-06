@@ -1,5 +1,6 @@
 /*
  * ADMIN.JS - COMPLETE (User Cards, Promo Gen, Copy-Paste, Anti-Minus)
+ * Fixed: Anti-Minus Tab Click Listener
  */
 
 import { 
@@ -52,8 +53,9 @@ function initAdminTabs() {
         tab.addEventListener('click', () => {
             const targetId = tab.getAttribute('data-target');
             
-            adminTabs.forEach(t => t.classList.remove('active'));
-            adminTabContents.forEach(c => c.classList.remove('active'));
+            // Используем актуальные списки (если они обновились)
+            if(adminTabs) adminTabs.forEach(t => t.classList.remove('active'));
+            if(adminTabContents) adminTabContents.forEach(c => c.classList.remove('active'));
             
             tab.classList.add('active');
             const targetContent = document.getElementById(targetId);
@@ -592,7 +594,7 @@ export function initAdmin() {
     clearHistoryStatus = document.getElementById('admin-clear-history-status');
     if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', handleClearHistory);
     
-    // Anti-Minus
+    // Anti-Minus Elements (Global Init)
     amRtpInput = document.getElementById('am-rtp-input');
     amBankInput = document.getElementById('am-bank-input');
     amToggle = document.getElementById('am-active-toggle');
@@ -602,6 +604,7 @@ export function initAdmin() {
     
     if (amSaveBtn) amSaveBtn.addEventListener('click', handleSaveAntiMinus);
     
+    // Dynamic Tab Creation
     const tabsContainer = document.getElementById('admin-tabs');
     if(tabsContainer && !document.querySelector('[data-target="admin-tab-antiminus"]')) {
         const amTab = document.createElement('button');
@@ -651,7 +654,21 @@ export function initAdmin() {
         `;
         document.querySelector('.admin-container').appendChild(amContent);
         
-        // --- ИСПРАВЛЕНИЕ: Точечная инициализация вместо рекурсии ---
+        // --- ИСПРАВЛЕНИЕ: Обновляем списки вкладок и вешаем событие вручную ---
+        adminTabs = document.querySelectorAll('#admin-tabs .ref-tab');
+        adminTabContents = document.querySelectorAll('#admin-page .ref-tab-content');
+        
+        amTab.addEventListener('click', () => {
+            adminTabs.forEach(t => t.classList.remove('active'));
+            adminTabContents.forEach(c => c.classList.remove('active'));
+            
+            amTab.classList.add('active');
+            amContent.classList.add('active');
+            
+            updateAntiMinusUI();
+        });
+
+        // Реинициализация элементов внутри новой вкладки
         amRtpInput = document.getElementById('am-rtp-input');
         amBankInput = document.getElementById('am-bank-input');
         amToggle = document.getElementById('am-active-toggle');
