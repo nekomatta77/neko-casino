@@ -1,5 +1,5 @@
 /*
- * ADMIN.JS - COMPLETE (User Cards, Promo Management, Anti-Minus)
+ * ADMIN.JS - COMPLETE (User Cards, Promo Gen, Copy-Paste, Anti-Minus)
  */
 
 import { 
@@ -79,7 +79,8 @@ function initPromoSubTabs() {
             promoTabContents.forEach(c => c.classList.remove('active'));
             
             tab.classList.add('active');
-            document.getElementById(targetId).classList.add('active');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) targetEl.classList.add('active');
             
             if (targetId === 'admin-subtab-list') {
                 loadPromocodesList();
@@ -109,11 +110,7 @@ export async function handleSearchUsers(force = false) {
     renderUserList(allUsersCache);
 }
 
-/**
- * Рендер списка пользователей (КАРТОЧКИ)
- */
 function renderUserList(users) {
-    // Ищем контейнер для сетки или создаем его, заменяя таблицу
     let container = document.getElementById('admin-users-grid-container');
     
     if (!container) {
@@ -124,9 +121,8 @@ function renderUserList(users) {
             container.className = 'admin-users-grid';
             oldTableWrapper.parentNode.replaceChild(container, oldTableWrapper);
             
-            // Вешаем делегирование событий один раз
             container.addEventListener('click', handleUserActions);
-            container.addEventListener('change', handleUserActions); // Для селектов
+            container.addEventListener('change', handleUserActions); 
         } else {
             return; 
         }
@@ -155,13 +151,11 @@ function renderUserList(users) {
 
         return `
             <div class="admin-user-card" data-username="${user.username}">
-                
                 <div class="user-card-header">
                     <div class="user-card-identity">
                         <div class="user-avatar-placeholder">${initial}</div>
                         <span class="user-card-name">${user.username}</span>
                     </div>
-                    
                     <select class="user-rank-select action-change-rank">
                         ${rankOptionsHtml}
                     </select>
@@ -182,14 +176,9 @@ function renderUserList(users) {
                 </div>
 
                 <div class="user-card-footer">
-                    <button class="card-action-btn btn-stats-card action-stats">
-                        📊 Статистика
-                    </button>
-                    <button class="card-action-btn btn-block-card action-block">
-                        🚫 БАН
-                    </button>
+                    <button class="card-action-btn btn-stats-card action-stats">📊 Статистика</button>
+                    <button class="card-action-btn btn-block-card action-block">🚫 БАН</button>
                 </div>
-
             </div>
         `;
     }).join('');
@@ -200,8 +189,6 @@ function renderUserList(users) {
 // --- ЕДИНЫЙ ОБРАБОТЧИК СОБЫТИЙ ДЛЯ КАРТОЧЕК ---
 async function handleUserActions(e) {
     const target = e.target;
-    
-    // Находим карточку
     const card = target.closest('.admin-user-card');
     if (!card) return;
     
@@ -212,14 +199,13 @@ async function handleUserActions(e) {
         const btn = target.closest('.action-save-balance');
         const input = card.querySelector('.input-balance');
         const newBalance = parseFloat(input.value);
-        
         if (isNaN(newBalance) || newBalance < 0) return alert('Некорректный баланс');
         
         btn.innerHTML = '⏳';
         const success = await patchUser(username, { balance: newBalance });
         btn.innerHTML = success ? '✅' : '❌';
         setTimeout(() => btn.innerHTML = '💾', 1500);
-        if(success) allUsersCache = null; // Инвалидация кеша
+        if(success) allUsersCache = null; 
     }
     
     // 2. Сохранить Пароль
@@ -227,7 +213,6 @@ async function handleUserActions(e) {
         const btn = target.closest('.action-save-pass');
         const input = card.querySelector('.input-password');
         const newPass = input.value.trim();
-        
         if (!newPass) return alert('Пароль пуст');
         
         btn.innerHTML = '⏳';
@@ -236,17 +221,17 @@ async function handleUserActions(e) {
         setTimeout(() => btn.innerHTML = '💾', 1500);
     }
     
-    // 3. Изменить Ранг (change событие)
+    // 3. Изменить Ранг
     if (target.classList.contains('action-change-rank') && e.type === 'change') {
         const newRank = target.value;
-        target.style.borderColor = '#F5A623'; // Индикация процесса
+        target.style.borderColor = '#F5A623';
         const success = await patchUser(username, { rank: newRank });
         if(success) {
-            target.style.borderColor = '#00D26A'; // Успех
+            target.style.borderColor = '#00D26A';
             setTimeout(() => target.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
             allUsersCache = null;
         } else {
-            target.style.borderColor = '#FF5555'; // Ошибка
+            target.style.borderColor = '#FF5555';
             alert('Ошибка смены ранга');
         }
     }
@@ -260,7 +245,6 @@ async function handleUserActions(e) {
     if (target.closest('.action-block')) {
         const btn = target.closest('.action-block');
         if (!confirm(`Удалить пользователя ${username}?`)) return;
-        
         btn.innerHTML = '⏳ Удаление...';
         const success = await deleteUser(username);
         if (success) {
@@ -318,7 +302,11 @@ async function loadPromocodesList() {
     
     const html = promos.map(p => `
         <tr>
-            <td><span style="color: #fff; font-weight: bold;">${p.code}</span></td>
+            <td>
+                <span class="promo-code-copy" data-code="${p.code}" title="Нажмите, чтобы скопировать">
+                    ${p.code}
+                </span>
+            </td>
             <td>${p.amount}</td>
             <td>${p.activations_left}</td>
             <td>
@@ -488,11 +476,8 @@ export function initAdmin() {
 
     // Users
     userSearchInput = document.getElementById('admin-user-search');
-    // Теперь handleSearchUsers сам найдет или создаст контейнер
     if (userSearchInput) userSearchInput.addEventListener('input', () => renderUserList(allUsersCache));
-
-    // Инициализация загрузки (если список еще не создан, handleSearchUsers создаст его)
-    handleSearchUsers();
+    handleSearchUsers(); // Load users
 
     // Stats Modal
     adminStatsModal = document.getElementById('admin-stats-modal-overlay');
@@ -515,9 +500,84 @@ export function initAdmin() {
     promoWagerInput = document.getElementById('admin-promo-wager');
     if (promoForm) promoForm.addEventListener('submit', handleCreatePromo);
     
+    // Promo List Actions (Delete & Copy)
     promoListBody = document.getElementById('admin-promo-list-body');
     if (promoListBody) {
-        promoListBody.addEventListener('click', handleDeletePromo);
+        promoListBody.addEventListener('click', async (e) => {
+            // 1. Удаление
+            const deleteBtn = e.target.closest('.delete-promo-btn');
+            if (deleteBtn) {
+                handleDeletePromo(e);
+                return;
+            }
+
+            // 2. Копирование
+            const copyTarget = e.target.closest('.promo-code-copy');
+            if (copyTarget) {
+                const code = copyTarget.getAttribute('data-code');
+                try {
+                    await navigator.clipboard.writeText(code);
+                    
+                    const originalText = copyTarget.textContent;
+                    const originalColor = copyTarget.style.color;
+                    
+                    copyTarget.textContent = "Скопировано!";
+                    copyTarget.style.color = "#00D26A";
+                    copyTarget.style.borderColor = "#00D26A";
+                    
+                    setTimeout(() => {
+                        copyTarget.textContent = originalText;
+                        copyTarget.style.color = originalColor;
+                        copyTarget.style.borderColor = "";
+                    }, 1500);
+                } catch (err) {
+                    console.error('Copy failed', err);
+                }
+            }
+        });
+    }
+
+    // --- ГЕНЕРАТОР ПРОМОКОДОВ ---
+    const genBtn = document.getElementById('admin-promo-generate-auto-btn');
+    const genStatus = document.getElementById('admin-generator-status');
+
+    if (genBtn) {
+        genBtn.addEventListener('click', async () => {
+            genBtn.disabled = true;
+            genBtn.textContent = "Генерация...";
+            genStatus.innerHTML = '';
+
+            const randomChars = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const promoCode = `RND-${randomChars}`;
+
+            const promoData = {
+                amount: 30.00,
+                activations: 100,
+                wager: 30
+            };
+
+            const success = await createPromocode(promoCode, promoData);
+
+            if (success) {
+                const resultHTML = `
+                    <div class="admin-promo-result-card" style="animation: popIn 0.3s ease;">
+                        <div class="admin-promo-result-header">✅ УСПЕШНО СОЗДАН</div>
+                        <div class="admin-promo-result-details">
+                            <div class="admin-promo-detail-item"><span>Код:</span> <span style="color: #00D26A; font-size: 1.2em;">${promoCode}</span></div>
+                            <div class="admin-promo-detail-item"><span>Сумма:</span> <span>30.00 RUB</span></div>
+                            <div class="admin-promo-detail-item"><span>Активаций:</span> <span>100</span></div>
+                            <div class="admin-promo-detail-item"><span>Вейджер:</span> <span>x30</span></div>
+                        </div>
+                    </div>
+                `;
+                genStatus.innerHTML = resultHTML;
+            } else {
+                genStatus.innerHTML = `<div class="profile-status error">Ошибка создания!</div>`;
+            }
+
+            genBtn.disabled = false;
+            genBtn.textContent = "Сгенерировать еще";
+        });
     }
 
     // Settings

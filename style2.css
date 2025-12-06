@@ -1,1 +1,601 @@
-/*ПИШИ СТИЛЬ ЗДЕСЬ
+/* style2.css 
+   Фикс адаптивности для длинных никнеймов в админ-панели 
+*/
+
+/* --- ВЕРХНЯЯ ЧАСТЬ КАРТОЧКИ ПОЛЬЗОВАТЕЛЯ --- */
+
+/* Контейнер заголовка (Ник + Ранг) */
+.user-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    
+    /* Добавляем gap, чтобы элементы не слипались */
+    gap: 10px; 
+}
+
+/* Блок идентификации (Аватар + Имя) */
+.user-card-identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    /* КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: 
+       flex: 1 заставляет блок занимать всё свободное место,
+       но min-width: 0 разрешает ему сжиматься, если места нет.
+    */
+    flex: 1; 
+    min-width: 0; 
+}
+
+/* Аватар-плейсхолдер */
+.user-avatar-placeholder {
+    /* Фиксируем размер, чтобы аватар не сплющило */
+    flex-shrink: 0; 
+    
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #4F46E5, #818CF8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #FFF;
+    font-size: 1.2em;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+}
+
+/* Имя пользователя */
+.user-card-name {
+    font-size: 1.1em;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: 0.5px;
+    
+    /* ЛОГИКА ОБРЕЗКИ ТЕКСТА: */
+    white-space: nowrap;      /* Запрет переноса на новую строку */
+    overflow: hidden;         /* Скрытие части, которая не влезает */
+    text-overflow: ellipsis;  /* Добавление троеточия (...) в конце */
+    display: block;           /* Блочное отображение для корректной работы overflow */
+    width: 100%;              /* Растягиваем на всю ширину родителя (.user-card-identity) */
+}
+
+/* Выпадающий список ранга */
+.user-rank-select {
+    /* Фиксируем элемент, чтобы его не сплющило длинным именем */
+    flex-shrink: 0;
+    
+    /* Ограничиваем максимальную ширину, чтобы он не занимал пол-экрана */
+    max-width: 45%; 
+    
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px 10px;
+    color: #A5B4FC; 
+    font-size: 0.8em;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: right;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.user-rank-select:focus {
+    background-color: rgba(79, 70, 229, 0.2);
+    border-color: #4F46E5;
+    color: #FFF;
+}
+
+/* --- АДАПТАЦИЯ ДЛЯ УЗКИХ ЭКРАНОВ (iPhone SE, старые Android) --- */
+@media (max-width: 380px) {
+    /* Уменьшаем шрифт имени */
+    .user-card-name {
+        font-size: 0.9em; 
+    }
+    
+    /* Уменьшаем шрифт и отступы у ранга */
+    .user-rank-select {
+        font-size: 0.75em;
+        padding: 4px 6px;
+    }
+    
+    /* Чуть уменьшаем аватар */
+    .user-avatar-placeholder {
+        width: 32px;
+        height: 32px;
+        font-size: 1em;
+    }
+    
+    /* Уменьшаем отступ между аватаром и именем */
+    .user-card-identity {
+        gap: 8px;
+    }
+}
+/* =========================================
+   РЕДИЗАЙН: РАЗДЕЛ ПРОМОКОДЫ (STYLE MATCH)
+   ========================================= */
+
+/* --- 1. ФОРМА СОЗДАНИЯ (Превращаем в Карточку) --- */
+
+#admin-promo-form {
+    /* Фон и эффекты как у карточки пользователя */
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+    border-radius: 20px !important;
+    padding: 25px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Заголовок формы */
+#admin-promo-form .ref-list-header {
+    color: #FFFFFF !important;
+    font-size: 1.2em !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding-bottom: 15px !important;
+    margin-bottom: 5px !important;
+    text-align: left !important;
+}
+
+/* Группы полей (Label + Input) */
+#admin-promo-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 0 !important; /* Убираем старые отступы, используем gap родителя */
+}
+
+/* Лейблы (как в карточке пользователя) */
+#admin-promo-form label {
+    font-size: 0.75em !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+    text-transform: uppercase;
+    font-weight: 700 !important;
+    margin-left: 5px;
+}
+
+/* Инпуты (Стиль user-card-input) */
+#admin-promo-form input {
+    background-color: #15171C !important;
+    border: 1px solid #373D49 !important;
+    border-radius: 12px !important;
+    padding: 12px 15px !important;
+    color: #FFFFFF !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 0.95em !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+#admin-promo-form input:focus {
+    border-color: #4F46E5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    outline: none !important;
+}
+
+#admin-promo-form input::placeholder {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Кнопка "Создать" (Стиль Primary Action) */
+#admin-promo-create-btn {
+    margin-top: 10px !important;
+    background: linear-gradient(135deg, #4F46E5, #6366F1) !important; /* Индиго градиент */
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 14px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+#admin-promo-create-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6) !important;
+}
+
+#admin-promo-create-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================
+   РЕДИЗАЙН: СПИСОК ПРОМОКОДОВ (КАРТОЧКИ + КНОПКА)
+   ========================================= */
+
+/* 1. ПРЕВРАЩАЕМ ТАБЛИЦУ В СЕТКУ КАРТОЧЕК */
+
+/* Скрываем заголовки таблицы */
+.admin-promo-table thead {
+    display: none !important;
+}
+
+/* Карточка промокода (бывшая строка tr) */
+.admin-promo-table tbody tr {
+    display: flex !important;
+    flex-direction: column !important;
+    
+    /* Фон и эффекты (Cyber-Glass Style) */
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго рамка */
+    border-radius: 20px !important; /* Сильное скругление */
+    
+    padding: 20px !important;
+    margin-bottom: 15px !important;
+    
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+    gap: 8px !important;
+    transition: transform 0.2s, border-color 0.2s !important;
+}
+
+/* Эффект наведения на карточку */
+.admin-promo-table tbody tr:hover {
+    border-color: #4F46E5 !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 15px 35px rgba(79, 70, 229, 0.15) !important;
+}
+
+/* 2. СТИЛИЗАЦИЯ СТРОК ВНУТРИ КАРТОЧКИ (td) */
+
+.admin-promo-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    
+    padding: 8px 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    
+    width: 100% !important;
+    text-align: right !important;
+    color: #FFFFFF !important;
+    font-size: 0.95em !important;
+}
+
+/* Убираем линию у последнего элемента */
+.admin-promo-table td:last-child {
+    border-bottom: none !important;
+    padding-top: 12px !important;
+    padding-bottom: 0 !important;
+}
+
+/* 3. ДОБАВЛЯЕМ ПОДПИСИ (LABELS) СЛЕВА */
+
+.admin-promo-table td:nth-child(1)::before { 
+    content: "Код:"; 
+    font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 0.75em; 
+}
+.admin-promo-table td:nth-child(2)::before { 
+    content: "Сумма:"; 
+    font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 0.75em; 
+}
+.admin-promo-table td:nth-child(3)::before { 
+    content: "Осталось:"; 
+    font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 0.75em; 
+}
+.admin-promo-table td:nth-child(4)::before { 
+    content: "Действия:"; 
+    font-weight: 800; color: rgba(255,255,255,0.4); text-transform: uppercase; font-size: 0.75em; 
+}
+
+/* 4. ВЫДЕЛЕНИЕ САМОГО КОДА ПРОМОКОДА */
+.admin-promo-table td:nth-child(1) span {
+    background-color: rgba(79, 70, 229, 0.15) !important;
+    border: 1px solid rgba(79, 70, 229, 0.4);
+    color: #A5B4FC !important; /* Светлый индиго */
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-family: 'Roboto Mono', monospace;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* 5. КНОПКА УДАЛЕНИЯ (КРАСИВЫЙ КВАДРАТ С КОРЗИНОЙ) */
+
+.delete-promo-btn {
+    /* Форма квадрата */
+    width: 42px !important;
+    height: 42px !important;
+    
+    /* Центрирование иконки */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    
+    /* Цвета (Красный полупрозрачный) */
+    background: linear-gradient(135deg, rgba(255, 85, 85, 0.1), rgba(255, 85, 85, 0.2)) !important;
+    border: 1px solid rgba(255, 85, 85, 0.3) !important;
+    border-radius: 12px !important; /* Скругленный квадрат */
+    
+    color: #FF5555 !important;
+    font-size: 1.2em !important; /* Размер иконки */
+    cursor: pointer !important;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    
+    /* Убираем старые отступы */
+    padding: 0 !important;
+    margin-left: auto !important; /* Прижать вправо */
+}
+
+/* Ховер эффект для кнопки */
+.delete-promo-btn:hover {
+    background: #FF5555 !important; /* Заливаем красным */
+    color: #FFFFFF !important;      /* Иконка белая */
+    transform: scale(1.1) rotate(5deg) !important; /* Легкая анимация */
+    box-shadow: 0 0 15px rgba(255, 85, 85, 0.5) !important; /* Свечение */
+    border-color: #FF5555 !important;
+}
+
+.delete-promo-btn:active {
+    transform: scale(0.95) !important;
+}
+/* =========================================
+   РЕДИЗАЙН: ОБЩИЕ НАСТРОЙКИ & ANTI-MINUS AI
+   ========================================= */
+
+/* --- 1. ОБЩИЕ НАСТРОЙКИ (ОЧИСТКА ИСТОРИИ) --- */
+
+/* Контейнер кнопки (делаем карточкой) */
+.admin-settings-actions {
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго рамка */
+    border-radius: 20px !important;
+    padding: 25px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    margin-top: 15px !important;
+}
+
+/* Кнопка "Очистить всю историю игр" */
+#admin-clear-history-btn {
+    /* Полупрозрачный красный стиль */
+    background: linear-gradient(135deg, rgba(255, 85, 85, 0.1), rgba(255, 85, 85, 0.2)) !important;
+    border: 1px solid rgba(255, 85, 85, 0.4) !important;
+    color: #FF5555 !important;
+    
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px !important;
+    border-radius: 12px !important;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none !important;
+}
+
+/* Ховер эффект для кнопки очистки */
+#admin-clear-history-btn:hover {
+    background: #FF5555 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 20px rgba(255, 85, 85, 0.4) !important;
+    transform: translateY(-2px);
+}
+
+#admin-clear-history-btn:active {
+    transform: translateY(1px);
+}
+
+
+/* --- 2. ANTI-MINUS AI (DASHBOARD) --- */
+
+/* Сброс стилей контейнера внутри вкладки (чтобы не было двойного фона) */
+#admin-tab-antiminus .admin-container {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Карточка "Текущий RTP Проекта" */
+#admin-tab-antiminus .profile-box {
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    color: #FFFFFF !important;
+}
+
+#admin-tab-antiminus .profile-box span:first-child {
+    font-weight: bold;
+    opacity: 0.7;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+#admin-tab-antiminus .profile-box span:last-child {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 900;
+    color: #A5B4FC !important; /* Светлый индиго */
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+}
+
+/* Форма настроек (Основная карточка) */
+#admin-tab-antiminus .ref-form {
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+    border-radius: 20px !important;
+    padding: 25px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    gap: 15px !important;
+    margin-bottom: 10px !important;
+}
+
+/* Блок с тумблером "Активен" */
+#admin-tab-antiminus .crash-auto-row-styled {
+    background-color: #15171C !important;
+    border: 1px solid #373D49 !important;
+    border-radius: 12px !important;
+    padding: 15px !important;
+    margin-bottom: 15px !important;
+}
+
+#admin-tab-antiminus .crash-label-title {
+    color: #FFFFFF !important;
+    font-size: 1em !important;
+    text-transform: uppercase;
+}
+
+/* Инпуты (Целевой RTP и Резерв) */
+#admin-tab-antiminus .form-group label {
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-size: 0.8em !important;
+    text-transform: uppercase;
+    font-weight: 800 !important;
+    margin-bottom: 8px !important;
+    margin-left: 5px;
+}
+
+#admin-tab-antiminus input[type="number"] {
+    background-color: #15171C !important;
+    border: 1px solid #373D49 !important;
+    border-radius: 12px !important;
+    padding: 12px 15px !important;
+    color: #FFFFFF !important;
+    font-family: 'Roboto Mono', monospace !important;
+    font-size: 1.1em !important;
+    text-align: left !important;
+    transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+
+#admin-tab-antiminus input[type="number"]:focus {
+    border-color: #4F46E5 !important;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15) !important;
+    outline: none !important;
+}
+
+/* Кнопка "Применить настройки" */
+#am-save-btn {
+    margin-top: 10px !important;
+    background: linear-gradient(135deg, #4F46E5, #6366F1) !important; /* Индиго градиент */
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px !important;
+    border-radius: 12px !important;
+    border: none !important;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4) !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+#am-save-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.6) !important;
+}
+
+#am-save-btn:active {
+    transform: translateY(1px);
+}
+
+/* Статус сохранения */
+#am-status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+#am-status.success {
+    color: #00D26A !important;
+}
+
+/* =========================================
+   РЕДИЗАЙН: ГЕНЕРАТОР ПРОМОКОДОВ
+   ========================================= */
+
+/* Карточка генератора */
+.admin-generator-card {
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3); /* Индиго рамка */
+    border-radius: 20px;
+    padding: 40px 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* Иконка кубика */
+.generator-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 15px rgba(79, 70, 229, 0.5));
+    animation: floatIcon 3s infinite ease-in-out;
+}
+
+@keyframes floatIcon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Заголовок */
+.generator-title {
+    font-size: 1.5em;
+    font-weight: 900;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+/* Описание параметров */
+.generator-desc {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.generator-desc span {
+    color: #A5B4FC; /* Светлый индиго */
+    font-weight: bold;
+    background-color: rgba(79, 70, 229, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Кнопка генерации (Большая и красивая) */
+.generator-btn {
+    background: linear-gradient(90deg, #4F46E5, #818CF8);
+    color: #FFFFFF;
+    font-size: 1.1em;
+    font-weight: 800;
+    text-transform: uppercase;
+    padding: 15px 40px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 300px;
+}
+
+.generator-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 30px rgba(79, 70, 229, 0.7);
+}
+
+.generator-btn:active {
+    transform: translateY(1px);
+}
+
+.generator-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}

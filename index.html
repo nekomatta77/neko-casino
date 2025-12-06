@@ -982,12 +982,7 @@
             
             <section id="profile-page" class="page-section hidden">
                 
-                <div class="profile-container">
-                    
-                    <button id="theme-toggle-btn" class="auth-button" style="margin-bottom: 15px;">
-                        🌙 Включить темную тему
-                    </button>
-                    
+                <div class="profile-container">                                                     
                     <div class="snow-toggle-wrapper">
                         <span class="snow-toggle-label">❄️ Падающий снег</span>
                         <label class="switch-toggle">
@@ -1239,67 +1234,79 @@
                         </div>
                     </div>
                     
-                    <div class="ref-tab-content" id="admin-tab-promocodes">
-                        
-                        <nav class="ref-subtabs">
-                            <button class="ref-subtab active" data-target="admin-subtab-create">Создать</button>
-                            <button class="ref-subtab" data-target="admin-subtab-list">Список</button>
-                        </nav>
-                        
-                        <div class="ref-subtab-content active" id="admin-subtab-create">
-                            <form class="ref-form" id="admin-promo-form">
-                                <h3 class="ref-list-header">Создать новый промокод</h3>
-                                
-                                <div class="form-group">
-                                    <label for="admin-promo-name">Название (TEST100)</label>
-                                    <input type="text" id="admin-promo-name" placeholder="Название промокода" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="admin-promo-amount">Сумма (100.00)</label>
-                                    <input type="number" id="admin-promo-amount" placeholder="Сумма" step="0.01" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="admin-promo-activations">Кол-во активаций (50)</label>
-                                    <input type="number" id="admin-promo-activations" placeholder="Кол-во" step="1" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="admin-promo-wager">Вейджер (x10, x30)</label>
-                                    <input type="number" id="admin-promo-wager" placeholder="e.g. 10" step="1" min="1">
-                                </div>
-                                <button id="admin-promo-create-btn" type="submit" class="auth-button green-button full-width">Создать</button>
-                                
-                                <div id="admin-promo-status" class="profile-status"></div>
-                            </form>
-                        </div>
+             <div class="ref-tab-content" id="admin-tab-promocodes">
+    
+    <nav class="ref-subtabs">
+        <button class="ref-subtab active" data-target="admin-subtab-create">Создать</button>
+        <button class="ref-subtab" data-target="admin-subtab-list">Список</button>
+        <button class="ref-subtab" data-target="admin-subtab-generator">Генератор</button>
+    </nav>
+    
+    <div class="ref-subtab-content active" id="admin-subtab-create">
+        <form class="ref-form" id="admin-promo-form">
+            <h3 class="ref-list-header">Создать новый промокод</h3>
+            <div class="form-group">
+                <label for="admin-promo-name">Название (TEST100)</label>
+                <input type="text" id="admin-promo-name" placeholder="Название промокода" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-promo-amount">Сумма (100.00)</label>
+                <input type="number" id="admin-promo-amount" placeholder="Сумма" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-promo-activations">Кол-во активаций (50)</label>
+                <input type="number" id="admin-promo-activations" placeholder="Кол-во" step="1" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-promo-wager">Вейджер (x10, x30)</label>
+                <input type="number" id="admin-promo-wager" placeholder="e.g. 10" step="1" min="1">
+            </div>
+            <button id="admin-promo-create-btn" type="submit" class="auth-button green-button full-width">Создать</button>
+            <div id="admin-promo-status" class="profile-status"></div>
+        </form>
+    </div>
 
-                        <div class="ref-subtab-content" id="admin-subtab-list">
-                            <div class="admin-list-actions">
-                                <button id="admin-bulk-delete-btn" class="auth-button danger-button" style="width: auto; padding: 5px 10px; font-size: 0.9em;">
-                                    🗑️ Удалить...
-                                </button>
-                            </div>
-                            
-                            <div class="ref-table-wrapper">
-                                <table class="ref-table admin-promo-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Код</th>
-                                            <th>Сумма</th>
-                                            <th>Акт.</th>
-                                            <th>Дейст.</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="admin-promo-list-body">
-                                        <tr><td colspan="4" class="ref-list-placeholder">Загрузка...</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                    </div>
+    <div class="ref-subtab-content" id="admin-subtab-list">
+        <div class="admin-list-actions">
+            <button id="admin-bulk-delete-btn" class="auth-button danger-button" style="width: auto; padding: 5px 10px; font-size: 0.9em;">
+                🗑️ Удалить...
+            </button>
+        </div>
+        <div class="ref-table-wrapper">
+            <table class="ref-table admin-promo-table">
+                <thead>
+                    <tr>
+                        <th>Код</th>
+                        <th>Сумма</th>
+                        <th>Акт.</th>
+                        <th>Дейст.</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-promo-list-body">
+                    <tr><td colspan="4" class="ref-list-placeholder">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="ref-subtab-content" id="admin-subtab-generator">
+        <div class="admin-generator-card">
+            <div class="generator-icon"></div>
+            <h3 class="generator-title">Быстрая Генерация</h3>
+            <p class="generator-desc">
+                Создать случайный промокод с параметрами:<br>
+                <span>30 RUB</span> | <span>100 Активаций</span> | <span>x30 Вейджер</span>
+            </p>
+            
+            <button id="admin-promo-generate-auto-btn" class="generator-btn">
+                Сгенерировать
+            </button>
+            
+            <div id="admin-generator-status" class="profile-status"></div>
+        </div>
+    </div>
+    
+</div>
                     
                     <div class="ref-tab-content" id="admin-tab-settings">
                         <h3 class="ref-list-header">Управление данными</h3>
@@ -1343,7 +1350,7 @@
             </a>
         </div>
     </nav>
-    
+
     <div class="user-modal-overlay hidden" id="daily-bonus-modal-overlay">
         <div class="daily-bonus-card">
             <button class="wallet-modal-close" id="daily-bonus-modal-close" style="position: absolute; top: 10px; right: 10px; z-index: 2;">&times;</button>
