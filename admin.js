@@ -537,7 +537,7 @@ export function initAdmin() {
         });
     }
 
-    // --- ГЕНЕРАТОР ПРОМОКОДОВ ---
+    // --- ГЕНЕРАТОР ПРОМОКОДОВ (CAT-XXXXXXX) ---
     const genBtn = document.getElementById('admin-promo-generate-auto-btn');
     const genStatus = document.getElementById('admin-generator-status');
 
@@ -547,8 +547,15 @@ export function initAdmin() {
             genBtn.textContent = "Генерация...";
             genStatus.innerHTML = '';
 
-            const randomChars = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const promoCode = `RND-${randomChars}`;
+            // Генерируем 7 случайных символов
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let randomChars = '';
+            for (let i = 0; i < 7; i++) {
+                randomChars += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            
+            // Собираем промокод с префиксом CAT-
+            const promoCode = `CAT-${randomChars}`;
 
             const promoData = {
                 amount: 30.00,
@@ -644,6 +651,14 @@ export function initAdmin() {
         `;
         document.querySelector('.admin-container').appendChild(amContent);
         
-        initAdmin(); 
+        // --- ИСПРАВЛЕНИЕ: Точечная инициализация вместо рекурсии ---
+        amRtpInput = document.getElementById('am-rtp-input');
+        amBankInput = document.getElementById('am-bank-input');
+        amToggle = document.getElementById('am-active-toggle');
+        amSaveBtn = document.getElementById('am-save-btn');
+        amStatus = document.getElementById('am-status');
+        amCurrentRtpDisplay = document.getElementById('am-current-rtp');
+        
+        if (amSaveBtn) amSaveBtn.addEventListener('click', handleSaveAntiMinus);
     }
 }

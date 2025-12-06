@@ -1,4 +1,4 @@
-/* style2.css 
+/*
    Фикс адаптивности для длинных никнеймов в админ-панели 
 */
 
@@ -598,4 +598,103 @@
     opacity: 0.7;
     cursor: not-allowed;
     filter: grayscale(0.5);
+}
+
+/* Стили для кликабельного промокода */
+.promo-code-copy {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    /* Убедимся, что он выглядит интерактивным */
+    user-select: none;
+    display: inline-block;
+    min-width: 100px; /* Чтобы текст "Скопировано!" не дергал верстку */
+    text-align: center;
+}
+
+.promo-code-copy:hover {
+    background-color: rgba(79, 70, 229, 0.4) !important; /* Ярче фон */
+    border-color: #4F46E5 !important; /* Ярче рамка */
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5); /* Свечение */
+    transform: scale(1.05); /* Легкое увеличение */
+}
+
+.promo-code-copy:active {
+    transform: scale(0.95);
+}
+/* =========================================
+   РЕДИЗАЙН: КНОПКИ МИНИ-ИГР (INDIGO STYLE)
+   ========================================= */
+
+/* 1. Контейнер навигации */
+.mini-games-nav {
+    gap: 12px !important; /* Чуть больше воздуха между кнопками */
+    padding: 15px 5px !important; /* Отступы для теней */
+}
+
+/* 2. Базовый стиль кнопки (Неактивная) - Стиль "Белая карточка" */
+.mini-games-nav-item {
+    background-color: #FFFFFF !important; /* Белый фон */
+    border: 2px solid #E0E7FF !important; /* Очень светлая индиго рамка */
+    color: #1E1B4B !important; /* Темно-синий текст */
+    
+    border-radius: 16px !important; /* Сильное скругление */
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.05) !important; /* Мягкая тень */
+    
+    font-weight: 800 !important;
+    font-size: 0.95em !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+    min-width: 110px !important; /* Чуть шире */
+    padding: 10px 15px !important;
+}
+
+/* 3. Иконки внутри кнопки (Дефолтное состояние) */
+.mini-games-nav-item .nav-game-icon {
+    /* Сбрасываем фильтры, чтобы иконки были цветными/темными */
+    filter: none !important; 
+    opacity: 1 !important;
+    height: 1.4em !important; /* Чуть крупнее */
+    transition: transform 0.3s ease;
+}
+
+/* 4. Эффект при наведении (Hover) */
+.mini-games-nav-item:hover {
+    background-color: #F5F7FF !important; /* Очень светлый индиго */
+    border-color: #4F46E5 !important; /* Яркая индиго рамка */
+    transform: translateY(-4px) !important; /* Приподнимаем */
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.15) !important; /* Тень сильнее */
+}
+
+.mini-games-nav-item:hover .nav-game-icon {
+    transform: scale(1.1) rotate(5deg); /* Игривая анимация иконки */
+}
+
+/* 5. АКТИВНАЯ КНОПКА (Выбранная игра) - Стиль "Индиго Градиент" */
+.mini-games-nav-item.active {
+    /* Градиент Индиго */
+    background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%) !important;
+    color: #FFFFFF !important; /* Белый текст */
+    border-color: transparent !important;
+    
+    /* Неоновое свечение */
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* Иконка на активной кнопке становится белой */
+.mini-games-nav-item.active .nav-game-icon {
+    filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.2)) !important;
+    transform: scale(1.1);
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .mini-games-nav-item {
+        min-width: 90px !important;
+        font-size: 0.8em !important;
+        padding: 8px 10px !important;
+        border-radius: 12px !important;
+    }
 }
