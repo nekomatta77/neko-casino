@@ -1,5 +1,5 @@
 /*
- * BONUS.JS - ИСПРАВЛЕННАЯ ЛОГИКА (Фикс кнопки и уведомление)
+ * BONUS.JS - ИСПРАВЛЕННАЯ ЛОГИКА АКТИВАЦИИ ПРОМОКОДА
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
 
@@ -39,10 +39,8 @@ export async function updateBonusPage() {
         return;
     }
 
-    // --- 1. ЕЖЕДНЕВНЫЙ БОНУС ---
     const bonusButton = document.getElementById('claim-bonus-button');
     const bonusStatus = document.getElementById('bonus-status');
-    
     const userData = await fetchUser(currentUser); 
     const lastClaimISO = userData?.last_daily_bonus;
     
@@ -71,7 +69,6 @@ export async function updateBonusPage() {
     checkBonusAvailability();
     dailyBonusInterval = setInterval(checkBonusAvailability, 1000);
 
-    // --- 2. НЕДЕЛЬНЫЕ БОНУСЫ ---
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
     const cashbackAmount = document.getElementById('cashback-amount');
@@ -135,22 +132,17 @@ async function handleClaimBonus(e) {
     try {
         const amount = DAILY_BONUS_AMOUNT; 
         const wager = amount * DAILY_BONUS_WAGER;
-
-        // Начисляем (локально + БД)
         updateBalance(amount, wager);
-
-        // Пишем время в БД
         const success = await patchUser(currentUser, { 
             last_daily_bonus: new Date().toISOString() 
         });
 
         if (success) {
-            bonusStatus.textContent = `🎉 Вы получили ${amount.toFixed(2)} RUB!`;
-            alert(`🎉 Поздравляем!\nВы получили ежедневный бонус: ${amount.toFixed(2)} RUB`);
-            // Принудительное обновление UI (включает таймер)
+            bonusStatus.textContent = `Вы получили ${amount.toFixed(2)} RUB!`;
+            alert(`Поздравляем!\nВы получили ежедневный бонус: ${amount.toFixed(2)} RUB`);
             updateBonusPage();
         } else {
-            throw new Error("Не удалось сохранить дату бонуса в БД. (Проверьте, создана ли колонка last_daily_bonus?)");
+            throw new Error("Не удалось сохранить дату бонуса в БД.");
         }
 
     } catch (error) {
@@ -162,7 +154,7 @@ async function handleClaimBonus(e) {
     }
 }
 
-
+// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА (ОБНОВЛЕНО ДЛЯ ЗАДАЧ 1 и 2) ---
 async function handlePromoActivate(e) {
     e.preventDefault();
     const input = document.getElementById('promo-input');
@@ -179,12 +171,31 @@ async function handlePromoActivate(e) {
     const result = await activatePromocode(code);
 
     if (result.success) {
-        statusEl.textContent = `🎉 ${result.message}`;
-        statusEl.classList.add('win');
+        const amount = result.amount !== undefined ? result.amount : "---";
+        const wager = result.wager_added !== undefined ? result.wager_added : "---";
+
+        const cardHTML = `
+            <div class="bonus-promo-result-card">
+                <div class="bonus-promo-title">
+                    Промокод активирован
+                </div>
+                <div class="bonus-promo-amount">
+                    +${amount} RUB
+                </div>
+                <div class="bonus-promo-wager-box">
+                    <span class="bonus-promo-wager-text">Отыгрыш: ${wager} RUB</span>
+                </div>
+            </div>
+        `;
+        
+        statusEl.innerHTML = cardHTML;
+        statusEl.className = 'profile-status'; 
         input.value = ""; 
     } else {
-        statusEl.textContent = `❌ ${result.message}`;
+        // Убраны смайлики из ошибки
+        statusEl.textContent = `${result.message}`;
         statusEl.classList.add('loss');
+        statusEl.classList.remove('success'); 
     }
 
     button.textContent = "Активировать";

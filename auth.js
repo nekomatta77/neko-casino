@@ -1,10 +1,5 @@
 /*
- * Краткое описание апгрейда:
- * 1. **Режим Гостя**: Логика `initAuth` обновлена. Теперь она управляет кнопками "Вход/Регистрация" в хедере.
- * 2. **Модальное окно**: Реализована логика открытия/закрытия модального окна авторизации (`auth-modal-overlay`).
- * 3. **Вкладки**: Реализовано переключение между "Входом" и "Регистрацией" внутри модального окна.
- * 4. **Регистрация**: `handleRegister` использует `updateUser` для создания записи в БД.
- * 5. **Вход**: `handleLogin` использует `fetchUser` для проверки данных.
+ * AUTH.JS - МОДАЛКИ, ВХОД, РЕГИСТРАЦИЯ И ПРОВЕРКА ВЕЙДЖЕРА
  */
 
 import { showSection, setCurrentUser, getSessionUser, fetchUser, updateUser, startDepositHistoryPoller, stopDepositHistoryPoller, startWithdrawalHistoryPoller, stopWithdrawalHistoryPoller, currentUser, setLocalWager } from './global.js';
@@ -14,6 +9,7 @@ const STARTING_BALANCE = 1000.00;
 
 /**
  * Проверяет вейджер и блокирует кнопку вывода, если необходимо.
+ * ОБНОВЛЕНО: Использует красивую карточку вместо текста.
  */
 async function checkWagerLock() {
     if (!currentUser) return;
@@ -23,7 +19,8 @@ async function checkWagerLock() {
 
     if (!wagerStatusEl || !withdrawalButton) return;
 
-    wagerStatusEl.textContent = 'Проверка отыгрыша...';
+    // Временный текст пока грузим (можно убрать, если быстро)
+    // wagerStatusEl.textContent = 'Проверка отыгрыша...'; 
     wagerStatusEl.classList.remove('hidden');
     withdrawalButton.disabled = true;
 
@@ -33,10 +30,20 @@ async function checkWagerLock() {
     setLocalWager(wagerBalance);
 
     if (wagerBalance > 0) {
-        wagerStatusEl.textContent = `Для вывода необходимо отыграть: ${wagerBalance.toFixed(2)} RUB`;
+        // --- ЗАДАЧА 3: Красивое окошко для отыгрыша ---
+        wagerStatusEl.innerHTML = `
+            <div class="wallet-wager-card">
+                <div class="wager-icon">🔒</div>
+                <div class="wager-info">
+                    <span class="wager-label">Необходимый отыгрыш</span>
+                    <span class="wager-amount">${wagerBalance.toFixed(2)} RUB</span>
+                </div>
+            </div>
+        `;
         wagerStatusEl.classList.remove('hidden');
         withdrawalButton.disabled = true;
     } else {
+        wagerStatusEl.innerHTML = ''; // Очищаем HTML
         wagerStatusEl.classList.add('hidden');
         withdrawalButton.disabled = false;
     }
@@ -69,7 +76,6 @@ function initWalletTabs() {
     const withdrawalHistory = document.getElementById('withdrawal-history-container');
 
     tabs.forEach(tab => {
-        // Игнорируем табы авторизации здесь, они обрабатываются отдельно
         if (tab.id.startsWith('tab-btn-')) return;
 
         tab.addEventListener('click', async () => {
@@ -127,12 +133,9 @@ export async function checkLoginState() {
         showSection('lobby'); 
     } else {
         await setCurrentUser(null); 
-        // Мы остаемся в лобби, но в режиме гостя
         showSection('lobby'); 
     }
 }
-
-// --- ЛОГИКА МОДАЛЬНОГО ОКНА АВТОРИЗАЦИИ ---
 
 function showAuthModal(mode = 'login') {
     const overlay = document.getElementById('auth-modal-overlay');
@@ -146,11 +149,9 @@ function showAuthModal(mode = 'login') {
 
     overlay.classList.remove('hidden');
 
-    // Сброс форм
     document.getElementById('modal-login-form').reset();
     document.getElementById('modal-register-form').reset();
 
-    // Переключение на нужную вкладку
     if (mode === 'login') {
         modalTitle.textContent = 'Вход';
         loginTab.classList.add('active');
@@ -183,10 +184,6 @@ function initAuthModalTabs() {
     }
 }
 
-
-/**
- * Обрабатывает отправку формы регистрации из модалки
- */
 async function handleRegister(e) {
     e.preventDefault();
     const username = document.getElementById('modal-reg-username').value.trim();
@@ -202,7 +199,6 @@ async function handleRegister(e) {
         return;
     }
     
-    // Проверка существования
     const existingUser = await fetchUser(username);
 
     if (existingUser) {
@@ -210,7 +206,6 @@ async function handleRegister(e) {
         return;
     }
 
-    // Создание пользователя
     const newUser = {
         password: pass, 
         balance: STARTING_BALANCE,
@@ -228,7 +223,6 @@ async function handleRegister(e) {
 
     alert('Регистрация успешна! Теперь вы вошли.');
     
-    // Автоматический вход после регистрации
     await setCurrentUser(username);
     hideAuthModal();
     showSection('lobby');
@@ -239,7 +233,6 @@ async function handleLogin(e) {
     const username = document.getElementById('modal-login-username').value.trim();
     const pass = document.getElementById('modal-login-password').value;
 
-    // Получаем данные пользователя
     const userData = await fetchUser(username);
 
     if (!userData) {
@@ -247,7 +240,6 @@ async function handleLogin(e) {
         return;
     }
 
-    // Проверка пароля
     if (userData.password !== pass) {
         alert('Неверный пароль.');
         return;
@@ -259,14 +251,12 @@ async function handleLogin(e) {
 }
 
 export function initAuth() {
-    // Формы в модальном окне
     const loginForm = document.getElementById('modal-login-form');
     const registerForm = document.getElementById('modal-register-form');
     
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     if (registerForm) registerForm.addEventListener('submit', handleRegister);
     
-    // Кнопки в хедере (Гостевой режим)
     const headerLoginBtn = document.getElementById('header-login-btn');
     const headerRegisterBtn = document.getElementById('header-register-btn');
 
@@ -277,7 +267,6 @@ export function initAuth() {
         headerRegisterBtn.addEventListener('click', () => showAuthModal('register'));
     }
 
-    // Закрытие модального окна авторизации
     const authOverlay = document.getElementById('auth-modal-overlay');
     const authCloseBtn = document.getElementById('auth-modal-close');
     
@@ -292,7 +281,6 @@ export function initAuth() {
     
     initAuthModalTabs();
 
-    // Логика кошелька и профиля (существующая)
     const profileTextContent = document.getElementById('mobile-profile-text-content'); 
     
     const goToProfile = () => {
@@ -315,15 +303,13 @@ export function initAuth() {
         bottomNavProfileButtonText.addEventListener('click', showWalletModal); 
     }
 
-    // --- НОВОЕ: Обработчик для кнопки быстрого кошелька ---
     const quickWalletBtn = document.getElementById('header-quick-wallet-btn');
     if (quickWalletBtn) {
         quickWalletBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Чтобы клик не открывал профиль (если есть вложенность)
+            e.stopPropagation(); 
             showWalletModal();
         });
     }
-    // --- КОНЕЦ НОВОГО ---
 
     const walletOverlay = document.getElementById('wallet-modal-overlay');
     const walletCloseButton = document.getElementById('wallet-modal-close');

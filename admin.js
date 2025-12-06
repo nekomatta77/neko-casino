@@ -1,18 +1,31 @@
 /*
- * Апгрейд Админки: Добавлена вкладка Anti-Minus
+ * ADMIN.JS - COMPLETE (User Cards, Promo Management, Anti-Minus)
  */
 
-import { fetchAllUsers, patchUser, createPromocode, deleteUser, fetchUserDepositHistory, fetchUserWithdrawalHistory, clearBetHistory, AntiMinus } from './global.js';
+import { 
+    fetchAllUsers, patchUser, createPromocode, deleteUser, 
+    fetchUserDepositHistory, fetchUserWithdrawalHistory, clearBetHistory, 
+    AntiMinus, fetchAllPromocodes, deletePromocodeById, bulkDeletePromocodes 
+} from './global.js';
 
 // --- ЭЛЕМЕНТЫ DOM ---
 let adminTabs, adminTabContents;
-let userSearchInput, userListBody;
-let promoForm, promoNameInput, promoAmountInput, promoActivationsInput, promoCreateBtn, promoStatusEl;
+
+// Пользователи
+let userSearchInput, userListContainer;
+
+// Промокоды
+let promoForm, promoNameInput, promoAmountInput, promoActivationsInput, promoWagerInput, promoCreateBtn, promoStatusEl;
+let promoTabs, promoTabContents, promoListBody, btnLoadPromos;
+let btnBulkDelete, deleteModal, deleteModalClose, deleteOptionsBtns;
+
+// Статистика
 let adminStatsModal, adminStatsClose, adminStatsUsername, adminStatsDeposits, adminStatsWithdrawals, adminStatsProfit, adminStatsProfitBox;
-let promoWagerInput;
+
+// Настройки
 let clearHistoryBtn, clearHistoryStatus;
 
-// Элементы Anti-Minus
+// Anti-Minus
 let amRtpInput, amBankInput, amToggle, amSaveBtn, amStatus, amCurrentRtpDisplay;
 
 // Локальный кеш пользователей
@@ -27,6 +40,10 @@ const RANK_OPTIONS = {
     'admin': 'Владелец'
 };
 
+// ==========================================
+// 1. ИНИЦИАЛИЗАЦИЯ ВКЛАДОК
+// ==========================================
+
 function initAdminTabs() {
     adminTabs = document.querySelectorAll('#admin-tabs .ref-tab');
     adminTabContents = document.querySelectorAll('#admin-page .ref-tab-content');
@@ -34,19 +51,46 @@ function initAdminTabs() {
     adminTabs.forEach(tab => {
         tab.addEventListener('click', () => {
             const targetId = tab.getAttribute('data-target');
+            
             adminTabs.forEach(t => t.classList.remove('active'));
             adminTabContents.forEach(c => c.classList.remove('active'));
+            
             tab.classList.add('active');
             const targetContent = document.getElementById(targetId);
             if (targetContent) targetContent.classList.add('active');
             
-            // Обновляем данные Anti-Minus при открытии вкладки
+            // Обновляем специфичные данные при открытии вкладки
             if (targetId === 'admin-tab-antiminus') {
                 updateAntiMinusUI();
             }
         });
     });
 }
+
+function initPromoSubTabs() {
+    promoTabs = document.querySelectorAll('#admin-tab-promocodes .ref-subtab');
+    promoTabContents = document.querySelectorAll('#admin-tab-promocodes .ref-subtab-content');
+
+    promoTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetId = tab.getAttribute('data-target');
+            
+            promoTabs.forEach(t => t.classList.remove('active'));
+            promoTabContents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            document.getElementById(targetId).classList.add('active');
+            
+            if (targetId === 'admin-subtab-list') {
+                loadPromocodesList();
+            }
+        });
+    });
+}
+
+// ==========================================
+// 2. УПРАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯМИ (КАРТОЧКИ)
+// ==========================================
 
 export async function handleSearchUsers(force = false) {
     if (!allUsersCache || force) {
@@ -65,12 +109,40 @@ export async function handleSearchUsers(force = false) {
     renderUserList(allUsersCache);
 }
 
+/**
+ * Рендер списка пользователей (КАРТОЧКИ)
+ */
 function renderUserList(users) {
-    if (!userListBody || !users) return;
+    // Ищем контейнер для сетки или создаем его, заменяя таблицу
+    let container = document.getElementById('admin-users-grid-container');
+    
+    if (!container) {
+        const oldTableWrapper = document.querySelector('#admin-tab-users .ref-table-wrapper');
+        if (oldTableWrapper) {
+            container = document.createElement('div');
+            container.id = 'admin-users-grid-container';
+            container.className = 'admin-users-grid';
+            oldTableWrapper.parentNode.replaceChild(container, oldTableWrapper);
+            
+            // Вешаем делегирование событий один раз
+            container.addEventListener('click', handleUserActions);
+            container.addEventListener('change', handleUserActions); // Для селектов
+        } else {
+            return; 
+        }
+    }
+    
+    userListContainer = container;
+
     const searchTerm = (userSearchInput ? userSearchInput.value.toLowerCase() : '').trim();
     const filteredUsers = searchTerm 
         ? users.filter(user => user.username && user.username.toLowerCase().includes(searchTerm))
         : users;
+
+    if (filteredUsers.length === 0) {
+        userListContainer.innerHTML = '<div class="ref-list-placeholder">Пользователи не найдены</div>';
+        return;
+    }
 
     const html = filteredUsers.map(user => {
         const dbRank = user.rank || 'None Rang';
@@ -79,137 +151,146 @@ function renderUserList(users) {
             return `<option value="${dbKey}" ${selected}>${RANK_OPTIONS[dbKey]}</option>`; 
         }).join('');
         
-        const rankSelectHtml = `
-            <select class="admin-rank-select">
-                ${rankOptionsHtml}
-            </select>
-            <button class="admin-rank-save-btn button admin-button">Сохранить</button>
-        `;
+        const initial = user.username.charAt(0).toUpperCase();
 
         return `
-            <tr data-username="${user.username}">
-                <td data-label="Ник">${user.username}</td>
-                <td data-label="Пароль">
-                    <input type="text" value="${(user.password || '')}" class="admin-password-input">
-                    <button class="admin-password-save-btn button admin-button">Сохранить</button>
-                </td>
-                <td data-label="Баланс">
-                    <input type="number" step="0.01" min="0" value="${(user.balance || 0).toFixed(2)}" class="admin-balance-input">
-                    <button class="admin-balance-save-btn button admin-button">Сохранить</button>
-                </td>
-                <td data-label="Ранг">
-                    <div class="rank-control-group">
-                        ${rankSelectHtml}
+            <div class="admin-user-card" data-username="${user.username}">
+                
+                <div class="user-card-header">
+                    <div class="user-card-identity">
+                        <div class="user-avatar-placeholder">${initial}</div>
+                        <span class="user-card-name">${user.username}</span>
                     </div>
-                </td>
-                <td data-label="Действия">
-                    <button class="admin-stats-btn button admin-button">Статистика</button>
-                    <button class="admin-block-btn button admin-button">Заблокировать</button>
-                </td>
-            </tr>
+                    
+                    <select class="user-rank-select action-change-rank">
+                        ${rankOptionsHtml}
+                    </select>
+                </div>
+
+                <div class="user-card-body">
+                    <div class="user-input-group">
+                        <span class="user-input-label">Пароль</span>
+                        <input type="text" value="${(user.password || '')}" class="user-card-input input-password">
+                        <button class="input-save-btn action-save-pass" title="Сохранить">💾</button>
+                    </div>
+
+                    <div class="user-input-group">
+                        <span class="user-input-label">Баланс</span>
+                        <input type="number" step="0.01" value="${(user.balance || 0).toFixed(2)}" class="user-card-input input-balance">
+                        <button class="input-save-btn action-save-balance" title="Сохранить">💾</button>
+                    </div>
+                </div>
+
+                <div class="user-card-footer">
+                    <button class="card-action-btn btn-stats-card action-stats">
+                        📊 Статистика
+                    </button>
+                    <button class="card-action-btn btn-block-card action-block">
+                        🚫 БАН
+                    </button>
+                </div>
+
+            </div>
         `;
     }).join('');
 
-    userListBody.innerHTML = html;
+    userListContainer.innerHTML = html;
 }
 
-// ... (Обработчики баланса, пароля, ранга и блокировки без изменений) ...
-async function handleUpdateBalance(e) {
-    const button = e.target.closest('.admin-balance-save-btn');
-    if (!button) return;
-    const listItem = button.closest('tr');
-    const username = listItem.getAttribute('data-username');
-    const balanceInput = listItem.querySelector('.admin-balance-input');
-    let newBalance = parseFloat(balanceInput.value);
-    if (isNaN(newBalance) || newBalance < 0) return alert('Некорректная сумма баланса.');
-    button.disabled = true;
-    button.textContent = 'Сохранение...';
-    const success = await patchUser(username, { balance: newBalance }); 
-    if (success) {
-        alert(`Баланс обновлен.`);
-        allUsersCache = null;
-        await handleSearchUsers(true); 
-    } else {
-        alert(`Ошибка.`);
+// --- ЕДИНЫЙ ОБРАБОТЧИК СОБЫТИЙ ДЛЯ КАРТОЧЕК ---
+async function handleUserActions(e) {
+    const target = e.target;
+    
+    // Находим карточку
+    const card = target.closest('.admin-user-card');
+    if (!card) return;
+    
+    const username = card.getAttribute('data-username');
+
+    // 1. Сохранить Баланс
+    if (target.closest('.action-save-balance')) {
+        const btn = target.closest('.action-save-balance');
+        const input = card.querySelector('.input-balance');
+        const newBalance = parseFloat(input.value);
+        
+        if (isNaN(newBalance) || newBalance < 0) return alert('Некорректный баланс');
+        
+        btn.innerHTML = '⏳';
+        const success = await patchUser(username, { balance: newBalance });
+        btn.innerHTML = success ? '✅' : '❌';
+        setTimeout(() => btn.innerHTML = '💾', 1500);
+        if(success) allUsersCache = null; // Инвалидация кеша
     }
-    button.disabled = false;
-    button.textContent = 'Сохранить';
-}
-
-async function handleUpdatePassword(e) {
-    const button = e.target.closest('.admin-password-save-btn');
-    if (!button) return;
-    const listItem = button.closest('tr');
-    const username = listItem.getAttribute('data-username');
-    const passwordInput = listItem.querySelector('.admin-password-input');
-    const newPassword = passwordInput.value.trim();
-    if (!newPassword) return alert('Пароль пуст.');
-    button.disabled = true;
-    button.textContent = 'Сохранение...';
-    const success = await patchUser(username, { password: newPassword });
-    if (success) alert(`Пароль обновлен.`);
-    else alert(`Ошибка.`);
-    button.disabled = false;
-    button.textContent = 'Сохранить';
-}
-
-async function handleUpdateRank(e) {
-    const button = e.target.closest('.admin-rank-save-btn');
-    if (!button) return;
-    const listItem = button.closest('tr');
-    const username = listItem.getAttribute('data-username');
-    const rankSelect = listItem.querySelector('.admin-rank-select');
-    const newRank = rankSelect.value;
-    button.disabled = true;
-    button.textContent = 'Сохранение...';
-    const success = await patchUser(username, { rank: newRank });
-    if (success) {
-        alert(`Ранг обновлен.`);
-        allUsersCache = null;
-        await handleSearchUsers(true); 
-    } else alert(`Ошибка.`);
-    button.disabled = false;
-    button.textContent = 'Сохранить';
-}
-
-async function handleBlockUser(e) {
-    const button = e.target.closest('.admin-block-btn');
-    if (!button) return;
-    const listItem = button.closest('tr');
-    const username = listItem.getAttribute('data-username');
-    if (!confirm(`Удалить пользователя ${username}?`)) return;
-    button.disabled = true;
-    button.textContent = 'Удаление...';
-    const success = await deleteUser(username);
-    if (success) {
-        alert(`Удален.`);
-        allUsersCache = null;
-        await handleSearchUsers(true);
-    } else {
-        alert(`Ошибка.`);
-        button.disabled = false;
-        button.textContent = 'Заблокировать';
+    
+    // 2. Сохранить Пароль
+    if (target.closest('.action-save-pass')) {
+        const btn = target.closest('.action-save-pass');
+        const input = card.querySelector('.input-password');
+        const newPass = input.value.trim();
+        
+        if (!newPass) return alert('Пароль пуст');
+        
+        btn.innerHTML = '⏳';
+        const success = await patchUser(username, { password: newPass });
+        btn.innerHTML = success ? '✅' : '❌';
+        setTimeout(() => btn.innerHTML = '💾', 1500);
+    }
+    
+    // 3. Изменить Ранг (change событие)
+    if (target.classList.contains('action-change-rank') && e.type === 'change') {
+        const newRank = target.value;
+        target.style.borderColor = '#F5A623'; // Индикация процесса
+        const success = await patchUser(username, { rank: newRank });
+        if(success) {
+            target.style.borderColor = '#00D26A'; // Успех
+            setTimeout(() => target.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
+            allUsersCache = null;
+        } else {
+            target.style.borderColor = '#FF5555'; // Ошибка
+            alert('Ошибка смены ранга');
+        }
+    }
+    
+    // 4. Статистика
+    if (target.closest('.action-stats')) {
+        handleShowStats(username);
+    }
+    
+    // 5. Бан
+    if (target.closest('.action-block')) {
+        const btn = target.closest('.action-block');
+        if (!confirm(`Удалить пользователя ${username}?`)) return;
+        
+        btn.innerHTML = '⏳ Удаление...';
+        const success = await deleteUser(username);
+        if (success) {
+            card.remove(); 
+            allUsersCache = null;
+        } else {
+            btn.innerHTML = 'Ошибка';
+        }
     }
 }
 
-async function handleShowStats(e) {
-    const button = e.target.closest('.admin-stats-btn');
-    if (!button) return;
-    const listItem = button.closest('tr');
-    const username = listItem.getAttribute('data-username');
+async function handleShowStats(username) {
     adminStatsUsername.textContent = username;
     adminStatsDeposits.textContent = '...';
     adminStatsWithdrawals.textContent = '...';
     adminStatsProfit.textContent = '...';
     adminStatsModal.classList.remove('hidden');
+    
     const depositsData = await fetchUserDepositHistory(username);
     const withdrawalsData = await fetchUserWithdrawalHistory(username);
+    
     const depositsArray = Array.isArray(depositsData) ? depositsData : Object.values(depositsData || {});
     const withdrawalsArray = Array.isArray(withdrawalsData) ? withdrawalsData : Object.values(withdrawalsData || {});
+    
     let totalDeposits = depositsArray.reduce((sum, dep) => (dep.status === 'Success' && dep.amount) ? sum + dep.amount : sum, 0);
     adminStatsDeposits.textContent = `${totalDeposits.toFixed(2)} RUB`;
+    
     let totalWithdrawals = withdrawalsArray.reduce((sum, wd) => (wd.status === 'Success' && wd.amount) ? sum + wd.amount : sum, 0);
     adminStatsWithdrawals.textContent = `${totalWithdrawals.toFixed(2)} RUB`;
+    
     const profit = totalDeposits - totalWithdrawals;
     adminStatsProfit.textContent = `${profit.toFixed(2)} RUB`;
     adminStatsProfitBox.className = 'profile-box ' + (profit > 0 ? 'win' : profit < 0 ? 'loss' : '');
@@ -219,26 +300,153 @@ function hideStatsModal() {
     if (adminStatsModal) adminStatsModal.classList.add('hidden');
 }
 
-// --- ЛОГИКА ANTI-MINUS ---
 
+// ==========================================
+// 3. УПРАВЛЕНИЕ ПРОМОКОДАМИ
+// ==========================================
+
+async function loadPromocodesList() {
+    if (!promoListBody) return;
+    promoListBody.innerHTML = '<tr><td colspan="4" class="ref-list-placeholder">Загрузка...</td></tr>';
+    
+    const promos = await fetchAllPromocodes();
+    
+    if (!promos || promos.length === 0) {
+        promoListBody.innerHTML = '<tr><td colspan="4" class="ref-list-placeholder">Нет активных промокодов</td></tr>';
+        return;
+    }
+    
+    const html = promos.map(p => `
+        <tr>
+            <td><span style="color: #fff; font-weight: bold;">${p.code}</span></td>
+            <td>${p.amount}</td>
+            <td>${p.activations_left}</td>
+            <td>
+                <button class="icon-btn delete-promo-btn" data-id="${p.id}" title="Удалить">
+                    🗑️
+                </button>
+            </td>
+        </tr>
+    `).join('');
+    
+    promoListBody.innerHTML = html;
+}
+
+async function handleCreatePromo(e) {
+    e.preventDefault();
+    const code = promoNameInput.value.trim().toUpperCase();
+    const amount = parseFloat(promoAmountInput.value);
+    const activations = parseInt(promoActivationsInput.value, 10);
+    const wager = parseInt(promoWagerInput.value, 10) || 0;
+    
+    if (!code || isNaN(amount) || amount <= 0) return;
+    
+    promoCreateBtn.disabled = true;
+    promoCreateBtn.textContent = 'Создание...';
+    
+    const success = await createPromocode(code, { amount, activations, wager });
+    
+    if (success) {
+        const resultHTML = `
+            <div class="admin-promo-result-card">
+                <div class="admin-promo-result-header">Промокод "${code}" создан!</div>
+                <div class="admin-promo-result-details">
+                    <div class="admin-promo-detail-item"><span>Сумма:</span> <span>${amount.toFixed(2)} RUB</span></div>
+                    <div class="admin-promo-detail-item"><span>Активаций:</span> <span>${activations}</span></div>
+                    <div class="admin-promo-detail-item"><span>Вейджер:</span> <span>x${wager}</span></div>
+                </div>
+            </div>
+        `;
+        
+        promoStatusEl.innerHTML = resultHTML;
+        promoStatusEl.className = 'profile-status'; 
+        promoForm.reset();
+    } else {
+        promoStatusEl.textContent = 'Ошибка создания.';
+        promoStatusEl.className = 'profile-status error';
+    }
+    
+    promoCreateBtn.disabled = false;
+    promoCreateBtn.textContent = 'Создать';
+}
+
+async function handleDeletePromo(e) {
+    const btn = e.target.closest('.delete-promo-btn');
+    if (!btn) return;
+    
+    if (!confirm('Удалить этот промокод?')) return;
+    
+    const id = btn.getAttribute('data-id');
+    const success = await deletePromocodeById(id);
+    
+    if (success) {
+        loadPromocodesList();
+    } else {
+        alert('Ошибка удаления');
+    }
+}
+
+function initDeleteModal() {
+    btnBulkDelete = document.getElementById('admin-bulk-delete-btn');
+    deleteModal = document.getElementById('delete-modal-overlay');
+    deleteModalClose = document.getElementById('delete-modal-close');
+    deleteOptionsBtns = document.querySelectorAll('.delete-options-grid button');
+    
+    if (btnBulkDelete) {
+        btnBulkDelete.addEventListener('click', (e) => {
+            e.preventDefault(); 
+            deleteModal.classList.remove('hidden');
+        });
+    }
+    
+    if (deleteModalClose) {
+        deleteModalClose.addEventListener('click', () => deleteModal.classList.add('hidden'));
+    }
+    
+    deleteOptionsBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const period = btn.getAttribute('data-period');
+            if (!confirm(`Вы уверены? Это действие нельзя отменить.`)) return;
+            
+            btn.disabled = true;
+            btn.textContent = '...';
+            
+            const success = await bulkDeletePromocodes(period);
+            
+            if (success) {
+                alert('Удалено.');
+                loadPromocodesList();
+                deleteModal.classList.add('hidden');
+            } else {
+                alert('Ошибка.');
+            }
+            
+            btn.disabled = false;
+            if(period === '24h') btn.textContent = 'За сутки';
+            else if(period === 'week') btn.textContent = 'За неделю';
+            else btn.textContent = 'Удалить ВСЕ';
+        });
+    });
+}
+
+// --- ANTI-MINUS & SETTINGS ---
 function updateAntiMinusUI() {
     const settings = AntiMinus.settings;
     if(amRtpInput) amRtpInput.value = settings.targetRTP;
     if(amBankInput) amBankInput.value = settings.minBankReserve;
     if(amToggle) amToggle.checked = settings.active;
     
-    // Расчет текущего RTP
     const stats = AntiMinus.stats;
-    const totalBets = stats.totalIn || 1; // Избегаем деления на 0
+    const totalBets = stats.totalIn || 1; 
     const totalWins = stats.totalOut || 0;
     const currentRTP = (totalWins / totalBets) * 100;
     
     if(amCurrentRtpDisplay) {
         amCurrentRtpDisplay.textContent = `${currentRTP.toFixed(2)}%`;
         if(currentRTP > settings.targetRTP) {
-            amCurrentRtpDisplay.style.color = 'var(--color-mine-bomb)'; // Красный - перебор
+            amCurrentRtpDisplay.style.color = 'var(--color-mine-bomb)';
         } else {
-            amCurrentRtpDisplay.style.color = 'var(--color-secondary)'; // Зеленый - норма
+            amCurrentRtpDisplay.style.color = 'var(--color-secondary)';
         }
     }
 }
@@ -250,37 +458,11 @@ function handleSaveAntiMinus(e) {
         minBankReserve: parseFloat(amBankInput.value),
         active: amToggle.checked
     };
-    
     AntiMinus.saveSettings(newSettings);
-    
-    amStatus.textContent = "Настройки сохранены и применены!";
+    amStatus.textContent = "Настройки сохранены!";
     amStatus.classList.add('success');
     setTimeout(() => amStatus.textContent = '', 3000);
-    
     updateAntiMinusUI();
-}
-
-// --- ЛОГИКА ПРОМОКОДОВ И ИСТОРИИ (без изменений) ---
-async function handleCreatePromo(e) {
-    e.preventDefault();
-    const code = promoNameInput.value.trim().toUpperCase();
-    const amount = parseFloat(promoAmountInput.value);
-    const activations = parseInt(promoActivationsInput.value, 10);
-    const wager = parseInt(promoWagerInput.value, 10) || 0;
-    if (!code || isNaN(amount) || amount <= 0) return;
-    promoCreateBtn.disabled = true;
-    promoCreateBtn.textContent = 'Создание...';
-    const success = await createPromocode(code, { amount, activations, wager });
-    if (success) {
-        promoStatusEl.textContent = `Промокод "${code}" создан!`;
-        promoStatusEl.className = 'profile-status success';
-        promoForm.reset();
-    } else {
-        promoStatusEl.textContent = 'Ошибка.';
-        promoStatusEl.className = 'profile-status error';
-    }
-    promoCreateBtn.disabled = false;
-    promoCreateBtn.textContent = 'Создать';
 }
 
 async function handleClearHistory(e) {
@@ -295,23 +477,23 @@ async function handleClearHistory(e) {
     clearHistoryBtn.textContent = 'Очистить всю историю игр';
 }
 
+// ==========================================
+// 4. ИНИЦИАЛИЗАЦИЯ МОДУЛЯ
+// ==========================================
+
 export function initAdmin() {
     initAdminTabs();
+    initPromoSubTabs(); 
+    initDeleteModal();
 
     // Users
     userSearchInput = document.getElementById('admin-user-search');
-    userListBody = document.getElementById('admin-user-list-body');
+    // Теперь handleSearchUsers сам найдет или создаст контейнер
     if (userSearchInput) userSearchInput.addEventListener('input', () => renderUserList(allUsersCache));
-    if (userListBody) {
-        userListBody.addEventListener('click', (e) => {
-            handleUpdateBalance(e); 
-            handleUpdateRank(e);
-            handleUpdatePassword(e);
-            handleBlockUser(e);
-            handleShowStats(e);
-        });
-    }
-    
+
+    // Инициализация загрузки (если список еще не создан, handleSearchUsers создаст его)
+    handleSearchUsers();
+
     // Stats Modal
     adminStatsModal = document.getElementById('admin-stats-modal-overlay');
     adminStatsClose = document.getElementById('admin-stats-modal-close');
@@ -332,8 +514,13 @@ export function initAdmin() {
     promoStatusEl = document.getElementById('admin-promo-status');
     promoWagerInput = document.getElementById('admin-promo-wager');
     if (promoForm) promoForm.addEventListener('submit', handleCreatePromo);
+    
+    promoListBody = document.getElementById('admin-promo-list-body');
+    if (promoListBody) {
+        promoListBody.addEventListener('click', handleDeletePromo);
+    }
 
-    // Clear History
+    // Settings
     clearHistoryBtn = document.getElementById('admin-clear-history-btn');
     clearHistoryStatus = document.getElementById('admin-clear-history-status');
     if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', handleClearHistory);
@@ -348,7 +535,6 @@ export function initAdmin() {
     
     if (amSaveBtn) amSaveBtn.addEventListener('click', handleSaveAntiMinus);
     
-    // Динамическое добавление вкладки Anti-Minus, если её нет в HTML
     const tabsContainer = document.getElementById('admin-tabs');
     if(tabsContainer && !document.querySelector('[data-target="admin-tab-antiminus"]')) {
         const amTab = document.createElement('button');
@@ -398,7 +584,6 @@ export function initAdmin() {
         `;
         document.querySelector('.admin-container').appendChild(amContent);
         
-        // Re-bind elements after creating HTML
         initAdmin(); 
     }
 }

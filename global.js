@@ -1,6 +1,5 @@
 /*
- * GLOBAL.JS - SUPABASE EDITION + SMART ANTI-MINUS SYSTEM
- * v2.4 - Fix 406 & 409 Errors
+ * GLOBAL.JS - Update v3.2 (Full Promo Management & Anti-Minus)
  */
 
 // Инициализация Supabase
@@ -125,11 +124,9 @@ export async function setCurrentUser(username) {
 export async function fetchUser(username, updateGlobal = false) {
     if (!supabase) return null;
     try {
-        // ИЗМЕНЕНО: используем maybeSingle(), чтобы не было ошибки 406, если юзер не найден
         const { data, error } = await supabase.from('users').select('*').eq('username', username).maybeSingle();
         
         if (error) {
-            // Ошибки соединения и т.д., но не "Row not found"
             return null;
         }
 
@@ -188,7 +185,6 @@ export async function patchUser(username, partialData) {
     return !error;
 }
 
-// --- НОВАЯ ФУНКЦИЯ: Безопасная смена ника ---
 export async function changeUsername(currentUsername, newUsername, newFreeChangesVal) {
     if (!supabase) return { error: { message: 'No connection' } };
     
@@ -197,7 +193,6 @@ export async function changeUsername(currentUsername, newUsername, newFreeChange
         updateData.free_username_changes = newFreeChangesVal;
     }
 
-    // Пытаемся обновить. Если ник занят, Supabase вернет ошибку 409 (Conflict)
     const { data, error } = await supabase
         .from('users')
         .update(updateData)
@@ -217,7 +212,115 @@ export async function deleteUser(username) {
 }
 
 // ==========================================
-// 3. УПРАВЛЕНИЕ БАЛАНСОМ
+// 3. УПРАВЛЕНИЕ ПРОМОКОДАМИ (ПОЛНАЯ ВЕРСИЯ)
+// ==========================================
+
+/**
+ * Получить все промокоды (для админки)
+ */
+export async function fetchAllPromocodes() {
+    if (!supabase) return [];
+    const { data, error } = await supabase
+        .from('promocodes')
+        .select('*')
+        .order('created_at', { ascending: false });
+        
+    if (error) {
+        console.error("Error fetching promos:", error);
+        return [];
+    }
+    return data;
+}
+
+/**
+ * Удалить один промокод по ID
+ */
+export async function deletePromocodeById(id) {
+    if (!supabase) return false;
+    const { error } = await supabase.from('promocodes').delete().eq('id', id);
+    return !error;
+}
+
+/**
+ * Массовое удаление промокодов
+ * period: '24h', 'week', 'all'
+ */
+export async function bulkDeletePromocodes(period) {
+    if (!supabase) return false;
+    
+    let query = supabase.from('promocodes').delete();
+    
+    if (period === 'all') {
+        // Удаляем все, где ID > 0 (существующие)
+        query = query.gt('id', 0);
+    } else {
+        const now = new Date();
+        let dateLimit = new Date();
+        
+        if (period === '24h') {
+            dateLimit.setHours(now.getHours() - 24);
+        } else if (period === 'week') {
+            dateLimit.setDate(now.getDate() - 7);
+        }
+        
+        // Удаляем записи, созданные ПОСЛЕ (gte) вычисленной даты
+        query = query.gte('created_at', dateLimit.toISOString());
+    }
+    
+    const { error } = await query;
+    if (error) console.error("Bulk delete error:", error);
+    return !error;
+}
+
+/**
+ * Создание промокода (Админка)
+ */
+export async function createPromocode(code, data) {
+    if (!supabase) return false;
+    
+    const { error } = await supabase.from('promocodes').insert([{
+        code: code.toUpperCase(),
+        amount: data.amount,
+        activations_left: data.activations,
+        wager_multiplier: data.wager,
+        created_at: new Date().toISOString()
+    }]);
+
+    if (error) {
+        console.error("Promo create error:", error);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Активация промокода (Пользователь)
+ */
+export async function activatePromocode(code) {
+    if (!supabase || !currentUser) return { success: false, message: "Ошибка соединения" };
+
+    try {
+        const { data, error } = await supabase.rpc('claim_promocode', {
+            p_username: currentUser,
+            p_code: code
+        });
+
+        if (error) throw error;
+
+        if (data.success) {
+            await fetchUser(currentUser, true); 
+        }
+
+        return data; 
+    } catch (e) {
+        console.error("Promo activate error:", e);
+        const msg = e.message || "Ошибка сервера";
+        return { success: false, message: msg };
+    }
+}
+
+// ==========================================
+// 4. УПРАВЛЕНИЕ БАЛАНСОМ
 // ==========================================
 
 export async function updateBalance(amount, wagerToAdd = 0) {
@@ -249,7 +352,7 @@ export function setLocalWager(amount) {
 }
 
 // ==========================================
-// 4. ИСТОРИЯ ИГР
+// 5. ИСТОРИЯ ИГР
 // ==========================================
 
 document.addEventListener('click', (e) => {
@@ -647,8 +750,6 @@ export function startDepositHistoryPoller() {}
 export function stopDepositHistoryPoller() {}
 export function startWithdrawalHistoryPoller() {}
 export function stopWithdrawalHistoryPoller() {}
-export async function createPromocode(code, data) { return true; }
-export async function activatePromocode(code) { return {success:true}; }
 
 export function showSection(sectionId) {
     const allSections = document.querySelectorAll('.page-section');
