@@ -1,19 +1,30 @@
 /*
- * GLOBAL.JS - Update v3.2 (Full Promo Management & Anti-Minus)
+ * GLOBAL.JS - Firebase Version
+ * Fixed: Achievement Unlock Logic & Race Conditions
  */
 
-// Инициализация Supabase
-const SUPABASE_URL = 'https://jqkaqluzauhsdfhvhowb.supabase.co'; 
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impxa2FxbHV6YXVoc2RmaHZob3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM0OTczNzMsImV4cCI6MjA3OTA3MzM3M30.tXqrCLyRZWNfgoeSxNpE1RiEQyh8Vlh3dVU_-Le-vVk';
+// --- 1. Инициализация Firebase (CDN) ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { 
+    getFirestore, collection, getDocs, getDoc, addDoc, setDoc, 
+    updateDoc, doc, query, where, orderBy, limit, runTransaction, deleteDoc,
+    serverTimestamp, increment 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+// --- КОНФИГ FIREBASE ---
+const firebaseConfig = {
+  apiKey: "AIzaSyCtHq6ELr7-EpwGD9B91MLPuEwR3BOsqwI",
+  authDomain: "neko-casino-52954.firebaseapp.com",
+  projectId: "neko-casino-52954",
+  storageBucket: "neko-casino-52954.firebasestorage.app",
+  messagingSenderId: "793769920582",
+  appId: "1:793769920582:web:ff8baf0f561cb9308b2247",
+  measurementId: "G-MC70DY0W34"
+};
 
-let supabase = null;
-try {
-    supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (e) {
-    console.error("Supabase init error:", e);
-}
+// Инициализация приложения
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // --- Глобальные переменные ---
 export let currentUser = null;
@@ -22,9 +33,6 @@ export let currentRank = 'None Rang';
 let localWagerBalance = 0.00; 
 
 export const MINES_GRID_SIZE = 25; 
-
-let depositPoller = null;
-let withdrawalPoller = null;
 
 // ==========================================
 // 0. ANTI-MINUS SYSTEM
@@ -44,18 +52,31 @@ export const AntiMinus = {
         if (savedSettings) {
             this.settings = JSON.parse(savedSettings);
         }
-        if (supabase) {
-            const { data: bets } = await supabase.from('bets').select('bet_amount, profit_amount');
-            if (bets) {
-                let totalBet = 0;
-                let totalWon = 0;
-                bets.forEach(b => {
-                    totalBet += b.bet_amount;
-                    if (b.profit_amount > 0) totalWon += b.profit_amount;
-                });
+        
+        try {
+            // Читаем только последние 50 для оптимизации
+            const betsRef = collection(db, "bets");
+            const q = query(betsRef, orderBy("created_at", "desc"), limit(50));
+            const querySnapshot = await getDocs(q);
+            
+            let totalBet = 0;
+            let totalWon = 0;
+            
+            querySnapshot.forEach((doc) => {
+                const b = doc.data();
+                totalBet += b.bet_amount || 0;
+                if (b.profit_amount > 0) totalWon += b.profit_amount;
+            });
+            
+            if (totalBet === 0) {
+                this.stats.totalIn = 5000; 
+                this.stats.totalOut = 1000;
+            } else {
                 this.stats.totalIn = totalBet;
                 this.stats.totalOut = totalWon;
             }
+        } catch (e) {
+            console.error("AntiMinus init warning:", e);
         }
     },
 
@@ -118,17 +139,66 @@ export async function setCurrentUser(username) {
 }
 
 // ==========================================
-// 2. CRUD ОПЕРАЦИИ
+// 2. CRUD ОПЕРАЦИИ (Firestore)
 // ==========================================
 
-export async function fetchUser(username, updateGlobal = false) {
-    if (!supabase) return null;
+async function getUserDocRef(username) {
+    const q = query(collection(db, "users"), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+        return querySnapshot.docs[0].ref;
+    }
+    return null;
+}
+
+// === ИСПРАВЛЕНО: АТОМАРНОЕ ОБНОВЛЕНИЕ + ПРОВЕРКА ВЫПОЛНЕНИЯ ===
+export async function updateAchievementProgress(username, achievementId, targetVal) {
+    if (!username) return;
+    
     try {
-        const { data, error } = await supabase.from('users').select('*').eq('username', username).maybeSingle();
+        const userRef = await getUserDocRef(username);
+        if (!userRef) return;
+
+        // 1. Атомарно увеличиваем счетчик (быстро и без ошибок транзакций)
+        const updateKey = `achievements_data.${achievementId}.current`;
+        await updateDoc(userRef, {
+            [updateKey]: increment(1)
+        });
+
+        // 2. Считываем обновленные данные, чтобы проверить, достигли ли мы цели
+        // (Это безопасно, так как increment уже прошел)
+        const snap = await getDoc(userRef);
+        const data = snap.data();
         
-        if (error) {
-            return null;
+        const currentVal = data.achievements_data?.[achievementId]?.current || 0;
+        const isUnlocked = data.achievements_data?.[achievementId]?.unlocked || false;
+
+        // 3. Если цель достигнута, но статус еще не 'unlocked' - обновляем
+        if (currentVal >= targetVal && !isUnlocked) {
+            const unlockKey = `achievements_data.${achievementId}.unlocked`;
+            await updateDoc(userRef, {
+                [unlockKey]: true
+            });
+            // Возвращаем флаг, что только что открыли
+            return { success: true, justUnlocked: true };
         }
+        
+        return { success: true, justUnlocked: false };
+    } catch (e) {
+        console.error("Achievement update error:", e);
+        return { success: false, justUnlocked: false };
+    }
+}
+
+export async function fetchUser(username, updateGlobal = false) {
+    try {
+        const q = query(collection(db, "users"), where("username", "==", username));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) return null;
+
+        const userDoc = querySnapshot.docs[0];
+        const data = userDoc.data();
 
         if (updateGlobal && data) {
             currentBalance = parseFloat(data.balance || 0);
@@ -152,186 +222,221 @@ export async function fetchUser(username, updateGlobal = false) {
             }
         }
         return data;
-    } catch (err) { return null; }
+    } catch (err) { 
+        console.error("Fetch User Error:", err);
+        return null; 
+    }
 }
 
 export async function fetchUserStats(username) {
-    if (!supabase) return { totalDeposits: 0, totalWithdrawals: 0, totalWager: 0 };
-    const { data: deposits } = await supabase.from('deposits').select('amount').eq('username', username).eq('status', 'Success'); 
-    const totalDeposits = deposits ? deposits.reduce((sum, item) => sum + (item.amount || 0), 0) : 0;
-    const { data: withdrawals } = await supabase.from('withdrawals').select('amount').eq('username', username).eq('status', 'Success');
-    const totalWithdrawals = withdrawals ? withdrawals.reduce((sum, item) => sum + (item.amount || 0), 0) : 0;
-    const { data: bets } = await supabase.from('bets').select('bet_amount').eq('username', username);
-    const totalWager = bets ? bets.reduce((sum, item) => sum + (item.bet_amount || 0), 0) : 0;
-    return { totalDeposits, totalWithdrawals, totalWager };
+    try {
+        // Оптимизация: не загружаем все, если не нужно
+        const betsQ = query(collection(db, "bets"), where("username", "==", username), limit(100)); // Limit для скорости
+        const betsSnap = await getDocs(betsQ);
+        
+        // Для точной статистики депозитов/выводов все еще нужно читать коллекцию
+        const depositsQ = query(collection(db, "deposits"), where("username", "==", username), where("status", "==", "Success"));
+        const withdrawalsQ = query(collection(db, "withdrawals"), where("username", "==", username), where("status", "==", "Success"));
+        
+        const [depSnap, wdSnap] = await Promise.all([getDocs(depositsQ), getDocs(withdrawalsQ)]);
+
+        const totalDeposits = depSnap.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
+        const totalWithdrawals = wdSnap.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
+        const totalWager = betsSnap.docs.reduce((sum, doc) => sum + (doc.data().bet_amount || 0), 0);
+
+        return { totalDeposits, totalWithdrawals, totalWager };
+    } catch (e) {
+        return { totalDeposits: 0, totalWithdrawals: 0, totalWager: 0 };
+    }
 }
 
 export async function fetchAllUsers() {
-    if (!supabase) return [];
-    const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
-    return error ? [] : data;
+    try {
+        const q = query(collection(db, "users"), orderBy("created_at", "desc"), limit(50)); // Ограничим 50 для админки
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => doc.data());
+    } catch (e) { return []; }
 }
 
 export async function updateUser(username, userData) {
-    if (!supabase) return false;
-    const dataToInsert = { username, ...userData, created_at: new Date().toISOString() };
-    const { error } = await supabase.from('users').insert([dataToInsert]);
-    return !error;
+    try {
+        await addDoc(collection(db, "users"), {
+            username,
+            ...userData,
+            created_at: new Date().toISOString()
+        });
+        return true;
+    } catch (e) { return false; }
 }
 
 export async function patchUser(username, partialData) {
-    if (!supabase) return false;
-    const { error } = await supabase.from('users').update(partialData).eq('username', username);
-    return !error;
+    try {
+        const userRef = await getUserDocRef(username);
+        if (userRef) {
+            await updateDoc(userRef, partialData);
+            return true;
+        }
+        return false;
+    } catch (e) { return false; }
 }
 
 export async function changeUsername(currentUsername, newUsername, newFreeChangesVal) {
-    if (!supabase) return { error: { message: 'No connection' } };
-    
-    const updateData = { username: newUsername };
-    if (newFreeChangesVal !== null && newFreeChangesVal !== undefined) {
-        updateData.free_username_changes = newFreeChangesVal;
-    }
+    try {
+        const checkQ = query(collection(db, "users"), where("username", "==", newUsername));
+        const checkSnap = await getDocs(checkQ);
+        if (!checkSnap.empty) {
+            return { success: false, error: { code: '23505', message: 'Username taken' } };
+        }
 
-    const { data, error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('username', currentUsername)
-        .select();
+        const userRef = await getUserDocRef(currentUsername);
+        if (!userRef) return { success: false, error: { message: 'User not found' } };
 
-    if (error) {
+        const updateData = { username: newUsername };
+        if (newFreeChangesVal !== null && newFreeChangesVal !== undefined) {
+            updateData.free_username_changes = newFreeChangesVal;
+        }
+
+        await updateDoc(userRef, updateData);
+        return { success: true };
+    } catch (error) {
         return { success: false, error };
     }
-    return { success: true, data };
 }
 
 export async function deleteUser(username) {
-    if (!supabase) return false;
-    const { error } = await supabase.from('users').delete().eq('username', username);
-    return !error;
+    try {
+        const userRef = await getUserDocRef(username);
+        if (userRef) {
+            await deleteDoc(userRef);
+            return true;
+        }
+        return false;
+    } catch (e) { return false; }
 }
 
 // ==========================================
-// 3. УПРАВЛЕНИЕ ПРОМОКОДАМИ (ПОЛНАЯ ВЕРСИЯ)
+// 3. УПРАВЛЕНИЕ ПРОМОКОДАМИ
 // ==========================================
 
-/**
- * Получить все промокоды (для админки)
- */
 export async function fetchAllPromocodes() {
-    if (!supabase) return [];
-    const { data, error } = await supabase
-        .from('promocodes')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-    if (error) {
-        console.error("Error fetching promos:", error);
-        return [];
-    }
-    return data;
+    try {
+        const q = query(collection(db, "promocodes"), orderBy("created_at", "desc"));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (e) { return []; }
 }
 
-/**
- * Удалить один промокод по ID
- */
 export async function deletePromocodeById(id) {
-    if (!supabase) return false;
-    const { error } = await supabase.from('promocodes').delete().eq('id', id);
-    return !error;
+    try {
+        await deleteDoc(doc(db, "promocodes", id));
+        return true;
+    } catch (e) { return false; }
 }
 
-/**
- * Массовое удаление промокодов
- * period: '24h', 'week', 'all'
- */
 export async function bulkDeletePromocodes(period) {
-    if (!supabase) return false;
-    
-    let query = supabase.from('promocodes').delete();
-    
-    if (period === 'all') {
-        // Удаляем все, где ID > 0 (существующие)
-        query = query.gt('id', 0);
-    } else {
+    try {
+        let q = collection(db, "promocodes");
         const now = new Date();
         let dateLimit = new Date();
+        let queryConstraints = [];
+
+        if (period === '24h') dateLimit.setHours(now.getHours() - 24);
+        else if (period === 'week') dateLimit.setDate(now.getDate() - 7);
         
-        if (period === '24h') {
-            dateLimit.setHours(now.getHours() - 24);
-        } else if (period === 'week') {
-            dateLimit.setDate(now.getDate() - 7);
-        }
+        if (period !== 'all') queryConstraints.push(where("created_at", ">=", dateLimit.toISOString()));
+
+        const finalQuery = query(q, ...queryConstraints);
+        const snapshot = await getDocs(finalQuery);
         
-        // Удаляем записи, созданные ПОСЛЕ (gte) вычисленной даты
-        query = query.gte('created_at', dateLimit.toISOString());
-    }
-    
-    const { error } = await query;
-    if (error) console.error("Bulk delete error:", error);
-    return !error;
+        const deletePromises = snapshot.docs.map(d => deleteDoc(d.ref));
+        await Promise.all(deletePromises);
+        
+        return true;
+    } catch (e) { return false; }
 }
 
-/**
- * Создание промокода (Админка)
- */
 export async function createPromocode(code, data) {
-    if (!supabase) return false;
-    
-    const { error } = await supabase.from('promocodes').insert([{
-        code: code.toUpperCase(),
-        amount: data.amount,
-        activations_left: data.activations,
-        wager_multiplier: data.wager,
-        created_at: new Date().toISOString()
-    }]);
-
-    if (error) {
-        console.error("Promo create error:", error);
-        return false;
-    }
-    return true;
+    try {
+        await addDoc(collection(db, "promocodes"), {
+            code: code.toUpperCase(),
+            amount: data.amount,
+            activations_left: data.activations,
+            wager_multiplier: data.wager,
+            created_at: new Date().toISOString()
+        });
+        return true;
+    } catch (e) { return false; }
 }
 
-/**
- * Активация промокода (Пользователь)
- */
 export async function activatePromocode(code) {
-    if (!supabase || !currentUser) return { success: false, message: "Ошибка соединения" };
+    if (!currentUser) return { success: false, message: "Войдите в аккаунт" };
 
     try {
-        const { data, error } = await supabase.rpc('claim_promocode', {
-            p_username: currentUser,
-            p_code: code
+        const result = await runTransaction(db, async (transaction) => {
+            const promoQ = query(collection(db, "promocodes"), where("code", "==", code));
+            const promoSnap = await getDocs(promoQ);
+            
+            if (promoSnap.empty) throw "Промокод не найден";
+            const promoDoc = promoSnap.docs[0];
+            const promoData = promoDoc.data();
+            
+            if (promoData.activations_left <= 0) throw "Промокод закончился";
+
+            const userQ = query(collection(db, "users"), where("username", "==", currentUser));
+            const userSnap = await getDocs(userQ);
+            if (userSnap.empty) throw "Пользователь не найден";
+            const userRef = userSnap.docs[0].ref;
+            
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists()) throw "Пользователь не найден";
+            const userData = userDoc.data();
+            
+            transaction.update(promoDoc.ref, { activations_left: promoData.activations_left - 1 });
+            
+            const bonusAmount = promoData.amount;
+            const wagerAdd = bonusAmount * (promoData.wager_multiplier || 0);
+            const newBalance = (userData.balance || 0) + bonusAmount;
+            const newWager = (userData.wager_balance || 0) + wagerAdd;
+            
+            transaction.update(userRef, { balance: newBalance, wager_balance: newWager });
+            return { success: true, amount: bonusAmount, wager_added: wagerAdd };
         });
 
-        if (error) throw error;
+        if (result.success) await fetchUser(currentUser, true); 
+        return result;
 
-        if (data.success) {
-            await fetchUser(currentUser, true); 
-        }
-
-        return data; 
     } catch (e) {
-        console.error("Promo activate error:", e);
-        const msg = e.message || "Ошибка сервера";
+        const msg = typeof e === 'string' ? e : "Ошибка сервера";
         return { success: false, message: msg };
     }
 }
 
 // ==========================================
-// 4. УПРАВЛЕНИЕ БАЛАНСОМ
+// 4. УПРАВЛЕНИЕ БАЛАНСОМ (Atomic via Increment)
 // ==========================================
 
 export async function updateBalance(amount, wagerToAdd = 0) {
-    if (!currentUser || !supabase) return;
+    if (!currentUser) return;
+    
+    // Оптимистичное обновление UI
     currentBalance += amount;
     localWagerBalance = Math.max(0, localWagerBalance + wagerToAdd);
     updateUI(); 
     setLocalWager(localWagerBalance);
+
     try {
-        await supabase.rpc('update_balance_atomic', { p_username: currentUser, p_amount_change: amount, p_wager_change: wagerToAdd });
-    } catch (err) { console.error("RPC call failed", err); }
+        const userRef = await getUserDocRef(currentUser);
+        if (!userRef) return;
+
+        // ИСПОЛЬЗУЕМ INCREMENT ВМЕСТО ТРАНЗАКЦИИ (Устраняет ошибки 400 при быстрых ставках)
+        await updateDoc(userRef, {
+            balance: increment(amount),
+            wager_balance: increment(wagerToAdd)
+        });
+        
+    } catch (err) { 
+        console.error("Balance update failed: ", err); 
+    }
 }
 
 export async function reduceWager(betAmount) {
@@ -357,39 +462,40 @@ export function setLocalWager(amount) {
 
 document.addEventListener('click', (e) => {
     const card = e.target.closest('.high-win-card');
-    if (card) {
-        handleHistoryItemClick(card);
-    }
+    if (card) handleHistoryItemClick(card);
 });
 
 export async function writeBetToHistory(betData) {
     AntiMinus.registerGame(betData.betAmount, betData.amount);
-    if (!supabase) return;
-    const { error } = await supabase.from('bets').insert([{
-        username: betData.username,
-        game: betData.game,
-        result: betData.result,
-        bet_amount: betData.betAmount,
-        profit_amount: betData.amount, 
-        multiplier: betData.multiplier,
-        created_at: new Date().toISOString()
-    }]);
-    if (!error) fetchAndRenderHistory();
+    
+    try {
+        await addDoc(collection(db, "bets"), {
+            username: betData.username,
+            game: betData.game,
+            result: betData.result,
+            bet_amount: betData.betAmount,
+            profit_amount: betData.amount, 
+            multiplier: betData.multiplier,
+            created_at: new Date().toISOString()
+        });
+        fetchAndRenderHistory();
+    } catch (e) { console.error("Error writing bet", e); }
 }
 
 export async function fetchAndRenderHistory() {
-    if (!supabase) return;
-    const { data: recentBets } = await supabase.from('bets').select('*').order('created_at', { ascending: false }).limit(50);
-    if (recentBets) renderHistoryList(recentBets, 'recent');
-    const { data: highWinsCandidates } = await supabase.from('bets').select('*').gt('profit_amount', 0).order('profit_amount', { ascending: false }).limit(50);
-    if (highWinsCandidates) {
-        const highWins = highWinsCandidates.filter(bet => {
-            const multValue = parseFloat(bet.multiplier.replace('x', '')) || 0;
+    try {
+        const qRecent = query(collection(db, "bets"), orderBy("created_at", "desc"), limit(50));
+        const recentSnap = await getDocs(qRecent);
+        const recentBets = recentSnap.docs.map(d => d.data());
+        renderHistoryList(recentBets, 'recent');
+
+        const highWins = recentBets.filter(bet => {
+            const multValue = parseFloat((bet.multiplier || "").replace('x', '')) || 0;
             return multValue >= 5.0 && bet.profit_amount >= 1000;
         }).slice(0, 10);
-        highWins.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+        
         renderHistoryList(highWins, 'highwins');
-    }
+    } catch (e) { console.error("Fetch History Error", e); }
 }
 
 function renderHistoryList(bets, type) {
@@ -489,7 +595,6 @@ function handleHistoryItemClick(card) {
     }
 }
 
-// --- ГЕНЕРАТОР ВИЗУАЛЬНОЙ ИСТОРИИ ---
 function openVisualHistoryModal(game, data) {
     const modal = document.getElementById('visual-history-modal-overlay');
     const container = document.getElementById('visual-history-grid-container');
@@ -529,7 +634,6 @@ function openVisualHistoryModal(game, data) {
                 });
             } catch(e) { console.error("Error parsing history", e); }
         }
-
         generateMinesVisual(container, minesCount, data.profit > 0, realMines, realRevealed);
 
     } else if (game === 'keno') {
@@ -591,9 +695,6 @@ function openVisualHistoryModal(game, data) {
             bet: data.bet,
             profit: data.profit
         });
-        
-        extraLabel.textContent = '';
-        extraValue.textContent = '';
     }
 
     modal.classList.remove('hidden');
@@ -740,10 +841,15 @@ function generateDiceVisual(container, data) {
 
 
 export async function clearBetHistory() {
-    if (!supabase) return false;
-    const { error } = await supabase.from('bets').delete().neq('id', 0); 
-    return !error;
+    try {
+        const q = query(collection(db, "bets"));
+        const snapshot = await getDocs(q);
+        const promises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+        await Promise.all(promises);
+        return true;
+    } catch (e) { return false; }
 }
+
 export async function fetchUserDepositHistory(username) { return []; }
 export async function fetchUserWithdrawalHistory(username) { return []; }
 export function startDepositHistoryPoller() {}

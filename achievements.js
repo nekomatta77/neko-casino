@@ -1,9 +1,9 @@
 /*
  * ACHIEVEMENTS.JS
- * Система достижений и трекинга прогресса
+ * Система достижений (С кешированием и атомарным обновлением)
  */
 
-import { currentUser, fetchUser, patchUser } from './global.js';
+import { currentUser, fetchUser, updateAchievementProgress } from './global.js';
 
 // Конфигурация достижений
 export const ACHIEVEMENTS_LIST = {
@@ -37,40 +37,50 @@ export const ACHIEVEMENTS_LIST = {
     }
 };
 
+// --- КЕШИРОВАНИЕ ---
+let cachedAchievementsData = null;
+let lastFetchTime = 0;
+const CACHE_TTL = 30000; // Кеш живет 30 секунд
+
 /**
- * Получить данные достижений пользователя (или дефолтные)
+ * Получить данные достижений (с кешем)
  */
-async function getUserAchievementsData() {
+async function getUserAchievementsData(force = false) {
+    const now = Date.now();
+    // Если есть свежий кеш, отдаем его сразу
+    if (!force && cachedAchievementsData && (now - lastFetchTime < CACHE_TTL)) {
+        return cachedAchievementsData;
+    }
+
+    // Иначе грузим с сервера
     const user = await fetchUser(currentUser);
-    return user?.achievements_data || {};
+    const data = user?.achievements_data || {};
+    
+    cachedAchievementsData = data;
+    lastFetchTime = now;
+    return data;
 }
 
 /**
  * Прогресс достижения типа "Счетчик" (Ставки)
- * @param {string} achievementId - ID достижения
- * @param {number} betAmount - Сумма ставки
  */
 export async function checkBetAchievement(achievementId, betAmount) {
     if (!currentUser || betAmount < 100) return;
 
-    const data = await getUserAchievementsData();
-    const currentProgress = data[achievementId] || { current: 0, unlocked: false };
-
-    if (currentProgress.unlocked) return; // Уже выполнено
-
-    currentProgress.current = (currentProgress.current || 0) + 1;
-
-    // Проверка на выполнение
     const config = ACHIEVEMENTS_LIST[achievementId];
-    if (currentProgress.current >= config.target) {
-        currentProgress.current = config.target;
-        currentProgress.unlocked = true;
+    
+    // Используем безопасное атомарное обновление
+    const result = await updateAchievementProgress(currentUser, achievementId, config.target);
+    
+    // Если только что открыли достижение - показываем тост
+    if (result.justUnlocked) {
         showAchievementNotification(config.title);
     }
 
-    // Сохраняем
-    const newData = { ...data, [achievementId]: currentProgress };
-    await patchUser(currentUser, { achievements_data: newData });
+    // Сбрасываем кеш, чтобы при следующем открытии вкладки данные были свежими
+    if (result.success) {
+        cachedAchievementsData = null;
+    }
 }
 
 /**
@@ -79,48 +89,49 @@ export async function checkBetAchievement(achievementId, betAmount) {
 export async function checkDailyStreak() {
     if (!currentUser) return;
 
-    const data = await getUserAchievementsData();
+    // Читаем с сервера, так как важна дата
+    const data = await getUserAchievementsData(true); 
     const achievementId = 'gift_lover';
     const currentProgress = data[achievementId] || { current: 0, unlocked: false, last_claim: null };
 
     if (currentProgress.unlocked) return;
 
     const now = new Date();
-    const todayStr = now.toDateString(); // "Fri Dec 06 2025"
+    const todayStr = now.toDateString();
     
-    // Если уже забирали сегодня - выходим
     if (currentProgress.last_claim === todayStr) return;
 
-    // Проверяем, был ли прошлый клейм вчера
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toDateString();
 
     if (currentProgress.last_claim === yesterdayStr) {
-        // Стрик продолжается
         currentProgress.current += 1;
     } else {
-        // Стрик прервался или первый раз
         currentProgress.current = 1;
     }
 
     currentProgress.last_claim = todayStr;
 
-    // Проверка на выполнение
     const config = ACHIEVEMENTS_LIST[achievementId];
+    let justUnlocked = false;
+
     if (currentProgress.current >= config.target) {
         currentProgress.current = config.target;
         currentProgress.unlocked = true;
-        showAchievementNotification(config.title);
+        justUnlocked = true;
     }
 
-    const newData = { ...data, [achievementId]: currentProgress };
-    await patchUser(currentUser, { achievements_data: newData });
+    // Сохраняем (здесь можно без атомарности, так как раз в сутки)
+    import('./global.js').then(module => {
+        module.patchUser(currentUser, { 
+            [`achievements_data.${achievementId}`]: currentProgress 
+        });
+        cachedAchievementsData = null; // Сброс кеша
+        if (justUnlocked) showAchievementNotification(config.title);
+    });
 }
 
-/**
- * Всплывашка при получении достижения
- */
 function showAchievementNotification(title) {
     const notif = document.createElement('div');
     notif.className = 'achievement-toast';
@@ -132,8 +143,6 @@ function showAchievementNotification(title) {
         </div>
     `;
     document.body.appendChild(notif);
-
-    // Удаляем через 4 секунды
     setTimeout(() => {
         notif.classList.add('fade-out');
         setTimeout(() => notif.remove(), 500);
@@ -141,7 +150,7 @@ function showAchievementNotification(title) {
 }
 
 /**
- * Рендер страницы достижений
+ * Рендер страницы (МГНОВЕННЫЙ БЛАГОДАРЯ КЕШУ)
  */
 export async function renderAchievementsPage() {
     const container = document.getElementById('achievements-list');
@@ -152,16 +161,31 @@ export async function renderAchievementsPage() {
         return;
     }
 
-    container.innerHTML = '<div class="loader-text" style="width:100%;text-align:center;">Загрузка...</div>';
+    // 1. Показываем кеш мгновенно (если есть)
+    if (cachedAchievementsData) {
+        renderHTML(container, cachedAchievementsData);
+    } else {
+        container.innerHTML = '<div class="loader-text" style="width:100%;text-align:center;">Загрузка...</div>';
+    }
 
+    // 2. Фоново обновляем данные с сервера
     const userProgress = await getUserAchievementsData();
-    let html = '';
+    renderHTML(container, userProgress);
+}
 
+function renderHTML(container, userProgress) {
+    let html = '';
     Object.values(ACHIEVEMENTS_LIST).forEach(ach => {
         const userState = userProgress[ach.id] || { current: 0, unlocked: false };
+        
+        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Визуально считаем выполненным, если счетчик >= цели ---
+        const isCompleted = userState.current >= ach.target; 
+        
         const percent = Math.min(100, (userState.current / ach.target) * 100);
-        const isUnlockedClass = userState.unlocked ? 'unlocked' : '';
-        const btnText = userState.unlocked ? 'ВЫПОЛНЕНО' : `${userState.current} / ${ach.target}`;
+        
+        // --- ИСПРАВЛЕНИЕ ЗДЕСЬ: Класс .unlocked ставится по факту заполнения ---
+        const isUnlockedClass = isCompleted ? 'unlocked' : '';
+        const btnText = isCompleted ? 'ВЫПОЛНЕНО' : `${userState.current} / ${ach.target}`;
 
         html += `
             <div class="achievement-card ${isUnlockedClass}">
@@ -171,7 +195,7 @@ export async function renderAchievementsPage() {
                 <div class="ach-content">
                     <div class="ach-header">
                         <span class="ach-title">${ach.title}</span>
-                        ${userState.unlocked ? '<span class="ach-badge">✓</span>' : ''}
+                        ${isCompleted ? '<span class="ach-badge">✓</span>' : ''}
                     </div>
                     <p class="ach-desc">${ach.desc}</p>
                     <div class="ach-progress-container">
@@ -184,6 +208,5 @@ export async function renderAchievementsPage() {
             </div>
         `;
     });
-
     container.innerHTML = html;
 }
