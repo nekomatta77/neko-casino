@@ -19,13 +19,13 @@ async function checkWagerLock() {
 
     if (!wagerStatusEl || !withdrawalButton) return;
 
-    // Временный текст пока грузим (можно убрать, если быстро)
-    // wagerStatusEl.textContent = 'Проверка отыгрыша...'; 
     wagerStatusEl.classList.remove('hidden');
     withdrawalButton.disabled = true;
 
     const userData = await fetchUser(currentUser);
-    const wagerBalance = userData?.wager_balance || 0;
+    // Исправлено: не допускаем отрицательного значения
+    let wagerBalance = userData?.wager_balance || 0;
+    wagerBalance = Math.max(0, wagerBalance);
     
     setLocalWager(wagerBalance);
 

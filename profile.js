@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 2.1 - Fix 409 Error Handling & Use changeUsername
+ * Версия 2.2 - Fix Negative Display
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -248,7 +248,8 @@ export async function updateProfileData() {
         if (rankEl) rankEl.textContent = displayRank;
         
         const dbWager = userData.wager_balance || 0;
-        if (wagerAmountEl) wagerAmountEl.textContent = dbWager.toFixed(2);
+        // Исправлено: не показывать отрицательные значения
+        if (wagerAmountEl) wagerAmountEl.textContent = Math.max(0, dbWager).toFixed(2);
 
         if (profileUsernameDisplay) profileUsernameDisplay.textContent = currentUser;
         

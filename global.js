@@ -1,6 +1,6 @@
 /*
  * GLOBAL.JS - Firebase Version
- * Fixed: Achievement Unlock Logic & Race Conditions
+ * Fixed: Negative Wager Prevention
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -54,7 +54,6 @@ export const AntiMinus = {
         }
         
         try {
-            // Читаем только последние 50 для оптимизации
             const betsRef = collection(db, "bets");
             const q = query(betsRef, orderBy("created_at", "desc"), limit(50));
             const querySnapshot = await getDocs(q);
@@ -151,7 +150,6 @@ async function getUserDocRef(username) {
     return null;
 }
 
-// === ИСПРАВЛЕНО: АТОМАРНОЕ ОБНОВЛЕНИЕ + ПРОВЕРКА ВЫПОЛНЕНИЯ ===
 export async function updateAchievementProgress(username, achievementId, targetVal) {
     if (!username) return;
     
@@ -159,27 +157,22 @@ export async function updateAchievementProgress(username, achievementId, targetV
         const userRef = await getUserDocRef(username);
         if (!userRef) return;
 
-        // 1. Атомарно увеличиваем счетчик (быстро и без ошибок транзакций)
         const updateKey = `achievements_data.${achievementId}.current`;
         await updateDoc(userRef, {
             [updateKey]: increment(1)
         });
 
-        // 2. Считываем обновленные данные, чтобы проверить, достигли ли мы цели
-        // (Это безопасно, так как increment уже прошел)
         const snap = await getDoc(userRef);
         const data = snap.data();
         
         const currentVal = data.achievements_data?.[achievementId]?.current || 0;
         const isUnlocked = data.achievements_data?.[achievementId]?.unlocked || false;
 
-        // 3. Если цель достигнута, но статус еще не 'unlocked' - обновляем
         if (currentVal >= targetVal && !isUnlocked) {
             const unlockKey = `achievements_data.${achievementId}.unlocked`;
             await updateDoc(userRef, {
                 [unlockKey]: true
             });
-            // Возвращаем флаг, что только что открыли
             return { success: true, justUnlocked: true };
         }
         
@@ -203,7 +196,8 @@ export async function fetchUser(username, updateGlobal = false) {
         if (updateGlobal && data) {
             currentBalance = parseFloat(data.balance || 0);
             currentRank = data.rank || 'None Rang';
-            localWagerBalance = parseFloat(data.wager_balance || 0);
+            // Гарантируем, что локальный вейджер не отрицательный при загрузке
+            localWagerBalance = Math.max(0, parseFloat(data.wager_balance || 0));
             updateUI();
             setLocalWager(localWagerBalance);
             
@@ -230,11 +224,9 @@ export async function fetchUser(username, updateGlobal = false) {
 
 export async function fetchUserStats(username) {
     try {
-        // Оптимизация: не загружаем все, если не нужно
-        const betsQ = query(collection(db, "bets"), where("username", "==", username), limit(100)); // Limit для скорости
+        const betsQ = query(collection(db, "bets"), where("username", "==", username), limit(100));
         const betsSnap = await getDocs(betsQ);
         
-        // Для точной статистики депозитов/выводов все еще нужно читать коллекцию
         const depositsQ = query(collection(db, "deposits"), where("username", "==", username), where("status", "==", "Success"));
         const withdrawalsQ = query(collection(db, "withdrawals"), where("username", "==", username), where("status", "==", "Success"));
         
@@ -252,7 +244,7 @@ export async function fetchUserStats(username) {
 
 export async function fetchAllUsers() {
     try {
-        const q = query(collection(db, "users"), orderBy("created_at", "desc"), limit(50)); // Ограничим 50 для админки
+        const q = query(collection(db, "users"), orderBy("created_at", "desc"), limit(50));
         const querySnapshot = await getDocs(q);
         return querySnapshot.docs.map(doc => doc.data());
     } catch (e) { return []; }
@@ -412,7 +404,7 @@ export async function activatePromocode(code) {
 }
 
 // ==========================================
-// 4. УПРАВЛЕНИЕ БАЛАНСОМ (Atomic via Increment)
+// 4. УПРАВЛЕНИЕ БАЛАНСОМ И ВЕЙДЖЕРОМ (ИСПРАВЛЕНО)
 // ==========================================
 
 export async function updateBalance(amount, wagerToAdd = 0) {
@@ -421,6 +413,7 @@ export async function updateBalance(amount, wagerToAdd = 0) {
     // Оптимистичное обновление UI
     currentBalance += amount;
     localWagerBalance = Math.max(0, localWagerBalance + wagerToAdd);
+    
     updateUI(); 
     setLocalWager(localWagerBalance);
 
@@ -428,7 +421,6 @@ export async function updateBalance(amount, wagerToAdd = 0) {
         const userRef = await getUserDocRef(currentUser);
         if (!userRef) return;
 
-        // ИСПОЛЬЗУЕМ INCREMENT ВМЕСТО ТРАНЗАКЦИИ (Устраняет ошибки 400 при быстрых ставках)
         await updateDoc(userRef, {
             balance: increment(amount),
             wager_balance: increment(wagerToAdd)
@@ -441,19 +433,37 @@ export async function updateBalance(amount, wagerToAdd = 0) {
 
 export async function reduceWager(betAmount) {
     if (!currentUser) return;
-    await updateBalance(0, -betAmount);
+    
+    // ИСПРАВЛЕНИЕ: Вычисляем, сколько нужно отнять, чтобы не уйти в минус.
+    // Если wager 10, а ставка 100 -> отнимаем 10.
+    // Если wager 0, а ставка 100 -> отнимаем 0.
+    let amountToSubtract = Math.min(localWagerBalance, betAmount);
+    
+    // Доп. защита: не отнимать отрицательное число (если баг в localWager)
+    if (amountToSubtract <= 0) return;
+
+    await updateBalance(0, -amountToSubtract);
 }
 
 export function setLocalWager(amount) {
+    // Косметическая защита: всегда показываем >= 0
+    const safeAmount = Math.max(0, amount);
+    
     const wagerEl = document.getElementById('wallet-wager-status');
     const profileWagerEl = document.getElementById('profile-wager-amount');
+    
     if (wagerEl) {
-        if (amount > 0) {
-            wagerEl.textContent = `Вейджер: ${amount.toFixed(2)} RUB`;
-            wagerEl.classList.remove('hidden');
-        } else wagerEl.classList.add('hidden');
+        if (safeAmount > 0.01) { // Скрываем, если совсем мало
+            // Обновляем HTML карточки в auth.js, здесь просто текст если нужно
+            // Но лучше оставить управление HTML внутри auth.js
+        } else {
+            // Если 0 - можно скрыть, это обрабатывается в auth.js
+        }
     }
-    if (profileWagerEl) profileWagerEl.textContent = amount.toFixed(2);
+    
+    if (profileWagerEl) {
+        profileWagerEl.textContent = safeAmount.toFixed(2);
+    }
 }
 
 // ==========================================
