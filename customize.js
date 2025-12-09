@@ -1,18 +1,18 @@
 /*
  * customize.js
- * Version 3.0 - Dynamic Avatar Loading based on Achievements
+ * Version 3.1 - Added Card Patterns Support
  */
 
 import { currentUser, patchUser, fetchUser } from './global.js';
-// Импортируем функцию для получения аватарок из достижений
-import { getUnlockedAvatars } from './achievements.js'; 
+// Импортируем функции для проверки разблокированного контента
+import { getUnlockedAvatars, getUnlockedPatterns } from './achievements.js'; 
 
 let modalOverlay, closeModalButton, avatarGrid;
 let headerAvatars; 
 let headerProfileBoxes; 
 let colorGrids; 
 
-// --- СПИСОК БАЗОВЫХ АВАТАРОК (Доступны всем) ---
+// --- СПИСОК БАЗОВЫХ АВАТАРОК ---
 const DEFAULT_AVATARS = [
     {
         src: 'assets/avatars/orange_cat_ava.png',
@@ -32,7 +32,7 @@ const DEFAULT_AVATARS = [
 ];
 
 /**
- * Safe JSONB update helper
+ * Helper для обновления JSONB данных пользователя
  */
 async function updateCustomizationProperty(username, key, value) {
     const userData = await fetchUser(username);
@@ -48,10 +48,13 @@ async function updateCustomizationProperty(username, key, value) {
 
 async function showCustomizeModal() {
     if (modalOverlay) {
-        // 1. Сначала обновляем сетку аватарок (проверяем достижения)
+        // 1. Обновляем сетку аватарок
         await renderDynamicAvatarGrid();
         
-        // 2. Затем обновляем визуальное выделение текущих настроек
+        // 2. Проверяем разблокированные узоры (снимаем замки)
+        await checkUnlockedPatterns();
+
+        // 3. Обновляем визуальное выделение (selected)
         await updateColorGridSelection();
         
         modalOverlay.classList.remove('hidden');
@@ -64,28 +67,18 @@ function hideCustomizeModal() {
     }
 }
 
-// --- ФУНКЦИЯ ОТРИСОВКИ СЕТКИ АВАТАРОВ ---
+// --- ОТРИСОВКА СЕТКИ АВАТАРОВ ---
 async function renderDynamicAvatarGrid() {
     if (!avatarGrid) return;
 
-    // 1. Получаем список SRC разблокированных аватаров из achievements.js
-    // Возвращает массив путей, например: ['assets/avatars/dice_red_avatar.png']
     const unlockedSrcs = await getUnlockedAvatars(); 
-
-    // 2. Формируем полный список для отображения
-    // Начинаем с базовых
     let avatarsDisplayList = [...DEFAULT_AVATARS];
 
-    // Добавляем разблокированные
     unlockedSrcs.forEach(src => {
-        // Проверяем, нет ли дубликатов с базовыми
         const isDefault = DEFAULT_AVATARS.some(def => def.src === src);
         if (!isDefault) {
-            // Генерируем путь к картинке для меню (assets/custom/)
-            // Логика: заменяем папку и суффикс (_ava/_avatar -> _custom)
             let customSrc = src.replace('assets/avatars/', 'assets/custom/');
             
-            // Замена суффиксов для соответствия неймингу в папке custom
             if (customSrc.includes('_ava.png')) {
                 customSrc = customSrc.replace('_ava.png', '_custom.png');
             } else if (customSrc.includes('_avatar.png')) {
@@ -93,31 +86,53 @@ async function renderDynamicAvatarGrid() {
             }
 
             avatarsDisplayList.push({
-                src: src,       // В профиль (из assets/avatars/)
-                customSrc: customSrc, // В меню (из assets/custom/)
+                src: src,       
+                customSrc: customSrc, 
                 alt: 'Unlocked Avatar'
             });
         }
     });
 
-    // 3. Очищаем текущую сетку
     avatarGrid.innerHTML = '';
 
-    // 4. Генерируем HTML
     avatarsDisplayList.forEach(ava => {
         const img = document.createElement('img');
-        img.src = ava.customSrc; // Показываем картинку из папки custom в меню
+        img.src = ava.customSrc; 
         img.alt = ava.alt;
         img.className = 'customize-avatar-choice';
-        
-        // Важные атрибуты для логики выбора
-        img.setAttribute('data-avatar-src', ava.src); // Путь для профиля
-        img.setAttribute('data-custom-src', ava.customSrc); // Путь для меню
+        img.setAttribute('data-avatar-src', ava.src); 
+        img.setAttribute('data-custom-src', ava.customSrc); 
 
         avatarGrid.appendChild(img);
     });
 }
 
+// --- ПРОВЕРКА РАЗБЛОКИРОВКИ УЗОРОВ ---
+async function checkUnlockedPatterns() {
+    // Получаем список ID разблокированных паттернов ['dice', etc...]
+    const unlockedIDs = await getUnlockedPatterns();
+    
+    // Ищем все кнопки паттернов
+    const patternBtns = document.querySelectorAll('[data-type="pattern"]');
+    
+    patternBtns.forEach(btn => {
+        const value = btn.getAttribute('data-value');
+        
+        // Если это базовый (none) или есть в списке разблокированных
+        if (value === 'none' || unlockedIDs.includes(value)) {
+            btn.classList.remove('locked');
+            // Скрываем оверлей замка, если он есть внутри кнопки
+            const lock = btn.querySelector('.lock-overlay');
+            if (lock) lock.style.display = 'none';
+        } else {
+            btn.classList.add('locked');
+            const lock = btn.querySelector('.lock-overlay');
+            if (lock) lock.style.display = 'flex';
+        }
+    });
+}
+
+// --- ПРИМЕНЕНИЕ СТИЛЕЙ К ПРОФИЛЮ В ХЕДЕРЕ ---
 function applyStyleToProfileBox(key, value) {
     if (!headerProfileBoxes || headerProfileBoxes.length === 0) {
         headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
@@ -145,6 +160,34 @@ function applyStyleToProfileBox(key, value) {
     }
 }
 
+// --- НОВОЕ: ПРИМЕНЕНИЕ УЗОРА К КАРТОЧКЕ ---
+function applyPatternToCard(patternName) {
+    const card = document.querySelector('.user-info-card');
+    if (!card) return;
+
+    // Ищем или создаем слой узора
+    let patternLayer = card.querySelector('.user-card-pattern');
+    if (!patternLayer) {
+        patternLayer = document.createElement('div');
+        patternLayer.className = 'user-card-pattern';
+        // Вставляем в начало, чтобы быть под контентом
+        card.prepend(patternLayer); 
+    }
+
+    // Сбрасываем классы паттернов
+    patternLayer.className = 'user-card-pattern'; 
+    
+    if (!patternName || patternName === 'none') {
+        patternLayer.style.display = 'none';
+    } else {
+        patternLayer.style.display = 'block';
+        // Добавляем класс, который задан в CSS (например, .pattern-dice)
+        patternLayer.classList.add(`pattern-${patternName}`);
+    }
+}
+
+// --- ОБРАБОТЧИКИ СОБЫТИЙ ---
+
 async function handleAvatarSelect(e) {
     const clickedAvatar = e.target.closest('.customize-avatar-choice');
     if (!clickedAvatar) return;
@@ -156,10 +199,9 @@ async function handleAvatarSelect(e) {
         await updateCustomizationProperty(currentUser, 'avatar', newAvatarSrc);
     }
 
-    // Update all avatars in DOM (Header + Profile)
     const allAvatars = document.querySelectorAll('.header-avatar-img, .profile-large-avatar');
     allAvatars.forEach(img => {
-        img.src = newAvatarSrc; // Sets image from assets/avatars/
+        img.src = newAvatarSrc;
     });
 
     avatarGrid.querySelectorAll('.customize-avatar-choice').forEach(choice => {
@@ -168,29 +210,43 @@ async function handleAvatarSelect(e) {
     clickedAvatar.classList.add('selected');
 }
 
-async function handleColorSelect(e) {
-    const clickedColor = e.target.closest('.customize-color-choice');
-    if (!clickedColor) return;
+async function handleColorOrPatternSelect(e) {
+    const clickedBtn = e.target.closest('.customize-color-choice');
+    if (!clickedBtn) return;
 
-    const type = clickedColor.getAttribute('data-type'); 
-    let value = clickedColor.getAttribute('data-value'); 
+    // Блокировка выбора, если элемент закрыт
+    if (clickedBtn.classList.contains('locked')) {
+        // Можно добавить тост "Достижение не получено"
+        return;
+    }
+
+    const type = clickedBtn.getAttribute('data-type'); // border, background, pattern
+    let value = clickedBtn.getAttribute('data-value'); 
     
     if (currentUser) {
         await updateCustomizationProperty(currentUser, type, value);
     }
 
-    applyStyleToProfileBox(type, value);
+    // Логика применения в реальном времени
+    if (type === 'pattern') {
+        applyPatternToCard(value);
+    } else {
+        applyStyleToProfileBox(type, value);
+    }
 
-    const grid = clickedColor.closest('.customize-color-grid');
+    // Визуальное выделение
+    const grid = clickedBtn.closest('.customize-color-grid');
     grid.querySelectorAll('.customize-color-choice').forEach(choice => {
         choice.classList.remove('selected');
     });
-    clickedColor.classList.add('selected');
+    clickedBtn.classList.add('selected');
 }
 
+// --- ГЛАВНАЯ ФУНКЦИЯ ПРИМЕНЕНИЯ ВСЕХ НАСТРОЕК ---
 export function applyCustomization(customs) {
     const data = customs || {}; 
     
+    // 1. Аватар
     const allAvatars = document.querySelectorAll('.header-avatar-img, .profile-large-avatar');
     headerProfileBoxes = document.querySelectorAll('.profile-balance-box');
     
@@ -202,13 +258,19 @@ export function applyCustomization(customs) {
         img.src = currentAvatarSrc;
     });
 
+    // 2. Цвета хедера
     const savedBorder = data.border || 'none';
     applyStyleToProfileBox('border', savedBorder);
     
     const savedBackground = data.background || 'none'; 
     applyStyleToProfileBox('background', savedBackground);
+
+    // 3. Узор карточки (НОВОЕ)
+    const savedPattern = data.pattern || 'none';
+    applyPatternToCard(savedPattern);
 }
 
+// --- ОБНОВЛЕНИЕ UI В МОДАЛКЕ ---
 async function updateColorGridSelection() {
     let customs = {};
     if (currentUser) {
@@ -216,7 +278,7 @@ async function updateColorGridSelection() {
         customs = userData?.customization || {};
     }
     
-    // Выделяем текущий аватар в только что перерисованной сетке
+    // Аватар
     const currentAvatarSrc = customs.avatar || 'assets/avatars/orange_cat_ava.png';
     avatarGrid.querySelectorAll('.customize-avatar-choice').forEach(choice => {
         choice.classList.remove('selected');
@@ -225,10 +287,22 @@ async function updateColorGridSelection() {
         }
     });
 
-    // Выделяем цвета
+    // Цвета и Узоры
     colorGrids.forEach(grid => {
-        const type = grid.getAttribute('data-type');
-        const savedValue = (type === 'border') ? customs.border : customs.background;
+        // Определяем тип по кнопкам внутри, так как data-type может быть на гриде
+        // Но лучше брать из первого элемента или атрибута грида, если мы его ставим в init
+        let type = grid.getAttribute('data-type');
+        
+        // Если тип не задан явно в HTML, пробуем определить (fallback)
+        if (!type) {
+            const firstBtn = grid.querySelector('.customize-color-choice');
+            if (firstBtn) type = firstBtn.getAttribute('data-type');
+        }
+
+        let savedValue;
+        if (type === 'border') savedValue = customs.border;
+        else if (type === 'background') savedValue = customs.background;
+        else if (type === 'pattern') savedValue = customs.pattern;
         
         grid.querySelectorAll('.customize-color-choice').forEach(choice => {
             choice.classList.remove('selected');
@@ -247,16 +321,18 @@ export function initCustomize() {
     avatarGrid = document.querySelector('.customize-avatar-grid');
     
     const profileTriggers = document.querySelectorAll('#profile-avatar-display, #profile-change-avatar-btn');
-
     headerProfileBoxes = document.querySelectorAll('.profile-balance-box'); 
-    
     colorGrids = document.querySelectorAll('.customize-color-grid');
+
+    // Проставляем типы гридам для удобства
     colorGrids.forEach(grid => {
-        const title = grid.parentNode.querySelector('h4').textContent;
-        if (title.includes('Обводка')) {
-            grid.setAttribute('data-type', 'border');
-        } else if (title.includes('Фон')) {
-            grid.setAttribute('data-type', 'background');
+        // Ищем заголовок перед гридом
+        const titleEl = grid.previousElementSibling; 
+        if (titleEl && titleEl.classList.contains('customize-section-title')) {
+            const titleText = titleEl.textContent;
+            if (titleText.includes('Обводка')) grid.setAttribute('data-type', 'border');
+            else if (titleText.includes('Фон')) grid.setAttribute('data-type', 'background');
+            else if (titleText.includes('Узоры')) grid.setAttribute('data-type', 'pattern');
         }
     });
 
@@ -280,6 +356,6 @@ export function initCustomize() {
     if (avatarGrid) avatarGrid.addEventListener('click', handleAvatarSelect); 
 
     colorGrids.forEach(grid => {
-        grid.addEventListener('click', handleColorSelect);
+        grid.addEventListener('click', handleColorOrPatternSelect);
     });
 }

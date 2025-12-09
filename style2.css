@@ -1,1 +1,83 @@
-/*ПИШИ КОД СТИЛЕЙ ЗДЕСЬ
+/* =========================================
+   НОВОЕ: УЗОРЫ ДЛЯ КАРТОЧКИ ИГРОКА
+   ========================================= */
+
+/* 1. Контейнер для узора внутри карточки */
+/* Этот элемент будет создаваться JS или должен быть в HTML */
+.user-card-pattern {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: 0; /* Под контентом (который z-index: 2), но над фоном */
+    opacity: 0.08; /* Очень легкая прозрачность для эстетики */
+    
+    background-repeat: repeat;
+    background-position: center;
+    
+    /* Эстетика: наклон и легкое вращение для динамики */
+    transform: rotate(-15deg);
+    transition: all 0.5s ease;
+}
+
+/* 2. Конкретный узор: DICE */
+.user-card-pattern.pattern-dice {
+    /* Путь к твоему файлу */
+    background-image: url('assets/bg/dice_bg1.svg');
+    /* Размер иконок в паттерне */
+    background-size: 60px 60px; 
+}
+
+/* 3. Стили для кнопок выбора узора в модалке */
+.customize-color-choice.pattern-btn {
+    position: relative;
+    overflow: hidden;
+    background-color: #2E3035; /* Темный фон кнопки */
+    border: 2px solid var(--color-border-dark);
+}
+
+.pattern-preview-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    opacity: 0.8;
+    filter: invert(1); /* Делаем белым, если иконка черная */
+}
+
+/* Состояние: Заблокировано */
+.customize-color-choice.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #444 !important;
+}
+
+.customize-color-choice.locked:hover {
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.lock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2em;
+}
+
+/* Если разблокировано - скрываем замок */
+.customize-color-choice:not(.locked) .lock-overlay {
+    display: none;
+}
+
+/* Выбранный паттерн (Индиго рамка) */
+.customize-color-choice[data-type="pattern"].selected {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 10px var(--color-primary) !important;
+}

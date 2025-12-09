@@ -52,7 +52,7 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/mines-classic.svg',
-                // --- ДОБАВЛЕНО: Награда Аватар Мины ---
+                // Награда Аватар Мины
                 reward: {
                     type: 'avatar',
                     src: 'assets/avatars/mines_avatar.png',
@@ -90,7 +90,7 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/dice-classic.svg',
-                // --- Награда Аватар Кубик ---
+                // Награда Аватар Кубик
                 reward: {
                     type: 'avatar',
                     src: 'assets/avatars/dice_red_avatar.png',
@@ -104,7 +104,13 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 200,
                 minBet: 500,
                 icon: 'assets/achievements/dice-gold.svg',
-                reward: null
+                // --- НОВАЯ НАГРАДА: УЗОР КОСТИ ---
+                reward: {
+                    type: 'pattern',
+                    id: 'dice', // ID используется в data-value кнопки выбора узора
+                    src: 'assets/bg/dice_bg1.svg', // Для отображения в модалке награды
+                    name: 'Узор "Кости"'
+                }
             },
             {
                 id: 'dice_backgammon_diamond',
@@ -128,7 +134,7 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/keno-classic.svg',
-                // --- ДОБАВЛЕНО: Награда Аватар Кено ---
+                // Награда Аватар Кено
                 reward: {
                     type: 'avatar',
                     src: 'assets/avatars/keno_avatar.png',
@@ -244,7 +250,7 @@ function injectModalStyles() {
         .ach-reward-img {
             width: 50px; height: 50px; border-radius: 8px; 
             border: 2px solid #4f46e5; /* Индиго рамка */
-            background: #000; object-fit: cover;
+            background: #2e3035; object-fit: contain; /* Contain для узоров */
         }
         .ach-reward-name {
             font-weight: bold; color: #e0e7ff; font-size: 1rem;
@@ -347,8 +353,7 @@ async function getUserAchievementsData(force = false) {
 }
 
 /**
- * Возвращает массив путей (src) к разблокированным аватаркам.
- * Используется в customize.js
+ * Возвращает массив src аватарок
  */
 export async function getUnlockedAvatars() {
     const data = await getUserAchievementsData();
@@ -357,9 +362,26 @@ export async function getUnlockedAvatars() {
     Object.values(ACHIEVEMENTS_LIST).forEach(ach => {
         if (ach.reward && ach.reward.type === 'avatar') {
             const userState = data[ach.id];
-            // Проверяем, выполнено ли достижение (unlocked=true или прогресс >= цели)
             if (userState && (userState.unlocked || userState.current >= ach.target)) {
                 unlocked.push(ach.reward.src);
+            }
+        }
+    });
+    return unlocked;
+}
+
+/**
+ * НОВОЕ: Возвращает массив ID разблокированных паттернов (['dice', 'mines', etc.])
+ */
+export async function getUnlockedPatterns() {
+    const data = await getUserAchievementsData();
+    const unlocked = [];
+
+    Object.values(ACHIEVEMENTS_LIST).forEach(ach => {
+        if (ach.reward && ach.reward.type === 'pattern') {
+            const userState = data[ach.id];
+            if (userState && (userState.unlocked || userState.current >= ach.target)) {
+                unlocked.push(ach.reward.id);
             }
         }
     });
