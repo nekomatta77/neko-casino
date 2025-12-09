@@ -1,6 +1,9 @@
 /*
- * ADMIN.JS - COMPLETE (User Cards, Promo Gen, Copy-Paste, Anti-Minus, Rank Confirm)
- * Fixed: Rank Modal Colors (Title White !important, Nick White !important, Cancel Red !important)
+ * ADMIN.JS - COMPLETE
+ * Updates:
+ * 1. Unified Beautiful Modal for ALL actions (Ban, Delete Promo, Clear History, Rank).
+ * 2. Specific text logic for bulk delete.
+ * 3. White text & Red Cancel button enforced with !important.
  */
 
 import { 
@@ -53,7 +56,6 @@ function initAdminTabs() {
         tab.addEventListener('click', () => {
             const targetId = tab.getAttribute('data-target');
             
-            // Используем актуальные списки (если они обновились)
             if(adminTabs) adminTabs.forEach(t => t.classList.remove('active'));
             if(adminTabContents) adminTabContents.forEach(c => c.classList.remove('active'));
             
@@ -61,7 +63,6 @@ function initAdminTabs() {
             const targetContent = document.getElementById(targetId);
             if (targetContent) targetContent.classList.add('active');
             
-            // Обновляем специфичные данные при открытии вкладки
             if (targetId === 'admin-tab-antiminus') {
                 updateAntiMinusUI();
             }
@@ -223,32 +224,37 @@ async function handleUserActions(e) {
         setTimeout(() => btn.innerHTML = '💾', 1500);
     }
     
-    // 3. Изменить Ранг (С КРАСИВЫМ ПОДТВЕРЖДЕНИЕМ)
+    // 3. Изменить Ранг
     if (target.classList.contains('action-change-rank') && e.type === 'change') {
         const select = target;
         const newRankKey = select.value;
         const prevRankKey = select.getAttribute('data-prev-rank');
         const newRankName = RANK_OPTIONS[newRankKey];
 
-        // Вызов обновленного модального окна
-        showChangeRankModal(username, newRankName, async () => {
-            // Callback при подтверждении
+        const htmlContent = `
+            <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+                Вы уверены, что хотите изменить ранг игрока 
+                <span style="color: #FFFFFF !important; font-weight: bold; font-size: 1.1em;">${username}</span> 
+                на 
+                <span style="color: #F5A623 !important; font-weight: bold; font-size: 1.1em; text-transform: uppercase;">${newRankName}</span>?
+            </p>
+        `;
+
+        showActionModal("Изменение ранга", htmlContent, async () => {
             select.style.borderColor = '#F5A623';
             const success = await patchUser(username, { rank: newRankKey });
-            
             if(success) {
                 select.style.borderColor = '#00D26A';
-                select.setAttribute('data-prev-rank', newRankKey); // Обновляем "старое" значение
+                select.setAttribute('data-prev-rank', newRankKey);
                 setTimeout(() => select.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
                 allUsersCache = null;
             } else {
                 select.style.borderColor = '#FF5555';
-                select.value = prevRankKey; // Возвращаем назад при ошибке API
+                select.value = prevRankKey;
                 alert('Ошибка смены ранга');
             }
         }, () => {
-            // Callback при отмене
-            select.value = prevRankKey; // Возвращаем значение назад
+            select.value = prevRankKey;
         });
     }
     
@@ -257,18 +263,27 @@ async function handleUserActions(e) {
         handleShowStats(username);
     }
     
-    // 5. Бан
+    // 5. БАН (С КРАСИВЫМ УВЕДОМЛЕНИЕМ)
     if (target.closest('.action-block')) {
         const btn = target.closest('.action-block');
-        if (!confirm(`Удалить пользователя ${username}?`)) return;
-        btn.innerHTML = '⏳ Удаление...';
-        const success = await deleteUser(username);
-        if (success) {
-            card.remove(); 
-            allUsersCache = null;
-        } else {
-            btn.innerHTML = 'Ошибка';
-        }
+        
+        const htmlContent = `
+            <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+                Вы уверены, что хотите удалить игрока 
+                <span style="color: #FFFFFF !important; font-weight: bold; font-size: 1.1em;">${username}</span>?
+            </p>
+        `;
+
+        showActionModal("Блокировка", htmlContent, async () => {
+            btn.innerHTML = '⏳ Удаление...';
+            const success = await deleteUser(username);
+            if (success) {
+                card.remove(); 
+                allUsersCache = null;
+            } else {
+                btn.innerHTML = 'Ошибка';
+            }
+        });
     }
 }
 
@@ -378,16 +393,25 @@ async function handleDeletePromo(e) {
     const btn = e.target.closest('.delete-promo-btn');
     if (!btn) return;
     
-    if (!confirm('Удалить этот промокод?')) return;
-    
     const id = btn.getAttribute('data-id');
-    const success = await deletePromocodeById(id);
-    
-    if (success) {
-        loadPromocodesList();
-    } else {
-        alert('Ошибка удаления');
-    }
+    // Находим название кода из DOM (он в первом span строки)
+    const codeName = btn.closest('tr').querySelector('.promo-code-copy').getAttribute('data-code') || '...';
+
+    const htmlContent = `
+        <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+            Вы уверены, что хотите удалить промокод 
+            <span style="color: #FFFFFF !important; font-weight: bold; font-size: 1.1em;">${codeName}</span>?
+        </p>
+    `;
+
+    showActionModal("Удаление промокода", htmlContent, async () => {
+        const success = await deletePromocodeById(id);
+        if (success) {
+            loadPromocodesList();
+        } else {
+            alert('Ошибка удаления');
+        }
+    });
 }
 
 function initDeleteModal() {
@@ -410,25 +434,50 @@ function initDeleteModal() {
     deleteOptionsBtns.forEach(btn => {
         btn.addEventListener('click', async () => {
             const period = btn.getAttribute('data-period');
-            if (!confirm(`Вы уверены? Это действие нельзя отменить.`)) return;
             
-            btn.disabled = true;
-            btn.textContent = '...';
-            
-            const success = await bulkDeletePromocodes(period);
-            
-            if (success) {
-                alert('Удалено.');
-                loadPromocodesList();
-                deleteModal.classList.add('hidden');
+            // Формируем текст подтверждения
+            let periodText = '';
+            if (period === '24h') periodText = 'за сутки';
+            else if (period === 'week') periodText = 'за неделю';
+            else periodText = ''; // Для "ВСЕ" текст отличается
+
+            let htmlContent = '';
+            if (period === 'all') {
+                htmlContent = `
+                    <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+                        Вы уверены, что хотите удалить 
+                        <span style="color: #FF5555 !important; font-weight: bold;">ВСЕ</span> 
+                        промокоды?
+                    </p>
+                `;
             } else {
-                alert('Ошибка.');
+                htmlContent = `
+                    <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+                        Вы уверены, что хотите удалить все промокоды 
+                        <span style="color: #FFFFFF !important; font-weight: bold;">${periodText}</span>?
+                    </p>
+                `;
             }
-            
-            btn.disabled = false;
-            if(period === '24h') btn.textContent = 'За сутки';
-            else if(period === 'week') btn.textContent = 'За неделю';
-            else btn.textContent = 'Удалить ВСЕ';
+
+            showActionModal("Массовое удаление", htmlContent, async () => {
+                btn.disabled = true;
+                btn.textContent = '...';
+                
+                const success = await bulkDeletePromocodes(period);
+                
+                if (success) {
+                    // alert('Удалено.'); // Можно заменить на кастомное, но alert здесь ок для инфо
+                    loadPromocodesList();
+                    deleteModal.classList.add('hidden');
+                } else {
+                    alert('Ошибка.');
+                }
+                
+                btn.disabled = false;
+                if(period === '24h') btn.textContent = 'За сутки';
+                else if(period === 'week') btn.textContent = 'За неделю';
+                else btn.textContent = 'Удалить ВСЕ';
+            });
         });
     });
 }
@@ -471,14 +520,23 @@ function handleSaveAntiMinus(e) {
 
 async function handleClearHistory(e) {
     e.preventDefault();
-    if (!confirm('Удалить ВСЮ историю ставок?')) return;
-    clearHistoryBtn.disabled = true;
-    clearHistoryBtn.textContent = 'Удаление...';
-    const success = await clearBetHistory();
-    clearHistoryStatus.textContent = success ? 'Очищено.' : 'Ошибка.';
-    clearHistoryStatus.className = success ? 'profile-status success' : 'profile-status error';
-    clearHistoryBtn.disabled = false;
-    clearHistoryBtn.textContent = 'Очистить всю историю игр';
+    
+    const htmlContent = `
+        <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+            Вы уверены, что хотите удалить <span style="color: #FF5555 !important; font-weight: bold;">ВСЮ</span> историю ставок?<br>
+            Это действие нельзя отменить.
+        </p>
+    `;
+
+    showActionModal("Очистка истории", htmlContent, async () => {
+        clearHistoryBtn.disabled = true;
+        clearHistoryBtn.textContent = 'Удаление...';
+        const success = await clearBetHistory();
+        clearHistoryStatus.textContent = success ? 'Очищено.' : 'Ошибка.';
+        clearHistoryStatus.className = success ? 'profile-status success' : 'profile-status error';
+        clearHistoryBtn.disabled = false;
+        clearHistoryBtn.textContent = 'Очистить всю историю игр';
+    });
 }
 
 // ==========================================
@@ -695,22 +753,23 @@ export function initAdmin() {
 }
 
 // ==========================================
-// 5. НОВАЯ ФУНКЦИЯ: КРАСИВОЕ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ (UPDATED)
+// 5. УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ КРАСИВЫХ МОДАЛОК
 // ==========================================
 
-function showChangeRankModal(username, newRankName, onConfirm, onCancel) {
-    const existing = document.getElementById('rank-confirm-modal');
+function showActionModal(titleText, htmlContent, onConfirm, onCancel) {
+    const existing = document.getElementById('admin-action-modal');
     if (existing) existing.remove();
 
     const overlay = document.createElement('div');
-    overlay.id = 'rank-confirm-modal';
+    overlay.id = 'admin-action-modal';
     overlay.className = 'user-modal-overlay';
     overlay.style.display = 'flex';
     overlay.style.zIndex = '3000';
 
     const card = document.createElement('div');
     card.className = 'user-modal-content';
-    // Использование cssText для переопределения всех возможных глобальных стилей
+    
+    // Принудительные стили (!important) для внешнего вида
     card.style.cssText = `
         background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
         border: 2px solid #4F46E5 !important;
@@ -729,19 +788,8 @@ function showChangeRankModal(username, newRankName, onConfirm, onCancel) {
 
     const icon = `<div style="font-size: 3em; margin-bottom: -10px;">⚠️</div>`;
     
-    // ИСПРАВЛЕНО: Добавлен !important к цвету заголовка
-    const title = `<h3 style="margin: 0; color: #FFFFFF !important; font-size: 1.4em; text-transform: uppercase;">Изменение ранга</h3>`;
+    const title = `<h3 style="margin: 0; color: #FFFFFF !important; font-size: 1.4em; text-transform: uppercase;">${titleText}</h3>`;
     
-    // ИСПРАВЛЕНО: Добавлен !important к цвету ника
-    const text = `
-        <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
-            Вы уверены, что хотите изменить ранг игрока 
-            <span style="color: #FFFFFF !important; font-weight: bold; font-size: 1.1em;">${username}</span> 
-            на 
-            <span style="color: #F5A623 !important; font-weight: bold; font-size: 1.1em; text-transform: uppercase;">${newRankName}</span>?
-        </p>
-    `;
-
     const btnContainer = document.createElement('div');
     btnContainer.style.display = 'flex';
     btnContainer.style.gap = '10px';
@@ -749,7 +797,6 @@ function showChangeRankModal(username, newRankName, onConfirm, onCancel) {
 
     const btnCancel = document.createElement('button');
     btnCancel.textContent = 'Отмена';
-    // ИСПРАВЛЕНО: Красный градиент и тень с !important
     btnCancel.style.cssText = `
         flex: 1;
         padding: 12px;
@@ -789,7 +836,7 @@ function showChangeRankModal(username, newRankName, onConfirm, onCancel) {
     btnContainer.appendChild(btnCancel);
     btnContainer.appendChild(btnConfirm);
 
-    card.innerHTML = icon + title + text;
+    card.innerHTML = icon + title + htmlContent;
     card.appendChild(btnContainer);
     overlay.appendChild(card);
     document.body.appendChild(overlay);
