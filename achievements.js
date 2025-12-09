@@ -52,7 +52,12 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/mines-classic.svg',
-                reward: null
+                // --- ДОБАВЛЕНО: Награда Аватар Мины ---
+                reward: {
+                    type: 'avatar',
+                    src: 'assets/avatars/mines_avatar.png',
+                    name: 'Мина (Аватар)'
+                }
             },
             {
                 id: 'mines_sapper_gold',
@@ -85,7 +90,7 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/dice-classic.svg',
-                // --- НАГРАДА ---
+                // --- Награда Аватар Кубик ---
                 reward: {
                     type: 'avatar',
                     src: 'assets/avatars/dice_red_avatar.png',
@@ -123,7 +128,12 @@ export const ACHIEVEMENT_GROUPS = [
                 target: 10,
                 minBet: 100,
                 icon: 'assets/achievements/keno-classic.svg',
-                reward: null
+                // --- ДОБАВЛЕНО: Награда Аватар Кено ---
+                reward: {
+                    type: 'avatar',
+                    src: 'assets/avatars/keno_avatar.png',
+                    name: 'Кено (Аватар)'
+                }
             },
             {
                 id: 'keno_cinema_gold',
@@ -180,11 +190,12 @@ function injectModalStyles() {
             opacity: 1; pointer-events: auto;
         }
         .ach-modal-content {
-            /* ФОН КАК В ПРОФИЛЕ (Темный) */
-            background: #151515; 
-            /* ОБВОДКА ИНДИГО */
-            border: 2px solid indigo;
-            box-shadow: 0 0 30px rgba(75, 0, 130, 0.3);
+            /* Темно-синий градиент */
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); 
+            /* Обводка Индиго */
+            border: 2px solid #4f46e5; 
+            /* Свечение Индиго */
+            box-shadow: 0 0 30px rgba(79, 70, 229, 0.3);
             border-radius: 20px;
             width: 90%; max-width: 400px;
             padding: 30px;
@@ -199,7 +210,7 @@ function injectModalStyles() {
         }
         .ach-modal-close {
             position: absolute; top: 15px; right: 15px;
-            background: none; border: none; color: #666; font-size: 24px;
+            background: none; border: none; color: #aaa; font-size: 24px;
             cursor: pointer; transition: color 0.2s;
         }
         .ach-modal-close:hover { color: #fff; }
@@ -215,27 +226,28 @@ function injectModalStyles() {
             color: #fff; text-transform: uppercase; letter-spacing: 1px;
         }
         .ach-modal-desc {
-            font-size: 0.95rem; color: #aaa; margin-bottom: 25px; line-height: 1.4;
+            font-size: 0.95rem; color: #cbd5e1; margin-bottom: 25px; line-height: 1.4;
         }
         
         .ach-reward-box {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.2);
+            border: 1px dashed rgba(79, 70, 229, 0.4); /* Индиго пунктир */
             border-radius: 12px; padding: 15px;
             margin-bottom: 20px;
         }
         .ach-reward-label {
-            font-size: 0.8rem; text-transform: uppercase; color: #888; margin-bottom: 10px; display: block;
+            font-size: 0.8rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 10px; display: block;
         }
         .ach-reward-item {
             display: flex; align-items: center; justify-content: center; gap: 15px;
         }
         .ach-reward-img {
-            width: 50px; height: 50px; border-radius: 8px; border: 2px solid indigo;
+            width: 50px; height: 50px; border-radius: 8px; 
+            border: 2px solid #4f46e5; /* Индиго рамка */
             background: #000; object-fit: cover;
         }
         .ach-reward-name {
-            font-weight: bold; color: #d4d4ff; font-size: 1rem;
+            font-weight: bold; color: #e0e7ff; font-size: 1rem;
         }
         
         .ach-status-badge {
@@ -244,8 +256,8 @@ function injectModalStyles() {
         }
         .ach-status-badge.locked { background: #333; color: #777; }
         .ach-status-badge.completed { 
-            background: linear-gradient(90deg, #4b6cb7, #182848); 
-            color: #fff; box-shadow: 0 0 10px rgba(75, 108, 183, 0.5);
+            background: linear-gradient(90deg, #4f46e5, #4338ca); /* Индиго градиент */
+            color: #fff; box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
         }
     `;
     document.head.appendChild(style);
@@ -298,7 +310,7 @@ window.openAchievementModal = async function(achId) {
         rewardHtml = `
             <div class="ach-reward-box" style="opacity: 0.5">
                 <span class="ach-reward-label">Награда</span>
-                <span style="color:#666; font-size:0.9rem;">Нет награды</span>
+                <span style="color:#94a3b8; font-size:0.9rem;">Нет награды</span>
             </div>
         `;
     }
@@ -335,8 +347,8 @@ async function getUserAchievementsData(force = false) {
 }
 
 /**
- * НОВАЯ ФУНКЦИЯ: Возвращает массив путей (src) к разблокированным аватаркам.
- * Используйте это в customize.js
+ * Возвращает массив путей (src) к разблокированным аватаркам.
+ * Используется в customize.js
  */
 export async function getUnlockedAvatars() {
     const data = await getUserAchievementsData();
@@ -345,7 +357,7 @@ export async function getUnlockedAvatars() {
     Object.values(ACHIEVEMENTS_LIST).forEach(ach => {
         if (ach.reward && ach.reward.type === 'avatar') {
             const userState = data[ach.id];
-            // Проверяем, выполнено ли достижение
+            // Проверяем, выполнено ли достижение (unlocked=true или прогресс >= цели)
             if (userState && (userState.unlocked || userState.current >= ach.target)) {
                 unlocked.push(ach.reward.src);
             }
