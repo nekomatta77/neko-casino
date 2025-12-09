@@ -202,7 +202,7 @@ async function handleClaimBonus(e) {
     }
 }
 
-// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА ---
+// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА (ОБНОВЛЕННАЯ) ---
 async function handlePromoActivate(e) {
     e.preventDefault();
     const input = document.getElementById('promo-input');
@@ -217,12 +217,13 @@ async function handlePromoActivate(e) {
     button.disabled = true;
     
     const result = await activatePromocode(code);
+    let cardHTML = '';
 
     if (result.success) {
         const amount = result.amount !== undefined ? result.amount : "---";
         const wager = result.wager_added !== undefined ? result.wager_added : "---";
 
-        const cardHTML = `
+        cardHTML = `
             <div class="bonus-promo-result-card">
                 <div class="bonus-promo-title">
                     Промокод активирован
@@ -235,15 +236,39 @@ async function handlePromoActivate(e) {
                 </div>
             </div>
         `;
-        
-        statusEl.innerHTML = cardHTML;
-        statusEl.className = 'profile-status'; 
         input.value = ""; 
     } else {
-        statusEl.textContent = `${result.message}`;
-        statusEl.classList.add('loss');
-        statusEl.classList.remove('success'); 
+        // --- ЗАДАЧА: Красивые уведомления об ошибках ---
+        const message = result.message || "Ошибка";
+        let subInfo = "Попробуйте снова";
+        
+        if (message.includes("уже активировали")) {
+            subInfo = "Только 1 раз на аккаунт";
+        } else if (message.includes("не найден")) {
+            subInfo = "Проверьте написание";
+        } else if (message.includes("закончился")) {
+            subInfo = "Лимит активаций исчерпан";
+        }
+
+        // Используем те же классы, добавляем красный цвет заголовку и тексту, 
+        // и УБИРАЕМ свечение (text-shadow: none)
+        cardHTML = `
+            <div class="bonus-promo-result-card error-card" style="border-color: rgba(255, 77, 77, 0.3);">
+                <div class="bonus-promo-title" style="color: #ff4d4d; text-shadow: none;">
+                    Ошибка активации
+                </div>
+                <div class="bonus-promo-amount" style="color: #ff4d4d; font-size: 1.1em; white-space: normal; line-height: 1.2;">
+                    ${message}
+                </div>
+                <div class="bonus-promo-wager-box">
+                    <span class="bonus-promo-wager-text">${subInfo}</span>
+                </div>
+            </div>
+        `;
     }
+
+    statusEl.innerHTML = cardHTML;
+    statusEl.className = 'profile-status'; 
 
     button.textContent = "Активировать";
     button.disabled = false;

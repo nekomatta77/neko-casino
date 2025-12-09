@@ -1,6 +1,6 @@
 /*
  * GLOBAL.JS - Firebase Version
- * Fixed: Negative Wager Prevention
+ * Fixed: Negative Wager Prevention & Promo Abuse Protection
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -363,34 +363,69 @@ export async function createPromocode(code, data) {
 export async function activatePromocode(code) {
     if (!currentUser) return { success: false, message: "Войдите в аккаунт" };
 
+    // Нормализуем код для поиска (чтобы регистр не влиял)
+    const normalizedCode = code.trim().toUpperCase();
+
     try {
         const result = await runTransaction(db, async (transaction) => {
-            const promoQ = query(collection(db, "promocodes"), where("code", "==", code));
+            // 1. Сначала ищем промокод
+            // Замечание: В Firestore для транзакций лучше использовать прямые ссылки, 
+            // но так как мы ищем по полю 'code', делаем запрос.
+            const promoQ = query(collection(db, "promocodes"), where("code", "==", normalizedCode));
             const promoSnap = await getDocs(promoQ);
             
             if (promoSnap.empty) throw "Промокод не найден";
-            const promoDoc = promoSnap.docs[0];
-            const promoData = promoDoc.data();
+            const promoDocRef = promoSnap.docs[0].ref;
             
-            if (promoData.activations_left <= 0) throw "Промокод закончился";
-
+            // 2. Ищем пользователя
             const userQ = query(collection(db, "users"), where("username", "==", currentUser));
             const userSnap = await getDocs(userQ);
             if (userSnap.empty) throw "Пользователь не найден";
             const userRef = userSnap.docs[0].ref;
+
+            // 3. Формируем ID для записи об активации: "ЮЗЕР_КОД"
+            // Это гарантирует уникальность и легкую проверку
+            const activationId = `${currentUser}_${normalizedCode}`;
+            const activationRef = doc(db, "promo_activations", activationId);
             
-            const userDoc = await transaction.get(userRef);
-            if (!userDoc.exists()) throw "Пользователь не найден";
-            const userData = userDoc.data();
+            // 4. ЧТЕНИЕ В ТРАНЗАКЦИИ (Все чтения должны быть ДО записи)
+            const pDoc = await transaction.get(promoDocRef);
+            const uDoc = await transaction.get(userRef);
+            const aDoc = await transaction.get(activationRef);
             
-            transaction.update(promoDoc.ref, { activations_left: promoData.activations_left - 1 });
+            if (!pDoc.exists()) throw "Промокод не найден";
+            if (!uDoc.exists()) throw "Пользователь не найден";
+
+            // ГЛАВНАЯ ПРОВЕРКА: Если документ активации уже есть, значит юзер использовал код
+            if (aDoc.exists()) throw "Вы уже активировали этот промокод";
             
+            const promoData = pDoc.data();
+            
+            // Проверка лимита активаций
+            if (promoData.activations_left <= 0) throw "Промокод закончился";
+
+            // 5. ЗАПИСЬ В ТРАНЗАКЦИИ
+            
+            // Списываем 1 активацию
+            transaction.update(promoDocRef, { activations_left: promoData.activations_left - 1 });
+            
+            // Начисляем баланс
             const bonusAmount = promoData.amount;
             const wagerAdd = bonusAmount * (promoData.wager_multiplier || 0);
+            const userData = uDoc.data();
             const newBalance = (userData.balance || 0) + bonusAmount;
             const newWager = (userData.wager_balance || 0) + wagerAdd;
             
             transaction.update(userRef, { balance: newBalance, wager_balance: newWager });
+            
+            // Создаем запись об использовании, чтобы предотвратить повтор
+            transaction.set(activationRef, {
+                username: currentUser,
+                code: normalizedCode,
+                amount: bonusAmount,
+                activated_at: new Date().toISOString()
+            });
+
             return { success: true, amount: bonusAmount, wager_added: wagerAdd };
         });
 
@@ -398,7 +433,8 @@ export async function activatePromocode(code) {
         return result;
 
     } catch (e) {
-        const msg = typeof e === 'string' ? e : "Ошибка сервера";
+        const msg = typeof e === 'string' ? e : "Ошибка сервера: " + (e.message || "Unknown");
+        console.error("Promo Activate Error:", e);
         return { success: false, message: msg };
     }
 }
