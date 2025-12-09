@@ -1,8 +1,8 @@
 /*
- * KENO.JS - С ВНЕДРЕННЫМ ANTI-MINUS
+ * KENO.JS - С ВНЕДРЕННЫМ ANTI-MINUS И STATS
  */
-import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
-import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
+import { currentBalance, updateBalance, writeBetToHistory, currentUser, reduceWager, AntiMinus, updateUserGameStats } from './global.js';
+import { checkBetAchievement } from './achievements.js'; 
 
 const KENO_GRID_SIZE = 40;
 const KENO_DRAW_SIZE = 10; 
@@ -208,9 +208,6 @@ async function handlePlayKeno() {
     const winnings = currentBet * multiplier;
     if (winnings > 0) updateBalance(winnings);
 
-    // --- ОБНОВЛЕНИЕ: Сохраняем полную информацию для модального окна ---
-    // Формат: "Risk | Hits/Picks ::: s:1,2,3;d:4,5,6"
-    // s = selected numbers, d = drawn numbers
     const resultString = `${currentRisk.charAt(0).toUpperCase() + currentRisk.slice(1)} | ${hitsCount}/${selectedNumbers.length} ::: s:${selectedNumbers.join(',')};d:${drawnNumbers.join(',')}`;
     
     writeBetToHistory({ 
@@ -221,6 +218,9 @@ async function handlePlayKeno() {
         amount: winnings - currentBet, 
         multiplier: `${multiplier.toFixed(2)}x` 
     });
+    
+    // --- ОБНОВЛЕНИЕ СТАТИСТИКИ ---
+    updateUserGameStats(currentUser, 'keno', winnings);
     
     if (!autoGameActive && kenoResultOverlay) {
         kenoResultMultiplier.textContent = `${multiplier.toFixed(2)}x`;

@@ -1,9 +1,10 @@
 /*
- * ADMIN.JS - COMPLETE
- * Updates:
- * 1. Unified Beautiful Modal for ALL actions (Ban, Delete Promo, Clear History, Rank).
- * 2. Specific text logic for bulk delete.
- * 3. White text & Red Cancel button enforced with !important.
+ * ADMIN.JS - COMPLETE UPDATED
+ * Features:
+ * 1. Beautiful Statistics Modal (Indigo/Cyber Style)
+ * 2. Unified Action Modals
+ * 3. Bulk Delete Logic
+ * 4. User Management Grid
  */
 
 import { 
@@ -116,6 +117,7 @@ export async function handleSearchUsers(force = false) {
 function renderUserList(users) {
     let container = document.getElementById('admin-users-grid-container');
     
+    // Создаем контейнер, если его нет (заменяем таблицу)
     if (!container) {
         const oldTableWrapper = document.querySelector('#admin-tab-users .ref-table-wrapper');
         if (oldTableWrapper) {
@@ -287,11 +289,19 @@ async function handleUserActions(e) {
     }
 }
 
+// --- НОВАЯ ФУНКЦИЯ ОТОБРАЖЕНИЯ СТАТИСТИКИ ---
 async function handleShowStats(username) {
     adminStatsUsername.textContent = username;
+    
+    // Ставим аватарку (первая буква)
+    const initial = username.charAt(0).toUpperCase();
+    const avatarEl = document.querySelector('.admin-stats-user-display .user-avatar-placeholder');
+    if(avatarEl) avatarEl.textContent = initial;
+
     adminStatsDeposits.textContent = '...';
     adminStatsWithdrawals.textContent = '...';
     adminStatsProfit.textContent = '...';
+    
     adminStatsModal.classList.remove('hidden');
     
     const depositsData = await fetchUserDepositHistory(username);
@@ -306,9 +316,18 @@ async function handleShowStats(username) {
     let totalWithdrawals = withdrawalsArray.reduce((sum, wd) => (wd.status === 'Success' && wd.amount) ? sum + wd.amount : sum, 0);
     adminStatsWithdrawals.textContent = `${totalWithdrawals.toFixed(2)} RUB`;
     
+    // Профит = Депозиты - Выводы (Доход казино)
     const profit = totalDeposits - totalWithdrawals;
     adminStatsProfit.textContent = `${profit.toFixed(2)} RUB`;
-    adminStatsProfitBox.className = 'profile-box ' + (profit > 0 ? 'win' : profit < 0 ? 'loss' : '');
+    
+    // Красим карточку профита
+    if (profit > 0) {
+        adminStatsProfitBox.className = 'admin-stat-card full-width win'; // Казино в плюсе (Зеленый)
+    } else if (profit < 0) {
+        adminStatsProfitBox.className = 'admin-stat-card full-width loss'; // Казино в минусе (Красный)
+    } else {
+        adminStatsProfitBox.className = 'admin-stat-card full-width'; // Ноль
+    }
 }
 
 function hideStatsModal() {
@@ -394,7 +413,6 @@ async function handleDeletePromo(e) {
     if (!btn) return;
     
     const id = btn.getAttribute('data-id');
-    // Находим название кода из DOM (он в первом span строки)
     const codeName = btn.closest('tr').querySelector('.promo-code-copy').getAttribute('data-code') || '...';
 
     const htmlContent = `
@@ -435,11 +453,10 @@ function initDeleteModal() {
         btn.addEventListener('click', async () => {
             const period = btn.getAttribute('data-period');
             
-            // Формируем текст подтверждения
             let periodText = '';
             if (period === '24h') periodText = 'за сутки';
             else if (period === 'week') periodText = 'за неделю';
-            else periodText = ''; // Для "ВСЕ" текст отличается
+            else periodText = ''; 
 
             let htmlContent = '';
             if (period === 'all') {
@@ -466,7 +483,6 @@ function initDeleteModal() {
                 const success = await bulkDeletePromocodes(period);
                 
                 if (success) {
-                    // alert('Удалено.'); // Можно заменить на кастомное, но alert здесь ок для инфо
                     loadPromocodesList();
                     deleteModal.classList.add('hidden');
                 } else {
@@ -551,7 +567,7 @@ export function initAdmin() {
     // Users
     userSearchInput = document.getElementById('admin-user-search');
     if (userSearchInput) userSearchInput.addEventListener('input', () => renderUserList(allUsersCache));
-    handleSearchUsers(); // Load users
+    handleSearchUsers(); 
 
     // Stats Modal
     adminStatsModal = document.getElementById('admin-stats-modal-overlay');
@@ -561,6 +577,7 @@ export function initAdmin() {
     adminStatsWithdrawals = document.getElementById('admin-stats-withdrawals');
     adminStatsProfit = document.getElementById('admin-stats-profit');
     adminStatsProfitBox = document.getElementById('admin-stats-profit-box');
+    
     if (adminStatsModal) adminStatsModal.addEventListener('click', (e) => { if (e.target === adminStatsModal) hideStatsModal(); });
     if (adminStatsClose) adminStatsClose.addEventListener('click', hideStatsModal);
 
@@ -578,14 +595,12 @@ export function initAdmin() {
     promoListBody = document.getElementById('admin-promo-list-body');
     if (promoListBody) {
         promoListBody.addEventListener('click', async (e) => {
-            // 1. Удаление
             const deleteBtn = e.target.closest('.delete-promo-btn');
             if (deleteBtn) {
                 handleDeletePromo(e);
                 return;
             }
 
-            // 2. Копирование
             const copyTarget = e.target.closest('.promo-code-copy');
             if (copyTarget) {
                 const code = copyTarget.getAttribute('data-code');
@@ -611,7 +626,7 @@ export function initAdmin() {
         });
     }
 
-    // --- ГЕНЕРАТОР ПРОМОКОДОВ (CAT-XXXXXXX) ---
+    // --- ГЕНЕРАТОР ПРОМОКОДОВ ---
     const genBtn = document.getElementById('admin-promo-generate-auto-btn');
     const genStatus = document.getElementById('admin-generator-status');
 
@@ -621,14 +636,12 @@ export function initAdmin() {
             genBtn.textContent = "Генерация...";
             genStatus.innerHTML = '';
 
-            // Генерируем 7 случайных символов
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let randomChars = '';
             for (let i = 0; i < 7; i++) {
                 randomChars += chars.charAt(Math.floor(Math.random() * chars.length));
             }
             
-            // Собираем промокод с префиксом CAT-
             const promoCode = `CAT-${randomChars}`;
 
             const promoData = {
@@ -666,7 +679,7 @@ export function initAdmin() {
     clearHistoryStatus = document.getElementById('admin-clear-history-status');
     if (clearHistoryBtn) clearHistoryBtn.addEventListener('click', handleClearHistory);
     
-    // Anti-Minus Elements (Global Init)
+    // Anti-Minus Elements
     amRtpInput = document.getElementById('am-rtp-input');
     amBankInput = document.getElementById('am-bank-input');
     amToggle = document.getElementById('am-active-toggle');
@@ -676,7 +689,7 @@ export function initAdmin() {
     
     if (amSaveBtn) amSaveBtn.addEventListener('click', handleSaveAntiMinus);
     
-    // Dynamic Tab Creation
+    // Dynamic Tab Creation (Anti-Minus)
     const tabsContainer = document.getElementById('admin-tabs');
     if(tabsContainer && !document.querySelector('[data-target="admin-tab-antiminus"]')) {
         const amTab = document.createElement('button');
@@ -726,7 +739,6 @@ export function initAdmin() {
         `;
         document.querySelector('.admin-container').appendChild(amContent);
         
-        // --- ИСПРАВЛЕНИЕ: Обновляем списки вкладок и вешаем событие вручную ---
         adminTabs = document.querySelectorAll('#admin-tabs .ref-tab');
         adminTabContents = document.querySelectorAll('#admin-page .ref-tab-content');
         
@@ -740,7 +752,6 @@ export function initAdmin() {
             updateAntiMinusUI();
         });
 
-        // Реинициализация элементов внутри новой вкладки
         amRtpInput = document.getElementById('am-rtp-input');
         amBankInput = document.getElementById('am-bank-input');
         amToggle = document.getElementById('am-active-toggle');
@@ -753,7 +764,7 @@ export function initAdmin() {
 }
 
 // ==========================================
-// 5. УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ КРАСИВЫХ МОДАЛОК
+// 5. УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ МОДАЛОК
 // ==========================================
 
 function showActionModal(titleText, htmlContent, onConfirm, onCancel) {
@@ -769,7 +780,7 @@ function showActionModal(titleText, htmlContent, onConfirm, onCancel) {
     const card = document.createElement('div');
     card.className = 'user-modal-content';
     
-    // Принудительные стили (!important) для внешнего вида
+    // Принудительные стили
     card.style.cssText = `
         background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
         border: 2px solid #4F46E5 !important;

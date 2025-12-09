@@ -1,6 +1,6 @@
 /*
  * GLOBAL.JS - Firebase Version
- * Fixed: Negative Wager Prevention & Promo Abuse Protection
+ * Updates: Exact Registration Time, User Stats (Plays & Max Win), Anti-Minus
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -222,23 +222,50 @@ export async function fetchUser(username, updateGlobal = false) {
     }
 }
 
+// --- НОВОЕ: Получение статистики (Игры и Рекорды) ---
 export async function fetchUserStats(username) {
     try {
-        const betsQ = query(collection(db, "bets"), where("username", "==", username), limit(100));
-        const betsSnap = await getDocs(betsQ);
-        
-        const depositsQ = query(collection(db, "deposits"), where("username", "==", username), where("status", "==", "Success"));
-        const withdrawalsQ = query(collection(db, "withdrawals"), where("username", "==", username), where("status", "==", "Success"));
-        
-        const [depSnap, wdSnap] = await Promise.all([getDocs(depositsQ), getDocs(withdrawalsQ)]);
+        // Читаем из отдельной коллекции user_stats
+        const docRef = doc(db, "user_stats", username);
+        const docSnap = await getDoc(docRef);
 
-        const totalDeposits = depSnap.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
-        const totalWithdrawals = wdSnap.docs.reduce((sum, doc) => sum + (doc.data().amount || 0), 0);
-        const totalWager = betsSnap.docs.reduce((sum, doc) => sum + (doc.data().bet_amount || 0), 0);
+        if (docSnap.exists()) {
+            return docSnap.data();
+        } else {
+            return null; // Статистики пока нет
+        }
+    } catch (error) {
+        console.error("Error fetching user stats:", error);
+        return null;
+    }
+}
 
-        return { totalDeposits, totalWithdrawals, totalWager };
-    } catch (e) {
-        return { totalDeposits: 0, totalWithdrawals: 0, totalWager: 0 };
+// --- НОВОЕ: Запись статистики (Вызывать при окончании игры) ---
+export async function updateUserGameStats(username, gameType, winAmount) {
+    if (!username) return;
+    
+    const statRef = doc(db, "user_stats", username);
+    
+    try {
+        const snap = await getDoc(statRef);
+        let data = snap.exists() ? snap.data() : {};
+        
+        // Получаем объект игры или создаем новый
+        let gameData = data[gameType] || { plays: 0, max_win: 0 };
+        
+        // +1 к играм
+        gameData.plays = (gameData.plays || 0) + 1;
+        
+        // Проверяем рекорд выигрыша
+        if (winAmount > (gameData.max_win || 0)) {
+            gameData.max_win = winAmount;
+        }
+        
+        // Сохраняем с merge: true (не затираем другие игры)
+        await setDoc(statRef, { [gameType]: gameData }, { merge: true });
+        
+    } catch (error) {
+        console.error("Error updating game stats:", error);
     }
 }
 
@@ -250,11 +277,13 @@ export async function fetchAllUsers() {
     } catch (e) { return []; }
 }
 
+// --- ОБНОВЛЕНО: Точная дата регистрации ---
 export async function updateUser(username, userData) {
     try {
         await addDoc(collection(db, "users"), {
             username,
             ...userData,
+            // Сохраняем ISO строку с точным временем
             created_at: new Date().toISOString()
         });
         return true;
@@ -369,8 +398,6 @@ export async function activatePromocode(code) {
     try {
         const result = await runTransaction(db, async (transaction) => {
             // 1. Сначала ищем промокод
-            // Замечание: В Firestore для транзакций лучше использовать прямые ссылки, 
-            // но так как мы ищем по полю 'code', делаем запрос.
             const promoQ = query(collection(db, "promocodes"), where("code", "==", normalizedCode));
             const promoSnap = await getDocs(promoQ);
             
@@ -384,11 +411,10 @@ export async function activatePromocode(code) {
             const userRef = userSnap.docs[0].ref;
 
             // 3. Формируем ID для записи об активации: "ЮЗЕР_КОД"
-            // Это гарантирует уникальность и легкую проверку
             const activationId = `${currentUser}_${normalizedCode}`;
             const activationRef = doc(db, "promo_activations", activationId);
             
-            // 4. ЧТЕНИЕ В ТРАНЗАКЦИИ (Все чтения должны быть ДО записи)
+            // 4. ЧТЕНИЕ В ТРАНЗАКЦИИ
             const pDoc = await transaction.get(promoDocRef);
             const uDoc = await transaction.get(userRef);
             const aDoc = await transaction.get(activationRef);
@@ -396,20 +422,15 @@ export async function activatePromocode(code) {
             if (!pDoc.exists()) throw "Промокод не найден";
             if (!uDoc.exists()) throw "Пользователь не найден";
 
-            // ГЛАВНАЯ ПРОВЕРКА: Если документ активации уже есть, значит юзер использовал код
             if (aDoc.exists()) throw "Вы уже активировали этот промокод";
             
             const promoData = pDoc.data();
             
-            // Проверка лимита активаций
             if (promoData.activations_left <= 0) throw "Промокод закончился";
 
             // 5. ЗАПИСЬ В ТРАНЗАКЦИИ
-            
-            // Списываем 1 активацию
             transaction.update(promoDocRef, { activations_left: promoData.activations_left - 1 });
             
-            // Начисляем баланс
             const bonusAmount = promoData.amount;
             const wagerAdd = bonusAmount * (promoData.wager_multiplier || 0);
             const userData = uDoc.data();
@@ -418,7 +439,6 @@ export async function activatePromocode(code) {
             
             transaction.update(userRef, { balance: newBalance, wager_balance: newWager });
             
-            // Создаем запись об использовании, чтобы предотвратить повтор
             transaction.set(activationRef, {
                 username: currentUser,
                 code: normalizedCode,
@@ -440,7 +460,7 @@ export async function activatePromocode(code) {
 }
 
 // ==========================================
-// 4. УПРАВЛЕНИЕ БАЛАНСОМ И ВЕЙДЖЕРОМ (ИСПРАВЛЕНО)
+// 4. УПРАВЛЕНИЕ БАЛАНСОМ И ВЕЙДЖЕРОМ
 // ==========================================
 
 export async function updateBalance(amount, wagerToAdd = 0) {
@@ -470,32 +490,15 @@ export async function updateBalance(amount, wagerToAdd = 0) {
 export async function reduceWager(betAmount) {
     if (!currentUser) return;
     
-    // ИСПРАВЛЕНИЕ: Вычисляем, сколько нужно отнять, чтобы не уйти в минус.
-    // Если wager 10, а ставка 100 -> отнимаем 10.
-    // Если wager 0, а ставка 100 -> отнимаем 0.
     let amountToSubtract = Math.min(localWagerBalance, betAmount);
-    
-    // Доп. защита: не отнимать отрицательное число (если баг в localWager)
     if (amountToSubtract <= 0) return;
 
     await updateBalance(0, -amountToSubtract);
 }
 
 export function setLocalWager(amount) {
-    // Косметическая защита: всегда показываем >= 0
     const safeAmount = Math.max(0, amount);
-    
-    const wagerEl = document.getElementById('wallet-wager-status');
     const profileWagerEl = document.getElementById('profile-wager-amount');
-    
-    if (wagerEl) {
-        if (safeAmount > 0.01) { // Скрываем, если совсем мало
-            // Обновляем HTML карточки в auth.js, здесь просто текст если нужно
-            // Но лучше оставить управление HTML внутри auth.js
-        } else {
-            // Если 0 - можно скрыть, это обрабатывается в auth.js
-        }
-    }
     
     if (profileWagerEl) {
         profileWagerEl.textContent = safeAmount.toFixed(2);

@@ -1,15 +1,15 @@
 /*
- * MINES.JS - С ВНЕДРЕННЫМ ANTI-MINUS
+ * MINES.JS - С ВНЕДРЕННЫМ ANTI-MINUS И STATS
  */
-import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
-import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
+import { currentBalance, updateBalance, MINES_GRID_SIZE, writeBetToHistory, currentUser, reduceWager, AntiMinus, updateUserGameStats } from './global.js';
+import { checkBetAchievement } from './achievements.js'; 
 
 let isGameActive = false;
 let currentMines = 3;
 let currentBet = 10.00;
-let safeCells = []; // true = MINE, false = SAFE
+let safeCells = []; 
 let revealedCount = 0;
-let revealedIndices = []; // Хранит индексы, которые открыл игрок
+let revealedIndices = []; 
 let mainButton;
 
 function getMultiplierForSafeCells(safeCount, totalMines) {
@@ -89,13 +89,11 @@ async function startGame() {
     
     isGameActive = true;
     revealedCount = 0;
-    revealedIndices = []; // Сброс истории ходов
+    revealedIndices = []; 
     updateBalance(-currentBet);
     reduceWager(currentBet);
     
-    // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
     checkBetAchievement('mines_sapper', currentBet);
-    // ---------------------------
     
     createMinesGrid(); 
     placeMines(currentMines); 
@@ -147,12 +145,12 @@ function updateMinesUI() {
 }
 
 function placeMines(count) {
-    safeCells = Array(MINES_GRID_SIZE).fill(false); // false = Safe (initially empty)
+    safeCells = Array(MINES_GRID_SIZE).fill(false); 
     const mineIndices = new Set();
     while (mineIndices.size < count) {
         mineIndices.add(Math.floor(Math.random() * MINES_GRID_SIZE));
     }
-    mineIndices.forEach(index => safeCells[index] = true); // true = Mine
+    mineIndices.forEach(index => safeCells[index] = true); 
 }
 
 function showAllMines(didWin) {
@@ -175,9 +173,7 @@ function showAllMines(didWin) {
     });
 }
 
-// Вспомогательная функция для генерации строки истории
 function serializeGameData() {
-    // Формат: "m:1,2,3;r:4,5" (m = mines indices, r = revealed indices)
     const mines = [];
     safeCells.forEach((isMine, idx) => {
         if (isMine) mines.push(idx);
@@ -219,9 +215,6 @@ function handleCellClick(e) {
         document.getElementById('mines-status').textContent = `Проигрыш ${currentBet.toFixed(2)} RUB`;
         document.getElementById('mines-status').classList.add('loss');
         
-        // Добавляем текущий индекс (взрыв) в revealed для истории, чтобы показать красный крест, если нужно
-        // Но визуально мы просто покажем все бомбы.
-        // Сохраняем историю
         const gameDataStr = serializeGameData();
         
         writeBetToHistory({
@@ -232,6 +225,10 @@ function handleCellClick(e) {
             amount: -currentBet, 
             multiplier: '0.00x'
         });
+        
+        // --- ОБНОВЛЕНИЕ СТАТИСТИКИ (LOSS) ---
+        updateUserGameStats(currentUser, 'mines', 0);
+        
         endGame(false);
     } else {
         cell.classList.remove('closed');
@@ -239,7 +236,7 @@ function handleCellClick(e) {
         cell.innerHTML = `<img src="assets/mines_fish.png" alt="Fish" class="mine-cell-icon">`;
         
         revealedCount++;
-        revealedIndices.push(index); // Запоминаем ход
+        revealedIndices.push(index); 
         
         if (revealedCount === MINES_GRID_SIZE - currentMines) cashoutGame(); 
         else updateMinesUI();
@@ -264,6 +261,9 @@ async function cashoutGame() {
         amount: netProfit, 
         multiplier: `${finalMultiplier.toFixed(2)}x`
     });
+    
+    // --- ОБНОВЛЕНИЕ СТАТИСТИКИ (WIN) ---
+    updateUserGameStats(currentUser, 'mines', totalWinnings);
     
     showAllMines(true); 
     document.getElementById('mines-status').textContent = `Выигрыш ${totalWinnings.toFixed(2)} RUB`;

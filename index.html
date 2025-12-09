@@ -1045,6 +1045,74 @@
                     
                 </div>
             </section>
+
+            <section id="public-profile-page" class="page-section hidden">
+                <div class="profile-container public-profile-container">
+                    
+                    <button class="pp-back-btn" id="pp-back-button">
+                        ← Вернуться в лобби
+                    </button>
+
+                    <div class="user-info-card public-mode">
+                        <div class="user-info-left">
+                            <div class="pp-avatar-wrapper">
+                                <img src="assets/avatars/orange_cat_ava.png" class="profile-large-avatar" id="pp-page-avatar">
+                                <div class="pp-rank-badge">
+                                    <img src="assets/ranks/rank_kitten.png" id="pp-page-rank-img" alt="Rank">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="user-info-right">
+                            <h3 id="pp-page-username">Username</h3>
+                            <span id="pp-page-rank-name" class="pp-rank-label">Котенок</span>
+                            <span id="pp-page-date" class="pp-date-label">В игре с 01.2024</span>
+                        </div>
+                    </div>
+
+                    <div class="pp-stats-grid">
+                        
+                        <div class="pp-stat-box">
+                            <div class="pp-stat-icon indigo">
+                                <span>🎮</span>
+                            </div>
+                            <div class="pp-stat-info">
+                                <span class="pp-stat-title">Всего игр</span>
+                                <strong id="pp-page-total-games">0</strong>
+                            </div>
+                        </div>
+
+                        <div class="pp-stat-box">
+                            <div class="pp-stat-icon green">
+                                <span>🏆</span>
+                            </div>
+                            <div class="pp-stat-info">
+                                <span class="pp-stat-title">Рекорд</span>
+                                <strong id="pp-page-best-win" class="win-text">0.00 ₽</strong>
+                            </div>
+                        </div>
+
+                        <div class="pp-stat-box full">
+                            <div class="pp-stat-icon orange">
+                                <span>🔄</span>
+                            </div>
+                            <div class="pp-stat-info">
+                                <span class="pp-stat-title">Оборот ставок (Wager)</span>
+                                <strong id="pp-page-wager">0.00 ₽</strong>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="pp-fav-game-card">
+                        <span class="pp-fav-title">Любимая игра:</span>
+                        <div class="pp-fav-body">
+                            <img src="assets/dice_icon.png" id="pp-page-fav-icon" alt="Game">
+                            <span id="pp-page-fav-name">Dice</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
             
             <section id="ranks-page" class="page-section hidden">
                 <div class="rank-container"> <div class="rank-scroll-container">
@@ -1582,6 +1650,9 @@
             
             <div class="wallet-header">
                 <h3>Детали игры</h3>
+                <button class="vh-profile-btn" id="vh-open-profile-btn">
+                    👤 Профиль
+                </button>
                 <button class="wallet-modal-close" id="visual-history-close">&times;</button>
             </div>
 
@@ -1710,25 +1781,107 @@
         </div>
     </div>
     
-    <div class="user-modal-overlay hidden" id="admin-stats-modal-overlay">
+   <div class="user-modal-overlay hidden" id="admin-stats-modal-overlay">
         <div class="user-modal-content admin-stats-modal-content">
             <div class="wallet-header">
-                <h3>Статистика: <span id="admin-stats-username">...</span></h3>
+                <h3>Статистика игрока</h3>
                 <button class="wallet-modal-close" id="admin-stats-modal-close">&times;</button>
             </div>
             
-            <div class="admin-stats-body">
-                <div class="profile-box">
-                    <span>Сумма депозитов:</span>
-                    <span id="admin-stats-deposits">0.00 RUB</span>
+            <div class="admin-stats-user-display">
+                <div class="user-avatar-placeholder large">?</div>
+                <span id="admin-stats-username" class="stat-username">Username</span>
+            </div>
+
+            <div class="admin-stats-grid">
+                <div class="admin-stat-card">
+                    <div class="stat-icon-wrapper blue">
+                        <img src="assets/deposits_stat.svg" alt="Dep">
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Депозиты</span>
+                        <span id="admin-stats-deposits" class="stat-value">0.00 RUB</span>
+                    </div>
                 </div>
-                <div class="profile-box">
-                    <span>Сумма выводов:</span>
-                    <span id="admin-stats-withdrawals">0.00 RUB</span>
+
+                <div class="admin-stat-card">
+                    <div class="stat-icon-wrapper orange">
+                        <img src="assets/withdraws_stat.svg" alt="Wd">
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Выводы</span>
+                        <span id="admin-stats-withdrawals" class="stat-value">0.00 RUB</span>
+                    </div>
                 </div>
-                <div class="profile-box" id="admin-stats-profit-box">
-                    <span>Доход сайта:</span>
-                    <span id="admin-stats-profit">0.00 RUB</span>
+
+                <div class="admin-stat-card full-width" id="admin-stats-profit-box">
+                    <div class="stat-icon-wrapper green">
+                        <img src="assets/money_stat.svg" alt="Profit">
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-label">Доход казино (Профит)</span>
+                        <span id="admin-stats-profit" class="stat-value big">0.00 RUB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-modal-overlay hidden" id="public-profile-modal-overlay">
+        <div class="user-modal-content public-profile-content">
+            <button class="wallet-modal-close" id="public-profile-close">&times;</button>
+            
+            <div class="pp-header">
+                <div class="pp-avatar-container">
+                    <img src="assets/avatars/orange_cat_ava.png" class="pp-avatar" id="pp-avatar">
+                    <div class="pp-rank-icon" title="Ранг игрока">
+                        <img src="assets/ranks/rank_kitten.png" id="pp-rank-img" alt="Rank">
+                    </div>
+                </div>
+                <div class="pp-user-info">
+                    <h2 id="pp-username" class="pp-username">Username</h2>
+                    <span id="pp-rank-name" class="pp-rank-text">Котенок</span>
+                    <span id="pp-join-date" class="pp-date">В игре с 2024</span>
+                </div>
+            </div>
+
+            <div class="pp-stats-grid">
+                <div class="pp-stat-card">
+                    <div class="pp-icon-box indigo">
+                        <span>🎮</span>
+                    </div>
+                    <div class="pp-stat-data">
+                        <span class="pp-label">Всего игр</span>
+                        <strong id="pp-total-games">0</strong>
+                    </div>
+                </div>
+
+                <div class="pp-stat-card">
+                    <div class="pp-icon-box green">
+                        <span>🏆</span>
+                    </div>
+                    <div class="pp-stat-data">
+                        <span class="pp-label">Лучший выигрыш</span>
+                        <strong id="pp-best-win" class="win-text">0.00 ₽</strong>
+                    </div>
+                </div>
+
+                <div class="pp-stat-card full">
+                    <div class="pp-icon-box orange">
+                        <span>🔄</span>
+                    </div>
+                    <div class="pp-stat-data">
+                        <span class="pp-label">Оборот ставок (Wager)</span>
+                        <strong id="pp-total-wager">0.00 ₽</strong>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pp-favorite-game">
+                <span class="pp-fav-label">Любимая игра:</span>
+                <div class="pp-fav-content">
+                    <img src="assets/dice_icon.png" id="pp-fav-icon" alt="Game">
+                    <span id="pp-fav-name">Dice</span>
                 </div>
             </div>
         </div>

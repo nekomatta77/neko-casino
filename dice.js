@@ -1,15 +1,14 @@
 /*
- * DICE.JS - С ВНЕДРЕННЫМ ANTI-MINUS
+ * DICE.JS - С ВНЕДРЕННЫМ ANTI-MINUS И STATS
  */
-import { currentBalance, updateBalance, showSection, writeBetToHistory, currentUser, reduceWager, AntiMinus } from './global.js';
-import { checkBetAchievement } from './achievements.js'; // ИМПОРТ
+import { currentBalance, updateBalance, showSection, writeBetToHistory, currentUser, reduceWager, AntiMinus, updateUserGameStats } from './global.js';
+import { checkBetAchievement } from './achievements.js';
 
 let diceBet = 10.00;
 let diceChance = 50.00; 
 let diceMultiplier = 2.00;
 let lastGameData = null; 
 
-// ... (sha256 и generateSalt без изменений) ...
 async function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message);
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
@@ -140,15 +139,13 @@ async function rollDice(rollType) {
     const rollDisplay = rollRaw.toString().padStart(6, '0'); 
     document.getElementById('dice-result-number').textContent = rollDisplay;
 
-    // --- ОБНОВЛЕННЫЙ ФОРМАТ РЕЗУЛЬТАТА ДЛЯ ИСТОРИИ ---
-    // Сохраняем: "123456 | 49.50% | <" (Например)
     const directionSymbol = rollType === 'under' ? '<' : '>';
     const resultString = `${rollDisplay} | ${diceChance.toFixed(2)}% | ${directionSymbol}`;
 
     const betData = {
         username: currentUser,
         game: 'dice',
-        result: resultString, // Новый формат
+        result: resultString, 
         betAmount: bet,
         amount: 0
     };
@@ -158,13 +155,19 @@ async function rollDice(rollType) {
         statusElement.textContent = `Выигрыш ${potentialWin.toFixed(2)} RUB`; 
         statusElement.classList.add('win');
         betData.amount = potentialWin - bet;
-        // betData.result = `${multiplier.toFixed(2)}x`; // УБРАНО, чтобы сохранить resultString
         betData.multiplier = `${multiplier.toFixed(2)}x`;
+        
+        // --- ОБНОВЛЕНИЕ СТАТИСТИКИ (WIN) ---
+        // Передаем полную сумму выплаты как "Макс Выигрыш"
+        updateUserGameStats(currentUser, 'dice', potentialWin);
     } else {
         statusElement.textContent = `Выпало: ${rollDisplay}`; 
         statusElement.classList.add('loss');
         betData.amount = -bet;
         betData.multiplier = `${multiplier.toFixed(2)}x`;
+        
+        // --- ОБНОВЛЕНИЕ СТАТИСТИКИ (LOSS) ---
+        updateUserGameStats(currentUser, 'dice', 0);
     }
 
     writeBetToHistory(betData);
