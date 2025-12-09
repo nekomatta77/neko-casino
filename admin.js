@@ -1,6 +1,6 @@
 /*
- * ADMIN.JS - COMPLETE (User Cards, Promo Gen, Copy-Paste, Anti-Minus)
- * Fixed: Anti-Minus Tab Click Listener
+ * ADMIN.JS - COMPLETE (User Cards, Promo Gen, Copy-Paste, Anti-Minus, Rank Confirm)
+ * Fixed: Rank Modal Colors (Title White !important, Nick White !important, Cancel Red !important)
  */
 
 import { 
@@ -158,7 +158,7 @@ function renderUserList(users) {
                         <div class="user-avatar-placeholder">${initial}</div>
                         <span class="user-card-name">${user.username}</span>
                     </div>
-                    <select class="user-rank-select action-change-rank">
+                    <select class="user-rank-select action-change-rank" data-prev-rank="${dbRank}">
                         ${rankOptionsHtml}
                     </select>
                 </div>
@@ -223,19 +223,33 @@ async function handleUserActions(e) {
         setTimeout(() => btn.innerHTML = '💾', 1500);
     }
     
-    // 3. Изменить Ранг
+    // 3. Изменить Ранг (С КРАСИВЫМ ПОДТВЕРЖДЕНИЕМ)
     if (target.classList.contains('action-change-rank') && e.type === 'change') {
-        const newRank = target.value;
-        target.style.borderColor = '#F5A623';
-        const success = await patchUser(username, { rank: newRank });
-        if(success) {
-            target.style.borderColor = '#00D26A';
-            setTimeout(() => target.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
-            allUsersCache = null;
-        } else {
-            target.style.borderColor = '#FF5555';
-            alert('Ошибка смены ранга');
-        }
+        const select = target;
+        const newRankKey = select.value;
+        const prevRankKey = select.getAttribute('data-prev-rank');
+        const newRankName = RANK_OPTIONS[newRankKey];
+
+        // Вызов обновленного модального окна
+        showChangeRankModal(username, newRankName, async () => {
+            // Callback при подтверждении
+            select.style.borderColor = '#F5A623';
+            const success = await patchUser(username, { rank: newRankKey });
+            
+            if(success) {
+                select.style.borderColor = '#00D26A';
+                select.setAttribute('data-prev-rank', newRankKey); // Обновляем "старое" значение
+                setTimeout(() => select.style.borderColor = 'rgba(255,255,255,0.1)', 1000);
+                allUsersCache = null;
+            } else {
+                select.style.borderColor = '#FF5555';
+                select.value = prevRankKey; // Возвращаем назад при ошибке API
+                alert('Ошибка смены ранга');
+            }
+        }, () => {
+            // Callback при отмене
+            select.value = prevRankKey; // Возвращаем значение назад
+        });
     }
     
     // 4. Статистика
@@ -678,4 +692,105 @@ export function initAdmin() {
         
         if (amSaveBtn) amSaveBtn.addEventListener('click', handleSaveAntiMinus);
     }
+}
+
+// ==========================================
+// 5. НОВАЯ ФУНКЦИЯ: КРАСИВОЕ МОДАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ (UPDATED)
+// ==========================================
+
+function showChangeRankModal(username, newRankName, onConfirm, onCancel) {
+    const existing = document.getElementById('rank-confirm-modal');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'rank-confirm-modal';
+    overlay.className = 'user-modal-overlay';
+    overlay.style.display = 'flex';
+    overlay.style.zIndex = '3000';
+
+    const card = document.createElement('div');
+    card.className = 'user-modal-content';
+    // Использование cssText для переопределения всех возможных глобальных стилей
+    card.style.cssText = `
+        background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+        border: 2px solid #4F46E5 !important;
+        border-radius: 20px !important;
+        padding: 25px !important;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+        color: #FFFFFF !important;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        animation: popIn 0.3s ease;
+    `;
+
+    const icon = `<div style="font-size: 3em; margin-bottom: -10px;">⚠️</div>`;
+    
+    // ИСПРАВЛЕНО: Добавлен !important к цвету заголовка
+    const title = `<h3 style="margin: 0; color: #FFFFFF !important; font-size: 1.4em; text-transform: uppercase;">Изменение ранга</h3>`;
+    
+    // ИСПРАВЛЕНО: Добавлен !important к цвету ника
+    const text = `
+        <p style="font-size: 1em; line-height: 1.5; color: rgba(255,255,255,0.8) !important;">
+            Вы уверены, что хотите изменить ранг игрока 
+            <span style="color: #FFFFFF !important; font-weight: bold; font-size: 1.1em;">${username}</span> 
+            на 
+            <span style="color: #F5A623 !important; font-weight: bold; font-size: 1.1em; text-transform: uppercase;">${newRankName}</span>?
+        </p>
+    `;
+
+    const btnContainer = document.createElement('div');
+    btnContainer.style.display = 'flex';
+    btnContainer.style.gap = '10px';
+    btnContainer.style.marginTop = '10px';
+
+    const btnCancel = document.createElement('button');
+    btnCancel.textContent = 'Отмена';
+    // ИСПРАВЛЕНО: Красный градиент и тень с !important
+    btnCancel.style.cssText = `
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(90deg, #FF5555, #FF7777) !important;
+        color: #FFF !important;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 85, 85, 0.4) !important;
+    `;
+    btnCancel.onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 200);
+        if (onCancel) onCancel();
+    };
+
+    const btnConfirm = document.createElement('button');
+    btnConfirm.textContent = 'Подтвердить';
+    btnConfirm.style.cssText = `
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(90deg, #00A878, #00D699) !important;
+        color: #FFF !important;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 168, 120, 0.4) !important;
+    `;
+    btnConfirm.onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 200);
+        if (onConfirm) onConfirm();
+    };
+
+    btnContainer.appendChild(btnCancel);
+    btnContainer.appendChild(btnConfirm);
+
+    card.innerHTML = icon + title + text;
+    card.appendChild(btnContainer);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
 }
