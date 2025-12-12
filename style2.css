@@ -898,3 +898,325 @@
     position: relative;
     z-index: 2;
 }
+/* =========================================
+   FIX: VISUAL HISTORY GRID (MINES & KENO)
+   ========================================= */
+
+/* Общий контейнер */
+.visual-grid-container {
+    background-color: rgba(30, 33, 40, 0.5);
+    border-radius: 12px;
+    padding: 10px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box; /* Важно! */
+}
+
+/* --- MINES FIX --- */
+.visual-grid-container.mines-visual {
+    display: grid !important; /* Принудительно Grid */
+    grid-template-columns: repeat(5, 1fr) !important; /* Принудительно 5 колонок */
+    grid-template-rows: repeat(5, 1fr) !important;    /* Принудительно 5 рядов */
+    gap: 5px !important;
+    aspect-ratio: 1 / 1 !important; /* Квадратная форма */
+    width: 100% !important;
+    overflow: hidden; /* Обрезаем лишнее, но сетка внутри должна быть корректной */
+    position: relative;
+}
+
+/* Стили ячеек Mines внутри истории */
+.visual-grid-container.mines-visual .visual-cell.mine-cell {
+    width: 100% !important;
+    height: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- KENO FIX --- */
+.visual-grid-container.keno-visual {
+    display: grid !important; /* Принудительно Grid */
+    grid-template-columns: repeat(8, 1fr) !important; /* Принудительно 8 колонок */
+    grid-auto-rows: 1fr; /* Автоматическая высота рядов */
+    gap: 4px !important;
+    width: 100% !important;
+    aspect-ratio: 8 / 5; /* Соотношение сторон для Кено (8x5) */
+    overflow: visible !important; /* Для кено лучше убрать скрытие, чтобы не резало края */
+}
+
+/* Стили ячеек Keno внутри истории */
+.visual-grid-container.keno-visual .visual-cell.keno-cell {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    font-size: 0.8em;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ФИКС ИКОНОК: Чтобы картинки не распирали ячейки */
+.visual-cell img {
+    max-width: 80% !important;
+    max-height: 80% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    position: static !important; /* Убираем absolute, если он был */
+}
+/* --- ОБНОВЛЕНИЕ: Иконки в статистике Публичного профиля --- */
+.pp-stat-icon img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+    /* Делаем иконки белыми, если они черные, или оставляем как есть */
+    /* filter: brightness(0) invert(1); - раскомментируй, если иконки черные */
+}
+
+/* Удаляем старые стили для span внутри иконок, если они мешают */
+.pp-stat-icon span {
+    display: none;
+}
+
+/* --- ОБНОВЛЕНИЕ: Синхронизация визуальных стилей карточки --- */
+
+/* Убеждаемся, что узор позиционируется правильно в публичной карточке */
+.user-info-card.public-mode {
+    position: relative;
+    overflow: hidden; /* Чтобы узор не вылезал */
+    z-index: 1;
+}
+
+/* Слой узора */
+.user-info-card.public-mode .user-card-pattern {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.15; /* Чуть заметнее */
+    pointer-events: none;
+    z-index: 0; /* На заднем плане */
+    background-repeat: repeat;
+    background-position: center;
+}
+
+/* Поднимаем контент над узором */
+.user-info-card.public-mode .user-info-left,
+.user-info-card.public-mode .user-info-right {
+    position: relative;
+    z-index: 2;
+}
+
+/* Классы для конкретных узоров (должны совпадать с теми, что в customize.js) */
+.pattern-dice {
+    background-image: url('assets/bg/dice_bg1.svg');
+    background-size: 60px 60px;
+}
+/* Добавь другие паттерны сюда по аналогии, если они есть */
+/* =========================================
+   FIX: PUBLIC PROFILE SYNC & ICONS
+   ========================================= */
+
+/* 1. Полная синхронизация базы карточки */
+.user-info-card.public-mode {
+    margin-bottom: 10px;
+    /* Копируем стили из .user-info-card (Личный профиль) */
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(49, 46, 129, 0.9) 100%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 15px 35px rgba(30, 27, 75, 0.25) !important;
+    
+    /* Важно для паттерна */
+    position: relative;
+    z-index: 1;
+}
+
+/* 2. Синхронизация прозрачности узора */
+.user-info-card.public-mode .user-card-pattern {
+    opacity: 0.08 !important; /* Делаем как в личном профиле (было 0.15) */
+    z-index: 0;
+}
+
+/* Поднимаем контент над узором */
+.user-info-card.public-mode .user-info-left,
+.user-info-card.public-mode .user-info-right {
+    position: relative;
+    z-index: 2;
+}
+
+/* 3. Настройка новых SVG иконок */
+.pp-stat-icon img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    /* Тень для лучшей видимости на цветном фоне */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+/* Убираем старые span-иконки, если они остались */
+.pp-stat-icon span {
+    display: none;
+}
+/* =========================================
+   FIX: FAVORITE GAME COLOR (INDIGO)
+   ========================================= */
+
+/* Название игры в публичном профиле */
+.pp-fav-body span#pp-page-fav-name {
+    color: #4F46E5 !important; /* Индиго */
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.3); /* Легкое свечение в тон */
+}
+/* =========================================
+   PUBLIC PROFILE STATS DETAILS (MENU)
+   ========================================= */
+
+/* Контейнер модалки (меню) */
+.pp-details-container {
+    background: linear-gradient(135deg, #1E1B4B, #23214A) !important; /* Темный фон */
+    border: 1px solid rgba(79, 70, 229, 0.4) !important; /* Индиго рамка */
+    box-shadow: 0 0 50px rgba(0,0,0,0.5) !important;
+    padding: 20px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 320px; /* Компактная ширина */
+    position: relative;
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin: 0 !important; /* Сброс маргинов */
+}
+
+.pp-details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Заголовок (Белый цвет) */
+.pp-details-header h3 {
+    margin: 0;
+    color: #FFFFFF !important; /* <-- БЕЛЫЙ */
+    font-size: 1.1em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Список строк */
+.pp-details-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+/* Одна строка игры */
+.pp-detail-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 15px;
+    border-radius: 12px;
+    transition: 0.2s;
+}
+
+.pp-detail-row:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.pp-detail-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pp-detail-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.pp-detail-name {
+    color: #ccc;
+    font-size: 0.95em;
+    font-weight: 600;
+}
+
+.pp-detail-value {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1em;
+    text-align: right;
+}
+
+/* Кнопка закрытия */
+#pp-details-close {
+    color: rgba(255,255,255,0.6);
+    background: transparent;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    padding: 5px;
+}
+#pp-details-close:hover {
+    color: #FFF;
+}
+
+/* Подсветка значения (зеленый для денег, белый для игр) */
+.pp-detail-value.money {
+    color: #4ade80; /* Зеленый */
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+}
+
+/* Курсор для кликабельных плашек в профиле */
+.pp-stat-box.clickable {
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.pp-stat-box.clickable:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.pp-stat-box.clickable:active {
+    transform: scale(0.98);
+}
+/* =========================================
+   FIX: VISUAL HISTORY MODAL CENTERING
+   ========================================= */
+
+#visual-history-modal-overlay.user-modal-overlay {
+    display: flex !important;           /* Включаем Flexbox */
+    align-items: center !important;     /* Центрируем по вертикали */
+    justify-content: center !important; /* Центрируем по горизонтали */
+    
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3000; /* Поверх всего */
+    padding: 20px; /* Отступы от краев на мобильных */
+    
+    /* Убираем возможные отступы, которые могли сдвигать контент */
+    margin: 0 !important;
+}
+
+/* Контент модалки */
+.visual-history-content {
+    margin: 0 auto !important; /* Центрируем блок внутри флекса */
+    position: relative !important;
+    transform: none !important; /* Сбрасываем трансформации, если они были */
+    
+    /* Ограничиваем высоту, чтобы на маленьких экранах появлялся скролл внутри, а не уезжало окно */
+    max-height: 90vh; 
+    overflow-y: auto;
+}

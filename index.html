@@ -25,7 +25,7 @@
                     <polyline points="9.5,7 10,6.5 10.5,7"></polyline>
                 </g>
             </svg>
-            <div class="loader-text">Loading...</div>
+            <div class="loader-text">Loading</div>
         </div>
     </div>
 
@@ -1069,39 +1069,39 @@
                         </div>
                     </div>
 
-                    <div class="pp-stats-grid">
-                        
-                        <div class="pp-stat-box">
-                            <div class="pp-stat-icon indigo">
-                                <span>🎮</span>
-                            </div>
-                            <div class="pp-stat-info">
-                                <span class="pp-stat-title">Всего игр</span>
-                                <strong id="pp-page-total-games">0</strong>
-                            </div>
-                        </div>
+                   <div class="pp-stats-grid">
+    
+    <div class="pp-stat-box">
+        <div class="pp-stat-icon indigo">
+            <img src="assets/game_stat.svg" alt="Games">
+        </div>
+        <div class="pp-stat-info">
+            <span class="pp-stat-title">Всего игр</span>
+            <strong id="pp-page-total-games">0</strong>
+        </div>
+    </div>
 
-                        <div class="pp-stat-box">
-                            <div class="pp-stat-icon green">
-                                <span>🏆</span>
-                            </div>
-                            <div class="pp-stat-info">
-                                <span class="pp-stat-title">Рекорд</span>
-                                <strong id="pp-page-best-win" class="win-text">0.00 ₽</strong>
-                            </div>
-                        </div>
+    <div class="pp-stat-box">
+        <div class="pp-stat-icon green">
+            <img src="assets/maxwin_stat.svg" alt="Max Win">
+        </div>
+        <div class="pp-stat-info">
+            <span class="pp-stat-title">Максимальный выигрыш</span>
+            <strong id="pp-page-best-win" class="win-text">0.00 ₽</strong>
+        </div>
+    </div>
 
-                        <div class="pp-stat-box full">
-                            <div class="pp-stat-icon orange">
-                                <span>🔄</span>
-                            </div>
-                            <div class="pp-stat-info">
-                                <span class="pp-stat-title">Оборот ставок (Wager)</span>
-                                <strong id="pp-page-wager">0.00 ₽</strong>
-                            </div>
-                        </div>
+    <div class="pp-stat-box full">
+        <div class="pp-stat-icon orange">
+            <span>🔄</span>
+        </div>
+        <div class="pp-stat-info">
+            <span class="pp-stat-title">Оборот ставок (Wager)</span>
+            <strong id="pp-page-wager">0.00 ₽</strong>
+        </div>
+    </div>
 
-                    </div>
+</div>
 
                     <div class="pp-fav-game-card">
                         <span class="pp-fav-title">Любимая игра:</span>
@@ -1901,8 +1901,20 @@
             </div>
         </div>
     </div>
-
+    
     <nav class="bottom-nav">
+
+<div id="pp-details-modal" class="modal-overlay hidden">
+    <div class="pp-details-container">
+        <div class="pp-details-header">
+            <h3 id="pp-details-title">Детали</h3>
+            <button id="pp-details-close" class="close-modal-btn">✖</button>
+        </div>
+        <div id="pp-details-list" class="pp-details-list">
+            </div>
+    </div>
+</div>
+
         <div class="bottom-nav-row" id="bottom-nav-icon-row">
             <div class="bottom-nav-item" data-target="bonus-page">
                 <img src="assets/gift.png" alt="Бонусы" class="nav-icon">
@@ -1942,5 +1954,6 @@
     
     <script type="module" src="main.js?v=2.6"></script> 
     <div id="notification-area"></div>
+    
 </body>
 </html>
