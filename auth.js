@@ -7,10 +7,6 @@ import { updateProfileData } from './profile.js';
 
 const STARTING_BALANCE = 1000.00;
 
-/**
- * Проверяет вейджер и блокирует кнопку вывода, если необходимо.
- * ОБНОВЛЕНО: Использует красивую карточку вместо текста.
- */
 async function checkWagerLock() {
     if (!currentUser) return;
 
@@ -23,14 +19,12 @@ async function checkWagerLock() {
     withdrawalButton.disabled = true;
 
     const userData = await fetchUser(currentUser);
-    // Исправлено: не допускаем отрицательного значения
     let wagerBalance = userData?.wager_balance || 0;
     wagerBalance = Math.max(0, wagerBalance);
     
     setLocalWager(wagerBalance);
 
     if (wagerBalance > 0) {
-        // --- ЗАДАЧА 3: Красивое окошко для отыгрыша ---
         wagerStatusEl.innerHTML = `
             <div class="wallet-wager-card">
                 <div class="wager-icon">🔒</div>
@@ -43,7 +37,7 @@ async function checkWagerLock() {
         wagerStatusEl.classList.remove('hidden');
         withdrawalButton.disabled = true;
     } else {
-        wagerStatusEl.innerHTML = ''; // Очищаем HTML
+        wagerStatusEl.innerHTML = ''; 
         wagerStatusEl.classList.add('hidden');
         withdrawalButton.disabled = false;
     }
@@ -223,6 +217,9 @@ async function handleRegister(e) {
 
     alert('Регистрация успешна! Теперь вы вошли.');
     
+    // --- ФЛАГ ДЛЯ УВЕДОМЛЕНИЯ ---
+    sessionStorage.setItem('justLoggedIn', 'true');
+    
     await setCurrentUser(username);
     hideAuthModal();
     showSection('lobby');
@@ -244,6 +241,9 @@ async function handleLogin(e) {
         alert('Неверный пароль.');
         return;
     }
+
+    // --- ФЛАГ ДЛЯ УВЕДОМЛЕНИЯ ---
+    sessionStorage.setItem('justLoggedIn', 'true');
 
     await setCurrentUser(username);
     hideAuthModal();

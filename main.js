@@ -1,5 +1,5 @@
 /*
- * main.js - FINAL VERSION WITH NOTIFICATIONS & BADGE LOGIC
+ * main.js - FINAL VERSION: GUEST SLIDER LOCK & PERSISTENT NOTIFICATIONS
  */
 
 import { showSection, currentUser, fetchUser, fetchUserStats } from './global.js';
@@ -25,77 +25,137 @@ const CARD_GRADIENTS = {
 };
 
 /* =========================================
-   СИСТЕМА УВЕДОМЛЕНИЙ (GLOBAL)
+   СИСТЕМА УВЕДОМЛЕНИЙ (PERSISTENT)
    ========================================= */
 
-// Функция обновления счетчика уведомлений
-function updateBadgeCount(change) {
+// Получить ключ для хранилища (уникальный для юзера)
+function getNotifStorageKey() {
+    if (!currentUser) return null;
+    return `cashcat_notifications_${currentUser}`;
+}
+
+// Загрузить уведомления из памяти
+function loadNotifications() {
+    const key = getNotifStorageKey();
+    if (!key) return [];
+    try {
+        return JSON.parse(localStorage.getItem(key)) || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+// Сохранить массив уведомлений
+function saveNotifications(notifs) {
+    const key = getNotifStorageKey();
+    if (key) {
+        // Храним только последние 50, чтобы не забивать память
+        localStorage.setItem(key, JSON.stringify(notifs.slice(0, 50)));
+    }
+}
+
+// Обновить бейджик (счетчик)
+function updateBadgeUI() {
+    const notifs = loadNotifications();
+    const unreadCount = notifs.filter(n => !n.read).length;
+    
     const badge = document.querySelector('.notif-badge');
     if (!badge) return;
     
-    // Получаем текущее значение (или 0)
-    let count = parseInt(badge.innerText) || 0;
+    badge.innerText = unreadCount;
     
-    // Изменяем значение
-    count += change;
-    
-    // Не даем уйти в минус
-    if (count < 0) count = 0;
-    
-    // Обновляем текст
-    badge.innerText = count;
-    
-    // Логика видимости: Если 0 - скрываем, иначе показываем (flex для центрирования)
-    if (count === 0) {
+    if (unreadCount === 0) {
         badge.style.display = 'none';
     } else {
         badge.style.display = 'flex';
-        // Анимация "подпрыгивания" при изменении
+        // Анимация
         badge.style.animation = 'none';
-        badge.offsetHeight; /* trigger reflow */
+        badge.offsetHeight; 
         badge.style.animation = 'popIn 0.3s ease';
     }
 }
 
-// Глобальная функция добавления уведомления
-window.addAppNotification = function(title, text) {
+// Отрисовать список уведомлений
+function renderNotificationsList() {
     const list = document.querySelector('.notif-list');
-    const box = document.getElementById('header-notif-box');
+    if (!list) return;
     
-    if (!list || !box) return;
-
-    // 1. Показываем контейнер уведомлений, если он был скрыт
-    box.classList.remove('hidden');
-
-    // 2. Создаем элемент списка
-    const li = document.createElement('li');
-    li.className = 'notif-item new'; // Класс new делает его непрочитанным (стили в style2.css)
+    const notifs = loadNotifications();
+    list.innerHTML = ''; // Очищаем список
     
-    // Время
+    if (notifs.length === 0) {
+        // Можно добавить заглушку "Нет уведомлений"
+        return;
+    }
+
+    notifs.forEach(n => {
+        const li = document.createElement('li');
+        // Если !read, добавляем класс new
+        li.className = `notif-item ${!n.read ? 'new' : ''}`;
+        li.dataset.id = n.id;
+        
+        li.innerHTML = `
+            <span class="notif-title">${n.title}</span>
+            <span class="notif-text">${n.text}</span>
+            <span class="notif-time">${n.time}</span>
+        `;
+        
+        // Клик -> Пометить прочитанным
+        li.addEventListener('click', function() {
+            if (!n.read) {
+                markNotificationAsRead(n.id);
+                this.classList.remove('new');
+                updateBadgeUI();
+            }
+        });
+        
+        list.appendChild(li);
+    });
+    
+    updateBadgeUI();
+}
+
+// Пометить конкретное уведомление как прочитанное
+function markNotificationAsRead(id) {
+    const notifs = loadNotifications();
+    const target = notifs.find(n => n.id === id);
+    if (target) {
+        target.read = true;
+        saveNotifications(notifs);
+    }
+}
+
+// Глобальная функция добавления (экспортируется в window)
+window.addAppNotification = function(title, text) {
+    // Если пользователь не залогинен, уведомления не сохраняем (или можно сохранять в session)
+    if (!currentUser) return;
+
+    const notifs = loadNotifications();
+    
     const now = new Date();
     const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    
+    const newNotif = {
+        id: Date.now() + Math.random().toString(36).substr(2, 9),
+        title: title,
+        text: text,
+        time: timeString,
+        read: false, // Новое всегда непрочитано
+        timestamp: now.getTime()
+    };
+    
+    // Добавляем в начало
+    notifs.unshift(newNotif);
+    saveNotifications(notifs);
+    
+    // Перерисовываем
+    renderNotificationsList();
+    
+    // Показываем контейнер, если скрыт
+    const box = document.getElementById('header-notif-box');
+    if (box) box.classList.remove('hidden');
 
-    li.innerHTML = `
-        <span class="notif-title">${title}</span>
-        <span class="notif-text">${text}</span>
-        <span class="notif-time">${timeString}</span>
-    `;
-    
-    // 3. Обработчик клика (Прочтение)
-    li.addEventListener('click', function() {
-        if (this.classList.contains('new')) {
-            this.classList.remove('new'); // Убираем подсветку
-            updateBadgeCount(-1); // Уменьшаем счетчик на 1
-        }
-    });
-
-    // 4. Добавляем в начало списка
-    list.prepend(li);
-    
-    // 5. Увеличиваем счетчик на 1
-    updateBadgeCount(1);
-    
-    // 6. Анимация колокольчика
+    // Анимация колокольчика
     const bell = document.querySelector('.bell-icon');
     if(bell) {
         bell.style.transition = 'none';
@@ -114,6 +174,51 @@ window.addAppNotification = function(title, text) {
         }, 50);
     }
 };
+
+/* =========================================
+   ЛОГИКА БЛОКИРОВКИ ГОСТЯ (GUEST LOCK)
+   ========================================= */
+function triggerGuestShake() {
+    const loginBtn = document.querySelector('.login-btn');
+    const regBtn = document.querySelector('.register-btn');
+    
+    const trigger = (el) => {
+        if(!el) return;
+        el.classList.remove('shake-btn');
+        void el.offsetWidth; 
+        el.classList.add('shake-btn');
+        setTimeout(() => el.classList.remove('shake-btn'), 500);
+    };
+
+    trigger(loginBtn);
+    trigger(regBtn);
+}
+
+function initGuestLock() {
+    const events = ['click', 'keydown', 'mousedown'];
+
+    const handler = (e) => {
+        if (currentUser) return;
+
+        const target = e.target;
+
+        // Разрешенные элементы
+        if (target.closest('.guest-header-actions') || 
+            target.closest('#auth-modal-overlay') || 
+            target.closest('#theme-toggle-btn') ||
+            target.closest('.lobby-slider-container')) { // Слайдер обрабатываем отдельно внутри его логики
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+        triggerGuestShake();
+    };
+
+    events.forEach(evt => {
+        document.addEventListener(evt, handler, true); 
+    });
+}
 
 /* =========================================
    ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -164,7 +269,6 @@ async function updateRanksDisplay() {
     });
 }
 
-// Активные игры
 const ACTIVE_GAMES_CONFIG = {
     'dice': { name: 'Dice', icon: 'assets/dice_icon.png' },
     'mines': { name: 'Mines', icon: 'assets/mine_icon.png' },
@@ -391,6 +495,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); }
         try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } 
         
+        // --- ЗАПУСК БЛОКИРОВКИ ГОСТЯ ---
+        initGuestLock();
+
         // --- САЙДБАР ---
         const openSidebarButton = document.getElementById('open-sidebar-button');
         const openSidebarButtonText = document.getElementById('open-sidebar-button-text');
@@ -456,16 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ БЕЙДЖИКА ---
-        // Считаем уже существующие непрочитанные уведомления (если есть)
-        const unreadCount = document.querySelectorAll('.notif-item.new').length;
-        const badge = document.querySelector('.notif-badge');
-        if (badge) {
-            badge.innerText = unreadCount;
-            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
-        }
-
-        // Проверка флага входа (для уведомления "Вход выполнен")
+        // --- УВЕДОМЛЕНИЕ О ВХОДЕ ---
         if (sessionStorage.getItem('justLoggedIn')) {
             setTimeout(() => {
                 if(typeof window.addAppNotification === 'function') {
@@ -547,7 +645,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
 
+        // --- ВАЖНО: ЖДЕМ ЗАГРУЗКУ ПОЛЬЗОВАТЕЛЯ ПЕРЕД РЕНДЕРОМ УВЕДОМЛЕНИЙ ---
         await checkLoginState(); 
+        
+        // Теперь пользователь (если есть) загружен, можно рисовать уведомления
+        if (currentUser) {
+            renderNotificationsList();
+        }
 
     } catch (error) { console.error("INIT ERROR:", error); } finally {
         setTimeout(() => {
@@ -565,14 +669,13 @@ document.addEventListener('DOMContentLoaded', async () => {
    ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const sliderContainer = document.getElementById('lobbySlider');
-    if (!sliderContainer) return; // Проверка существования слайдера
+    if (!sliderContainer) return;
 
     const track = document.getElementById('sliderTrack');
     const dots = document.querySelectorAll('.dot');
     const totalSlides = dots.length;
     let currentIndex = 0;
     
-    // Переменные для перетаскивания
     let isDragging = false;
     let startPos = 0;
     let currentTranslate = 0;
@@ -602,14 +705,12 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => { track.style.transition = 'none'; }, 400); 
     }
 
-    // --- НОВАЯ ФУНКЦИЯ: Переход к привязке соцсетей при клике ---
     function handleSliderClick() {
         showSection('profile-page');
         if (typeof updateProfileData === 'function') updateProfileData();
 
         setTimeout(() => {
             const socialSection = document.querySelector('.profile-socials');
-            // Ищем заголовок "Соцсети" или сам блок
             const socialHeader = document.querySelector('.profile-subheader.social-header') || 
                                  Array.from(document.querySelectorAll('.profile-subheader')).find(el => el.textContent.includes('Соцсети'));
             
@@ -617,7 +718,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Эффект акцента
                 const originalTransform = target.style.transform;
                 target.style.transition = 'transform 0.3s ease';
                 target.style.transform = 'scale(1.05)';
@@ -655,8 +755,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const movedBy = currentTranslate - prevTranslate;
         
         // --- ЛОГИКА КЛИКА ---
-        // Если сдвиг меньше 5 пикселей, считаем это кликом
         if (Math.abs(movedBy) < 5) {
+            // 1. ПРОВЕРКА НА ГОСТЯ
+            if (!currentUser) {
+                triggerGuestShake(); // Трясем кнопки входа
+                // Возвращаем слайд в исходное положение (на всякий случай)
+                track.style.transition = 'transform 0.4s ease-out';
+                setPositionByIndex();
+                return;
+            }
+
+            // 2. Если пользователь - переходим в профиль
             handleSliderClick();
             track.style.transition = 'transform 0.4s ease-out';
             setPositionByIndex();

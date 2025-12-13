@@ -1,22 +1,19 @@
 /*
  * profile.js
- * Версия 2.2 - Fix Negative Display
+ * Версия 2.2 - Notifications Added
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
 import { initCustomize } from './customize.js'; 
 
-// --- Элементы DOM ---
 let wagerAmountEl, rankEl, wagerRulesLink;
 let passwordForm, oldPassInput, newPassInput, passwordStatusEl;
 let vkLinkBtn, tgLinkBtn, logoutBtn;
 let themeToggleBtn; 
 let snowToggleInput;
 
-// Новые элементы профиля
 let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 
-// --- ЛОГИКА ТЕМЫ И СНЕГА ---
 function initTheme() {
     const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     
@@ -46,7 +43,6 @@ async function handleThemeToggle() {
     }
 }
 
-// --- ЛОГИКА ПАДАЮЩЕГО СНЕГА ---
 function initSnow() {
     const snowContainer = document.getElementById('falling-snow-container');
     if (!snowContainer) return;
@@ -101,9 +97,6 @@ function stopSnow(container) {
     container.style.display = 'none';
 }
 
-
-// --- СТАНДАРТНАЯ ЛОГИКА ---
-
 async function handleLogout() {
     await setCurrentUser(null); 
     location.reload(); 
@@ -156,8 +149,6 @@ async function handleChangePassword(e) {
     }
 }
 
-// --- СМЕНА НИКА (ИСПРАВЛЕННАЯ ЛОГИКА 409) ---
-
 async function handleChangeUsername() {
     if (!currentUser) return;
 
@@ -167,20 +158,17 @@ async function handleChangeUsername() {
     const freeChanges = userData.free_username_changes || 0;
     const COST = 250.00;
 
-    // 1. Бесплатная смена
     if (freeChanges > 0) {
         const newName = prompt(`У вас есть ${freeChanges} бесплатных смен.\nВведите новый никнейм:`);
         if (newName && newName.trim() !== "") {
             if (newName.length < 3) return alert("Никнейм слишком короткий!");
             
-            // Используем новую функцию для безопасного обновления
             const result = await changeUsername(currentUser, newName, freeChanges - 1);
 
             if (result.success) {
                 alert("Никнейм успешно изменен! Пожалуйста, войдите снова.");
                 await handleLogout(); 
             } else {
-                // Проверяем код ошибки
                 if (result.error.code === '23505' || result.error.status === 409) {
                      alert("Ошибка: Этот никнейм уже занят!");
                 } else {
@@ -189,7 +177,6 @@ async function handleChangeUsername() {
             }
         }
     } 
-    // 2. Платная смена
     else {
         if (confirm(`Смена ника стоит ${COST} RUB. С вашего баланса будет списано ${COST} RUB. Продолжить?`)) {
             if (currentBalance < COST) {
@@ -200,12 +187,9 @@ async function handleChangeUsername() {
             if (newName && newName.trim() !== "") {
                  if (newName.length < 3) return alert("Никнейм слишком короткий!");
                  
-                 // Сначала меняем ник (бесплатно пока, но без списания смен)
-                 // Передаем null в freeChanges, чтобы не менять счетчик (он уже 0)
                  const result = await changeUsername(currentUser, newName, null);
                  
                  if (result.success) {
-                    // Если удалось занять ник, списываем деньги
                     await updateBalance(-COST);
                     alert("Оплата прошла успешно. Никнейм изменен! Пожалуйста, войдите снова.");
                     await handleLogout();
@@ -248,7 +232,6 @@ export async function updateProfileData() {
         if (rankEl) rankEl.textContent = displayRank;
         
         const dbWager = userData.wager_balance || 0;
-        // Исправлено: не показывать отрицательные значения
         if (wagerAmountEl) wagerAmountEl.textContent = Math.max(0, dbWager).toFixed(2);
 
         if (profileUsernameDisplay) profileUsernameDisplay.textContent = currentUser;
@@ -308,6 +291,19 @@ export function initProfile() {
         profileChangeNameBtn.addEventListener('click', handleChangeUsername);
     }
 
-    if (vkLinkBtn) vkLinkBtn.addEventListener('click', () => alert('В разработке'));
-    if (tgLinkBtn) tgLinkBtn.addEventListener('click', () => alert('В разработке'));
+    // --- УВЕДОМЛЕНИЯ ПРИ ПРИВЯЗКЕ ---
+    if (vkLinkBtn) {
+        vkLinkBtn.addEventListener('click', () => {
+            if(typeof window.addAppNotification === 'function') {
+                window.addAppNotification('✅ ВКонтакте', 'Ваш аккаунт ВКонтакте успешно привязан.');
+            }
+        });
+    }
+    if (tgLinkBtn) {
+        tgLinkBtn.addEventListener('click', () => {
+            if(typeof window.addAppNotification === 'function') {
+                window.addAppNotification('✈️ Telegram', 'Ваш аккаунт Telegram успешно привязан.');
+            }
+        });
+    }
 }

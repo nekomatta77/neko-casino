@@ -2,63 +2,42 @@
  * BONUS.JS - RANDOM BONUS & NEW UI
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
-import { checkDailyStreak } from './achievements.js'; // ИМПОРТ
+import { checkDailyStreak } from './achievements.js'; 
 
-// Удаляем фиксированную константу, теперь сумма динамическая
 const DAILY_BONUS_WAGER_MULTIPLIER = 10; 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; 
 
 let dailyBonusInterval = null;
 
-// --- ГЕНЕРАТОР СЛУЧАЙНОЙ СУММЫ ---
 function generateDailyBonusAmount() {
-    const chance = Math.random() * 100; // 0 - 100
-    
+    const chance = Math.random() * 100;
     let amount = 0;
-
-    if (chance < 90) {
-        // 90% шанс: от 1 до 10 руб
-        amount = Math.random() * (10 - 1) + 1;
-    } else if (chance < 99) {
-        // 9% шанс: от 10 до 30 руб
-        amount = Math.random() * (30 - 10) + 10;
-    } else {
-        // 1% шанс: от 30 до 100 руб
-        amount = Math.random() * (100 - 30) + 30;
-    }
-
+    if (chance < 90) amount = Math.random() * (10 - 1) + 1;
+    else if (chance < 99) amount = Math.random() * (30 - 10) + 10;
+    else amount = Math.random() * (100 - 30) + 30;
     return parseFloat(amount.toFixed(2));
 }
 
-// --- УНИВЕРСАЛЬНАЯ ФУНКЦИЯ ДЛЯ МОДАЛЬНОГО ОКНА НАГРАДЫ ---
 function showRewardModal(title, amount, description, imageSrc) {
     const overlay = document.getElementById('daily-bonus-modal-overlay');
     const amountEl = document.getElementById('daily-bonus-modal-amount');
-    
-    // Элементы, которые мы добавили ID в HTML
     const titleEl = document.getElementById('reward-modal-title');
     const imgEl = document.getElementById('reward-modal-img');
     const descEl = document.getElementById('reward-modal-desc');
     
     if (overlay && amountEl) {
-        // Устанавливаем значения
         amountEl.textContent = amount.toFixed(2);
-        
         if (titleEl) titleEl.textContent = title;
         if (descEl) descEl.textContent = description;
         if (imgEl && imageSrc) imgEl.src = imageSrc;
-        
         overlay.classList.remove('hidden');
-        
-        // Анимация конфетти или лучей (через CSS класс)
         const card = overlay.querySelector('.daily-bonus-card');
         if (card) {
             card.classList.remove('pop-in');
-            void card.offsetWidth; // Триггер рефлоу для перезапуска анимации
+            void card.offsetWidth;
             card.classList.add('pop-in');
         }
     } else {
-        // Фоллбек, если HTML не обновлен
         alert(`${title}: Вы получили ${amount.toFixed(2)} RUB. ${description}`);
     }
 }
@@ -82,7 +61,6 @@ function formatTime(ms) {
     return `${h}ч ${m}м ${s}с`;
 }
 
-// Вспомогательная функция для проверки дат
 function isSameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
            d1.getMonth() === d2.getMonth() &&
@@ -105,13 +83,11 @@ export async function updateBonusPage() {
     const userData = await fetchUser(currentUser); 
     const lastClaimISO = userData?.last_daily_bonus;
     
-    // Данные о последних клеймах недельных бонусов
     const lastCashbackISO = userData?.last_cashback_claim;
     const lastRakebackISO = userData?.last_rakeback_claim;
     
     if (dailyBonusInterval) clearInterval(dailyBonusInterval);
 
-    // --- ЕЖЕДНЕВНЫЙ БОНУС ---
     const checkBonusAvailability = () => {
         const now = new Date().getTime();
         const lastTime = lastClaimISO ? new Date(lastClaimISO).getTime() : 0;
@@ -135,7 +111,6 @@ export async function updateBonusPage() {
     checkBonusAvailability();
     dailyBonusInterval = setInterval(checkBonusAvailability, 1000);
 
-    // --- НЕДЕЛЬНЫЕ БОНУСЫ (КЕШБЕК / РЕЙКБЕК) ---
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
     const cashbackAmount = document.getElementById('cashback-amount');
@@ -154,62 +129,50 @@ export async function updateBonusPage() {
     cashbackAmount.textContent = cashbackValue.toFixed(2) + ' RUB';
     rakebackAmount.textContent = rakebackValue.toFixed(2) + ' RUB';
 
-    // Сохраняем значения в кнопки
     cashbackBtn.dataset.amount = cashbackValue.toFixed(2);
     rakebackBtn.dataset.amount = rakebackValue.toFixed(2);
 
     const today = new Date().getDay();
     const now = new Date();
 
-    // Проверяем, забирал ли пользователь бонусы сегодня
     const isCashbackClaimedToday = lastCashbackISO && isSameDay(new Date(lastCashbackISO), now);
     const isRakebackClaimedToday = lastRakebackISO && isSameDay(new Date(lastRakebackISO), now);
 
-    // --- ЛОГИКА КЕШБЕКА (Понедельник = 1) ---
     if (today === 1) {
         if (isCashbackClaimedToday) {
-            // Уже забрал сегодня
             cashbackBtn.disabled = true;
             cashbackBtn.classList.remove('active-claim');
             cashbackBtn.textContent = 'Получено';
         } else if (cashbackValue > 0) {
-            // Доступно к получению
             cashbackBtn.disabled = false;
             cashbackBtn.classList.add('active-claim');
             cashbackBtn.textContent = 'Забрать';
         } else {
-            // Нет суммы для получения
             cashbackBtn.disabled = true;
             cashbackBtn.classList.remove('active-claim');
             cashbackBtn.textContent = 'Нет доступных средств';
         }
     } else {
-        // Не тот день недели
         cashbackBtn.disabled = true;
         cashbackBtn.classList.remove('active-claim');
         cashbackBtn.textContent = 'Доступно в ПН';
     }
 
-    // --- ЛОГИКА РЕЙКБЕКА (Вторник = 2) ---
     if (today === 2) {
         if (isRakebackClaimedToday) {
-            // Уже забрал сегодня
             rakebackBtn.disabled = true;
             rakebackBtn.classList.remove('active-claim');
             rakebackBtn.textContent = 'Получено';
         } else if (rakebackValue > 0) {
-            // Доступно к получению
             rakebackBtn.disabled = false;
             rakebackBtn.classList.add('active-claim');
             rakebackBtn.textContent = 'Забрать';
         } else {
-            // Нет суммы для получения
             rakebackBtn.disabled = true;
             rakebackBtn.classList.remove('active-claim');
             rakebackBtn.textContent = 'Нет доступных средств';
         }
     } else {
-        // Не тот день недели
         rakebackBtn.disabled = true;
         rakebackBtn.classList.remove('active-claim');
         rakebackBtn.textContent = 'Доступно во ВТ';
@@ -236,11 +199,9 @@ async function handleClaimBonus(e) {
     }
 
     try {
-        // Генерируем случайную сумму
         const amount = generateDailyBonusAmount(); 
         const wager = amount * DAILY_BONUS_WAGER_MULTIPLIER;
         
-        // Обновляем баланс
         updateBalance(amount, wager);
         
         const success = await patchUser(currentUser, { 
@@ -250,7 +211,6 @@ async function handleClaimBonus(e) {
         if (success) {
             if(bonusStatus) bonusStatus.textContent = `Получено ${amount.toFixed(2)} RUB!`;
             
-            // Используем универсальную функцию (Стандартные параметры для Ежедневного бонуса)
             showRewardModal(
                 "Ежедневный Бонус",
                 amount,
@@ -258,10 +218,12 @@ async function handleClaimBonus(e) {
                 "assets/gift_cat.png"
             );
             
-            // --- ПРОВЕРКА ДОСТИЖЕНИЯ ---
-            checkDailyStreak(); 
-            // ---------------------------
+            // --- УВЕДОМЛЕНИЕ ---
+            if(typeof window.addAppNotification === 'function') {
+                window.addAppNotification('🎁 Ежедневный бонус', 'Бонус успешно получен! Заходите завтра.');
+            }
             
+            checkDailyStreak(); 
             updateBonusPage();
         } else {
             throw new Error("Не удалось сохранить дату бонуса в БД.");
@@ -276,24 +238,18 @@ async function handleClaimBonus(e) {
     }
 }
 
-// --- НОВАЯ ЛОГИКА ДЛЯ КЕШБЕКА И РЕЙКБЕКА ---
-
 async function handleClaimCashback(e) {
     const btn = e.currentTarget;
     if (!currentUser || btn.disabled) return;
 
-    // Получаем сумму из data-атрибута (установлен в updateBonusPage)
     const amount = parseFloat(btn.dataset.amount || 0);
 
     if (amount <= 0) return alert("Сумма бонуса равна 0!");
 
     try {
-        // Блокируем кнопку на время запроса
         btn.disabled = true;
         btn.textContent = "...";
 
-        // 1. Сохраняем в Firebase, что бонус получен (защита от абуза)
-        // Используем ISO строку текущего времени
         const success = await patchUser(currentUser, { 
             last_cashback_claim: new Date().toISOString() 
         });
@@ -302,24 +258,25 @@ async function handleClaimCashback(e) {
             throw new Error("Не удалось сохранить статус бонуса.");
         }
 
-        // 2. Начисляем баланс (Обычно кешбек без вейджера или с x1, тут ставим 0)
         updateBalance(amount, 0);
 
-        // 3. Показываем красивое окно
         showRewardModal(
             "Еженедельный Кешбек",
             amount,
             "Часть ваших средств вернулась к вам!",
-            "assets/gift_cat.png" // Используем gift_cat.png
+            "assets/gift_cat.png"
         );
 
-        // 4. Обновляем UI (Кнопка станет "Получено")
+        // --- УВЕДОМЛЕНИЕ ---
+        if(typeof window.addAppNotification === 'function') {
+            window.addAppNotification('💸 Кэшбек', 'Ваш кэшбек успешно зачислен на баланс.');
+        }
+
         await updateBonusPage();
 
     } catch (err) {
         console.error("Ошибка при получении кешбека:", err);
         alert("Ошибка сети. Попробуйте позже.");
-        // Возвращаем кнопку в активное состояние, если ошибка
         await updateBonusPage();
     }
 }
@@ -333,11 +290,9 @@ async function handleClaimRakeback(e) {
     if (amount <= 0) return alert("Сумма бонуса равна 0!");
 
     try {
-        // Блокируем кнопку на время запроса
         btn.disabled = true;
         btn.textContent = "...";
 
-        // 1. Сохраняем в Firebase, что бонус получен (защита от абуза)
         const success = await patchUser(currentUser, { 
             last_rakeback_claim: new Date().toISOString() 
         });
@@ -346,18 +301,20 @@ async function handleClaimRakeback(e) {
             throw new Error("Не удалось сохранить статус бонуса.");
         }
 
-        // 2. Начисляем баланс
         updateBalance(amount, 0);
 
-        // 3. Показываем красивое окно
         showRewardModal(
             "Накопительный Рейкбек",
             amount,
             "Награда за вашу активность в играх!",
-            "assets/gift_cat.png" // Используем gift_cat.png
+            "assets/gift_cat.png"
         );
 
-        // 4. Обновляем UI (Кнопка станет "Получено")
+        // --- УВЕДОМЛЕНИЕ ---
+        if(typeof window.addAppNotification === 'function') {
+            window.addAppNotification('🤝 Рейкбек', 'Рейкбек получен. Продолжайте играть!');
+        }
+
         await updateBonusPage();
 
     } catch (err) {
@@ -367,7 +324,6 @@ async function handleClaimRakeback(e) {
     }
 }
 
-// --- ЛОГИКА АКТИВАЦИИ ПРОМОКОДА (ОБНОВЛЕННАЯ) ---
 async function handlePromoActivate(e) {
     e.preventDefault();
     const input = document.getElementById('promo-input');
@@ -403,7 +359,6 @@ async function handlePromoActivate(e) {
         `;
         input.value = ""; 
     } else {
-        // --- ЗАДАЧА: Красивые уведомления об ошибках ---
         const message = result.message || "Ошибка";
         let subInfo = "Попробуйте снова";
         
@@ -415,8 +370,6 @@ async function handlePromoActivate(e) {
             subInfo = "Лимит активаций исчерпан";
         }
 
-        // Используем те же классы, добавляем красный цвет заголовку и тексту, 
-        // и УБИРАЕМ свечение (text-shadow: none)
         cardHTML = `
             <div class="bonus-promo-result-card error-card" style="border-color: rgba(255, 77, 77, 0.3);">
                 <div class="bonus-promo-title" style="color: #ff4d4d; text-shadow: none;">
@@ -468,7 +421,6 @@ export function initBonus() {
         promoButton.addEventListener('click', handlePromoActivate);
     }
     
-    // Инициализация кнопки закрытия модалки бонуса
     const dailyBonusOverlay = document.getElementById('daily-bonus-modal-overlay');
     const dailyBonusClose = document.getElementById('daily-bonus-modal-close');
     const dailyBonusOkBtn = document.getElementById('daily-bonus-ok-btn');
@@ -491,7 +443,6 @@ export function initBonus() {
     const linkTG = document.getElementById('bonus-link-profile-tg');
     if (linkTG) linkTG.addEventListener('click', (e) => { e.preventDefault(); showSection('profile-page'); });
 
-    // Привязываем обработчики для кешбека и рейкбека
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
     

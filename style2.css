@@ -151,3 +151,20 @@
     background-color: #4F46E5;
     border-radius: 4px;
 }
+/* =========================================
+   GUEST LOCK ANIMATION (ТРЯСКА КНОПОК)
+   ========================================= */
+
+@keyframes shake-lock {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px) rotate(-3deg); }
+    40% { transform: translateX(5px) rotate(3deg); }
+    60% { transform: translateX(-5px) rotate(-3deg); }
+    80% { transform: translateX(5px) rotate(3deg); }
+}
+
+.shake-btn {
+    animation: shake-lock 0.4s ease-in-out !important;
+    /* Усиливаем внимание красной обводкой на момент тряски (опционально) */
+    box-shadow: 0 0 15px rgba(255, 85, 85, 0.6) !important; 
+}
