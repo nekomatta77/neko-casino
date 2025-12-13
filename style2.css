@@ -1084,6 +1084,7 @@
     position: relative;
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     margin: 0 !important; /* Сброс маргинов */
+    transform: translate(0px, -350px) !important;
 }
 
 .pp-details-header {

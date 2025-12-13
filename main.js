@@ -445,3 +445,130 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 });
+// --- Логика Плавного Свайпера (Touch/Mouse Drag) ---
+document.addEventListener('DOMContentLoaded', () => {
+    const sliderContainer = document.getElementById('lobbySlider');
+    const track = document.getElementById('sliderTrack');
+    const dots = document.querySelectorAll('.dot');
+    const totalSlides = dots.length;
+    let currentIndex = 0;
+    
+    // Переменные для перетаскивания
+    let isDragging = false;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let animationID;
+    
+    // --- Вспомогательные функции ---
+
+    function setPositionByIndex() {
+        currentTranslate = currentIndex * -sliderContainer.offsetWidth;
+        prevTranslate = currentTranslate;
+        setSliderPosition(currentTranslate);
+    }
+
+    function setSliderPosition(translate) {
+        track.style.transform = `translateX(${translate}px)`;
+    }
+
+    function updateDots() {
+        dots.forEach(dot => dot.classList.remove('active'));
+        dots[currentIndex].classList.add('active');
+    }
+
+    // Обработка клика по точкам (оставляем для навигации)
+    window.goToSlide = function(index) {
+        currentIndex = index;
+        // Используем CSS transition для плавности при клике
+        track.style.transition = 'transform 0.4s ease-out';
+        setPositionByIndex();
+        updateDots();
+        // Сбрасываем transition после завершения анимации
+        setTimeout(() => {
+            track.style.transition = 'none';
+        }, 400); 
+    }
+
+    // --- ОБРАБОТКА TOUCH/MOUSE СОБЫТИЙ ---
+
+    // События начала перетаскивания
+    const startDrag = (e) => {
+        isDragging = true;
+        track.classList.add('dragging'); // Добавляем класс для курсора
+        
+        // Определяем начальную позицию (для Touch или Mouse)
+        startPos = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        
+        // Убираем CSS transition для плавного следования за курсором
+        track.style.transition = 'none'; 
+        
+        // Запускаем цикл анимации
+        cancelAnimationFrame(animationID);
+        animationID = requestAnimationFrame(animation);
+    }
+
+    // События движения
+    const drag = (e) => {
+        if (!isDragging) return;
+        
+        // Определяем текущую позицию
+        const currentPosition = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+        const diff = currentPosition - startPos;
+        
+        // Перемещаем слайдер, смещая его относительно предыдущей позиции
+        currentTranslate = prevTranslate + diff;
+        setSliderPosition(currentTranslate);
+    }
+
+    // События завершения перетаскивания
+    const endDrag = (e) => {
+        if (!isDragging) return;
+        
+        isDragging = false;
+        track.classList.remove('dragging');
+        cancelAnimationFrame(animationID);
+        
+        // Определяем, на сколько мы сдвинулись
+        const movedBy = currentTranslate - prevTranslate;
+        
+        // Если сдвинули достаточно сильно (более 20% ширины слайда)
+        const threshold = sliderContainer.offsetWidth * 0.2; 
+
+        if (movedBy < -threshold && currentIndex < totalSlides - 1) {
+            currentIndex++;
+        } else if (movedBy > threshold && currentIndex > 0) {
+            currentIndex--;
+        }
+        
+        // Включаем CSS transition и ставим слайд на место
+        track.style.transition = 'transform 0.4s ease-out';
+        setPositionByIndex();
+        updateDots();
+    }
+
+    // Инициализация при загрузке
+    setPositionByIndex();
+    updateDots();
+    
+    // --- ДОБАВЛЕНИЕ СЛУШАТЕЛЕЙ СОБЫТИЙ ---
+
+    // Touch Events (для телефонов)
+    sliderContainer.addEventListener('touchstart', startDrag, { passive: true });
+    sliderContainer.addEventListener('touchend', endDrag);
+    sliderContainer.addEventListener('touchmove', drag, { passive: true });
+
+    // Mouse Events (для десктопов)
+    sliderContainer.addEventListener('mousedown', startDrag);
+    sliderContainer.addEventListener('mouseup', endDrag);
+    sliderContainer.addEventListener('mouseleave', endDrag); // Сбрасываем, если мышь ушла
+    sliderContainer.addEventListener('mousemove', drag);
+
+    // Обработка изменения размера окна
+    window.addEventListener('resize', setPositionByIndex);
+
+    // Цикл анимации (для плавного следования за курсором)
+    function animation() {
+        if (isDragging) requestAnimationFrame(animation);
+    }
+});

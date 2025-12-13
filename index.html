@@ -101,7 +101,25 @@
         <main class="content-area">
             
             <section id="lobby" class="page-section active full-width-lobby">
-                
+                <div class="lobby-slider-container" id="lobbySlider">
+    <div class="lobby-slider-track" id="sliderTrack">
+        <div class="lobby-slide active">
+            <div class="slide-content">
+                <img src="assets/slide1.png" alt="Promo 1">
+            </div>
+        </div>
+        <div class="lobby-slide">
+            <div class="slide-content">
+                <img src="assets/slide2.png" alt="Promo 2">
+            </div>
+        </div>
+    </div>
+    
+    <div class="lobby-dots">
+        <span class="dot active" onclick="goToSlide(0)"></span>
+        <span class="dot" onclick="goToSlide(1)"></span>
+    </div>
+</div>
                 <header class="lobby-header">
                     <p class="game-list-title">CashCat Originals Games</p>
                 </header>
