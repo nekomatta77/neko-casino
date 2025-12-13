@@ -1,5 +1,5 @@
 /*
- * main.js - FINAL VERSION WITH DETAILS FILTER
+ * main.js - FINAL VERSION WITH NOTIFICATIONS & BADGE LOGIC
  */
 
 import { showSection, currentUser, fetchUser, fetchUserStats } from './global.js';
@@ -23,6 +23,101 @@ import { renderAchievementsPage } from './achievements.js';
 const CARD_GRADIENTS = {
     'none': 'linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(49, 46, 129, 0.9) 100%)'
 };
+
+/* =========================================
+   СИСТЕМА УВЕДОМЛЕНИЙ (GLOBAL)
+   ========================================= */
+
+// Функция обновления счетчика уведомлений
+function updateBadgeCount(change) {
+    const badge = document.querySelector('.notif-badge');
+    if (!badge) return;
+    
+    // Получаем текущее значение (или 0)
+    let count = parseInt(badge.innerText) || 0;
+    
+    // Изменяем значение
+    count += change;
+    
+    // Не даем уйти в минус
+    if (count < 0) count = 0;
+    
+    // Обновляем текст
+    badge.innerText = count;
+    
+    // Логика видимости: Если 0 - скрываем, иначе показываем (flex для центрирования)
+    if (count === 0) {
+        badge.style.display = 'none';
+    } else {
+        badge.style.display = 'flex';
+        // Анимация "подпрыгивания" при изменении
+        badge.style.animation = 'none';
+        badge.offsetHeight; /* trigger reflow */
+        badge.style.animation = 'popIn 0.3s ease';
+    }
+}
+
+// Глобальная функция добавления уведомления
+window.addAppNotification = function(title, text) {
+    const list = document.querySelector('.notif-list');
+    const box = document.getElementById('header-notif-box');
+    
+    if (!list || !box) return;
+
+    // 1. Показываем контейнер уведомлений, если он был скрыт
+    box.classList.remove('hidden');
+
+    // 2. Создаем элемент списка
+    const li = document.createElement('li');
+    li.className = 'notif-item new'; // Класс new делает его непрочитанным (стили в style2.css)
+    
+    // Время
+    const now = new Date();
+    const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+    li.innerHTML = `
+        <span class="notif-title">${title}</span>
+        <span class="notif-text">${text}</span>
+        <span class="notif-time">${timeString}</span>
+    `;
+    
+    // 3. Обработчик клика (Прочтение)
+    li.addEventListener('click', function() {
+        if (this.classList.contains('new')) {
+            this.classList.remove('new'); // Убираем подсветку
+            updateBadgeCount(-1); // Уменьшаем счетчик на 1
+        }
+    });
+
+    // 4. Добавляем в начало списка
+    list.prepend(li);
+    
+    // 5. Увеличиваем счетчик на 1
+    updateBadgeCount(1);
+    
+    // 6. Анимация колокольчика
+    const bell = document.querySelector('.bell-icon');
+    if(bell) {
+        bell.style.transition = 'none';
+        bell.style.transform = 'rotate(0deg)';
+        let angle = 0;
+        let count = 0;
+        const shake = setInterval(() => {
+            count++;
+            angle = (count % 2 === 0) ? 15 : -15;
+            bell.style.transform = `rotate(${angle}deg)`;
+            if(count > 5) {
+                clearInterval(shake);
+                bell.style.transform = 'rotate(0deg)';
+                bell.style.transition = 'all 0.2s';
+            }
+        }, 50);
+    }
+};
+
+/* =========================================
+   ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+   ========================================= */
 
 function applySavedTheme() {
     const themeStyle = document.getElementById('theme-style');
@@ -80,7 +175,6 @@ const ACTIVE_GAMES_CONFIG = {
     'wheel': { name: 'Wheel', icon: 'assets/wheel_icon.png' }
 };
 
-// --- СПИСОК ОТОБРАЖАЕМЫХ ИГР В ДЕТАЛЯХ ---
 const ALLOWED_STATS_GAMES = ['dice', 'mines', 'keno'];
 
 function showStatDetails(title, type, statsData) {
@@ -93,10 +187,9 @@ function showStatDetails(title, type, statsData) {
     titleEl.innerText = title;
     listEl.innerHTML = ''; 
 
-    // Проходим только по разрешенным играм
     ALLOWED_STATS_GAMES.forEach(gameKey => {
         const config = ACTIVE_GAMES_CONFIG[gameKey];
-        if (!config) return; // Пропуск, если нет конфига
+        if (!config) return; 
 
         const gameStats = statsData[gameKey] || {};
         let value = 0;
@@ -129,7 +222,7 @@ function showStatDetails(title, type, statsData) {
     modal.classList.remove('hidden');
 }
 
-// --- ЛОГИКА ПУБЛИЧНОГО ПРОФИЛЯ ---
+// --- ПУБЛИЧНЫЙ ПРОФИЛЬ ---
 async function openPublicProfile(username) {
     if (!username) return;
     const usernameEl = document.getElementById('pp-page-username');
@@ -146,7 +239,6 @@ async function openPublicProfile(username) {
         document.getElementById('pp-page-rank-name').innerText = rankNameMap[userRank] || userRank;
         document.getElementById('pp-page-rank-img').src = rankImgMap[userRank] || 'assets/ranks/rank_kitten.png';
 
-        // --- КАСТОМИЗАЦИЯ ---
         const avatarEl = document.getElementById('pp-page-avatar');
         const custom = userData?.customization || {};
         const userAvatarSrc = custom.avatar || userData?.avatar;
@@ -195,7 +287,6 @@ async function openPublicProfile(username) {
             dateEl.innerText = `В игре с 01.2024`;
         }
 
-        // --- СТАТИСТИКА ---
         const stats = await fetchUserStats(username);
         let totalGames = 0;
         let bestWin = 0;
@@ -214,33 +305,27 @@ async function openPublicProfile(username) {
             }
         }
 
-        // 1. Блок "Всего игр"
         const totalGamesEl = document.getElementById('pp-page-total-games');
         totalGamesEl.innerText = totalGames;
         
-        // Делаем блок кликабельным
         const gamesBox = totalGamesEl.closest('.pp-stat-box');
         if(gamesBox) {
             gamesBox.classList.add('clickable');
             gamesBox.onclick = () => showStatDetails('Сыграно игр', 'games', stats || {});
         }
 
-        // 2. Блок "Макс выигрыш"
         const bestWinEl = document.getElementById('pp-page-best-win');
         bestWinEl.innerText = `${bestWin.toFixed(2)} ₽`;
 
-        // Делаем блок кликабельным
         const winBox = bestWinEl.closest('.pp-stat-box');
         if(winBox) {
             winBox.classList.add('clickable');
             winBox.onclick = () => showStatDetails('Максимальный выигрыш', 'wins', stats || {});
         }
         
-        // Скрываем Wager
         const wagerBox = document.querySelector('.pp-stat-box.full');
         if (wagerBox) wagerBox.style.display = 'none';
 
-        // Любимая игра
         const favNameEl = document.getElementById('pp-page-fav-name');
         const favIconEl = document.getElementById('pp-page-fav-icon');
         if (favoriteGameKey && ACTIVE_GAMES_CONFIG[favoriteGameKey]) {
@@ -269,8 +354,14 @@ function openVisualHistoryModal(username, amount, gameType = 'unknown') {
     modal.classList.remove('hidden');
 }
 
+/* =========================================
+   ИНИЦИАЛИЗАЦИЯ (DOMContentLoaded)
+   ========================================= */
+
 document.addEventListener('DOMContentLoaded', async () => {
     applySavedTheme(); 
+    
+    // Анимация линий кота при загрузке
     const paths = document.querySelectorAll('.cat-lines line, .cat-lines polyline');
     paths.forEach(path => {
         let length = 100;
@@ -284,6 +375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loaderOverlay = document.getElementById('loader-overlay');
     try {
+        // Инициализация модулей
         try { initMines(); } catch(e){ console.error("Mines init failed", e); }
         try { initDice(); } catch(e){ console.error("Dice init failed", e); }
         try { initCrash(); } catch(e){ console.error("Crash init failed", e); }
@@ -299,6 +391,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); }
         try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } 
         
+        // --- САЙДБАР ---
         const openSidebarButton = document.getElementById('open-sidebar-button');
         const openSidebarButtonText = document.getElementById('open-sidebar-button-text');
         const sidebarNav = document.getElementById('sidebar-nav');
@@ -331,6 +424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         
+        // --- НИЖНЯЯ ПАНЕЛЬ ---
         const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
         bottomNavItems.forEach(item => {
             item.addEventListener('click', (event) => {
@@ -345,6 +439,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
         
+        // --- ВЫПАДАЮЩЕЕ ОКНО УВЕДОМЛЕНИЙ ---
         const notifBtn = document.getElementById('notif-toggle-btn');
         const notifDropdown = document.getElementById('notif-dropdown');
         if (notifBtn && notifDropdown) {
@@ -361,6 +456,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        // --- ИНИЦИАЛИЗАЦИЯ БЕЙДЖИКА ---
+        // Считаем уже существующие непрочитанные уведомления (если есть)
+        const unreadCount = document.querySelectorAll('.notif-item.new').length;
+        const badge = document.querySelector('.notif-badge');
+        if (badge) {
+            badge.innerText = unreadCount;
+            badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+        }
+
+        // Проверка флага входа (для уведомления "Вход выполнен")
+        if (sessionStorage.getItem('justLoggedIn')) {
+            setTimeout(() => {
+                if(typeof window.addAppNotification === 'function') {
+                    window.addAppNotification('Вход выполнен', 'Рады видеть вас снова в CashCat!');
+                }
+                sessionStorage.removeItem('justLoggedIn');
+            }, 1000);
+        }
+
+        // --- КНОПКИ В ИНТЕРФЕЙСЕ ---
         const backBtn = document.getElementById('pp-back-button');
         if (backBtn) backBtn.addEventListener('click', () => { showSection('lobby'); });
 
@@ -371,7 +486,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (visualHistoryClose) visualHistoryClose.addEventListener('click', () => { visualHistoryModal.classList.add('hidden'); });
         if (visualHistoryModal) visualHistoryModal.addEventListener('click', (e) => { if (e.target === visualHistoryModal) visualHistoryModal.classList.add('hidden'); });
 
-        // --- ЛОГИКА ЗАКРЫТИЯ НОВОЙ МОДАЛКИ ДЕТАЛЕЙ ---
         const detailsModal = document.getElementById('pp-details-modal');
         const detailsClose = document.getElementById('pp-details-close');
         if(detailsClose) detailsClose.addEventListener('click', () => detailsModal.classList.add('hidden'));
@@ -445,9 +559,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 3000);
     }
 });
-// --- Логика Плавного Свайпера (Touch/Mouse Drag) ---
+
+/* =========================================
+   ЛОГИКА СЛАЙДЕРА (SWIPE & CLICK)
+   ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
     const sliderContainer = document.getElementById('lobbySlider');
+    if (!sliderContainer) return; // Проверка существования слайдера
+
     const track = document.getElementById('sliderTrack');
     const dots = document.querySelectorAll('.dot');
     const totalSlides = dots.length;
@@ -460,8 +579,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let prevTranslate = 0;
     let animationID;
     
-    // --- Вспомогательные функции ---
-
     function setPositionByIndex() {
         currentTranslate = currentIndex * -sliderContainer.offsetWidth;
         prevTranslate = currentTranslate;
@@ -474,100 +591,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateDots() {
         dots.forEach(dot => dot.classList.remove('active'));
-        dots[currentIndex].classList.add('active');
+        if(dots[currentIndex]) dots[currentIndex].classList.add('active');
     }
 
-    // Обработка клика по точкам (оставляем для навигации)
     window.goToSlide = function(index) {
         currentIndex = index;
-        // Используем CSS transition для плавности при клике
         track.style.transition = 'transform 0.4s ease-out';
         setPositionByIndex();
         updateDots();
-        // Сбрасываем transition после завершения анимации
-        setTimeout(() => {
-            track.style.transition = 'none';
-        }, 400); 
+        setTimeout(() => { track.style.transition = 'none'; }, 400); 
     }
 
-    // --- ОБРАБОТКА TOUCH/MOUSE СОБЫТИЙ ---
+    // --- НОВАЯ ФУНКЦИЯ: Переход к привязке соцсетей при клике ---
+    function handleSliderClick() {
+        showSection('profile-page');
+        if (typeof updateProfileData === 'function') updateProfileData();
 
-    // События начала перетаскивания
+        setTimeout(() => {
+            const socialSection = document.querySelector('.profile-socials');
+            // Ищем заголовок "Соцсети" или сам блок
+            const socialHeader = document.querySelector('.profile-subheader.social-header') || 
+                                 Array.from(document.querySelectorAll('.profile-subheader')).find(el => el.textContent.includes('Соцсети'));
+            
+            const target = socialHeader || socialSection;
+
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Эффект акцента
+                const originalTransform = target.style.transform;
+                target.style.transition = 'transform 0.3s ease';
+                target.style.transform = 'scale(1.05)';
+                setTimeout(() => {
+                    target.style.transform = originalTransform || 'scale(1)';
+                }, 400);
+            }
+        }, 150);
+    }
+
+    // --- Events ---
     const startDrag = (e) => {
         isDragging = true;
-        track.classList.add('dragging'); // Добавляем класс для курсора
-        
-        // Определяем начальную позицию (для Touch или Mouse)
+        track.classList.add('dragging');
         startPos = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
-        
-        // Убираем CSS transition для плавного следования за курсором
         track.style.transition = 'none'; 
-        
-        // Запускаем цикл анимации
         cancelAnimationFrame(animationID);
         animationID = requestAnimationFrame(animation);
     }
 
-    // События движения
     const drag = (e) => {
         if (!isDragging) return;
-        
-        // Определяем текущую позицию
         const currentPosition = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
         const diff = currentPosition - startPos;
-        
-        // Перемещаем слайдер, смещая его относительно предыдущей позиции
         currentTranslate = prevTranslate + diff;
         setSliderPosition(currentTranslate);
     }
 
-    // События завершения перетаскивания
     const endDrag = (e) => {
         if (!isDragging) return;
-        
         isDragging = false;
         track.classList.remove('dragging');
         cancelAnimationFrame(animationID);
         
-        // Определяем, на сколько мы сдвинулись
         const movedBy = currentTranslate - prevTranslate;
         
-        // Если сдвинули достаточно сильно (более 20% ширины слайда)
+        // --- ЛОГИКА КЛИКА ---
+        // Если сдвиг меньше 5 пикселей, считаем это кликом
+        if (Math.abs(movedBy) < 5) {
+            handleSliderClick();
+            track.style.transition = 'transform 0.4s ease-out';
+            setPositionByIndex();
+            return;
+        }
+        
+        // Логика свайпа
         const threshold = sliderContainer.offsetWidth * 0.2; 
-
         if (movedBy < -threshold && currentIndex < totalSlides - 1) {
             currentIndex++;
         } else if (movedBy > threshold && currentIndex > 0) {
             currentIndex--;
         }
         
-        // Включаем CSS transition и ставим слайд на место
         track.style.transition = 'transform 0.4s ease-out';
         setPositionByIndex();
         updateDots();
     }
 
-    // Инициализация при загрузке
     setPositionByIndex();
     updateDots();
     
-    // --- ДОБАВЛЕНИЕ СЛУШАТЕЛЕЙ СОБЫТИЙ ---
-
-    // Touch Events (для телефонов)
     sliderContainer.addEventListener('touchstart', startDrag, { passive: true });
     sliderContainer.addEventListener('touchend', endDrag);
     sliderContainer.addEventListener('touchmove', drag, { passive: true });
-
-    // Mouse Events (для десктопов)
     sliderContainer.addEventListener('mousedown', startDrag);
     sliderContainer.addEventListener('mouseup', endDrag);
-    sliderContainer.addEventListener('mouseleave', endDrag); // Сбрасываем, если мышь ушла
+    sliderContainer.addEventListener('mouseleave', endDrag);
     sliderContainer.addEventListener('mousemove', drag);
-
-    // Обработка изменения размера окна
     window.addEventListener('resize', setPositionByIndex);
 
-    // Цикл анимации (для плавного следования за курсором)
     function animation() {
         if (isDragging) requestAnimationFrame(animation);
     }
