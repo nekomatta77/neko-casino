@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 3.0 - VK Auth Integration
+ * Версия 3.1 - VK Auth Integration (Fixed)
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, updateUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,8 +8,13 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397311', // <--- Только цифры!
-    REDIRECT_URI: 'https://neko-casino.vercel.app/',
+    APP_ID: '54397311', // Ваш новый ID приложения
+    
+    // ВНИМАНИЕ: Этот адрес должен В ТОЧНОСТИ совпадать с "Доверенный Redirect URI" в настройках ВК
+    // Если вы тестируете на компьютере - оставьте localhost.
+    // Если загрузили на Vercel - поменяйте на 'https://neko-casino.vercel.app/'
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', 
+    
     VERSION: '5.131'
 };
 // ===================================================
@@ -22,7 +27,7 @@ let snowToggleInput;
 
 let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 
-// --- Стандартные функции темы и снега (без изменений) ---
+// --- Стандартные функции темы и снега ---
 function initTheme() {
     const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     if (currentTheme === 'dark') {
@@ -94,7 +99,8 @@ function stopSnow(container) {
 
 async function handleLogout() {
     await setCurrentUser(null); 
-    location.href = window.location.pathname; // Полная перезагрузка очищает URL от хешей VK
+    // Полная перезагрузка страницы для очистки URL от токенов VK
+    location.href = window.location.pathname; 
 }
 
 function handleShowWagerRules(e) {
@@ -138,7 +144,7 @@ async function handleChangePassword(e) {
     }
 }
 
-// --- Смена ника ---
+// --- Смена никнейма ---
 async function handleChangeUsername() {
     if (!currentUser) return;
     const userData = await fetchUser(currentUser);
@@ -190,23 +196,22 @@ async function handleChangeUsername() {
 // 1. Функция редиректа на авторизацию
 function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
-    if (VK_CONFIG.APP_ID === 'YOUR_VK_APP_ID') return alert('Администратор не настроил App ID в profile.js');
-
-    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&scope=offline&response_type=token&v=${VK_CONFIG.VERSION}`;
+    
+    // Формируем ссылку БЕЗ scope=offline
+    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=token&v=${VK_CONFIG.VERSION}`;
+    
     window.location.href = url;
 }
 
 // 2. Функция парсинга URL после возврата от VK
 async function checkVKReturn() {
-    // Проверяем, вернулся ли пользователь с токеном
     const hash = window.location.hash;
     if (hash.includes('access_token') && hash.includes('user_id')) {
-        // Парсим параметры
-        const params = new URLSearchParams(hash.substring(1)); // убираем #
+        const params = new URLSearchParams(hash.substring(1)); 
         const accessToken = params.get('access_token');
         const userId = params.get('user_id');
 
-        // Очищаем хеш из URL, чтобы было красиво
+        // Очищаем хеш из URL
         history.pushState("", document.title, window.location.pathname + window.location.search);
 
         if (accessToken && currentUser) {
@@ -215,20 +220,16 @@ async function checkVKReturn() {
     }
 }
 
-// 3. Получение данных и сохранение (используем JSONP для обхода CORS)
+// 3. Получение данных и сохранение (JSONP)
 function processVKBinding(token, vkId) {
-    // Создаем скрипт для JSONP запроса
     const script = document.createElement('script');
-    // Имя функции обратного вызова
     const callbackName = 'vkUserDataCallback';
     
-    // Глобальная функция для приема данных
     window[callbackName] = async (result) => {
         if (result.response && result.response[0]) {
             const user = result.response[0];
             const fullName = `${user.first_name} ${user.last_name}`;
             
-            // Сохраняем в базу данных пользователя
             const success = await patchUser(currentUser, {
                 vk_linked: true,
                 vk_name: fullName,
@@ -239,14 +240,12 @@ function processVKBinding(token, vkId) {
                 if(typeof window.addAppNotification === 'function') {
                     window.addAppNotification('✅ ВКонтакте', `Успешно привязано: ${fullName}`);
                 }
-                updateProfileData(); // Обновляем UI
-                // Открываем профиль, так как после редиректа мы можем быть на главной
+                updateProfileData(); 
                 showSection('profile-page'); 
             }
         } else {
             alert('Ошибка получения данных от VK API');
         }
-        // Убираем скрипт и функцию
         document.body.removeChild(script);
         delete window[callbackName];
     };
@@ -256,7 +255,6 @@ function processVKBinding(token, vkId) {
 }
 
 // ====================================================
-
 
 export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
@@ -270,22 +268,20 @@ export async function updateProfileData() {
         if (!userData) return;
 
         // --- VK LINK UPDATE UI ---
-        // Проверяем, есть ли привязка в данных пользователя
         if (vkLinkBtn) {
             if (userData.vk_linked && userData.vk_name) {
-                // Если привязано - меняем текст и стиль
+                // Если привязано
                 vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span style="color:white;">${userData.vk_name}</span>`;
-                vkLinkBtn.classList.add('linked-social-btn'); // Можно добавить этот класс в CSS для зеленой обводки
-                // Убираем обработчик клика, чтобы не перепривязывать (или меняем логику на отвязку)
+                vkLinkBtn.classList.add('linked-social-btn'); 
                 vkLinkBtn.onclick = null; 
                 vkLinkBtn.style.cursor = 'default';
                 vkLinkBtn.style.opacity = '1';
                 vkLinkBtn.style.background = 'rgba(0, 119, 255, 0.2)';
             } else {
-                // Если не привязано - сбрасываем
+                // Если не привязано
                 vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span id="profile-vk-text">Привязать Вконтакте</span>`;
                 vkLinkBtn.style.background = '';
-                vkLinkBtn.onclick = handleVKAuth; // Вешаем обработчик
+                vkLinkBtn.onclick = handleVKAuth; 
             }
         }
         // -------------------------
@@ -324,10 +320,10 @@ export async function updateProfileData() {
         }
         
     } else {
+        // Логика для гостя
         if (rankEl) rankEl.textContent = 'Котенок';
         if (wagerAmountEl) wagerAmountEl.textContent = '0.00';
         if (profileUsernameDisplay) profileUsernameDisplay.textContent = 'Гость';
-        // Сброс VK кнопки для гостя
         if (vkLinkBtn) {
              vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span id="profile-vk-text">Привязать Вконтакте</span>`;
              vkLinkBtn.onclick = () => alert('Сначала войдите в аккаунт!');
@@ -360,7 +356,7 @@ export function initProfile() {
     initTheme();
     initSnow(); 
     
-    // ПРОВЕРЯЕМ, ВЕРНУЛИСЬ ЛИ МЫ ОТ ВКОНТАКТЕ
+    // Проверка возврата с VK
     checkVKReturn();
 
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
@@ -369,13 +365,6 @@ export function initProfile() {
     
     if (profileChangeNameBtn) {
         profileChangeNameBtn.addEventListener('click', handleChangeUsername);
-    }
-
-    // Обработчик VK вешается теперь динамически внутри updateProfileData, 
-    // но инициализируем его дефолтное поведение здесь
-    if (vkLinkBtn) {
-        // Убираем старый listener, который просто показывал уведомление
-        // Новый будет назначен при рендере профиля
     }
 
     if (tgLinkBtn) {
