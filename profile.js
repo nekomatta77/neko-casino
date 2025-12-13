@@ -8,13 +8,8 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397311', // Ваш новый ID приложения
-    
-    // ВНИМАНИЕ: Этот адрес должен В ТОЧНОСТИ совпадать с "Доверенный Redirect URI" в настройках ВК
-    // Если вы тестируете на компьютере - оставьте localhost.
-    // Если загрузили на Vercel - поменяйте на 'https://neko-casino.vercel.app/'
-    REDIRECT_URI: 'https://neko-casino.vercel.app/', 
-    
+    APP_ID: '54397311', // Ваш новый ID
+    REDIRECT_URI: 'https://neko-casino.vercel.app/index.html', // Ваша ссылка на Vercel + /index.html
     VERSION: '5.131'
 };
 // ===================================================
