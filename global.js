@@ -972,7 +972,7 @@ window.addEventListener('load', async () => {
 
     // Если есть код
     if (code) {
-        // Убираем код из строки браузера
+        // Убираем код из строки браузера, чтобы не мешал
         window.history.replaceState({}, document.title, window.location.pathname);
 
         // 2. Достаем сохраненные параметры PKCE
@@ -981,21 +981,19 @@ window.addEventListener('load', async () => {
         
         console.log("VK Auth Debug:", { code: code.substring(0, 10) + "...", verifier: codeVerifier ? "Found" : "MISSING", device: deviceId });
 
-        // Если верификатора нет, это ошибка (или старый код). Не пытаемся отправить запрос.
         if (!codeVerifier) {
             console.warn("VK Auth: Code exists but verifier missing (stale reload). Skipping auth.");
             return;
         }
 
-        // 3. Запускаем интервал ожидания сессии пользователя
+        // 3. Запускаем интервал ожидания загрузки пользователя (currentUser)
         const checkUserInterval = setInterval(async () => {
-            // Если сессии нет вообще, прекращаем
+            // Если пользователь не залогинен, ждем (или можно обрабатывать вход, если это регистрация)
             if (!localStorage.getItem('nekoUserSession')) {
                 clearInterval(checkUserInterval);
                 return;
             }
 
-            // Ждем пока загрузится currentUser
             if (currentUser) {
                 clearInterval(checkUserInterval);
                 
@@ -1004,40 +1002,42 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                   // Берем полный URL без параметров запроса (?code=...)
-// Это вернет https://neko-casino.vercel.app/ (со слэшем для главной)
-const currentRedirectUri = window.location.origin;
+                    // === ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНЫЙ СЛЭШ ===
+                    let currentRedirectUri = window.location.origin;
+                    if (!currentRedirectUri.endsWith('/')) {
+                        currentRedirectUri += '/';
+                    }
 
-console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
+                    console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
 
-const params = new URLSearchParams({
-    code,
-    redirect_uri: currentRedirectUri,
-    code_verifier: codeVerifier,
-    device_id: deviceId
-});
+                    const params = new URLSearchParams({
+                        code,
+                        redirect_uri: currentRedirectUri,
+                        code_verifier: codeVerifier,
+                        device_id: deviceId,
+                        state: state || ''
+                    });
 
-let apiUrl = `/api/vk-auth?${params.toString()}`;
-
+                    let apiUrl = `/api/vk-auth?${params.toString()}`;
                     console.log("Sending request to:", apiUrl);
-const response = await fetch(apiUrl);
 
-let result;
-const text = await response.text();
+                    const response = await fetch(apiUrl);
+                    
+                    // Читаем как текст, чтобы не упасть с ошибкой парсинга
+                    const text = await response.text();
+                    let result;
 
-try {
-    result = JSON.parse(text);
-} catch {
-    throw new Error(text || 'Server error');
-}
-
-if (!response.ok) {
-    throw new Error(result.error || text || 'Server error');
-}
-
+                    try {
+                        result = JSON.parse(text);
+                    } catch (e) {
+                        console.error("VK Server Raw Response:", text);
+                        throw new Error("Сервер VK вернул HTML ошибку. Проверьте консоль.");
+                    }
 
                     if (!response.ok) {
-                        throw new Error(result.error || 'Ошибка сервера привязки');
+                        // Показываем детали ошибки, если сервер их вернул
+                        const errorMsg = result.raw_response_preview || result.error || 'Ошибка сервера';
+                        throw new Error(errorMsg);
                     }
 
                     if (result.vk_id) {
@@ -1047,7 +1047,6 @@ if (!response.ok) {
                         });
                         
                         if (success) {
-                            // ОЧИЩАЕМ КЛЮЧИ ТОЛЬКО ПОСЛЕ УСПЕХА
                             localStorage.removeItem('vk_code_verifier');
                             localStorage.removeItem('vk_device_id');
                             localStorage.removeItem('vk_state');
@@ -1064,7 +1063,6 @@ if (!response.ok) {
                     console.error(e);
                     alert('Ошибка: ' + e.message);
                     
-                    // Если ошибка "Code invalid", можно очистить ключи, чтобы не спамить
                     if (e.message.includes("invalid") || e.message.includes("expired")) {
                         localStorage.removeItem('vk_code_verifier');
                     }
