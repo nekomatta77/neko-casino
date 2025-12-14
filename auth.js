@@ -1,5 +1,5 @@
 /*
- * AUTH.JS - MODALS, LOGIN, REGISTER, WAGER CHECK & TELEGRAM AUTH
+ * AUTH.JS - Fixed Logic for Linking vs Registration
  */
 
 import { showSection, setCurrentUser, getSessionUser, fetchUser, updateUser, startDepositHistoryPoller, stopDepositHistoryPoller, startWithdrawalHistoryPoller, stopWithdrawalHistoryPoller, currentUser, setLocalWager, fetchUserByTelegramId } from './global.js';
@@ -7,7 +7,6 @@ import { updateProfileData } from './profile.js';
 
 const STARTING_BALANCE = 1000.00;
 
-// === КОНФИГУРАЦИЯ TELEGRAM (Дублируем из profile.js для автономности) ===
 const TG_CONFIG = {
     BOT_USERNAME: 'CashCatOfficial_Bot', 
     REDIRECT_URL: 'https://neko-casino.vercel.app/' 
@@ -123,10 +122,6 @@ function initWalletMethodSwitching() {
 // === ЛОГИКА АВТОРИЗАЦИИ ЧЕРЕЗ TELEGRAM ===
 
 function handleTelegramLoginClick() {
-    // Создаем виджет динамически и редиректим
-    // Используем тот же механизм, что и в profile.js, но цель - авторизация
-    
-    // Создаем временный контейнер, чтобы не ломать верстку
     const tempContainer = document.createElement('div');
     tempContainer.style.display = 'none';
     document.body.appendChild(tempContainer);
@@ -136,21 +131,11 @@ function handleTelegramLoginClick() {
     script.src = 'https://telegram.org/js/telegram-widget.js?22';
     script.setAttribute('data-telegram-login', TG_CONFIG.BOT_USERNAME);
     script.setAttribute('data-size', 'large');
-    script.setAttribute('data-auth-url', TG_CONFIG.REDIRECT_URL); // Редирект на главную
+    script.setAttribute('data-auth-url', TG_CONFIG.REDIRECT_URL); 
     script.setAttribute('data-request-access', 'write');
     
     tempContainer.appendChild(script);
     
-    // Виджет Telegram автоматически не редиректит при создании скрипта, он создает кнопку.
-    // Но так как нам нужно действие по клику на НАШУ кнопку, нам нужно имитировать клик 
-    // или использовать прямую ссылку (что не всегда работает с ботами).
-    
-    // ЛУЧШИЙ ВАРИАНТ ДЛЯ UX: 
-    // Мы заменяем нашу кнопку на виджет Telegram или открываем его.
-    // Но для простоты реализации по клику, мы покажем пользователю: "Идет перенаправление..."
-    // и просто перенаправим на страницу авторизации виджета (если бы она была).
-    
-    // Т.к. виджет требует клика, мы просто заменим содержимое кнопки на виджет
     const btnLogin = document.getElementById('login-with-tg-btn');
     const btnReg = document.getElementById('register-with-tg-btn');
     
@@ -158,38 +143,38 @@ function handleTelegramLoginClick() {
         btnLogin.innerHTML = '';
         btnLogin.appendChild(script);
     }
-    // Если кликнули в регистрации - туда же
-    if (btnReg && e.target.closest('#register-with-tg-btn')) {
+    if (btnReg) {
         btnReg.innerHTML = '';
         btnReg.appendChild(script);
     }
 }
 
-// ПРОВЕРКА ВОЗВРАТА ОТ TELEGRAM (ДЛЯ ВХОДА)
+// ПРОВЕРКА ВОЗВРАТА ОТ TELEGRAM
 export async function checkTelegramAuthReturn() {
-    // Эта функция запускается при загрузке страницы.
-    // В profile.js тоже есть проверка, но она работает ТОЛЬКО если currentUser != null (привязка).
-    // Здесь мы проверяем, если currentUser == null (вход/регистрация).
-
     const params = new URLSearchParams(window.location.search);
     
-    // Проверяем наличие параметров Telegram
     if (params.has('id') && params.has('hash')) {
-        // Если пользователь УЖЕ залогинен, выходим. Пусть profile.js разбирается с привязкой.
-        if (currentUser) return; 
+        // !!! ГЛАВНОЕ ИСПРАВЛЕНИЕ !!!
+        // Если currentUser уже установлен (мы восстановили сессию), 
+        // то мы НЕ трогаем параметры URL и НЕ пытаемся войти заново.
+        // Мы оставляем URL как есть, чтобы profile.js считал их и выполнил ПРИВЯЗКУ.
+        if (currentUser) {
+            console.log("Пользователь уже вошел. Передаем управление в profile.js для привязки.");
+            return; 
+        }
 
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
-        const tgUsername = params.get('username'); // Может быть null
+        const tgUsername = params.get('username'); 
         
-        // Очищаем URL
+        // Если мы тут, значит пользователя нет в сессии. Это Вход или Регистрация.
+        // Очищаем URL, чтобы не мешался
         window.history.replaceState({}, document.title, window.location.pathname);
 
-        // 1. Пытаемся найти пользователя по tg_id
         const existingUser = await fetchUserByTelegramId(tgId);
 
         if (existingUser) {
-            // === СЦЕНАРИЙ: ВХОД ===
+            // === ВХОД ===
             await setCurrentUser(existingUser.username);
             sessionStorage.setItem('justLoggedIn', 'true');
             if(typeof window.addAppNotification === 'function') {
@@ -197,32 +182,24 @@ export async function checkTelegramAuthReturn() {
             }
             showSection('lobby');
         } else {
-            // === СЦЕНАРИЙ: РЕГИСТРАЦИЯ ===
-            
-            // Если нет юзернейма в ТГ, генерируем
+            // === РЕГИСТРАЦИЯ ===
             let newUsername = tgUsername;
             if (!newUsername) {
-                // Если у пользователя скрыт ник, используем Имя + цифры
                 const randomSuffix = Math.floor(Math.random() * 10000);
                 newUsername = (tgFirstName || 'User').replace(/\s+/g, '') + randomSuffix;
             }
 
-            // Проверяем, не занят ли такой ник (маловероятно, но вдруг кто-то занял "durov")
             const checkUser = await fetchUser(newUsername);
-            
             if (checkUser) {
-                // Если ник занят, добавляем случайные цифры
                 newUsername = newUsername + Math.floor(Math.random() * 1000);
             }
 
             const newUser = {
-                password: "tg_auth_no_password", // Технический пароль
+                password: "tg_auth_no_password", 
                 balance: STARTING_BALANCE,
                 rank: "None Rang", 
                 customization: {}, 
                 wager_balance: 0,
-                
-                // ВАЖНО: Сразу привязываем Telegram
                 tg_linked: true,
                 tg_id: tgId,
                 tg_name: tgUsername ? `@${tgUsername}` : tgFirstName,
@@ -235,7 +212,7 @@ export async function checkTelegramAuthReturn() {
                 await setCurrentUser(newUsername);
                 sessionStorage.setItem('justLoggedIn', 'true');
                 if(typeof window.addAppNotification === 'function') {
-                    window.addAppNotification('🚀 Регистрация', `Аккаунт ${newUsername} создан через Telegram!`);
+                    window.addAppNotification('🚀 Регистрация', `Аккаунт ${newUsername} создан!`);
                 }
                 showSection('lobby');
             } else {
@@ -250,19 +227,19 @@ export async function checkTelegramAuthReturn() {
 export async function checkLoginState() {
     const loggedInUsername = getSessionUser();
     
-    // Сначала проверяем, не вернулись ли мы с Telegram для авторизации
-    await checkTelegramAuthReturn();
-
-    // Если checkTelegramAuthReturn авторизовал нас, loggedInUsername будет старым,
-    // поэтому читаем getSessionUser снова или полагаемся на setCurrentUser внутри.
-    
-    if (getSessionUser()) {
-        await setCurrentUser(getSessionUser()); 
-        showSection('lobby'); 
+    // !!! ИСПРАВЛЕННЫЙ ПОРЯДОК !!!
+    // 1. Сначала восстанавливаем сессию
+    if (loggedInUsername) {
+        await setCurrentUser(loggedInUsername); 
     } else {
         await setCurrentUser(null); 
-        showSection('lobby'); 
     }
+
+    // 2. Только ПОТОМ проверяем Telegram
+    // Если сессия восстановилась (п.1), checkTelegramAuthReturn увидит currentUser и выйдет.
+    await checkTelegramAuthReturn();
+
+    showSection('lobby'); 
 }
 
 function showAuthModal(mode = 'login') {
@@ -456,9 +433,6 @@ export function initAuth() {
     initWalletTabs();
     initWalletMethodSwitching();
 
-    // --- Инициализация кнопок Telegram ---
-    // Так как виджет требует специфической загрузки, мы вешаем обработчик,
-    // который при клике подгрузит виджет прямо в кнопку (как простой хак для старта auth)
     const btnTgLogin = document.getElementById('login-with-tg-btn');
     const btnTgReg = document.getElementById('register-with-tg-btn');
     
