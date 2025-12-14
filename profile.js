@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 3.3 - Telegram Username & Button Fixes
+ * Версия 3.4 - Telegram Fix (Late Binding)
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -284,6 +284,7 @@ async function checkTelegramReturn() {
     const params = new URLSearchParams(window.location.search);
     
     // Telegram возвращает id, first_name, username (не всегда), hash и auth_date
+    // Мы также проверяем currentUser, чтобы не пытаться привязать к "null"
     if (params.has('id') && params.has('hash') && currentUser) {
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
@@ -322,6 +323,14 @@ async function checkTelegramReturn() {
 export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
     if (rankEl) rankEl.textContent = '...';
+
+    // ВАЖНО: Проверяем возвраты соцсетей ЗДЕСЬ, 
+    // потому что эта функция вызывается сразу после восстановления сессии пользователя (setCurrentUser).
+    // Это гарантирует, что currentUser уже не null.
+    if (currentUser) {
+        await checkVKReturn();
+        await checkTelegramReturn();
+    }
 
     initCustomize();
     initTheme();
@@ -460,9 +469,8 @@ export function initProfile() {
     initTheme();
     initSnow(); 
     
-    // Проверка возвратов с соцсетей
-    checkVKReturn();
-    checkTelegramReturn(); 
+    // Мы убрали вызовы checkTelegramReturn() отсюда, так как они теперь
+    // выполняются внутри updateProfileData() после гарантированного входа.
 
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);
