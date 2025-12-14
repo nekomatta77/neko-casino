@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 6.0 - Manual PKCE Fix
+ * Версия 7.0 - PKCE Device ID Fix
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,7 +8,7 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ =================
 const VK_CONFIG = {
-    APP_ID: 54397933, // ВАШ ID
+    APP_ID: 52932311, // ВАШ ID (числом)
     REDIRECT_URI: 'https://neko-casino.vercel.app/', // ВАШ ДОМЕН СО СЛЕШЕМ
 };
 
@@ -36,6 +36,14 @@ function generateRandomString(length) {
         result += charset[values[i] % charset.length];
     }
     return result;
+}
+
+// Генерация UUID для device_id (как требует SDK)
+function generateUUID() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
 }
 
 async function sha256(plain) {
@@ -70,9 +78,9 @@ async function handleVKAuth() {
     // 1. Генерируем секреты
     const codeVerifier = generateRandomString(64);
     const state = generateRandomString(32);
-    const deviceId = generateRandomString(20); // Имитируем device_id
+    const deviceId = generateUUID(); // Используем UUID
 
-    // 2. Сохраняем их в localStorage, чтобы global.js мог их достать после возврата
+    // 2. Сохраняем их в localStorage
     localStorage.setItem('vk_code_verifier', codeVerifier);
     localStorage.setItem('vk_device_id', deviceId);
     localStorage.setItem('vk_state', state);
@@ -81,6 +89,7 @@ async function handleVKAuth() {
     const codeChallenge = await generateChallenge(codeVerifier);
 
     // 4. Формируем ссылку на новый VK ID (id.vk.com)
+    // !!! ВАЖНО: Добавлен device_id
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: VK_CONFIG.APP_ID,
@@ -88,7 +97,8 @@ async function handleVKAuth() {
         code_challenge: codeChallenge,
         code_challenge_method: 's256',
         state: state,
-        scope: '', // Можно добавить 'email phone', если нужно
+        scope: '', 
+        device_id: deviceId, // <--- ЭТОГО НЕ ХВАТАЛО
     });
 
     // 5. Перенаправляем
