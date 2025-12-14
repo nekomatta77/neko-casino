@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json',
         'Content-Length': Buffer.byteLength(postData)
       }
     };
@@ -40,13 +41,22 @@ module.exports = async (req, res) => {
       r.end();
     });
 
-    const data = JSON.parse(raw);
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      console.error('VK RAW RESPONSE:', raw);
+      return res.status(500).json({
+        error: 'VK returned non-JSON',
+        raw
+      });
+    }
 
     if (data.error) {
       return res.status(400).json(data);
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       vk_id: data.user_id,
       access_token: data.access_token,
       refresh_token: data.refresh_token,
@@ -55,6 +65,6 @@ module.exports = async (req, res) => {
 
   } catch (e) {
     console.error(e);
-    res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: e.message });
   }
 };
