@@ -1004,10 +1004,14 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                    // Формируем URL с обязательными параметрами
-                    let apiUrl = `/api/vk-auth?code=${code}`;
-                    if (codeVerifier) apiUrl += `&code_verifier=${codeVerifier}`;
-                    if (deviceId) apiUrl += `&device_id=${deviceId}`;
+                   // Определяем точный Redirect URI, на котором сейчас пользователь (без query параметров)
+// Обычно это origin + pathname (например, https://site.com/)
+const currentRedirectUri = window.location.origin + window.location.pathname;
+
+let apiUrl = `/api/vk-auth?code=${code}&redirect_uri=${encodeURIComponent(currentRedirectUri)}`;
+
+if (codeVerifier) apiUrl += `&code_verifier=${codeVerifier}`;
+if (deviceId) apiUrl += `&device_id=${deviceId}`;
 
                     console.log("Sending request to:", apiUrl);
 
