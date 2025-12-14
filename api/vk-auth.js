@@ -1,7 +1,6 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-  // Настройки CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -12,31 +11,24 @@ module.exports = async (req, res) => {
 
   try {
     const APP_ID = process.env.VK_CLIENT_ID;
-    const APP_SECRET = process.env.VK_CLIENT_SECRET; // <-- Читаем секретный ключ
-    
-    // 1. Проверяем наличие ключей
+    const APP_SECRET = process.env.VK_CLIENT_SECRET;
+
     if (!APP_ID || !APP_SECRET) {
       console.error("Server Error: VK_CLIENT_ID or VK_CLIENT_SECRET missing");
-      return res.status(500).json({ 
-        error: 'Server Config Error', 
-        details: 'VK_CLIENT_ID or VK_CLIENT_SECRET is not set in Vercel Env Vars' 
-      });
+      return res.status(500).json({ error: 'Config Error: VK keys missing in Vercel' });
     }
 
     const { code, code_verifier, device_id, redirect_uri, state } = req.query;
 
     if (!code || !code_verifier || !device_id || !redirect_uri) {
-      return res.status(400).json({ 
-        error: 'Missing required params', 
-        details: 'Check code, code_verifier, device_id, redirect_uri' 
-      });
+      return res.status(400).json({ error: 'Missing required params' });
     }
 
-    // 2. Формируем данные для запроса
+    // Параметры для нового VK ID (PKCE)
     const postDataParams = new URLSearchParams();
     postDataParams.append('grant_type', 'authorization_code');
     postDataParams.append('client_id', APP_ID);
-    postDataParams.append('client_secret', APP_SECRET); // <-- ОБЯЗАТЕЛЬНО добавляем секрет
+    postDataParams.append('client_secret', APP_SECRET);
     postDataParams.append('code', code);
     postDataParams.append('code_verifier', code_verifier);
     postDataParams.append('redirect_uri', redirect_uri);
@@ -45,9 +37,10 @@ module.exports = async (req, res) => {
 
     const postData = postDataParams.toString();
 
+    // === ГЛАВНОЕ ИСПРАВЛЕНИЕ: Используем endpoint VK ID ===
     const options = {
-      hostname: 'oauth.vk.com',
-      path: '/access_token',
+      hostname: 'id.vk.com', // Новый адрес для VK ID SDK
+      path: '/oauth2/auth',  // Путь для обмена кода
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -57,7 +50,7 @@ module.exports = async (req, res) => {
       }
     };
 
-    console.log(`[VK Auth] Sending to oauth.vk.com... AppID: ${APP_ID}`);
+    console.log(`[VK Auth] Sending to id.vk.com/oauth2/auth... AppID: ${APP_ID}`);
 
     const { statusCode, raw } = await new Promise((resolve, reject) => {
       const r = https.request(options, resp => {
@@ -83,11 +76,10 @@ module.exports = async (req, res) => {
 
     if (data.error) {
       console.error('[VK Auth] API Error:', data);
-      // Возвращаем ошибку клиенту
       return res.status(400).json(data);
     }
 
-    // Успех
+    // Успех. VK ID возвращает user_id прямо в корне JSON
     return res.status(200).json({
       vk_id: data.user_id,
       access_token: data.access_token,

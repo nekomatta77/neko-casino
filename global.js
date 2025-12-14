@@ -963,6 +963,8 @@ function updateUI() {
 
 // ... (начало файла без изменений)
 
+// ... (начало файла без изменений)
+
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
 // ===============================================
@@ -975,7 +977,7 @@ window.addEventListener('load', async () => {
         if (window.isVkAuthProcessing) return;
         window.isVkAuthProcessing = true;
 
-        // Чистим URL
+        // Чистим URL от кода
         window.history.replaceState({}, document.title, window.location.pathname);
 
         const codeVerifier = localStorage.getItem('vk_code_verifier');
@@ -984,7 +986,7 @@ window.addEventListener('load', async () => {
         console.log("VK Auth Debug:", { code: code.substring(0, 10) + "...", verifier: codeVerifier ? "Found" : "MISSING", device: deviceId });
 
         if (!codeVerifier) {
-            console.warn("VK Auth: Code exists but verifier missing (stale reload).");
+            console.warn("VK Auth: Code exists but verifier missing (possible stale reload).");
             window.isVkAuthProcessing = false;
             return;
         }
@@ -1000,14 +1002,10 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                    // === ВОЗВРАЩАЕМ СЛЭШ ===
-                    let currentRedirectUri = window.location.origin;
-                    // Если слэша нет, добавляем его. VK SDK обычно считает корень сайта как "сайт/"
-                    if (!currentRedirectUri.endsWith('/')) {
-                        currentRedirectUri += '/';
-                    }
-
-                    console.log("Redirect URI (исправленный):", currentRedirectUri);
+                    // === Redirect URI без слэша (стандарт) ===
+                    const currentRedirectUri = window.location.origin; 
+                    
+                    console.log("Redirect URI:", currentRedirectUri);
 
                     const params = new URLSearchParams({
                         code,
@@ -1018,7 +1016,7 @@ window.addEventListener('load', async () => {
                     });
 
                     let apiUrl = `/api/vk-auth?${params.toString()}`;
-                    console.log("Sending request to API...");
+                    console.log("Requesting API...");
 
                     const response = await fetch(apiUrl);
                     const text = await response.text();
@@ -1032,7 +1030,7 @@ window.addEventListener('load', async () => {
                     }
 
                     if (!response.ok) {
-                        const errorMsg = result.raw_response_preview || result.error || 'Ошибка сервера';
+                        const errorMsg = result.raw_response_preview || result.error_description || result.error || 'Ошибка сервера';
                         throw new Error(errorMsg);
                     }
 
@@ -1058,12 +1056,12 @@ window.addEventListener('load', async () => {
                 } catch (e) {
                     console.error(e);
                     let msg = e.message;
-                    if (msg === 'invalid_grant') msg = 'Ошибка: Код устарел или ссылка не совпадает. Попробуйте войти заново.';
-                    if (msg === 'invalid_client') msg = 'Ошибка: Неверный секретный ключ сервера (Client Secret).';
+                    if (msg.includes('invalid_grant')) msg = 'Ошибка: Код устарел или ссылка не совпадает. Попробуйте войти заново.';
+                    if (msg.includes('invalid_client')) msg = 'Ошибка: Проблема с ключами сервера.';
                     
                     alert(msg);
                     
-                    if (typeof e.message === 'string' && (e.message.includes("invalid") || e.message.includes("expired"))) {
+                    if (e.message.includes("invalid") || e.message.includes("expired")) {
                         localStorage.removeItem('vk_code_verifier');
                     }
                 } finally {
