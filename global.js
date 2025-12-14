@@ -964,47 +964,57 @@ function updateUI() {
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
 // ===============================================
+// ===============================================
+// VK AUTH LISTENER (AUTO HANDLE REDIRECT)
+// ===============================================
 window.addEventListener('load', async () => {
     // Проверяем наличие параметра ?code= от VK
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
+    const state = urlParams.get('state'); // VK возвращает state, чтобы мы проверили
 
-    // Если есть код, но мы еще не проверяли его (чтобы избежать бесконечных циклов)
     if (code) {
         // Убираем код из строки браузера для красоты
         window.history.replaceState({}, document.title, window.location.pathname);
 
-        // Ждем инициализации currentUser (если она еще идет)
+        // Достаем PKCE параметры, сохраненные перед перенаправлением
+        const codeVerifier = localStorage.getItem('vk_code_verifier');
+        const deviceId = localStorage.getItem('vk_device_id');
+        const savedState = localStorage.getItem('vk_state');
+
+        // Очищаем их (они одноразовые)
+        localStorage.removeItem('vk_code_verifier');
+        localStorage.removeItem('vk_device_id');
+        localStorage.removeItem('vk_state');
+
+        // Ждем инициализации currentUser
         const checkUserInterval = setInterval(async () => {
-            // Если сессии нет вообще, то мы не сможем привязать
             if (!localStorage.getItem('nekoUserSession')) {
                 clearInterval(checkUserInterval);
                 return;
             }
 
-            // Если currentUser загрузился
             if (currentUser) {
                 clearInterval(checkUserInterval);
                 
-                // Визуальное оповещение
-                if(typeof window.addAppNotification === 'function') {
+                if (typeof window.addAppNotification === 'function') {
                     window.addAppNotification('🔄 VK', 'Обработка привязки...');
                 }
 
                 try {
-                    // Отправляем код на наш серверный API
-                    const response = await fetch(`/api/vk-auth?code=${code}`);
-                    
-                    if (!response.ok) {
-                        const errText = await response.text();
-                        console.error("API Error:", errText);
-                        throw new Error("Ошибка сервера привязки");
-                    }
+                    // Формируем URL с новыми параметрами
+                    let apiUrl = `/api/vk-auth?code=${code}`;
+                    if (codeVerifier) apiUrl += `&code_verifier=${codeVerifier}`;
+                    if (deviceId) apiUrl += `&device_id=${deviceId}`;
 
+                    const response = await fetch(apiUrl);
                     const result = await response.json();
 
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Ошибка сервера привязки');
+                    }
+
                     if (result.vk_id) {
-                        // Сохраняем ID в профиль
                         const success = await patchUser(currentUser, { 
                             vk_linked: true,
                             vk_id: result.vk_id 
@@ -1012,7 +1022,6 @@ window.addEventListener('load', async () => {
                         
                         if (success) {
                             alert('✅ ВКонтакте успешно привязан!');
-                            // Перезагружаем страницу, чтобы обновить интерфейс
                             window.location.reload();
                         } else {
                             alert('Ошибка сохранения данных в базу.');
@@ -1022,9 +1031,9 @@ window.addEventListener('load', async () => {
                     }
                 } catch (e) {
                     console.error(e);
-                    alert('Ошибка соединения с сервером привязки. Проверьте консоль.');
+                    alert('Ошибка: ' + e.message);
                 }
             }
-        }, 500); // Проверка каждые 0.5 сек
+        }, 500); 
     }
 });

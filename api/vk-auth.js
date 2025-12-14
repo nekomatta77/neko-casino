@@ -3,20 +3,24 @@ const https = require('https');
 
 module.exports = async (req, res) => {
     // === ВАШИ ДАННЫЕ ИЗ VK DEV ===
-    const APP_ID = '54397933';       // Вставьте ID приложения
-    const APP_SECRET = 'XurdOXYo2QSx1482Rjm1'; // Вставьте Защищенный ключ
-    const REDIRECT_URI = 'https://neko-casino.vercel.app/'; // ВАШ ДОМЕН СО СЛЕШЕМ В КОНЦЕ
+    const APP_ID = '52932311'; // Ваш ID (строка или число)
+    const APP_SECRET = 'YOUR_APP_SECRET'; // !!! ВЕРНИТЕ СЮДА ВАШ СЕКРЕТНЫЙ КЛЮЧ !!!
+    const REDIRECT_URI = 'https://neko-casino.vercel.app/'; 
     // =============================
 
-    const { code } = req.query;
+    const { code, code_verifier, device_id } = req.query;
 
     if (!code) {
         return res.status(400).json({ error: 'No code provided' });
     }
 
     try {
-        // 1. Обмениваем код на токен доступа
-        const tokenUrl = `https://oauth.vk.com/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`;
+        // Формируем запрос к VK с поддержкой PKCE (VK ID)
+        let tokenUrl = `https://oauth.vk.com/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`;
+        
+        // Если пришли параметры PKCE (от нового профиля), добавляем их
+        if (code_verifier) tokenUrl += `&code_verifier=${code_verifier}`;
+        if (device_id) tokenUrl += `&device_id=${device_id}`;
 
         const data = await new Promise((resolve, reject) => {
             https.get(tokenUrl, (resp) => {
@@ -29,13 +33,13 @@ module.exports = async (req, res) => {
         });
 
         if (data.error) {
-            return res.status(400).json({ error: data.error_description || 'VK Auth Error' });
+            console.error('VK API Error:', data);
+            return res.status(400).json({ error: data.error_description || data.error || 'VK Auth Error' });
         }
 
-        // 2. Возвращаем VK ID пользователя на фронтенд
         return res.status(200).json({ 
             vk_id: data.user_id,
-            access_token: data.access_token // (Опционально, если нужно для API)
+            access_token: data.access_token 
         });
 
     } catch (error) {
