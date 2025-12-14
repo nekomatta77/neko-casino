@@ -1,5 +1,5 @@
 /*
- * BONUS.JS - QUESTS (REAL API), UI FIXES & FIXED RAKEBACK
+ * BONUS.JS - Improved Error Handling & Rakeback Fix
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
 import { checkDailyStreak } from './achievements.js'; 
@@ -7,8 +7,7 @@ import { checkDailyStreak } from './achievements.js';
 const DAILY_BONUS_WAGER_MULTIPLIER = 10; 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; 
 
-// === НАСТРОЙКИ НАГРАД ===
-const REWARD_TOTAL_TG = 30.00; // 30 RUB за всё сразу
+const REWARD_TOTAL_TG = 30.00; 
 
 let dailyBonusInterval = null;
 
@@ -64,18 +63,16 @@ function isSameDay(d1, d2) {
            d1.getDate() === d2.getDate();
 }
 
-// === ЛОГИКА КВЕСТОВ И UI ===
+// === UI КВЕСТОВ ===
 
 function updateQuestStatusUI(userData) {
     const questBoxes = document.querySelectorAll('.quest-box');
     if (questBoxes.length < 2) return;
 
-    // --- БЛОК TELEGRAM ---
     const tgBox = questBoxes[1]; 
     const circles = tgBox.querySelectorAll('.quest-status-icon');
     const tgBtn = document.getElementById('quest-tg');
     
-    // Индексы: 0 - Подписка, 1 - Привязка
     const circleSub = circles[0];
     const circleLink = circles[1];
 
@@ -83,26 +80,21 @@ function updateQuestStatusUI(userData) {
     const isSubDone = !!userData.quest_tg_sub_done; 
     const isClaimed = !!userData.quest_tg_full_claimed; 
 
-    // 1. Красим кружок "Привязка"
     if (isLinked) markCircleSuccess(circleLink);
     else markCirclePending(circleLink);
 
-    // 2. Красим кружок "Подписка"
     if (isSubDone) markCircleSuccess(circleSub);
     else markCirclePending(circleSub);
 
-    // 3. Управление кнопкой (БЛОКИРОВКА ДО ВЫПОЛНЕНИЯ УСЛОВИЙ)
     if (tgBtn) {
         if (isClaimed) {
             tgBtn.textContent = "Получено";
             tgBtn.disabled = true;
             tgBtn.classList.add('activated');
         } else if (!isLinked) {
-            // Если НЕ привязан тг -> Кнопка заблокирована
             tgBtn.textContent = "Привяжите TG";
             tgBtn.disabled = true; 
         } else {
-            // Если привязан, но не забрал -> Активна для проверки
             tgBtn.textContent = "Проверить подписку";
             tgBtn.disabled = false;
             tgBtn.classList.remove('activated');
@@ -126,7 +118,6 @@ function markCirclePending(el) {
     el.classList.remove('status-success');
 }
 
-
 export async function updateBonusPage() {
     if (!currentUser) {
         const bonusButton = document.getElementById('claim-bonus-button');
@@ -139,7 +130,6 @@ export async function updateBonusPage() {
     }
 
     const userData = await fetchUser(currentUser); 
-    
     updateQuestStatusUI(userData);
 
     const bonusButton = document.getElementById('claim-bonus-button');
@@ -171,7 +161,7 @@ export async function updateBonusPage() {
     checkBonusAvailability();
     dailyBonusInterval = setInterval(checkBonusAvailability, 1000);
 
-    // === ЛОГИКА КЭШБЕКА И РЕЙКБЕКА (Исправлен NaN) ===
+    // === ЛОГИКА КЭШБЕКА И РЕЙКБЕКА ===
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
     const cashbackAmount = document.getElementById('cashback-amount');
@@ -179,22 +169,30 @@ export async function updateBonusPage() {
 
     if (!cashbackBtn) return;
 
-    // ВАЖНО: Мы используем данные из fetchUser (userData), где теперь есть stats_total_wager
-    const statsUserStats = (await fetchUserStats(currentUser)) || {}; // Старый метод, для истории депозитов
+    // Получаем старую статистику (для совместимости)
+    const statsOld = (await fetchUserStats(currentUser)) || {};
     
     const dbRank = userData?.rank || 'None Rang';
     const { cashbackPercent, rakebackPercent } = getRankStats(dbRank);
 
-    const totalDeposits = statsUserStats.totalDeposits || 0;
-    const totalWithdrawals = statsUserStats.totalWithdrawals || 0;
-    
-    // ИСПРАВЛЕНО: Берем общий вагер из профиля пользователя (куда мы его пишем в Global.js)
-    const totalWager = userData.stats_total_wager || 0;
-
+    // 1. КЭШБЕК: Считаем по депозитам/выводам
+    const totalDeposits = statsOld.totalDeposits || 0;
+    const totalWithdrawals = statsOld.totalWithdrawals || 0;
     const netLoss = totalDeposits - totalWithdrawals;
     
+    // 2. РЕЙКБЕК: Суммируем старый вагер и новый (из userData)
+    // stats_total_wager - это поле, которое мы добавили в global.js
+    // statsOld.totalWager - это поле из старой системы (если было)
+    const wagerNew = userData.stats_total_wager || 0;
+    const wagerOld = statsOld.totalWager || 0;
+    
+    // Берем максимальное значение или сумму, в зависимости от миграции. 
+    // Лучше взять wagerNew, так как global.js теперь пишет туда.
+    // Если wagerNew 0, пробуем старый.
+    const totalWager = wagerNew > 0 ? wagerNew : wagerOld;
+
     const cashbackValue = netLoss > 0 ? netLoss * cashbackPercent : 0;
-    const rakebackValue = totalWager * rakebackPercent; // Теперь считается правильно
+    const rakebackValue = totalWager * rakebackPercent;
 
     cashbackAmount.textContent = cashbackValue.toFixed(2) + ' RUB';
     rakebackAmount.textContent = rakebackValue.toFixed(2) + ' RUB';
@@ -210,7 +208,7 @@ export async function updateBonusPage() {
     const isCashbackClaimedToday = lastCashbackISO && isSameDay(new Date(lastCashbackISO), now);
     const isRakebackClaimedToday = lastRakebackISO && isSameDay(new Date(lastRakebackISO), now);
 
-    if (today === 1) { // ПН
+    if (today === 1) { 
         if (isCashbackClaimedToday) {
             cashbackBtn.disabled = true;
             cashbackBtn.textContent = 'Получено';
@@ -226,7 +224,7 @@ export async function updateBonusPage() {
         cashbackBtn.textContent = 'Доступно в ПН';
     }
 
-    if (today === 2) { // ВТ
+    if (today === 2) { 
         if (isRakebackClaimedToday) {
             rakebackBtn.disabled = true;
             rakebackBtn.textContent = 'Получено';
@@ -243,7 +241,7 @@ export async function updateBonusPage() {
     }
 }
 
-// === НОВЫЙ ХЕНДЛЕР ТЕЛЕГРАМ КВЕСТА ===
+// === ПРОВЕРКА ПОДПИСКИ ===
 
 async function handleTgQuestClaim() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
@@ -254,64 +252,59 @@ async function handleTgQuestClaim() {
 
     const userData = await fetchUser(currentUser);
     
-    // 1. Привязка должна быть
     if (!userData.tg_linked) {
         alert("Сначала привяжите Telegram в настройках!");
         updateBonusPage(); 
         return;
     }
 
-    // 2. РЕАЛЬНАЯ ПРОВЕРКА ПОДПИСКИ (ЧЕРЕЗ ВАШ API)
     let isSubscribed = false;
     
     if (userData.tg_id) {
         try {
-            // Вызываем ваш серверный код (см. пункт 3 инструкции)
+            // Запрос к нашему API
             const response = await fetch(`/api/check-sub?tg_id=${userData.tg_id}`);
-            const json = await response.json();
             
-            if (json.error) {
-                console.error("API Error:", json.error);
-                alert("Ошибка проверки: " + json.error);
-                updateBonusPage();
-                return;
+            // Если файл не найден (404) или ошибка сервера (500)
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error("Файл API не найден! (Создайте api/check-sub.js в корне проекта)");
+                }
+                const errJson = await response.json().catch(() => ({}));
+                throw new Error(errJson.error || `Ошибка сервера: ${response.status}`);
             }
-            
+
+            const json = await response.json();
             isSubscribed = json.is_member;
+
         } catch(e) {
-            console.error('Ошибка сети при проверке подписки', e);
-            alert("Не удалось связаться с сервером проверки. Попробуйте позже.");
+            console.error('Check Sub Error:', e);
+            alert(`Не удалось проверить подписку:\n${e.message}`);
             updateBonusPage();
             return;
         }
     }
 
     if (!isSubscribed) {
-        alert("Бот не видит вашу подписку на канал! Подпишитесь и попробуйте снова.");
+        alert("Бот не видит вашу подписку на канал! Подпишитесь и попробуйте снова.\n(Убедитесь, что бот - администратор канала)");
         updateBonusPage();
         return;
     }
 
-    // Если всё ОК
     try {
         await updateBalance(REWARD_TOTAL_TG, 0); 
-        
         await patchUser(currentUser, {
             quest_tg_sub_done: true,   
             quest_tg_full_claimed: true 
         });
-        
         showRewardModal("Бонус Telegram", REWARD_TOTAL_TG, "Все условия выполнены!", "assets/tg.png");
-        
         if(typeof window.addAppNotification === 'function') {
             window.addAppNotification('🚀 Бонус', 'Вы получили награду за Telegram!');
         }
-
         updateBonusPage(); 
-        
     } catch (e) {
-        console.error("Ошибка выдачи бонуса TG", e);
-        alert("Ошибка сети. Попробуйте позже.");
+        console.error("Reward Error", e);
+        alert("Ошибка сети при выдаче награды.");
         updateBonusPage();
     }
 }
