@@ -1020,9 +1020,21 @@ const params = new URLSearchParams({
 let apiUrl = `/api/vk-auth?${params.toString()}`;
 
                     console.log("Sending request to:", apiUrl);
+const response = await fetch(apiUrl);
 
-                    const response = await fetch(apiUrl);
-                    const result = await response.json();
+let result;
+const text = await response.text();
+
+try {
+    result = JSON.parse(text);
+} catch {
+    throw new Error(text || 'Server error');
+}
+
+if (!response.ok) {
+    throw new Error(result.error || text || 'Server error');
+}
+
 
                     if (!response.ok) {
                         throw new Error(result.error || 'Ошибка сервера привязки');
