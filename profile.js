@@ -8,7 +8,7 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397900', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
+    APP_ID: '54397920', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
     REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: в точности как в настройках VK (со слешем в конце)
     VERSION: '5.131'
 };
