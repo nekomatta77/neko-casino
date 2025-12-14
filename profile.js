@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 5.0 - VK ID SDK Integration
+ * Версия 5.1 - VK ID SDK Fix (Undefined Mode Removed)
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,8 +8,8 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: 54397933, // !!! ВАЖНО: ЗДЕСЬ ДОЛЖНО БЫТЬ ЧИСЛО (без кавычек), замените на свой ID
-    REDIRECT_URI: 'https://neko-casino.vercel.app/', // В точности как в VK ID Console
+    APP_ID: 54397933, // !!! УБЕДИТЕСЬ, ЧТО ЗДЕСЬ ВАШ ID (ЧИСЛОМ, БЕЗ КАВЫЧЕК) !!!
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Должно совпадать с VK ID Console (со слешем)
 };
 
 // ================= КОНФИГУРАЦИЯ TELEGRAM =================
@@ -36,13 +36,15 @@ function initVkSdk() {
         try {
             const VKID = window.VKIDSDK;
 
+            // Инициализация конфигурации
             VKID.Config.init({
-                app: VK_CONFIG.APP_ID, // ID приложения (число)
-                redirectUrl: VK_CONFIG.REDIRECT_URI, // Адрес возврата
-                mode: VKID.Config.Mode.REDIRECT, // Режим редиректа (как раньше)
+                app: Number(VK_CONFIG.APP_ID), // Принудительно превращаем в число
+                redirectUrl: VK_CONFIG.REDIRECT_URI,
+                // Мы убрали параметр mode, так как он вызывал ошибку. 
+                // SDK сам определит нужный режим.
             });
             
-            console.log('VK ID SDK initialized');
+            console.log('VK ID SDK initialized successfully');
         } catch (e) {
             console.error('VK ID Init Error:', e);
         }
@@ -56,17 +58,25 @@ function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
     
     if (window.VKIDSDK) {
-        // Вызываем официальный метод входа
-        window.VKIDSDK.Auth.login()
-            .then(data => {
-                // В режиме REDIRECT этот код может не сработать (страница перезагрузится), 
-                // но на всякий случай оставим
-                console.log('VK Auth started', data);
-            })
-            .catch(error => {
-                console.error('VK Auth Error:', error);
-                alert('Ошибка запуска VK ID: ' + error);
-            });
+        try {
+            // Вызываем логин. В версии 2.x это открывает окно авторизации.
+            window.VKIDSDK.Auth.login()
+                .then(data => {
+                    console.log('VK Auth started', data);
+                })
+                .catch(error => {
+                    console.error('VK Auth Error:', error);
+                    // Ошибка 102 означает, что вкладка была закрыта пользователем или блокировщиком
+                    if (error.code === 102) {
+                        alert('Окно авторизации было закрыто. Попробуйте снова.');
+                    } else {
+                        alert('Ошибка VK ID: ' + (error.error || error.code));
+                    }
+                });
+        } catch (e) {
+            console.error("VK Launch Error:", e);
+            alert("Не удалось запустить VK ID. Проверьте консоль.");
+        }
     } else {
         alert('Ошибка: SDK ВКонтакте не загружен. Обновите страницу.');
     }
@@ -259,7 +269,8 @@ function handleTGAuth() {
 
 async function checkTelegramReturn() {
     const params = new URLSearchParams(window.location.search);
-    // Проверка Telegram Login Widget
+    // Проверка Telegram Login Widget (возвращает id, hash, etc)
+    // Добавили !params.has('payload'), чтобы не конфликтовало с VK SDK
     if (params.has('id') && params.has('hash') && !params.has('code') && !params.has('payload') && currentUser) { 
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
