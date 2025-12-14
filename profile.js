@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 8.1 - Fix Invalid Grant (Safe Charset & URI)
+ * Версия 8.0 - PKCE S256 & NanoID Fix
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,8 +8,8 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ =================
 const VK_CONFIG = {
-    APP_ID: 54397933, 
-    REDIRECT_URI: 'https://neko-casino.vercel.app', // ВАЖНО: БЕЗ слэша в конце (должно совпадать с api/vk-auth.js)
+    APP_ID: 54397933, // ВАШ ID
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // ВАШ ДОМЕН СО СЛЕШЕМ
 };
 
 const TG_CONFIG = {
@@ -28,27 +28,28 @@ let justLinkedTg = false;
 
 // --- PKCE HELPERS (Криптография для VK ID) ---
 
-// Безопасный набор символов (без тильды и точки, чтобы избежать проблем с кодировкой на стороне VK)
-const SAFE_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-
-function generateRandomString(length) {
+// Генератор случайных строк (NanoID style) для device_id и state
+function generateRandomId(length = 21) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
     let result = '';
     const values = new Uint32Array(length);
     crypto.getRandomValues(values);
     for (let i = 0; i < length; i++) {
-        result += SAFE_CHARSET[values[i] % SAFE_CHARSET.length];
+        result += charset[values[i] % charset.length];
     }
     return result;
 }
 
-// Генератор device_id и state
-function generateRandomId(length = 21) {
-    return generateRandomString(length);
-}
-
-// Генератор для code_verifier (используем тот же безопасный метод)
+// Генератор для code_verifier (стандартный набор)
 function generateVerifier(length = 64) {
-    return generateRandomString(length);
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    let result = '';
+    const values = new Uint32Array(length);
+    crypto.getRandomValues(values);
+    for (let i = 0; i < length; i++) {
+        result += charset[values[i] % charset.length];
+    }
+    return result;
 }
 
 async function sha256(plain) {
@@ -80,40 +81,33 @@ async function generateChallenge(verifier) {
 async function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
 
-    // 1. Очищаем старые данные перед началом
-    localStorage.removeItem('vk_code_verifier');
-    localStorage.removeItem('vk_device_id');
-    localStorage.removeItem('vk_state');
+    // 1. Генерируем секреты
+    const codeVerifier = generateVerifier(64); // 64 символа для верификатора
+    const state = generateRandomId(21); // Random ID для state
+    const deviceId = generateRandomId(21); // 21 символ для device_id (NanoID)
 
-    // 2. Генерируем секреты
-    const codeVerifier = generateVerifier(64); 
-    const state = generateRandomId(21); 
-    const deviceId = generateRandomId(21); 
-
-    // 3. Сохраняем их в localStorage
+    // 2. Сохраняем их в localStorage
     localStorage.setItem('vk_code_verifier', codeVerifier);
     localStorage.setItem('vk_device_id', deviceId);
     localStorage.setItem('vk_state', state);
 
-    console.log("VK Start Auth:", { verifier: codeVerifier, device: deviceId });
-
-    // 4. Создаем Challenge
+    // 3. Создаем Challenge
     const codeChallenge = await generateChallenge(codeVerifier);
 
-    // 5. Формируем ссылку
+    // 4. Формируем ссылку на новый VK ID
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: VK_CONFIG.APP_ID,
         redirect_uri: VK_CONFIG.REDIRECT_URI,
         code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
+        code_challenge_method: 'S256', // ВАЖНО: Заглавные буквы S256
         state: state,
-        scope: '', 
+        scope: '', // Пустой scope для базового доступа
         device_id: deviceId,
-        v: '5.131' 
+        v: '5.131' // Добавим версию API на всякий случай
     });
 
-    // 6. Перенаправляем
+    // 5. Перенаправляем
     window.location.href = `https://id.vk.com/authorize?${params.toString()}`;
 }
 
