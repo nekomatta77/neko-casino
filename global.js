@@ -1006,11 +1006,18 @@ window.addEventListener('load', async () => {
                 try {
                    // Берем полный URL без параметров запроса (?code=...)
 // Это вернет https://neko-casino.vercel.app/ (со слэшем для главной)
-const currentRedirectUri = window.location.origin + window.location.pathname;
+const currentRedirectUri = window.location.origin;
 
 console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
 
-let apiUrl = `/api/vk-auth?code=${code}&redirect_uri=${encodeURIComponent(currentRedirectUri)}`;
+const params = new URLSearchParams({
+    code,
+    redirect_uri: currentRedirectUri,
+    code_verifier: codeVerifier,
+    device_id: deviceId
+});
+
+let apiUrl = `/api/vk-auth?${params.toString()}`;
 
                     console.log("Sending request to:", apiUrl);
 
