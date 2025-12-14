@@ -961,6 +961,8 @@ function updateUI() {
     }
 }
 
+// ... (начало файла без изменений)
+
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
 // ===============================================
@@ -972,7 +974,11 @@ window.addEventListener('load', async () => {
 
     // Если есть код
     if (code) {
-        // Убираем код из строки браузера, чтобы не мешал
+        // Защита от повторного использования кода (если скрипт запустится дважды)
+        if (window.isVkAuthProcessing) return;
+        window.isVkAuthProcessing = true;
+
+        // Убираем код из строки браузера сразу, чтобы он не мозолил глаза
         window.history.replaceState({}, document.title, window.location.pathname);
 
         // 2. Достаем сохраненные параметры PKCE
@@ -983,17 +989,19 @@ window.addEventListener('load', async () => {
 
         if (!codeVerifier) {
             console.warn("VK Auth: Code exists but verifier missing (stale reload). Skipping auth.");
+            window.isVkAuthProcessing = false;
             return;
         }
 
         // 3. Запускаем интервал ожидания загрузки пользователя (currentUser)
         const checkUserInterval = setInterval(async () => {
-            // Если пользователь не залогинен, ждем (или можно обрабатывать вход, если это регистрация)
+            // Если сессии нет, ждем
             if (!localStorage.getItem('nekoUserSession')) {
-                clearInterval(checkUserInterval);
+                // Если долго нет сессии, можно прервать, но пока ждем
                 return;
             }
 
+            // Ждем инициализации currentUser
             if (currentUser) {
                 clearInterval(checkUserInterval);
                 
@@ -1002,13 +1010,13 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                    // === ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНЫЙ СЛЭШ ===
-                    let currentRedirectUri = window.location.origin;
-                    if (!currentRedirectUri.endsWith('/')) {
-                        currentRedirectUri += '/';
-                    }
+                    // === ИСПРАВЛЕНИЕ: УБРАЛИ ПРИНУДИТЕЛЬНЫЙ СЛЭШ ===
+                    // VK SDK обычно использует origin без слэша.
+                    // Если в настройках VK указан https://site.com/, это OK для доверенных,
+                    // но в параметре redirect_uri должно быть точное совпадение с инициатором.
+                    const currentRedirectUri = window.location.origin; // Без слэша в конце
 
-                    console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
+                    console.log("Redirect URI (точно):", currentRedirectUri);
 
                     const params = new URLSearchParams({
                         code,
@@ -1019,11 +1027,9 @@ window.addEventListener('load', async () => {
                     });
 
                     let apiUrl = `/api/vk-auth?${params.toString()}`;
-                    console.log("Sending request to:", apiUrl);
+                    console.log("Sending request to API...");
 
                     const response = await fetch(apiUrl);
-                    
-                    // Читаем как текст, чтобы не упасть с ошибкой парсинга
                     const text = await response.text();
                     let result;
 
@@ -1031,12 +1037,12 @@ window.addEventListener('load', async () => {
                         result = JSON.parse(text);
                     } catch (e) {
                         console.error("VK Server Raw Response:", text);
-                        throw new Error("Сервер VK вернул HTML ошибку. Проверьте консоль.");
+                        throw new Error("Сервер VK вернул HTML ошибку. См. консоль.");
                     }
 
                     if (!response.ok) {
-                        // Показываем детали ошибки, если сервер их вернул
                         const errorMsg = result.raw_response_preview || result.error || 'Ошибка сервера';
+                        // Если ошибка invalid_grant, скорее всего ссылка не совпала или код протух
                         throw new Error(errorMsg);
                     }
 
@@ -1047,6 +1053,7 @@ window.addEventListener('load', async () => {
                         });
                         
                         if (success) {
+                            // Чистим хранилище только при успехе
                             localStorage.removeItem('vk_code_verifier');
                             localStorage.removeItem('vk_device_id');
                             localStorage.removeItem('vk_state');
@@ -1061,11 +1068,19 @@ window.addEventListener('load', async () => {
                     }
                 } catch (e) {
                     console.error(e);
-                    alert('Ошибка: ' + e.message);
+                    // Расшифровка популярных ошибок
+                    let msg = e.message;
+                    if (msg === 'invalid_grant') msg = 'Ошибка: Ссылка не совпадает или код устарел. Попробуйте еще раз.';
+                    if (msg === 'invalid_client') msg = 'Ошибка: Неверный секретный ключ сервера.';
                     
-                    if (e.message.includes("invalid") || e.message.includes("expired")) {
+                    alert(msg);
+                    
+                    // Если код невалиден, нет смысла хранить верификатор
+                    if (typeof e.message === 'string' && (e.message.includes("invalid") || e.message.includes("expired"))) {
                         localStorage.removeItem('vk_code_verifier');
                     }
+                } finally {
+                    window.isVkAuthProcessing = false;
                 }
             }
         }, 500); 
