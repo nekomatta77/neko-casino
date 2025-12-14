@@ -2,10 +2,10 @@
 const https = require('https');
 
 module.exports = async (req, res) => {
-    // === ВАШИ ДАННЫЕ ИЗ VK DEV ===
-    const APP_ID = '54397933'; // Ваш ID (строка или число)
-    const APP_SECRET = 'XurdOXYo2QSx1482Rjm1'; // !!! ВЕРНИТЕ СЮДА ВАШ СЕКРЕТНЫЙ КЛЮЧ !!!
-    const REDIRECT_URI = 'https://neko-casino.vercel.app/'; 
+    // === ВАШИ ДАННЫЕ ИЗ VK ID CONSOLE ===
+    const APP_ID = '52932311'; // Ваш ID приложения
+    const APP_SECRET = 'YOUR_SECURE_KEY'; // !!! ВСТАВЬТЕ СЮДА ВАШ ЗАЩИЩЕННЫЙ КЛЮЧ (Client Secret) !!!
+    const REDIRECT_URI = 'https://neko-casino.vercel.app/'; // Обязательно со слешем в конце
     // =============================
 
     const { code, code_verifier, device_id } = req.query;
@@ -15,12 +15,18 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Формируем запрос к VK с поддержкой PKCE (VK ID)
-        let tokenUrl = `https://oauth.vk.com/access_token?client_id=${APP_ID}&client_secret=${APP_SECRET}&redirect_uri=${REDIRECT_URI}&code=${code}`;
+        // Формируем параметры запроса ПРАВИЛЬНО (с кодированием)
+        const params = new URLSearchParams();
+        params.append('client_id', APP_ID);
+        params.append('client_secret', APP_SECRET);
+        params.append('redirect_uri', REDIRECT_URI);
+        params.append('code', code);
         
-        // Если пришли параметры PKCE (от нового профиля), добавляем их
-        if (code_verifier) tokenUrl += `&code_verifier=${code_verifier}`;
-        if (device_id) tokenUrl += `&device_id=${device_id}`;
+        // Добавляем PKCE параметры, если они есть
+        if (code_verifier) params.append('code_verifier', code_verifier);
+        if (device_id) params.append('device_id', device_id);
+
+        const tokenUrl = `https://oauth.vk.com/access_token?${params.toString()}`;
 
         const data = await new Promise((resolve, reject) => {
             https.get(tokenUrl, (resp) => {
@@ -34,7 +40,8 @@ module.exports = async (req, res) => {
 
         if (data.error) {
             console.error('VK API Error:', data);
-            return res.status(400).json({ error: data.error_description || data.error || 'VK Auth Error' });
+            // Возвращаем точную ошибку от VK для отладки
+            return res.status(400).json({ error: data.error_description || data.error_msg || data.error || 'VK Auth Error' });
         }
 
         return res.status(200).json({ 
@@ -43,7 +50,7 @@ module.exports = async (req, res) => {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error("Server Error:", error);
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 };
