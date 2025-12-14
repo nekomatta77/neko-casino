@@ -1,5 +1,5 @@
 /*
- * BONUS.JS - Improved Error Handling & Rakeback Fix
+ * BONUS.JS - LOCALHOST FIX & REAL API CHECK
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
 import { checkDailyStreak } from './achievements.js'; 
@@ -11,6 +11,7 @@ const REWARD_TOTAL_TG = 30.00;
 
 let dailyBonusInterval = null;
 
+// ... (Функции генерации бонуса и модалки остаются без изменений) ...
 function generateDailyBonusAmount() {
     const chance = Math.random() * 100;
     let amount = 0;
@@ -169,26 +170,16 @@ export async function updateBonusPage() {
 
     if (!cashbackBtn) return;
 
-    // Получаем старую статистику (для совместимости)
     const statsOld = (await fetchUserStats(currentUser)) || {};
-    
     const dbRank = userData?.rank || 'None Rang';
     const { cashbackPercent, rakebackPercent } = getRankStats(dbRank);
 
-    // 1. КЭШБЕК: Считаем по депозитам/выводам
     const totalDeposits = statsOld.totalDeposits || 0;
     const totalWithdrawals = statsOld.totalWithdrawals || 0;
     const netLoss = totalDeposits - totalWithdrawals;
     
-    // 2. РЕЙКБЕК: Суммируем старый вагер и новый (из userData)
-    // stats_total_wager - это поле, которое мы добавили в global.js
-    // statsOld.totalWager - это поле из старой системы (если было)
     const wagerNew = userData.stats_total_wager || 0;
     const wagerOld = statsOld.totalWager || 0;
-    
-    // Берем максимальное значение или сумму, в зависимости от миграции. 
-    // Лучше взять wagerNew, так как global.js теперь пишет туда.
-    // Если wagerNew 0, пробуем старый.
     const totalWager = wagerNew > 0 ? wagerNew : wagerOld;
 
     const cashbackValue = netLoss > 0 ? netLoss * cashbackPercent : 0;
@@ -241,7 +232,7 @@ export async function updateBonusPage() {
     }
 }
 
-// === ПРОВЕРКА ПОДПИСКИ ===
+// === УМНАЯ ПРОВЕРКА ПОДПИСКИ (Localhost Safe) ===
 
 async function handleTgQuestClaim() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
@@ -260,28 +251,36 @@ async function handleTgQuestClaim() {
 
     let isSubscribed = false;
     
-    if (userData.tg_id) {
-        try {
-            // Запрос к нашему API
-            const response = await fetch(`/api/check-sub?tg_id=${userData.tg_id}`);
-            
-            // Если файл не найден (404) или ошибка сервера (500)
-            if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error("Файл API не найден! (Создайте api/check-sub.js в корне проекта)");
+    // --- ПРОВЕРКА: Если мы на Localhost, эмулируем успех ---
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+    if (isLocalhost) {
+        console.warn("Вы на Localhost. API проверки недоступен. Эмулируем успех подписки.");
+        await new Promise(r => setTimeout(r, 1000)); // Имитация задержки
+        isSubscribed = true;
+    } else {
+        // --- РЕАЛЬНАЯ ПРОВЕРКА (Только на Vercel) ---
+        if (userData.tg_id) {
+            try {
+                const response = await fetch(`/api/check-sub?tg_id=${userData.tg_id}`);
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        throw new Error("Файл API не найден! Убедитесь, что вы создали api/check-sub.js и загрузили проект на Vercel.");
+                    }
+                    const errJson = await response.json().catch(() => ({}));
+                    throw new Error(errJson.error || `Ошибка сервера: ${response.status}`);
                 }
-                const errJson = await response.json().catch(() => ({}));
-                throw new Error(errJson.error || `Ошибка сервера: ${response.status}`);
+
+                const json = await response.json();
+                isSubscribed = json.is_member;
+
+            } catch(e) {
+                console.error('Check Sub Error:', e);
+                alert(`Не удалось проверить подписку:\n${e.message}`);
+                updateBonusPage();
+                return;
             }
-
-            const json = await response.json();
-            isSubscribed = json.is_member;
-
-        } catch(e) {
-            console.error('Check Sub Error:', e);
-            alert(`Не удалось проверить подписку:\n${e.message}`);
-            updateBonusPage();
-            return;
         }
     }
 
@@ -309,7 +308,7 @@ async function handleTgQuestClaim() {
     }
 }
 
-// ... ОСТАЛЬНЫЕ ХЕНДЛЕРЫ БЕЗ ИЗМЕНЕНИЙ ...
+// ... ОСТАЛЬНЫЕ ХЕНДЛЕРЫ ...
 
 async function handleVkQuestClaim() {
      if (!currentUser) return alert('Сначала войдите в аккаунт!');
