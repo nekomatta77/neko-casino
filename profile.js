@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 4.1 - VK Scope Fix
+ * Версия 5.0 - VK ID SDK Integration
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,15 +8,14 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397920', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
-    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: в точности как в настройках VK (со слешем в конце)
-    VERSION: '5.131'
+    APP_ID: 54397933, // !!! ВАЖНО: ЗДЕСЬ ДОЛЖНО БЫТЬ ЧИСЛО (без кавычек), замените на свой ID
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // В точности как в VK ID Console
 };
 
 // ================= КОНФИГУРАЦИЯ TELEGRAM =================
 const TG_CONFIG = {
-    BOT_USERNAME: 'CashCatOfficial_Bot', // Твой бот
-    REDIRECT_URL: 'https://neko-casino.vercel.app/' // Адрес твоего сайта
+    BOT_USERNAME: 'CashCatOfficial_Bot', 
+    REDIRECT_URL: 'https://neko-casino.vercel.app/' 
 };
 // =========================================================
 
@@ -28,10 +27,53 @@ let snowToggleInput;
 
 let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 
-// Флаги для предотвращения "мигания" старыми данными
+// Флаги
 let justLinkedTg = false;
 
-// --- Стандартные функции темы и снега ---
+// --- Инициализация VK ID SDK ---
+function initVkSdk() {
+    if (window.VKIDSDK) {
+        try {
+            const VKID = window.VKIDSDK;
+
+            VKID.Config.init({
+                app: VK_CONFIG.APP_ID, // ID приложения (число)
+                redirectUrl: VK_CONFIG.REDIRECT_URI, // Адрес возврата
+                mode: VKID.Config.Mode.REDIRECT, // Режим редиректа (как раньше)
+            });
+            
+            console.log('VK ID SDK initialized');
+        } catch (e) {
+            console.error('VK ID Init Error:', e);
+        }
+    } else {
+        console.warn('VK ID SDK not loaded yet');
+    }
+}
+
+// --- Обработчик кнопки VK (через SDK) ---
+function handleVKAuth() {
+    if (!currentUser) return alert('Сначала войдите в аккаунт!');
+    
+    if (window.VKIDSDK) {
+        // Вызываем официальный метод входа
+        window.VKIDSDK.Auth.login()
+            .then(data => {
+                // В режиме REDIRECT этот код может не сработать (страница перезагрузится), 
+                // но на всякий случай оставим
+                console.log('VK Auth started', data);
+            })
+            .catch(error => {
+                console.error('VK Auth Error:', error);
+                alert('Ошибка запуска VK ID: ' + error);
+            });
+    } else {
+        alert('Ошибка: SDK ВКонтакте не загружен. Обновите страницу.');
+    }
+}
+
+// --- Остальные функции (без изменений) ---
+
 function initTheme() {
     const currentTheme = localStorage.getItem('cashcat_theme') || 'light'; 
     if (currentTheme === 'dark') {
@@ -103,7 +145,6 @@ function stopSnow(container) {
 
 async function handleLogout() {
     await setCurrentUser(null); 
-    // Полная перезагрузка страницы для очистки URL от токенов VK/TG
     location.href = window.location.pathname; 
 }
 
@@ -119,7 +160,6 @@ function handleShowWagerRules(e) {
     }
 }
 
-// --- Смена пароля ---
 async function handleChangePassword(e) {
     e.preventDefault();
     if (!currentUser) return;
@@ -148,7 +188,6 @@ async function handleChangePassword(e) {
     }
 }
 
-// --- Смена никнейма ---
 async function handleChangeUsername() {
     if (!currentUser) return;
     const userData = await fetchUser(currentUser);
@@ -195,20 +234,7 @@ async function handleChangeUsername() {
     }
 }
 
-// ================= ЛОГИКА ВКОНТАКТЕ (UPDATED) =================
-
-function handleVKAuth() {
-    if (!currentUser) return alert('Сначала войдите в аккаунт!');
-    // УБРАН ПАРАМЕТР &scope=offline, который вызывал ошибку
-    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=code&v=${VK_CONFIG.VERSION}`;
-    window.location.href = url;
-}
-
-// При возврате мы больше не ловим хеш здесь, это делает global.js
-
 // ================= ЛОГИКА TELEGRAM =================
-
-// 1. Активация виджета
 function handleTGAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
     
@@ -231,12 +257,10 @@ function handleTGAuth() {
     btnContainer.appendChild(script);
 }
 
-// 2. Проверка возврата (GET параметры)
 async function checkTelegramReturn() {
     const params = new URLSearchParams(window.location.search);
-    
-    // Проверка Telegram Login Widget (возвращает id, hash, etc)
-    if (params.has('id') && params.has('hash') && !params.has('code') && currentUser) { 
+    // Проверка Telegram Login Widget
+    if (params.has('id') && params.has('hash') && !params.has('code') && !params.has('payload') && currentUser) { 
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
         const tgUsername = params.get('username'); 
@@ -257,8 +281,7 @@ async function checkTelegramReturn() {
             if(typeof window.addAppNotification === 'function') {
                 window.addAppNotification('✈️ Telegram', `Успешно привязано: ${displayName}`);
             }
-            
-            justLinkedTg = true; // Ставим флаг
+            justLinkedTg = true;
             
             if (tgLinkBtn) {
                 tgLinkBtn.innerHTML = `<img src="assets/tg.png" alt="TG"> <span style="color:white; font-weight: bold;">${displayName}</span>`;
@@ -267,16 +290,10 @@ async function checkTelegramReturn() {
                 tgLinkBtn.style.background = 'rgba(42, 171, 238, 0.2)';
                 tgLinkBtn.style.cursor = 'default';
                 tgLinkBtn.style.border = '1px solid rgba(42, 171, 238, 0.5)';
-                
-                tgLinkBtn.onclick = (e) => {
-                    e.preventDefault();
-                    return false;
-                };
-                
+                tgLinkBtn.onclick = (e) => { e.preventDefault(); return false; };
                 const existingScript = tgLinkBtn.querySelector('script');
                 if (existingScript) existingScript.remove();
             }
-            
             showSection('profile-page');
         } else {
              alert('Ошибка сохранения данных Telegram.');
@@ -302,7 +319,6 @@ export async function updateProfileData() {
         if (!userData) return;
 
         // --- VK LINK UI ---
-        // Данные обновятся после перезагрузки страницы, которую вызовет global.js
         if (vkLinkBtn) {
             if (userData.vk_linked) { 
                 const vkLabel = userData.vk_name || 'VK Привязан';
@@ -323,24 +339,14 @@ export async function updateProfileData() {
         if (tgLinkBtn && !justLinkedTg) {
             if (userData.tg_linked) {
                 const buttonText = userData.tg_name || 'Telegram привязан';
-                
                 tgLinkBtn.innerHTML = `<img src="assets/tg.png" alt="TG"> <span style="color:white; font-weight: bold;">${buttonText}</span>`;
                 tgLinkBtn.classList.add('linked-social-btn'); 
                 tgLinkBtn.style.opacity = '1';
                 tgLinkBtn.style.background = 'rgba(42, 171, 238, 0.2)'; 
                 tgLinkBtn.style.cursor = 'default'; 
                 tgLinkBtn.style.border = '1px solid rgba(42, 171, 238, 0.5)';
-                
-                tgLinkBtn.onclick = (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                };
-                
-                if (tgLinkBtn.querySelector('script')) {
-                    tgLinkBtn.querySelector('script').remove();
-                }
-
+                tgLinkBtn.onclick = (e) => { e.preventDefault(); e.stopPropagation(); return false; };
+                if (tgLinkBtn.querySelector('script')) tgLinkBtn.querySelector('script').remove();
             } else {
                 if (!document.getElementById('telegram-login-widget')) {
                     tgLinkBtn.innerHTML = `<img src="assets/tg.png" alt="TG"> <span id="profile-tg-text">Привязать Telegram</span>`;
@@ -384,7 +390,6 @@ export async function updateProfileData() {
                 profileChangeNameBtn.classList.add('green-button'); 
             }
         }
-        
     } else {
         // Логика для гостя
         if (rankEl) rankEl.textContent = 'Котенок';
@@ -426,6 +431,9 @@ export function initProfile() {
     initTheme();
     initSnow(); 
     
+    // Инициализируем SDK
+    initVkSdk();
+
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);
     if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
@@ -437,7 +445,7 @@ export function initProfile() {
     if (vkLinkBtn) {
         const newVkBtn = vkLinkBtn.cloneNode(true);
         vkLinkBtn.parentNode.replaceChild(newVkBtn, vkLinkBtn);
-        vkLinkBtn = newVkBtn; // Обновляем ссылку
+        vkLinkBtn = newVkBtn; 
         vkLinkBtn.addEventListener('click', handleVKAuth);
     }
 }

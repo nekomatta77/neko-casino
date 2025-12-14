@@ -3,8 +3,8 @@ const https = require('https');
 
 module.exports = async (req, res) => {
     // === ВАШИ ДАННЫЕ ИЗ VK DEV ===
-    const APP_ID = '54397920';       // Вставьте ID приложения
-    const APP_SECRET = 'P9yvpuY1IwcLumxYNudE'; // Вставьте Защищенный ключ
+    const APP_ID = '54397933';       // Вставьте ID приложения
+    const APP_SECRET = 'XurdOXYo2QSx1482Rjm1'; // Вставьте Защищенный ключ
     const REDIRECT_URI = 'https://neko-casino.vercel.app/'; // ВАШ ДОМЕН СО СЛЕШЕМ В КОНЦЕ
     // =============================
 
