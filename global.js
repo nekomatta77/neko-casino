@@ -1,6 +1,6 @@
 /*
  * GLOBAL.JS - Firebase Version
- * Updates: Exact Registration Time, User Stats (Plays & Max Win), Anti-Minus
+ * Updates: Fixed Rakeback Counter & Real Stats
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -22,11 +22,9 @@ const firebaseConfig = {
   measurementId: "G-MC70DY0W34"
 };
 
-// Инициализация приложения
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- Глобальные переменные ---
 export let currentUser = null;
 export let currentBalance = 0.00;
 export let currentRank = 'None Rang'; 
@@ -196,7 +194,6 @@ export async function fetchUser(username, updateGlobal = false) {
         if (updateGlobal && data) {
             currentBalance = parseFloat(data.balance || 0);
             currentRank = data.rank || 'None Rang';
-            // Гарантируем, что локальный вейджер не отрицательный при загрузке
             localWagerBalance = Math.max(0, parseFloat(data.wager_balance || 0));
             updateUI();
             setLocalWager(localWagerBalance);
@@ -222,17 +219,15 @@ export async function fetchUser(username, updateGlobal = false) {
     }
 }
 
-// --- НОВОЕ: Получение статистики (Игры и Рекорды) ---
 export async function fetchUserStats(username) {
     try {
-        // Читаем из отдельной коллекции user_stats
         const docRef = doc(db, "user_stats", username);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             return docSnap.data();
         } else {
-            return null; // Статистики пока нет
+            return null;
         }
     } catch (error) {
         console.error("Error fetching user stats:", error);
@@ -240,32 +235,37 @@ export async function fetchUserStats(username) {
     }
 }
 
-// --- НОВОЕ: Запись статистики (Вызывать при окончании игры) ---
 export async function updateUserGameStats(username, gameType, winAmount) {
     if (!username) return;
-    
     const statRef = doc(db, "user_stats", username);
-    
     try {
         const snap = await getDoc(statRef);
         let data = snap.exists() ? snap.data() : {};
-        
-        // Получаем объект игры или создаем новый
         let gameData = data[gameType] || { plays: 0, max_win: 0 };
-        
-        // +1 к играм
         gameData.plays = (gameData.plays || 0) + 1;
-        
-        // Проверяем рекорд выигрыша
         if (winAmount > (gameData.max_win || 0)) {
             gameData.max_win = winAmount;
         }
-        
-        // Сохраняем с merge: true (не затираем другие игры)
         await setDoc(statRef, { [gameType]: gameData }, { merge: true });
-        
     } catch (error) {
         console.error("Error updating game stats:", error);
+    }
+}
+
+// --- НОВОЕ: Поиск пользователя по Telegram ID ---
+export async function fetchUserByTelegramId(tgId) {
+    try {
+        // Ищем пользователя, у которого поле tg_id совпадает с переданным
+        const q = query(collection(db, "users"), where("tg_id", "==", String(tgId)));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) return null;
+
+        // Возвращаем данные первого найденного пользователя
+        return querySnapshot.docs[0].data();
+    } catch (err) { 
+        console.error("Fetch User By TG Error:", err);
+        return null; 
     }
 }
 
@@ -277,13 +277,11 @@ export async function fetchAllUsers() {
     } catch (e) { return []; }
 }
 
-// --- ОБНОВЛЕНО: Точная дата регистрации ---
 export async function updateUser(username, userData) {
     try {
         await addDoc(collection(db, "users"), {
             username,
             ...userData,
-            // Сохраняем ISO строку с точным временем
             created_at: new Date().toISOString()
         });
         return true;
@@ -391,44 +389,34 @@ export async function createPromocode(code, data) {
 
 export async function activatePromocode(code) {
     if (!currentUser) return { success: false, message: "Войдите в аккаунт" };
-
-    // Нормализуем код для поиска (чтобы регистр не влиял)
     const normalizedCode = code.trim().toUpperCase();
 
     try {
         const result = await runTransaction(db, async (transaction) => {
-            // 1. Сначала ищем промокод
             const promoQ = query(collection(db, "promocodes"), where("code", "==", normalizedCode));
             const promoSnap = await getDocs(promoQ);
-            
             if (promoSnap.empty) throw "Промокод не найден";
             const promoDocRef = promoSnap.docs[0].ref;
             
-            // 2. Ищем пользователя
             const userQ = query(collection(db, "users"), where("username", "==", currentUser));
             const userSnap = await getDocs(userQ);
             if (userSnap.empty) throw "Пользователь не найден";
             const userRef = userSnap.docs[0].ref;
 
-            // 3. Формируем ID для записи об активации: "ЮЗЕР_КОД"
             const activationId = `${currentUser}_${normalizedCode}`;
             const activationRef = doc(db, "promo_activations", activationId);
             
-            // 4. ЧТЕНИЕ В ТРАНЗАКЦИИ
             const pDoc = await transaction.get(promoDocRef);
             const uDoc = await transaction.get(userRef);
             const aDoc = await transaction.get(activationRef);
             
             if (!pDoc.exists()) throw "Промокод не найден";
             if (!uDoc.exists()) throw "Пользователь не найден";
-
             if (aDoc.exists()) throw "Вы уже активировали этот промокод";
             
             const promoData = pDoc.data();
-            
             if (promoData.activations_left <= 0) throw "Промокод закончился";
 
-            // 5. ЗАПИСЬ В ТРАНЗАКЦИИ
             transaction.update(promoDocRef, { activations_left: promoData.activations_left - 1 });
             
             const bonusAmount = promoData.amount;
@@ -466,7 +454,6 @@ export async function activatePromocode(code) {
 export async function updateBalance(amount, wagerToAdd = 0) {
     if (!currentUser) return;
     
-    // Оптимистичное обновление UI
     currentBalance += amount;
     localWagerBalance = Math.max(0, localWagerBalance + wagerToAdd);
     
@@ -506,7 +493,7 @@ export function setLocalWager(amount) {
 }
 
 // ==========================================
-// 5. ИСТОРИЯ ИГР
+// 5. ИСТОРИЯ ИГР И СТАТИСТИКА
 // ==========================================
 
 document.addEventListener('click', (e) => {
@@ -518,6 +505,7 @@ export async function writeBetToHistory(betData) {
     AntiMinus.registerGame(betData.betAmount, betData.amount);
     
     try {
+        // 1. Запись в историю
         await addDoc(collection(db, "bets"), {
             username: betData.username,
             game: betData.game,
@@ -527,6 +515,15 @@ export async function writeBetToHistory(betData) {
             multiplier: betData.multiplier,
             created_at: new Date().toISOString()
         });
+
+        // 2. [ИСПРАВЛЕНИЕ] Обновление общей статистики для Рейкбека
+        const userRef = await getUserDocRef(betData.username);
+        if (userRef) {
+            await updateDoc(userRef, {
+                stats_total_wager: increment(betData.betAmount)
+            });
+        }
+
         fetchAndRenderHistory();
     } catch (e) { console.error("Error writing bet", e); }
 }

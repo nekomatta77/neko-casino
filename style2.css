@@ -168,3 +168,51 @@
     /* Усиливаем внимание красной обводкой на момент тряски (опционально) */
     box-shadow: 0 0 15px rgba(255, 85, 85, 0.6) !important; 
 }
+/* Стили для соц. входа */
+.auth-divider {
+    text-align: center;
+    margin: 15px 0;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+    position: relative;
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--color-border);
+}
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+
+.auth-social-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.tg-auth-btn {
+    background: rgba(42, 171, 238, 0.15);
+    color: #2AABEE;
+}
+
+.tg-auth-btn:hover {
+    background: rgba(42, 171, 238, 0.25);
+}
+
+.tg-auth-btn img {
+    width: 24px;
+    height: 24px;
+}

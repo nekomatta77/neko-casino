@@ -723,14 +723,14 @@
                                     <span class="quest-status-icon status-pending">○</span>
                                     <span class="quest-text">Подпишись на <a href="https://vk.com" target="_blank" rel="noopener noreferrer">Группу ВК</a></span>
                                 </div>
-                                <span class="quest-reward">2Р</span>
+                                <span class="quest-reward">20₽</span>
                             </li>
                             <li class="quest-item">
                                 <div class="quest-info">
                                     <span class="quest-status-icon status-pending">○</span>
                                     <span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-vk">Вконтакте</a></span>
                                 </div>
-                                <span class="quest-reward">1Р</span>
+                                <span class="quest-reward">10₽</span>
                             </li>
                         </ul>
                     </div>
@@ -749,14 +749,14 @@
                                     <span class="quest-status-icon status-pending">○</span>
                                     <span class="quest-text">Подпишись на <a href="https://t.me/CashCat_Official" target="_blank" rel="noopener noreferrer">Telegram канал</a></span>
                                 </div>
-                                <span class="quest-reward">2Р</span>
+                                <span class="quest-reward">20₽</span>
                             </li>
                             <li class="quest-item">
                                 <div class="quest-info">
                                     <span class="quest-status-icon status-pending">○</span>
                                     <span class="quest-text">Привяжи <a href="#" id="bonus-link-profile-tg">Telegram</a></span>
                                 </div>
-                                <span class="quest-reward">1Р</span>
+                                <span class="quest-reward">10₽</span>
                             </li>
                         </ul>
                     </div>
@@ -1554,7 +1554,8 @@
     </div>
 
     <div class="user-modal-overlay hidden" id="auth-modal-overlay">
-        <div class="user-modal-content wallet-modal-content"> <div class="wallet-header">
+        <div class="user-modal-content wallet-modal-content"> 
+            <div class="wallet-header">
                 <h3 id="auth-modal-title">Вход</h3>
                 <button class="wallet-modal-close" id="auth-modal-close">&times;</button>
             </div>
@@ -1576,6 +1577,14 @@
                     </div>
                     <button type="submit" class="auth-button green-button full-width">Войти</button>
                 </form>
+                
+                <div class="auth-divider">или</div>
+                <div class="auth-socials" id="auth-tg-login-container">
+                    <button type="button" class="auth-social-btn tg-auth-btn" id="login-with-tg-btn">
+                        <img src="assets/tg.png" alt="TG">
+                        <span>Войти через Telegram</span>
+                    </button>
+                </div>
             </div>
 
             <div class="wallet-tab-content" id="auth-tab-register">
@@ -1594,6 +1603,14 @@
                     </div>
                     <button type="submit" class="auth-button blue-button full-width">Создать аккаунт</button>
                 </form>
+
+                <div class="auth-divider">или</div>
+                <div class="auth-socials">
+                    <button type="button" class="auth-social-btn tg-auth-btn" id="register-with-tg-btn">
+                        <img src="assets/tg.png" alt="TG">
+                        <span>Быстрая регистрация через Telegram</span>
+                    </button>
+                </div>
             </div>
 
         </div>

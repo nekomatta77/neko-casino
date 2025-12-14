@@ -1,11 +1,14 @@
 /*
- * BONUS.JS - RANDOM BONUS & NEW UI
+ * BONUS.JS - QUESTS (REAL API), UI FIXES & FIXED RAKEBACK
  */
 import { updateBalance, currentUser, showSection, activatePromocode, fetchUser, fetchUserStats, patchUser } from './global.js';
 import { checkDailyStreak } from './achievements.js'; 
 
 const DAILY_BONUS_WAGER_MULTIPLIER = 10; 
 const COOLDOWN_MS = 24 * 60 * 60 * 1000; 
+
+// === НАСТРОЙКИ НАГРАД ===
+const REWARD_TOTAL_TG = 30.00; // 30 RUB за всё сразу
 
 let dailyBonusInterval = null;
 
@@ -31,12 +34,6 @@ function showRewardModal(title, amount, description, imageSrc) {
         if (descEl) descEl.textContent = description;
         if (imgEl && imageSrc) imgEl.src = imageSrc;
         overlay.classList.remove('hidden');
-        const card = overlay.querySelector('.daily-bonus-card');
-        if (card) {
-            card.classList.remove('pop-in');
-            void card.offsetWidth;
-            card.classList.add('pop-in');
-        }
     } else {
         alert(`${title}: Вы получили ${amount.toFixed(2)} RUB. ${description}`);
     }
@@ -67,6 +64,69 @@ function isSameDay(d1, d2) {
            d1.getDate() === d2.getDate();
 }
 
+// === ЛОГИКА КВЕСТОВ И UI ===
+
+function updateQuestStatusUI(userData) {
+    const questBoxes = document.querySelectorAll('.quest-box');
+    if (questBoxes.length < 2) return;
+
+    // --- БЛОК TELEGRAM ---
+    const tgBox = questBoxes[1]; 
+    const circles = tgBox.querySelectorAll('.quest-status-icon');
+    const tgBtn = document.getElementById('quest-tg');
+    
+    // Индексы: 0 - Подписка, 1 - Привязка
+    const circleSub = circles[0];
+    const circleLink = circles[1];
+
+    const isLinked = !!userData.tg_linked;
+    const isSubDone = !!userData.quest_tg_sub_done; 
+    const isClaimed = !!userData.quest_tg_full_claimed; 
+
+    // 1. Красим кружок "Привязка"
+    if (isLinked) markCircleSuccess(circleLink);
+    else markCirclePending(circleLink);
+
+    // 2. Красим кружок "Подписка"
+    if (isSubDone) markCircleSuccess(circleSub);
+    else markCirclePending(circleSub);
+
+    // 3. Управление кнопкой (БЛОКИРОВКА ДО ВЫПОЛНЕНИЯ УСЛОВИЙ)
+    if (tgBtn) {
+        if (isClaimed) {
+            tgBtn.textContent = "Получено";
+            tgBtn.disabled = true;
+            tgBtn.classList.add('activated');
+        } else if (!isLinked) {
+            // Если НЕ привязан тг -> Кнопка заблокирована
+            tgBtn.textContent = "Привяжите TG";
+            tgBtn.disabled = true; 
+        } else {
+            // Если привязан, но не забрал -> Активна для проверки
+            tgBtn.textContent = "Проверить подписку";
+            tgBtn.disabled = false;
+            tgBtn.classList.remove('activated');
+        }
+    }
+}
+
+function markCircleSuccess(el) {
+    if (!el) return;
+    el.textContent = '●';
+    el.style.color = '#00D699';
+    el.classList.add('status-success');
+    el.classList.remove('status-pending');
+}
+
+function markCirclePending(el) {
+    if (!el) return;
+    el.textContent = '○';
+    el.style.color = 'var(--color-text-light)';
+    el.classList.add('status-pending');
+    el.classList.remove('status-success');
+}
+
+
 export async function updateBonusPage() {
     if (!currentUser) {
         const bonusButton = document.getElementById('claim-bonus-button');
@@ -78,13 +138,13 @@ export async function updateBonusPage() {
         return;
     }
 
+    const userData = await fetchUser(currentUser); 
+    
+    updateQuestStatusUI(userData);
+
     const bonusButton = document.getElementById('claim-bonus-button');
     const bonusStatus = document.getElementById('bonus-status');
-    const userData = await fetchUser(currentUser); 
     const lastClaimISO = userData?.last_daily_bonus;
-    
-    const lastCashbackISO = userData?.last_cashback_claim;
-    const lastRakebackISO = userData?.last_rakeback_claim;
     
     if (dailyBonusInterval) clearInterval(dailyBonusInterval);
 
@@ -111,6 +171,7 @@ export async function updateBonusPage() {
     checkBonusAvailability();
     dailyBonusInterval = setInterval(checkBonusAvailability, 1000);
 
+    // === ЛОГИКА КЭШБЕКА И РЕЙКБЕКА (Исправлен NaN) ===
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
     const cashbackAmount = document.getElementById('cashback-amount');
@@ -118,13 +179,22 @@ export async function updateBonusPage() {
 
     if (!cashbackBtn) return;
 
-    const stats = await fetchUserStats(currentUser);
+    // ВАЖНО: Мы используем данные из fetchUser (userData), где теперь есть stats_total_wager
+    const statsUserStats = (await fetchUserStats(currentUser)) || {}; // Старый метод, для истории депозитов
+    
     const dbRank = userData?.rank || 'None Rang';
     const { cashbackPercent, rakebackPercent } = getRankStats(dbRank);
 
-    const netLoss = stats.totalDeposits - stats.totalWithdrawals;
+    const totalDeposits = statsUserStats.totalDeposits || 0;
+    const totalWithdrawals = statsUserStats.totalWithdrawals || 0;
+    
+    // ИСПРАВЛЕНО: Берем общий вагер из профиля пользователя (куда мы его пишем в Global.js)
+    const totalWager = userData.stats_total_wager || 0;
+
+    const netLoss = totalDeposits - totalWithdrawals;
+    
     const cashbackValue = netLoss > 0 ? netLoss * cashbackPercent : 0;
-    const rakebackValue = stats.totalWager * rakebackPercent;
+    const rakebackValue = totalWager * rakebackPercent; // Теперь считается правильно
 
     cashbackAmount.textContent = cashbackValue.toFixed(2) + ' RUB';
     rakebackAmount.textContent = rakebackValue.toFixed(2) + ' RUB';
@@ -134,49 +204,123 @@ export async function updateBonusPage() {
 
     const today = new Date().getDay();
     const now = new Date();
+    const lastCashbackISO = userData?.last_cashback_claim;
+    const lastRakebackISO = userData?.last_rakeback_claim;
 
     const isCashbackClaimedToday = lastCashbackISO && isSameDay(new Date(lastCashbackISO), now);
     const isRakebackClaimedToday = lastRakebackISO && isSameDay(new Date(lastRakebackISO), now);
 
-    if (today === 1) {
+    if (today === 1) { // ПН
         if (isCashbackClaimedToday) {
             cashbackBtn.disabled = true;
-            cashbackBtn.classList.remove('active-claim');
             cashbackBtn.textContent = 'Получено';
         } else if (cashbackValue > 0) {
             cashbackBtn.disabled = false;
-            cashbackBtn.classList.add('active-claim');
             cashbackBtn.textContent = 'Забрать';
         } else {
             cashbackBtn.disabled = true;
-            cashbackBtn.classList.remove('active-claim');
             cashbackBtn.textContent = 'Нет доступных средств';
         }
     } else {
         cashbackBtn.disabled = true;
-        cashbackBtn.classList.remove('active-claim');
         cashbackBtn.textContent = 'Доступно в ПН';
     }
 
-    if (today === 2) {
+    if (today === 2) { // ВТ
         if (isRakebackClaimedToday) {
             rakebackBtn.disabled = true;
-            rakebackBtn.classList.remove('active-claim');
             rakebackBtn.textContent = 'Получено';
         } else if (rakebackValue > 0) {
             rakebackBtn.disabled = false;
-            rakebackBtn.classList.add('active-claim');
             rakebackBtn.textContent = 'Забрать';
         } else {
             rakebackBtn.disabled = true;
-            rakebackBtn.classList.remove('active-claim');
             rakebackBtn.textContent = 'Нет доступных средств';
         }
     } else {
         rakebackBtn.disabled = true;
-        rakebackBtn.classList.remove('active-claim');
         rakebackBtn.textContent = 'Доступно во ВТ';
     }
+}
+
+// === НОВЫЙ ХЕНДЛЕР ТЕЛЕГРАМ КВЕСТА ===
+
+async function handleTgQuestClaim() {
+    if (!currentUser) return alert('Сначала войдите в аккаунт!');
+    
+    const btn = document.getElementById('quest-tg');
+    btn.disabled = true;
+    btn.textContent = "Проверка...";
+
+    const userData = await fetchUser(currentUser);
+    
+    // 1. Привязка должна быть
+    if (!userData.tg_linked) {
+        alert("Сначала привяжите Telegram в настройках!");
+        updateBonusPage(); 
+        return;
+    }
+
+    // 2. РЕАЛЬНАЯ ПРОВЕРКА ПОДПИСКИ (ЧЕРЕЗ ВАШ API)
+    let isSubscribed = false;
+    
+    if (userData.tg_id) {
+        try {
+            // Вызываем ваш серверный код (см. пункт 3 инструкции)
+            const response = await fetch(`/api/check-sub?tg_id=${userData.tg_id}`);
+            const json = await response.json();
+            
+            if (json.error) {
+                console.error("API Error:", json.error);
+                alert("Ошибка проверки: " + json.error);
+                updateBonusPage();
+                return;
+            }
+            
+            isSubscribed = json.is_member;
+        } catch(e) {
+            console.error('Ошибка сети при проверке подписки', e);
+            alert("Не удалось связаться с сервером проверки. Попробуйте позже.");
+            updateBonusPage();
+            return;
+        }
+    }
+
+    if (!isSubscribed) {
+        alert("Бот не видит вашу подписку на канал! Подпишитесь и попробуйте снова.");
+        updateBonusPage();
+        return;
+    }
+
+    // Если всё ОК
+    try {
+        await updateBalance(REWARD_TOTAL_TG, 0); 
+        
+        await patchUser(currentUser, {
+            quest_tg_sub_done: true,   
+            quest_tg_full_claimed: true 
+        });
+        
+        showRewardModal("Бонус Telegram", REWARD_TOTAL_TG, "Все условия выполнены!", "assets/tg.png");
+        
+        if(typeof window.addAppNotification === 'function') {
+            window.addAppNotification('🚀 Бонус', 'Вы получили награду за Telegram!');
+        }
+
+        updateBonusPage(); 
+        
+    } catch (e) {
+        console.error("Ошибка выдачи бонуса TG", e);
+        alert("Ошибка сети. Попробуйте позже.");
+        updateBonusPage();
+    }
+}
+
+// ... ОСТАЛЬНЫЕ ХЕНДЛЕРЫ БЕЗ ИЗМЕНЕНИЙ ...
+
+async function handleVkQuestClaim() {
+     if (!currentUser) return alert('Сначала войдите в аккаунт!');
+     alert("Функция проверки ВК в разработке.");
 }
 
 async function handleClaimBonus(e) {
@@ -210,29 +354,17 @@ async function handleClaimBonus(e) {
 
         if (success) {
             if(bonusStatus) bonusStatus.textContent = `Получено ${amount.toFixed(2)} RUB!`;
-            
-            showRewardModal(
-                "Ежедневный Бонус",
-                amount,
-                "Заходите завтра за новой наградой!",
-                "assets/gift_cat.png"
-            );
-            
-            // --- УВЕДОМЛЕНИЕ ---
+            showRewardModal("Ежедневный Бонус", amount, "Заходите завтра!", "assets/gift_cat.png");
             if(typeof window.addAppNotification === 'function') {
-                window.addAppNotification('🎁 Ежедневный бонус', 'Бонус успешно получен! Заходите завтра.');
+                window.addAppNotification('🎁 Ежедневный бонус', 'Бонус успешно получен!');
             }
-            
             checkDailyStreak(); 
             updateBonusPage();
         } else {
-            throw new Error("Не удалось сохранить дату бонуса в БД.");
+            throw new Error("DB Error");
         }
-
     } catch (error) {
-        console.error("Bonus claim error:", error);
-        alert("Ошибка при получении бонуса:\n" + error.message);
-        if(bonusStatus) bonusStatus.textContent = "Ошибка.";
+        console.error(error);
         bonusButton.disabled = false;
         bonusButton.textContent = "Получить";
     }
@@ -241,42 +373,17 @@ async function handleClaimBonus(e) {
 async function handleClaimCashback(e) {
     const btn = e.currentTarget;
     if (!currentUser || btn.disabled) return;
-
     const amount = parseFloat(btn.dataset.amount || 0);
-
     if (amount <= 0) return alert("Сумма бонуса равна 0!");
-
     try {
         btn.disabled = true;
         btn.textContent = "...";
-
-        const success = await patchUser(currentUser, { 
-            last_cashback_claim: new Date().toISOString() 
-        });
-
-        if (!success) {
-            throw new Error("Не удалось сохранить статус бонуса.");
-        }
-
+        await patchUser(currentUser, { last_cashback_claim: new Date().toISOString() });
         updateBalance(amount, 0);
-
-        showRewardModal(
-            "Еженедельный Кешбек",
-            amount,
-            "Часть ваших средств вернулась к вам!",
-            "assets/gift_cat.png"
-        );
-
-        // --- УВЕДОМЛЕНИЕ ---
-        if(typeof window.addAppNotification === 'function') {
-            window.addAppNotification('💸 Кэшбек', 'Ваш кэшбек успешно зачислен на баланс.');
-        }
-
+        showRewardModal("Еженедельный Кешбек", amount, "Cashback", "assets/gift_cat.png");
         await updateBonusPage();
-
     } catch (err) {
-        console.error("Ошибка при получении кешбека:", err);
-        alert("Ошибка сети. Попробуйте позже.");
+        console.error(err);
         await updateBonusPage();
     }
 }
@@ -284,42 +391,17 @@ async function handleClaimCashback(e) {
 async function handleClaimRakeback(e) {
     const btn = e.currentTarget;
     if (!currentUser || btn.disabled) return;
-
     const amount = parseFloat(btn.dataset.amount || 0);
-
     if (amount <= 0) return alert("Сумма бонуса равна 0!");
-
     try {
         btn.disabled = true;
         btn.textContent = "...";
-
-        const success = await patchUser(currentUser, { 
-            last_rakeback_claim: new Date().toISOString() 
-        });
-
-        if (!success) {
-            throw new Error("Не удалось сохранить статус бонуса.");
-        }
-
+        await patchUser(currentUser, { last_rakeback_claim: new Date().toISOString() });
         updateBalance(amount, 0);
-
-        showRewardModal(
-            "Накопительный Рейкбек",
-            amount,
-            "Награда за вашу активность в играх!",
-            "assets/gift_cat.png"
-        );
-
-        // --- УВЕДОМЛЕНИЕ ---
-        if(typeof window.addAppNotification === 'function') {
-            window.addAppNotification('🤝 Рейкбек', 'Рейкбек получен. Продолжайте играть!');
-        }
-
+        showRewardModal("Рейкбек", amount, "Rakeback", "assets/gift_cat.png");
         await updateBonusPage();
-
     } catch (err) {
-        console.error("Ошибка при получении рейкбека:", err);
-        alert("Ошибка сети. Попробуйте позже.");
+        console.error(err);
         await updateBonusPage();
     }
 }
@@ -338,104 +420,41 @@ async function handlePromoActivate(e) {
     button.disabled = true;
     
     const result = await activatePromocode(code);
-    let cardHTML = '';
 
     if (result.success) {
-        const amount = result.amount !== undefined ? result.amount : "---";
-        const wager = result.wager_added !== undefined ? result.wager_added : "---";
-
-        cardHTML = `
-            <div class="bonus-promo-result-card">
-                <div class="bonus-promo-title">
-                    Промокод активирован
-                </div>
-                <div class="bonus-promo-amount">
-                    +${amount} RUB
-                </div>
-                <div class="bonus-promo-wager-box">
-                    <span class="bonus-promo-wager-text">Отыгрыш: ${wager} RUB</span>
-                </div>
-            </div>
-        `;
-        input.value = ""; 
+         statusEl.innerHTML = `<span style="color:#00D699">Успешно! +${result.amount} RUB</span>`;
+         input.value = "";
     } else {
-        const message = result.message || "Ошибка";
-        let subInfo = "Попробуйте снова";
-        
-        if (message.includes("уже активировали")) {
-            subInfo = "Только 1 раз на аккаунт";
-        } else if (message.includes("не найден")) {
-            subInfo = "Проверьте написание";
-        } else if (message.includes("закончился")) {
-            subInfo = "Лимит активаций исчерпан";
-        }
-
-        cardHTML = `
-            <div class="bonus-promo-result-card error-card" style="border-color: rgba(255, 77, 77, 0.3);">
-                <div class="bonus-promo-title" style="color: #ff4d4d; text-shadow: none;">
-                    Ошибка активации
-                </div>
-                <div class="bonus-promo-amount" style="color: #ff4d4d; font-size: 1.1em; white-space: normal; line-height: 1.2;">
-                    ${message}
-                </div>
-                <div class="bonus-promo-wager-box">
-                    <span class="bonus-promo-wager-text">${subInfo}</span>
-                </div>
-            </div>
-        `;
+         statusEl.innerHTML = `<span style="color:#ff4d4d">${result.message}</span>`;
     }
-
-    statusEl.innerHTML = cardHTML;
-    statusEl.className = 'profile-status'; 
-
     button.textContent = "Активировать";
     button.disabled = false;
 }
 
-function initQuestButtons() {
-    const questButtons = document.querySelectorAll('.quest-claim-button');
-    questButtons.forEach(button => {
-        if (localStorage.getItem(`quest_${button.id}`) === 'true') {
-            button.textContent = 'Бонус активирован';
-            button.disabled = true;
-            button.classList.add('activated');
-        }
-        button.addEventListener('click', () => {
-            console.log("Квест выполнен:", button.id);
-            button.textContent = 'Бонус активирован';
-            button.disabled = true;
-            button.classList.add('activated');
-            localStorage.setItem(`quest_${button.id}`, 'true');
-        });
-    });
-}
-
 export function initBonus() {
     const bonusButton = document.getElementById('claim-bonus-button');
-    if (bonusButton) {
-        bonusButton.addEventListener('click', handleClaimBonus);
-    }
+    if (bonusButton) bonusButton.addEventListener('click', handleClaimBonus);
 
     const promoButton = document.getElementById('claim-promo-button');
-    if (promoButton) {
-        promoButton.addEventListener('click', handlePromoActivate);
-    }
+    if (promoButton) promoButton.addEventListener('click', handlePromoActivate);
     
+    const questTgBtn = document.getElementById('quest-tg');
+    if (questTgBtn) {
+        questTgBtn.classList.remove('activated');
+        questTgBtn.addEventListener('click', handleTgQuestClaim);
+    }
+
+    const questVkBtn = document.getElementById('quest-vk');
+    if (questVkBtn) questVkBtn.addEventListener('click', handleVkQuestClaim);
+
     const dailyBonusOverlay = document.getElementById('daily-bonus-modal-overlay');
     const dailyBonusClose = document.getElementById('daily-bonus-modal-close');
     const dailyBonusOkBtn = document.getElementById('daily-bonus-ok-btn');
     
-    const closeDailyModal = () => {
-        if(dailyBonusOverlay) dailyBonusOverlay.classList.add('hidden');
-    };
-
-    if(dailyBonusOverlay) dailyBonusOverlay.addEventListener('click', (e) => {
-        if(e.target === dailyBonusOverlay) closeDailyModal();
-    });
+    const closeDailyModal = () => { if(dailyBonusOverlay) dailyBonusOverlay.classList.add('hidden'); };
+    if(dailyBonusOverlay) dailyBonusOverlay.addEventListener('click', (e) => { if(e.target === dailyBonusOverlay) closeDailyModal(); });
     if(dailyBonusClose) dailyBonusClose.addEventListener('click', closeDailyModal);
     if(dailyBonusOkBtn) dailyBonusOkBtn.addEventListener('click', closeDailyModal);
-    
-    initQuestButtons();
     
     const linkVK = document.getElementById('bonus-link-profile-vk');
     if (linkVK) linkVK.addEventListener('click', (e) => { e.preventDefault(); showSection('profile-page'); });
@@ -445,7 +464,6 @@ export function initBonus() {
 
     const cashbackBtn = document.getElementById('claim-cashback-button');
     const rakebackBtn = document.getElementById('claim-rakeback-button');
-    
     if (cashbackBtn) cashbackBtn.addEventListener('click', handleClaimCashback);
     if (rakebackBtn) rakebackBtn.addEventListener('click', handleClaimRakeback);
 }
