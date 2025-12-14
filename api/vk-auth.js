@@ -3,7 +3,6 @@ const https = require('https');
 module.exports = async (req, res) => {
   try {
     const APP_ID = process.env.VK_CLIENT_ID;
-
     const { code, code_verifier, device_id, redirect_uri } = req.query;
 
     if (!code || !code_verifier || !device_id || !redirect_uri) {
@@ -15,8 +14,7 @@ module.exports = async (req, res) => {
       client_id: APP_ID,
       redirect_uri,
       code,
-      code_verifier,
-      device_id
+      code_verifier
     }).toString();
 
     const options = {
@@ -26,6 +24,7 @@ module.exports = async (req, res) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
+        'X-Device-Id': device_id,
         'Content-Length': Buffer.byteLength(postData)
       }
     };
@@ -46,10 +45,7 @@ module.exports = async (req, res) => {
       data = JSON.parse(raw);
     } catch {
       console.error('VK RAW RESPONSE:', raw);
-      return res.status(500).json({
-        error: 'VK returned non-JSON',
-        raw
-      });
+      return res.status(500).json({ error: 'VK returned non-JSON', raw });
     }
 
     if (data.error) {
