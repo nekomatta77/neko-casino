@@ -9,7 +9,7 @@ import { initCustomize } from './customize.js';
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
     APP_ID: '54397311', // Ваш новый ID
-    REDIRECT_URI: 'https://neko-casino.vercel.app/index.html', // Ваша ссылка на Vercel + /index.html
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Ваша ссылка на Vercel + /index.html
     VERSION: '5.131'
 };
 // ===================================================
