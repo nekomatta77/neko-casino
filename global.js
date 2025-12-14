@@ -965,6 +965,8 @@ function updateUI() {
 
 // ... (начало файла без изменений)
 
+// ... (начало файла без изменений)
+
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
 // ===============================================
@@ -972,21 +974,37 @@ window.addEventListener('load', async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const state = urlParams.get('state');
+    
+    // === ВАЖНО: Берем device_id из URL (от VK), если он там есть ===
+    // Если его нет в URL, пробуем взять из localStorage
+    const urlDeviceId = urlParams.get('device_id'); 
+    const localDeviceId = localStorage.getItem('vk_device_id');
+    const deviceId = urlDeviceId || localDeviceId;
 
     if (code) {
         if (window.isVkAuthProcessing) return;
         window.isVkAuthProcessing = true;
 
-        // Чистим URL от кода
+        // Чистим URL от параметров, чтобы не мозолили глаза
         window.history.replaceState({}, document.title, window.location.pathname);
 
         const codeVerifier = localStorage.getItem('vk_code_verifier');
-        const deviceId = localStorage.getItem('vk_device_id');
         
-        console.log("VK Auth Debug:", { code: code.substring(0, 10) + "...", verifier: codeVerifier ? "Found" : "MISSING", device: deviceId });
+        console.log("VK Auth Debug:", { 
+            code: code.substring(0, 10) + "...", 
+            verifier: codeVerifier ? "Found" : "MISSING", 
+            device_from_url: urlDeviceId,
+            device_final: deviceId 
+        });
 
         if (!codeVerifier) {
-            console.warn("VK Auth: Code exists but verifier missing (possible stale reload).");
+            console.warn("VK Auth: Code verifier missing (stale reload).");
+            window.isVkAuthProcessing = false;
+            return;
+        }
+
+        if (!deviceId) {
+            alert("Ошибка: Не найден Device ID. Попробуйте войти заново.");
             window.isVkAuthProcessing = false;
             return;
         }
@@ -1002,22 +1020,21 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                    // === Redirect URI без слэша (стандарт) ===
+                    // Используем стандартный origin (без слэша в 99% случаев для VK ID)
                     const currentRedirectUri = window.location.origin; 
                     
-                    console.log("Redirect URI:", currentRedirectUri);
+                    console.log("Requesting API with DeviceID:", deviceId);
 
                     const params = new URLSearchParams({
                         code,
                         redirect_uri: currentRedirectUri,
                         code_verifier: codeVerifier,
-                        device_id: deviceId,
+                        device_id: deviceId, // Отправляем правильный ID
                         state: state || ''
                     });
 
                     let apiUrl = `/api/vk-auth?${params.toString()}`;
-                    console.log("Requesting API...");
-
+                    
                     const response = await fetch(apiUrl);
                     const text = await response.text();
                     let result;
@@ -1026,7 +1043,7 @@ window.addEventListener('load', async () => {
                         result = JSON.parse(text);
                     } catch (e) {
                         console.error("VK Server Raw Response:", text);
-                        throw new Error("Сервер VK вернул HTML ошибку. См. консоль.");
+                        throw new Error("Сервер VK вернул ошибку (не JSON). См. консоль.");
                     }
 
                     if (!response.ok) {
@@ -1056,11 +1073,12 @@ window.addEventListener('load', async () => {
                 } catch (e) {
                     console.error(e);
                     let msg = e.message;
-                    if (msg.includes('invalid_grant')) msg = 'Ошибка: Код устарел или ссылка не совпадает. Попробуйте войти заново.';
-                    if (msg.includes('invalid_client')) msg = 'Ошибка: Проблема с ключами сервера.';
+                    if (msg.includes('invalid_grant')) msg = 'Ошибка: Код устарел. Нажмите "Привязать VK" заново.';
+                    if (msg.includes('device_id')) msg = 'Ошибка: Неверный ID устройства. Попробуйте другой браузер.';
                     
                     alert(msg);
                     
+                    // Если ошибка фатальная, чистим верификатор
                     if (e.message.includes("invalid") || e.message.includes("expired")) {
                         localStorage.removeItem('vk_code_verifier');
                     }
