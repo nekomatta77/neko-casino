@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 7.0 - PKCE Device ID Fix
+ * Версия 8.0 - PKCE S256 & NanoID Fix
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,7 +8,7 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ =================
 const VK_CONFIG = {
-    APP_ID: 54397933, // ВАШ ID (числом)
+    APP_ID: 54397933, // ВАШ ID
     REDIRECT_URI: 'https://neko-casino.vercel.app/', // ВАШ ДОМЕН СО СЛЕШЕМ
 };
 
@@ -27,8 +27,10 @@ let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 let justLinkedTg = false;
 
 // --- PKCE HELPERS (Криптография для VK ID) ---
-function generateRandomString(length) {
-    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+
+// Генератор случайных строк (NanoID style) для device_id и state
+function generateRandomId(length = 21) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-';
     let result = '';
     const values = new Uint32Array(length);
     crypto.getRandomValues(values);
@@ -38,12 +40,16 @@ function generateRandomString(length) {
     return result;
 }
 
-// Генерация UUID для device_id (как требует SDK)
-function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
+// Генератор для code_verifier (стандартный набор)
+function generateVerifier(length = 64) {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    let result = '';
+    const values = new Uint32Array(length);
+    crypto.getRandomValues(values);
+    for (let i = 0; i < length; i++) {
+        result += charset[values[i] % charset.length];
+    }
+    return result;
 }
 
 async function sha256(plain) {
@@ -76,9 +82,9 @@ async function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
 
     // 1. Генерируем секреты
-    const codeVerifier = generateRandomString(64);
-    const state = generateRandomString(32);
-    const deviceId = generateUUID(); // Используем UUID
+    const codeVerifier = generateVerifier(64); // 64 символа для верификатора
+    const state = generateRandomId(21); // Random ID для state
+    const deviceId = generateRandomId(21); // 21 символ для device_id (NanoID)
 
     // 2. Сохраняем их в localStorage
     localStorage.setItem('vk_code_verifier', codeVerifier);
@@ -88,17 +94,17 @@ async function handleVKAuth() {
     // 3. Создаем Challenge
     const codeChallenge = await generateChallenge(codeVerifier);
 
-    // 4. Формируем ссылку на новый VK ID (id.vk.com)
-    // !!! ВАЖНО: Добавлен device_id
+    // 4. Формируем ссылку на новый VK ID
     const params = new URLSearchParams({
         response_type: 'code',
         client_id: VK_CONFIG.APP_ID,
         redirect_uri: VK_CONFIG.REDIRECT_URI,
         code_challenge: codeChallenge,
-        code_challenge_method: 's256',
+        code_challenge_method: 'S256', // ВАЖНО: Заглавные буквы S256
         state: state,
-        scope: '', 
-        device_id: deviceId, // <--- ЭТОГО НЕ ХВАТАЛО
+        scope: '', // Пустой scope для базового доступа
+        device_id: deviceId,
+        v: '5.131' // Добавим версию API на всякий случай
     });
 
     // 5. Перенаправляем
