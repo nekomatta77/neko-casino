@@ -1,5 +1,5 @@
 /*
- * GLOBAL.JS - FULL FIX (Anti-Minus + TG Auth + Rakeback + Stats)
+ * GLOBAL.JS - FULL FIX (Anti-Minus + TG Auth + VK Auth Code Flow + Rakeback + Stats)
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -960,3 +960,71 @@ function updateUI() {
         if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
     }
 }
+
+// ===============================================
+// VK AUTH LISTENER (AUTO HANDLE REDIRECT)
+// ===============================================
+window.addEventListener('load', async () => {
+    // Проверяем наличие параметра ?code= от VK
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+
+    // Если есть код, но мы еще не проверяли его (чтобы избежать бесконечных циклов)
+    if (code) {
+        // Убираем код из строки браузера для красоты
+        window.history.replaceState({}, document.title, window.location.pathname);
+
+        // Ждем инициализации currentUser (если она еще идет)
+        const checkUserInterval = setInterval(async () => {
+            // Если сессии нет вообще, то мы не сможем привязать
+            if (!localStorage.getItem('nekoUserSession')) {
+                clearInterval(checkUserInterval);
+                return;
+            }
+
+            // Если currentUser загрузился
+            if (currentUser) {
+                clearInterval(checkUserInterval);
+                
+                // Визуальное оповещение
+                if(typeof window.addAppNotification === 'function') {
+                    window.addAppNotification('🔄 VK', 'Обработка привязки...');
+                }
+
+                try {
+                    // Отправляем код на наш серверный API
+                    const response = await fetch(`/api/vk-auth?code=${code}`);
+                    
+                    if (!response.ok) {
+                        const errText = await response.text();
+                        console.error("API Error:", errText);
+                        throw new Error("Ошибка сервера привязки");
+                    }
+
+                    const result = await response.json();
+
+                    if (result.vk_id) {
+                        // Сохраняем ID в профиль
+                        const success = await patchUser(currentUser, { 
+                            vk_linked: true,
+                            vk_id: result.vk_id 
+                        });
+                        
+                        if (success) {
+                            alert('✅ ВКонтакте успешно привязан!');
+                            // Перезагружаем страницу, чтобы обновить интерфейс
+                            window.location.reload();
+                        } else {
+                            alert('Ошибка сохранения данных в базу.');
+                        }
+                    } else {
+                        alert('❌ Ошибка привязки VK: ' + (result.error || 'Неизвестная ошибка'));
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert('Ошибка соединения с сервером привязки. Проверьте консоль.');
+                }
+            }
+        }, 500); // Проверка каждые 0.5 сек
+    }
+});

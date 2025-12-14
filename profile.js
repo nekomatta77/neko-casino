@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 3.5 - Instant UI Update Fix
+ * Версия 4.0 - VK Auth Fix (Code Flow)
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,8 +8,8 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397311', // Твой ID приложения VK
-    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: без index.html, только домен
+    APP_ID: '54397900', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: в точности как в настройках VK
     VERSION: '5.131'
 };
 
@@ -30,7 +30,6 @@ let profileUsernameDisplay, profileChangeNameInfo, profileChangeNameBtn;
 
 // Флаги для предотвращения "мигания" старыми данными
 let justLinkedTg = false;
-let justLinkedVk = false;
 
 // --- Стандартные функции темы и снега ---
 function initTheme() {
@@ -196,70 +195,16 @@ async function handleChangeUsername() {
     }
 }
 
-// ================= ЛОГИКА ВКОНТАКТЕ =================
+// ================= ЛОГИКА ВКОНТАКТЕ (UPDATED) =================
 
 function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
-    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=token&v=${VK_CONFIG.VERSION}`;
+    // Используем response_type=code для безопасной серверной авторизации
+    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=code&scope=offline&v=${VK_CONFIG.VERSION}`;
     window.location.href = url;
 }
 
-async function checkVKReturn() {
-    const hash = window.location.hash;
-    if (hash.includes('access_token') && hash.includes('user_id')) {
-        const params = new URLSearchParams(hash.substring(1)); 
-        const accessToken = params.get('access_token');
-        const userId = params.get('user_id');
-
-        history.pushState("", document.title, window.location.pathname + window.location.search);
-
-        if (accessToken && currentUser) {
-            await processVKBinding(accessToken, userId);
-        }
-    }
-}
-
-function processVKBinding(token, vkId) {
-    const script = document.createElement('script');
-    const callbackName = 'vkUserDataCallback';
-    
-    window[callbackName] = async (result) => {
-        if (result.response && result.response[0]) {
-            const user = result.response[0];
-            const fullName = `${user.first_name} ${user.last_name}`;
-            
-            const success = await patchUser(currentUser, {
-                vk_linked: true,
-                vk_name: fullName,
-                vk_id: vkId
-            });
-
-            if (success) {
-                if(typeof window.addAppNotification === 'function') {
-                    window.addAppNotification('✅ ВКонтакте', `Успешно привязано: ${fullName}`);
-                }
-                
-                // Мгновенное обновление UI
-                justLinkedVk = true;
-                if (vkLinkBtn) {
-                    vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span style="color:white;">${fullName}</span>`;
-                    vkLinkBtn.classList.add('linked-social-btn'); 
-                    vkLinkBtn.onclick = null; 
-                    vkLinkBtn.style.cursor = 'default';
-                    vkLinkBtn.style.opacity = '1';
-                    vkLinkBtn.style.background = 'rgba(0, 119, 255, 0.2)';
-                }
-            }
-        } else {
-            alert('Ошибка получения данных от VK API');
-        }
-        document.body.removeChild(script);
-        delete window[callbackName];
-    };
-
-    script.src = `https://api.vk.com/method/users.get?user_ids=${vkId}&access_token=${token}&v=${VK_CONFIG.VERSION}&callback=${callbackName}`;
-    document.body.appendChild(script);
-}
+// При возврате мы больше не ловим хеш здесь, это делает global.js
 
 // ================= ЛОГИКА TELEGRAM =================
 
@@ -290,7 +235,8 @@ function handleTGAuth() {
 async function checkTelegramReturn() {
     const params = new URLSearchParams(window.location.search);
     
-    if (params.has('id') && params.has('hash') && currentUser) {
+    // Проверка Telegram Login Widget (возвращает id, hash, etc)
+    if (params.has('id') && params.has('hash') && !params.has('code') && currentUser) { // !params.has('code') чтобы не путать с VK
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
         const tgUsername = params.get('username'); 
@@ -312,9 +258,7 @@ async function checkTelegramReturn() {
                 window.addAppNotification('✈️ Telegram', `Успешно привязано: ${displayName}`);
             }
             
-            // === ВАЖНОЕ ИСПРАВЛЕНИЕ: Мгновенное обновление кнопки ===
-            // Мы не ждем fetchUser, мы обновляем DOM прямо здесь
-            justLinkedTg = true; // Ставим флаг, чтобы updateProfileData не перезаписал
+            justLinkedTg = true; // Ставим флаг
             
             if (tgLinkBtn) {
                 tgLinkBtn.innerHTML = `<img src="assets/tg.png" alt="TG"> <span style="color:white; font-weight: bold;">${displayName}</span>`;
@@ -324,19 +268,15 @@ async function checkTelegramReturn() {
                 tgLinkBtn.style.cursor = 'default';
                 tgLinkBtn.style.border = '1px solid rgba(42, 171, 238, 0.5)';
                 
-                // Удаляем обработчики
                 tgLinkBtn.onclick = (e) => {
                     e.preventDefault();
                     return false;
                 };
                 
-                // Удаляем скрипт виджета, если он есть
                 const existingScript = tgLinkBtn.querySelector('script');
                 if (existingScript) existingScript.remove();
             }
-            // ========================================================
             
-            // Обновляем остальной профиль, но кнопка уже правильная
             showSection('profile-page');
         } else {
              alert('Ошибка сохранения данных Telegram.');
@@ -350,9 +290,7 @@ export async function updateProfileData() {
     if (wagerAmountEl) wagerAmountEl.textContent = '...';
     if (rankEl) rankEl.textContent = '...';
 
-    // Проверки редиректов
     if (currentUser) {
-        await checkVKReturn();
         await checkTelegramReturn();
     }
 
@@ -364,10 +302,11 @@ export async function updateProfileData() {
         if (!userData) return;
 
         // --- VK LINK UI ---
-        // Если мы только что привязали (justLinkedVk), не перезаписываем UI старыми данными из кэша
-        if (vkLinkBtn && !justLinkedVk) {
-            if (userData.vk_linked && userData.vk_name) {
-                vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span style="color:white;">${userData.vk_name}</span>`;
+        // Данные обновятся после перезагрузки страницы, которую вызовет global.js
+        if (vkLinkBtn) {
+            if (userData.vk_linked) { // Упрощенная проверка, имя может быть не сохранено если старая база
+                const vkLabel = userData.vk_name || 'VK Привязан';
+                vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span style="color:white;">${vkLabel}</span>`;
                 vkLinkBtn.classList.add('linked-social-btn'); 
                 vkLinkBtn.onclick = null; 
                 vkLinkBtn.style.cursor = 'default';
@@ -376,13 +315,13 @@ export async function updateProfileData() {
             } else {
                 vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span id="profile-vk-text">Привязать Вконтакте</span>`;
                 vkLinkBtn.style.background = '';
-                vkLinkBtn.onclick = handleVKAuth; 
+                vkLinkBtn.style.cursor = 'pointer';
+                // Важно: Удаляем старые обработчики через cloneNode в initProfile, 
+                // но здесь мы просто обновляем текст, клик вешается один раз
             }
         }
         
         // --- TG LINK UI ---
-        // Если мы только что привязали (justLinkedTg), мы пропускаем блок отрисовки,
-        // так как checkTelegramReturn уже всё красиво отрисовал.
         if (tgLinkBtn && !justLinkedTg) {
             if (userData.tg_linked) {
                 const buttonText = userData.tg_name || 'Telegram привязан';
@@ -489,14 +428,19 @@ export function initProfile() {
     initTheme();
     initSnow(); 
     
-    // checkTelegramReturn теперь вызывается в updateProfileData
-    // чтобы гарантировать наличие currentUser
-
     if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
     if (wagerRulesLink) wagerRulesLink.addEventListener('click', handleShowWagerRules);
     if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
     
     if (profileChangeNameBtn) {
         profileChangeNameBtn.addEventListener('click', handleChangeUsername);
+    }
+    
+    // Переопределение кнопки VK для очистки старых ивентов
+    if (vkLinkBtn) {
+        const newVkBtn = vkLinkBtn.cloneNode(true);
+        vkLinkBtn.parentNode.replaceChild(newVkBtn, vkLinkBtn);
+        vkLinkBtn = newVkBtn; // Обновляем ссылку
+        vkLinkBtn.addEventListener('click', handleVKAuth);
     }
 }
