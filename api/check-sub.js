@@ -3,7 +3,7 @@ const https = require('https');
 
 module.exports = async (req, res) => {
     // 1. ВСТАВЬТЕ СЮДА ВАШИ ДАННЫЕ
-    const BOT_TOKEN = '7682660424:AAG...'; // Токен бота от @BotFather
+    const BOT_TOKEN = '8159435388:AAE3ZZ0R9CkYODhkiFUDU7BHBwP89qpxupI'; // Токен бота от @BotFather
     const CHANNEL_ID = '@CashCat_Official'; // Юзернейм канала с @
 
     const { tg_id } = req.query;
