@@ -1004,14 +1004,15 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                   // Определяем точный Redirect URI, на котором сейчас пользователь (без query параметров)
-// Обычно это origin + pathname (например, https://site.com/)
-const currentRedirectUri = window.location.origin + window.location.pathname;
+                   // Берем текущий адрес и УБИРАЕМ слэш в конце, если он есть
+const origin = window.location.origin;
+const path = window.location.pathname.replace(/\/$/, ''); // Удаляем последний слэш
+const currentRedirectUri = origin + path;
+
+// Лог для проверки (посмотрите в консоль после обновления)
+console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
 
 let apiUrl = `/api/vk-auth?code=${code}&redirect_uri=${encodeURIComponent(currentRedirectUri)}`;
-
-if (codeVerifier) apiUrl += `&code_verifier=${codeVerifier}`;
-if (deviceId) apiUrl += `&device_id=${deviceId}`;
 
                     console.log("Sending request to:", apiUrl);
 
