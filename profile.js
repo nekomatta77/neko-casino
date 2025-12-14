@@ -1,6 +1,6 @@
 /*
  * profile.js
- * Версия 4.0 - VK Auth Fix (Code Flow)
+ * Версия 4.1 - VK Scope Fix
  */
 
 import { showSection, setCurrentUser, currentUser, fetchUser, patchUser, updateBalance, currentBalance, changeUsername } from './global.js';
@@ -8,8 +8,8 @@ import { initCustomize } from './customize.js';
 
 // ================= КОНФИГУРАЦИЯ VK =================
 const VK_CONFIG = {
-    APP_ID: '54397900', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
-    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: в точности как в настройках VK
+    APP_ID: 'YOUR_VK_APP_ID', // !!! ВСТАВЬТЕ СЮДА ID ВАШЕГО ПРИЛОЖЕНИЯ ИЗ VK DEV !!!
+    REDIRECT_URI: 'https://neko-casino.vercel.app/', // Важно: в точности как в настройках VK (со слешем в конце)
     VERSION: '5.131'
 };
 
@@ -199,8 +199,8 @@ async function handleChangeUsername() {
 
 function handleVKAuth() {
     if (!currentUser) return alert('Сначала войдите в аккаунт!');
-    // Используем response_type=code для безопасной серверной авторизации
-    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=code&scope=offline&v=${VK_CONFIG.VERSION}`;
+    // УБРАН ПАРАМЕТР &scope=offline, который вызывал ошибку
+    const url = `https://oauth.vk.com/authorize?client_id=${VK_CONFIG.APP_ID}&display=page&redirect_uri=${VK_CONFIG.REDIRECT_URI}&response_type=code&v=${VK_CONFIG.VERSION}`;
     window.location.href = url;
 }
 
@@ -236,7 +236,7 @@ async function checkTelegramReturn() {
     const params = new URLSearchParams(window.location.search);
     
     // Проверка Telegram Login Widget (возвращает id, hash, etc)
-    if (params.has('id') && params.has('hash') && !params.has('code') && currentUser) { // !params.has('code') чтобы не путать с VK
+    if (params.has('id') && params.has('hash') && !params.has('code') && currentUser) { 
         const tgId = params.get('id');
         const tgFirstName = params.get('first_name');
         const tgUsername = params.get('username'); 
@@ -304,7 +304,7 @@ export async function updateProfileData() {
         // --- VK LINK UI ---
         // Данные обновятся после перезагрузки страницы, которую вызовет global.js
         if (vkLinkBtn) {
-            if (userData.vk_linked) { // Упрощенная проверка, имя может быть не сохранено если старая база
+            if (userData.vk_linked) { 
                 const vkLabel = userData.vk_name || 'VK Привязан';
                 vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span style="color:white;">${vkLabel}</span>`;
                 vkLinkBtn.classList.add('linked-social-btn'); 
@@ -316,8 +316,6 @@ export async function updateProfileData() {
                 vkLinkBtn.innerHTML = `<img src="assets/vk.png" alt="VK"> <span id="profile-vk-text">Привязать Вконтакте</span>`;
                 vkLinkBtn.style.background = '';
                 vkLinkBtn.style.cursor = 'pointer';
-                // Важно: Удаляем старые обработчики через cloneNode в initProfile, 
-                // но здесь мы просто обновляем текст, клик вешается один раз
             }
         }
         
@@ -436,7 +434,6 @@ export function initProfile() {
         profileChangeNameBtn.addEventListener('click', handleChangeUsername);
     }
     
-    // Переопределение кнопки VK для очистки старых ивентов
     if (vkLinkBtn) {
         const newVkBtn = vkLinkBtn.cloneNode(true);
         vkLinkBtn.parentNode.replaceChild(newVkBtn, vkLinkBtn);
