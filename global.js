@@ -1,6 +1,5 @@
 /*
- * GLOBAL.JS - Firebase Version
- * Updates: Fixed Rakeback Counter & Real Stats
+ * GLOBAL.JS - FULL FIX (Anti-Minus + TG Auth + Rakeback + Stats)
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -25,6 +24,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// --- Глобальные переменные ---
 export let currentUser = null;
 export let currentBalance = 0.00;
 export let currentRank = 'None Rang'; 
@@ -219,16 +219,24 @@ export async function fetchUser(username, updateGlobal = false) {
     }
 }
 
+// --- ВЕРНУЛАСЬ: Поиск по TG ID ---
+export async function fetchUserByTelegramId(tgId) {
+    try {
+        const q = query(collection(db, "users"), where("tg_id", "==", String(tgId)));
+        const querySnapshot = await getDocs(q);
+        if (querySnapshot.empty) return null;
+        return querySnapshot.docs[0].data();
+    } catch (err) { 
+        console.error("Fetch User By TG Error:", err);
+        return null; 
+    }
+}
+
 export async function fetchUserStats(username) {
     try {
         const docRef = doc(db, "user_stats", username);
         const docSnap = await getDoc(docRef);
-
-        if (docSnap.exists()) {
-            return docSnap.data();
-        } else {
-            return null;
-        }
+        return docSnap.exists() ? docSnap.data() : null;
     } catch (error) {
         console.error("Error fetching user stats:", error);
         return null;
@@ -249,23 +257,6 @@ export async function updateUserGameStats(username, gameType, winAmount) {
         await setDoc(statRef, { [gameType]: gameData }, { merge: true });
     } catch (error) {
         console.error("Error updating game stats:", error);
-    }
-}
-
-// --- НОВОЕ: Поиск пользователя по Telegram ID ---
-export async function fetchUserByTelegramId(tgId) {
-    try {
-        // Ищем пользователя, у которого поле tg_id совпадает с переданным
-        const q = query(collection(db, "users"), where("tg_id", "==", String(tgId)));
-        const querySnapshot = await getDocs(q);
-        
-        if (querySnapshot.empty) return null;
-
-        // Возвращаем данные первого найденного пользователя
-        return querySnapshot.docs[0].data();
-    } catch (err) { 
-        console.error("Fetch User By TG Error:", err);
-        return null; 
     }
 }
 
@@ -505,7 +496,6 @@ export async function writeBetToHistory(betData) {
     AntiMinus.registerGame(betData.betAmount, betData.amount);
     
     try {
-        // 1. Запись в историю
         await addDoc(collection(db, "bets"), {
             username: betData.username,
             game: betData.game,
@@ -516,7 +506,7 @@ export async function writeBetToHistory(betData) {
             created_at: new Date().toISOString()
         });
 
-        // 2. [ИСПРАВЛЕНИЕ] Обновление общей статистики для Рейкбека
+        // 2. Обновление общей статистики для Рейкбека (FIX)
         const userRef = await getUserDocRef(betData.username);
         if (userRef) {
             await updateDoc(userRef, {
