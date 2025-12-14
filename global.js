@@ -1004,12 +1004,10 @@ window.addEventListener('load', async () => {
                 }
 
                 try {
-                   // Берем текущий адрес и УБИРАЕМ слэш в конце, если он есть
-const origin = window.location.origin;
-const path = window.location.pathname.replace(/\/$/, ''); // Удаляем последний слэш
-const currentRedirectUri = origin + path;
+                   // Берем полный URL без параметров запроса (?code=...)
+// Это вернет https://neko-casino.vercel.app/ (со слэшем для главной)
+const currentRedirectUri = window.location.origin + window.location.pathname;
 
-// Лог для проверки (посмотрите в консоль после обновления)
 console.log("Redirect URI отправляемый на сервер:", currentRedirectUri);
 
 let apiUrl = `/api/vk-auth?code=${code}&redirect_uri=${encodeURIComponent(currentRedirectUri)}`;
