@@ -1,5 +1,5 @@
 /*
- * GLOBAL.JS - FULL FIX (Anti-Minus + TG Auth + VK Auth Code Flow + Rakeback + Stats)
+ * GLOBAL.JS - VERSION 7.1 (STABLE PKCE FIX)
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -964,48 +964,52 @@ function updateUI() {
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
 // ===============================================
-// ===============================================
-// VK AUTH LISTENER (AUTO HANDLE REDIRECT)
-// ===============================================
 window.addEventListener('load', async () => {
-    // Проверяем наличие параметра ?code= от VK
+    // 1. Проверяем наличие параметра ?code= от VK
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    const state = urlParams.get('state'); // VK возвращает state, чтобы мы проверили
+    const state = urlParams.get('state');
 
+    // Если есть код
     if (code) {
-        // Убираем код из строки браузера для красоты
+        // Убираем код из строки браузера
         window.history.replaceState({}, document.title, window.location.pathname);
 
-        // Достаем PKCE параметры, сохраненные перед перенаправлением
+        // 2. Достаем сохраненные параметры PKCE
         const codeVerifier = localStorage.getItem('vk_code_verifier');
         const deviceId = localStorage.getItem('vk_device_id');
-        const savedState = localStorage.getItem('vk_state');
+        
+        console.log("VK Auth Debug:", { code: code.substring(0, 10) + "...", verifier: codeVerifier ? "Found" : "MISSING", device: deviceId });
 
-        // Очищаем их (они одноразовые)
-        localStorage.removeItem('vk_code_verifier');
-        localStorage.removeItem('vk_device_id');
-        localStorage.removeItem('vk_state');
+        // Если верификатора нет, это ошибка (или старый код). Не пытаемся отправить запрос.
+        if (!codeVerifier) {
+            console.warn("VK Auth: Code exists but verifier missing (stale reload). Skipping auth.");
+            return;
+        }
 
-        // Ждем инициализации currentUser
+        // 3. Запускаем интервал ожидания сессии пользователя
         const checkUserInterval = setInterval(async () => {
+            // Если сессии нет вообще, прекращаем
             if (!localStorage.getItem('nekoUserSession')) {
                 clearInterval(checkUserInterval);
                 return;
             }
 
+            // Ждем пока загрузится currentUser
             if (currentUser) {
                 clearInterval(checkUserInterval);
                 
                 if (typeof window.addAppNotification === 'function') {
-                    window.addAppNotification('🔄 VK', 'Обработка привязки...');
+                    window.addAppNotification('🔄 VK', 'Завершаем привязку...');
                 }
 
                 try {
-                    // Формируем URL с новыми параметрами
+                    // Формируем URL с обязательными параметрами
                     let apiUrl = `/api/vk-auth?code=${code}`;
                     if (codeVerifier) apiUrl += `&code_verifier=${codeVerifier}`;
                     if (deviceId) apiUrl += `&device_id=${deviceId}`;
+
+                    console.log("Sending request to:", apiUrl);
 
                     const response = await fetch(apiUrl);
                     const result = await response.json();
@@ -1021,6 +1025,11 @@ window.addEventListener('load', async () => {
                         });
                         
                         if (success) {
+                            // ОЧИЩАЕМ КЛЮЧИ ТОЛЬКО ПОСЛЕ УСПЕХА
+                            localStorage.removeItem('vk_code_verifier');
+                            localStorage.removeItem('vk_device_id');
+                            localStorage.removeItem('vk_state');
+                            
                             alert('✅ ВКонтакте успешно привязан!');
                             window.location.reload();
                         } else {
@@ -1032,6 +1041,11 @@ window.addEventListener('load', async () => {
                 } catch (e) {
                     console.error(e);
                     alert('Ошибка: ' + e.message);
+                    
+                    // Если ошибка "Code invalid", можно очистить ключи, чтобы не спамить
+                    if (e.message.includes("invalid") || e.message.includes("expired")) {
+                        localStorage.removeItem('vk_code_verifier');
+                    }
                 }
             }
         }, 500); 
