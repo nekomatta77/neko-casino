@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CashCat</title>
     
-    <link rel="stylesheet" href="style.css?v=2.5">
-    <link rel="stylesheet" href="style2.css?v=7.7">   
+    <link rel="stylesheet" href="style.css?v=2.7">
+    <link rel="stylesheet" href="style2.css?v=7.9">   
     <script src="https://unpkg.com/@vkid/sdk@2.6.2/dist-sdk/umd/index.js"></script>
     </head>
 <body>
@@ -97,30 +97,33 @@
                 <div class="mini-games-nav-item" data-target="keno-game">
                     <img src="assets/keno_icon.png" alt="Keno" class="nav-game-icon"> Keno
                 </div>
+                <div class="mini-games-nav-item" data-target="jackpot-game">
+                    <img src="assets/jackpot_cat.png" alt="Jackpot" class="nav-game-icon"> Jackpot
+                </div>
             </nav>
         </div>
         <main class="content-area">
             
             <section id="lobby" class="page-section active full-width-lobby">
                 <div class="lobby-slider-container" id="lobbySlider">
-    <div class="lobby-slider-track" id="sliderTrack">
-        <div class="lobby-slide active">
-            <div class="slide-content">
-                <img src="assets/slide1.png" alt="Promo 1">
-            </div>
-        </div>
-        <div class="lobby-slide">
-            <div class="slide-content">
-                <img src="assets/slide2.png" alt="Promo 2">
-            </div>
-        </div>
-    </div>
-    
-    <div class="lobby-dots">
-        <span class="dot active" onclick="goToSlide(0)"></span>
-        <span class="dot" onclick="goToSlide(1)"></span>
-    </div>
-</div>
+                    <div class="lobby-slider-track" id="sliderTrack">
+                        <div class="lobby-slide active">
+                            <div class="slide-content">
+                                <img src="assets/slide1.png" alt="Promo 1">
+                            </div>
+                        </div>
+                        <div class="lobby-slide">
+                            <div class="slide-content">
+                                <img src="assets/slide2.png" alt="Promo 2">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lobby-dots">
+                        <span class="dot active" onclick="goToSlide(0)"></span>
+                        <span class="dot" onclick="goToSlide(1)"></span>
+                    </div>
+                </div>
                 <header class="lobby-header">
                     <p class="game-list-title">CashCat Originals Games</p>
                 </header>
@@ -150,6 +153,15 @@
                             <img src="assets/keno_cat.png" alt="Keno" class="game-card-cat">
                             <div class="game-card-panel">
                                 <span class="game-card-title">Keno</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="lobby-game-wrapper" data-game-type="jackpot">
+                        <button class="lobby-game-card play-button">
+                            <img src="assets/jackpot_cat.png" alt="Jackpot" class="game-card-cat">
+                            <div class="game-card-panel">
+                                <span class="game-card-title">Jackpot</span>
                             </div>
                         </button>
                     </div>
@@ -197,7 +209,7 @@
                 <div class="bet-history-container">
                     <h3>Большие выигрыши</h3>
                     <ul id="bet-history-list">
-                        </ul>
+                    </ul>
                 </div>
                 
             </section>
@@ -666,6 +678,105 @@
                     </div>
                 </div>
             </section>
+
+            <section id="jackpot-game" class="page-section hidden">
+                <div class="jackpot-container">
+                    
+                    <div class="jackpot-rooms">
+                        <button class="room-btn active" data-room="low">
+                            <span class="room-name">LOW</span>
+                            <span class="room-limit">1 - 100 ₽</span>
+                        </button>
+                        <button class="room-btn" data-room="medium">
+                            <span class="room-name">MEDIUM</span>
+                            <span class="room-limit">100 - 1000 ₽</span>
+                        </button>
+                        <button class="room-btn" data-room="high">
+                            <span class="room-name">HIGH</span>
+                            <span class="room-limit">1000 - 5000 ₽</span>
+                        </button>
+                    </div>
+
+                    <div class="jackpot-info-panel">
+                        <div class="jackpot-pot-box">
+                            <span class="pot-label">Банк игры</span>
+                            <span class="pot-wrapper">
+                                <span id="jackpot-pot-amount" class="pot-amount">0.00</span>
+                                <span class="currency">RUB</span>
+                            </span>
+                        </div>
+                        <div class="jackpot-timer-box">
+                            <div class="timer-circle">
+                                <span id="jackpot-timer">20</span>
+                            </div>
+                            <span class="timer-status" id="jackpot-status-text">Ожидание...</span>
+                        </div>
+                    </div>
+
+                    <div class="jackpot-tape-wrapper">
+                        <div class="jackpot-pointer"></div>
+                        <div class="jackpot-tape-track" id="jackpot-tape">
+                            </div>
+                        <div class="jackpot-tape-overlay"></div>
+                    </div>
+
+                    <div id="jackpot-winner-display" class="hidden">
+                        <div class="winner-congrats">🎉 ПОБЕДА! 🎉</div>
+                        <div class="winner-card">
+                            <span id="jp-winner-name">Username</span>
+                            <div class="winner-stats">
+                                Шанс: <span id="jp-winner-chance" class="highlight">50%</span>
+                            </div>
+                            <div id="jp-winner-sum" class="win-amount">+0.00 RUB</div>
+                        </div>
+                    </div>
+
+                    <div class="keno-controls-ref-style jackpot-controls">
+                        
+                        <div class="keno-bet-input-header" style="color: #4F46E5;">Сумма ставки</div>
+                        
+                        <div class="keno-bet-input-row">
+                            <div class="keno-input-wrapper">
+                                <span class="currency-icon">₽</span>
+                                <input type="number" id="jackpot-bet-input" value="10.00" min="1" step="0.01">
+                            </div>
+                            
+                            <div class="jackpot-multipliers" style="display: flex; gap: 5px;">
+                                <button class="jp-mult-btn" data-action="half" style="background: #3730A3; color: white; border: none; border-radius: 8px; font-weight: bold; padding: 0 10px; cursor: pointer;">1/2</button>
+                                <button class="jp-mult-btn" data-action="double" style="background: #3730A3; color: white; border: none; border-radius: 8px; font-weight: bold; padding: 0 10px; cursor: pointer;">x2</button>
+                            </div>
+                        </div>
+
+                        <div class="jackpot-quick-amounts">
+                            <button data-amt="10">+10</button>
+                            <button data-amt="50">+50</button>
+                            <button data-amt="100">+100</button>
+                            <button data-amt="max">MAX</button>
+                        </div>
+                        
+                        <div id="jackpot-chance-display" class="chance-display" style="color: #4338CA;">
+                            Ваш шанс: 0%
+                        </div>
+
+                        <div class="keno-play-row">
+                            <button id="jackpot-place-bet" class="keno-big-play-btn full-width">
+                                ВНЕСТИ В БАНК
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <div class="jackpot-players-section">
+                        <div class="jp-section-header">
+                            <span>Участники</span>
+                            <span class="jp-count-badge" id="jackpot-total-players">0</span>
+                        </div>
+                        <ul id="jackpot-players-ul" class="jp-players-list">
+                            </ul>
+                    </div>
+
+                </div>
+            </section>
             
             <section id="bonus-page" class="page-section hidden">
                 <div class="dice-game-container"> 
@@ -1077,7 +1188,7 @@
                             <div class="pp-avatar-wrapper">
                                 <img src="assets/avatars/orange_cat_ava.png" class="profile-large-avatar" id="pp-page-avatar">
                                 <div class="pp-rank-badge">
-                                    <img src="assets/ranks/rank_kitten.png" id="pp-page-rank-img" alt="Rank">
+                                    <img src="assets/ranks/rank_kitten.png" id="pp-rank-img" alt="Rank">
                                 </div>
                             </div>
                         </div>

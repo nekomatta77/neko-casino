@@ -235,3 +235,582 @@
         height: 18px;
     }
 }
+/* --- JACKPOT STYLES --- */
+
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Комнаты */
+.jackpot-rooms {
+    display: flex;
+    gap: 10px;
+    background-color: var(--color-sidebar);
+    padding: 5px;
+    border-radius: 12px;
+}
+
+.room-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.room-btn .room-name {
+    font-weight: 900;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+.room-btn .room-limit {
+    font-size: 0.75em;
+    color: var(--color-text-light);
+    opacity: 0.6;
+}
+
+.room-btn.active {
+    background-color: var(--color-primary);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+.room-btn.active .room-limit { opacity: 0.9; }
+
+/* Инфо панель (Банк и Таймер) */
+.jackpot-info-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #1E1B4B, #312E81);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+}
+
+.jackpot-pot-box {
+    display: flex;
+    flex-direction: column;
+}
+.pot-label {
+    font-size: 0.9em;
+    color: #A5B4FC;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.pot-amount {
+    font-size: 2em;
+    font-weight: 900;
+    color: #00D26A; /* Зеленый */
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.4);
+}
+
+.jackpot-timer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.timer-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #F5A623;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #FFF;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.2);
+}
+.timer-status {
+    font-size: 0.8em;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ЛЕНТА (TAPE) */
+.jackpot-tape-wrapper {
+    position: relative;
+    height: 120px;
+    background-color: #15171C;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--color-border-dark);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.jackpot-pointer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background-color: #F5A623;
+    transform: translateX(-50%);
+    z-index: 10;
+    box-shadow: 0 0 10px #F5A623;
+}
+/* Стрелочка сверху */
+.jackpot-pointer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid #F5A623;
+}
+/* Стрелочка снизу */
+.jackpot-pointer::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid #F5A623;
+}
+
+.jackpot-tape-track {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding-left: 50%; /* Начинаем с центра */
+    /* transition управляется через JS для анимации */
+}
+
+.tape-card {
+    width: 80px;
+    height: 80px;
+    margin: 0 5px;
+    background-color: #2E3035;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.tape-card img {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+}
+/* Рамки для карточек в ленте (по цвету игрока или рандом) */
+.tape-card.rare-1 { border-color: #818CF8; box-shadow: 0 0 10px rgba(129, 140, 248, 0.3); }
+.tape-card.rare-2 { border-color: #F5A623; box-shadow: 0 0 10px rgba(245, 166, 35, 0.3); }
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 10px rgba(0, 210, 106, 0.3); }
+
+/* Победитель */
+#jackpot-winner-display {
+    background: rgba(0, 210, 106, 0.1);
+    border: 1px solid #00D26A;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+    animation: popIn 0.3s;
+}
+#jackpot-winner-display .win-amount {
+    font-size: 1.5em;
+    color: #00D26A;
+    margin-top: 5px;
+}
+
+/* Кнопки быстрых ставок */
+.jackpot-quick-amounts {
+    display: flex;
+    gap: 5px;
+}
+.jackpot-quick-amounts button {
+    background-color: var(--color-sidebar);
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+.jackpot-quick-amounts button:hover {
+    background-color: var(--color-border-dark);
+}
+
+/* Список игроков */
+.jp-player-row {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.jp-player-ava {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.jp-player-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.jp-name { font-weight: bold; font-size: 0.9em; color: #FFF; }
+.jp-bet { color: #00D26A; font-weight: bold; }
+.jp-chance { font-weight: bold; color: #F5A623; }
+/* --- JACKPOT STYLES (UPDATED) --- */
+
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Комнаты */
+.jackpot-rooms {
+    display: flex;
+    gap: 8px;
+    background-color: #15171C; /* Темный фон */
+    padding: 6px;
+    border-radius: 14px;
+    border: 1px solid var(--color-border-dark);
+}
+
+.room-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.5);
+}
+
+.room-btn .room-name {
+    font-weight: 900;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.room-btn .room-limit {
+    font-size: 0.7em;
+    margin-top: 2px;
+}
+
+.room-btn.active {
+    background: linear-gradient(135deg, #4F46E5, #6366F1); /* Indigo */
+    color: #FFF;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+.room-btn.active .room-limit { color: rgba(255,255,255,0.8); }
+
+/* Инфо панель */
+.jackpot-info-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border-radius: 16px;
+    padding: 20px 25px;
+    border: 1px solid rgba(79, 70, 229, 0.4);
+    box-shadow: 0 0 25px rgba(79, 70, 229, 0.15);
+}
+
+.jackpot-pot-box {
+    display: flex;
+    flex-direction: column;
+}
+.pot-label {
+    font-size: 0.8em;
+    color: #A5B4FC; /* Светлый индиго */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+.pot-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+.pot-amount {
+    font-size: 2.2em;
+    font-weight: 900;
+    color: #00D26A; /* Зеленый */
+    text-shadow: 0 0 15px rgba(0, 210, 106, 0.3);
+    line-height: 1;
+}
+.jackpot-pot-box .currency {
+    color: #FFF;
+    font-weight: 700;
+    font-size: 1em;
+}
+
+.jackpot-timer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.timer-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 3px solid #F5A623;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6em;
+    font-weight: 900;
+    color: #FFF;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.3);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: border-color 0.3s;
+}
+.timer-status {
+    font-size: 0.75em;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Лента */
+.jackpot-tape-wrapper {
+    position: relative;
+    height: 130px;
+    background-color: #0F1020; /* Почти черный */
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid #373D49;
+    box-shadow: inset 0 0 40px #000;
+    margin-bottom: 5px;
+}
+
+.jackpot-pointer {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 3px;
+    background-color: #F5A623;
+    transform: translateX(-50%);
+    z-index: 10;
+    box-shadow: 0 0 15px #F5A623;
+}
+.jackpot-pointer::before, .jackpot-pointer::after {
+    content: ''; position: absolute; left: -9px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+.jackpot-pointer::before { top: 0; border-top: 15px solid #F5A623; }
+.jackpot-pointer::after { bottom: 0; border-bottom: 15px solid #F5A623; }
+
+.jackpot-tape-track {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding-left: 50%;
+    will-change: transform;
+}
+
+.tape-card {
+    width: 90px;
+    height: 90px;
+    margin: 0 4px;
+    background-color: #2E3035;
+    border-radius: 12px;
+    border: 3px solid #373D49;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.tape-card img {
+    width: 100%; height: 100%;
+    border-radius: 9px;
+    object-fit: cover;
+}
+.tape-card.rare-1 { border-color: #4F46E5; } /* Indigo */
+.tape-card.rare-2 { border-color: #F5A623; } /* Gold */
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 15px rgba(0,210,106,0.4); z-index: 2; }
+
+/* Участники (Новый стиль) */
+.jackpot-players-section {
+    background-color: #1E1B4B; /* Dark Blue */
+    border: 1px solid #373D49;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.jp-section-header {
+    background-color: rgba(0,0,0,0.2);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-weight: 800;
+    color: #FFF;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.jp-count-badge {
+    background-color: #4F46E5;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.jp-players-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.jp-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+}
+.jp-player-row:last-child { border-bottom: none; }
+
+/* Подсветка "Это я" */
+.jp-player-row.is-me {
+    background: rgba(79, 70, 229, 0.1); /* Индиго фон */
+    border-left: 3px solid #4F46E5;
+}
+
+.jp-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jp-avatar-wrap {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+.jp-player-ava {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px solid #373D49;
+    object-fit: cover;
+}
+.jp-percent-badge {
+    position: absolute;
+    bottom: -5px; right: -5px;
+    background-color: #2E3035;
+    color: #FFF;
+    font-size: 0.65em;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.jp-name {
+    font-weight: 700;
+    color: #FFF;
+    font-size: 0.95em;
+}
+
+.jp-bet {
+    font-weight: 800;
+    color: #00D26A;
+    font-size: 1em;
+}
+
+/* Контролы (Input) */
+.jackpot-controls {
+    margin-top: 5px;
+    background-color: #2E3035; /* Темный фон панели */
+}
+
+.jackpot-quick-amounts button {
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.jackpot-quick-amounts button:hover {
+    background-color: #4F46E5;
+    border-color: #4F46E5;
+    color: #FFF;
+}
+
+.chance-display {
+    text-align: center;
+    margin: 10px 0;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+/* Победитель */
+#jackpot-winner-display {
+    background: linear-gradient(135deg, #1E1B4B, #0F1020);
+    border: 2px solid #00D26A;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    box-shadow: 0 0 30px rgba(0, 210, 106, 0.3);
+    animation: popIn 0.4s;
+}
+.winner-congrats {
+    font-size: 0.9em;
+    color: #00D26A;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.winner-card {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+#jp-winner-name {
+    font-size: 1.5em;
+    color: #FFF;
+    font-weight: 900;
+}
+.winner-stats {
+    font-size: 0.9em;
+    color: rgba(255,255,255,0.6);
+}
+.highlight { color: #F5A623; font-weight: bold; }
+.win-amount {
+    font-size: 1.8em;
+    color: #00D26A;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.5);
+    margin-top: 5px;
+}

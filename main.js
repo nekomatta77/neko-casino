@@ -1,5 +1,5 @@
 /*
- * main.js - FINAL VERSION: GUEST SLIDER LOCK & PERSISTENT NOTIFICATIONS
+ * main.js - FINAL VERSION: GUEST SLIDER LOCK & PERSISTENT NOTIFICATIONS & JACKPOT
  */
 
 import { showSection, currentUser, fetchUser, fetchUserStats } from './global.js';
@@ -17,6 +17,7 @@ import { initKeno } from './keno.js';
 import { initAdmin, handleSearchUsers as updateAdminData } from './admin.js';
 import { initSleepy } from './sleepy.js';
 import { initWheel } from './wheel.js'; 
+import { initJackpot } from './jackpot.js'; // <-- ИМПОРТ JACKPOT
 import { renderAchievementsPage } from './achievements.js';
 
 // ГРАДИЕНТЫ
@@ -276,10 +277,11 @@ const ACTIVE_GAMES_CONFIG = {
     'crash': { name: 'Crash', icon: 'assets/crash_icon.png' },
     'coin': { name: 'Coinflip', icon: 'assets/coin_icon.png' },
     'sleepy': { name: 'Sleepy Cat', icon: 'assets/sleepy_icon.png' },
-    'wheel': { name: 'Wheel', icon: 'assets/wheel_icon.png' }
+    'wheel': { name: 'Wheel', icon: 'assets/wheel_icon.png' },
+    'jackpot': { name: 'Jackpot', icon: 'assets/jackpot_cat.png' } // <-- CONFIG JACKPOT
 };
 
-const ALLOWED_STATS_GAMES = ['dice', 'mines', 'keno'];
+const ALLOWED_STATS_GAMES = ['dice', 'mines', 'keno', 'jackpot'];
 
 function showStatDetails(title, type, statsData) {
     const modal = document.getElementById('pp-details-modal');
@@ -494,6 +496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         try { initAdmin(); } catch(e){ console.error("Admin init failed", e); }
         try { initSleepy(); } catch(e){ console.error("Sleepy init failed", e); }
         try { initWheel(); } catch(e){ console.error("Wheel init failed", e); } 
+        try { initJackpot(); } catch(e){ console.error("Jackpot init failed", e); } // <-- INIT JACKPOT
         
         // --- ЗАПУСК БЛОКИРОВКИ ГОСТЯ ---
         initGuestLock();
@@ -616,6 +619,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             else if (gameType === 'keno') showSection('keno-game');
             else if (gameType === 'sleepy') showSection('sleepy-game');
             else if (gameType === 'wheel') showSection('wheel-game'); 
+            else if (gameType === 'jackpot') showSection('jackpot-game'); // <-- NAVIGATE JACKPOT
         }
 
         const lobbyGameWrappers = document.querySelectorAll('.lobby-game-wrapper');
