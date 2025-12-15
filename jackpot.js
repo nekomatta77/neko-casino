@@ -1,9 +1,9 @@
 /*
- * jackpot.js - FINAL (AGGREGATED BETS & STYLISH)
+ * jackpot.js - UPDATED (Buttons Fix, Min/Max Logic)
  */
 import { 
     getFirestore, doc, onSnapshot, runTransaction, 
-    setDoc, arrayUnion, increment, query, where, getDocs, collection 
+    setDoc, increment, query, where, getDocs, collection, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { currentUser, currentBalance, updateBalance, fetchUser } from './global.js';
 
@@ -33,12 +33,14 @@ const els = {
     chanceDisplay: document.getElementById('jackpot-chance-display'),
     winnerDisplay: document.getElementById('jackpot-winner-display'),
     roomBtns: document.querySelectorAll('.room-btn'),
-    quickBtns: document.querySelectorAll('.jackpot-quick-amounts button'),
-    totalPlayers: document.getElementById('jackpot-total-players') // Новый элемент
+    // Новые селекторы для кнопок
+    multBtns: document.querySelectorAll('.jp-mult-btn'), // x2, 1/2
+    quickBtns: document.querySelectorAll('.jp-quick-btn'), // Min, Max
+    totalPlayers: document.getElementById('jackpot-total-players')
 };
 
 export function initJackpot() {
-    // 1. Комнаты
+    // 1. Переключение комнат
     if (els.roomBtns) {
         els.roomBtns.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -48,26 +50,62 @@ export function initJackpot() {
         });
     }
 
-    // 2. Ставка
+    // 2. Кнопка ставки
     if (els.btnPlaceBet) {
         els.btnPlaceBet.addEventListener('click', placeBet);
     }
 
-    // 3. Быстрые кнопки
+    // 3. Логика кнопок (1/2, x2)
+    if (els.multBtns) {
+        els.multBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                handleControlAction(btn.dataset.action);
+            });
+        });
+    }
+
+    // 4. Логика кнопок (Min, Max)
     if (els.quickBtns) {
         els.quickBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                const val = btn.dataset.amt;
-                if(val === 'max') {
-                    if (els.betInput) els.betInput.value = currentBalance;
-                } else {
-                    if (els.betInput) els.betInput.value = val;
-                }
+                handleControlAction(btn.dataset.action);
             });
         });
     }
 
     switchRoom('low');
+}
+
+// Обработчик для всех кнопок управления ставкой
+function handleControlAction(action) {
+    if (!els.betInput) return;
+    
+    let currentVal = parseFloat(els.betInput.value) || 0;
+    const roomLimits = ROOMS[activeRoom];
+    let newVal = currentVal;
+
+    switch (action) {
+        case 'half':
+            newVal = currentVal / 2;
+            break;
+        case 'double':
+            newVal = currentVal * 2;
+            break;
+        case 'min':
+            newVal = roomLimits.min;
+            break;
+        case 'max':
+            // Максимум = либо баланс, либо лимит комнаты (что меньше)
+            // Но обычно в джекпоте MAX это просто ва-банк (баланс)
+            // Если нужно ограничить комнатой: Math.min(currentBalance, roomLimits.max)
+            newVal = currentBalance; 
+            break;
+    }
+
+    // Валидация (не меньше 0.01)
+    if (newVal < 0.01) newVal = 0.01;
+    
+    els.betInput.value = newVal.toFixed(2);
 }
 
 function switchRoom(roomName) {
@@ -82,6 +120,9 @@ function switchRoom(roomName) {
             else btn.classList.remove('active');
         });
     }
+
+    // Сброс инпута на минимум новой комнаты
+    if(els.betInput) els.betInput.value = ROOMS[roomName].min.toFixed(2);
 
     resetUI();
 
@@ -150,10 +191,8 @@ function renderPlayers(players, totalPot) {
     
     let myBet = 0;
     
-    // Обновляем счетчик
     if(els.totalPlayers) els.totalPlayers.textContent = players.length;
 
-    // Сортировка: Самый "богатый" сверху
     const sorted = [...players].sort((a,b) => b.amount - a.amount);
 
     sorted.forEach(p => {
@@ -163,7 +202,6 @@ function renderPlayers(players, totalPot) {
         const ava = p.avatar || 'assets/avatars/orange_cat_ava.png';
         const isMe = p.username === currentUser ? 'is-me' : '';
         
-        // Красивая верстка строки игрока
         const li = document.createElement('li');
         li.className = `jp-player-row ${isMe}`;
         li.innerHTML = `
@@ -206,7 +244,6 @@ function startLocalTimer(endTime) {
     countdownInterval = setInterval(update, 1000);
 }
 
-// --- СТАВКА (ИСПРАВЛЕНО: СУММИРОВАНИЕ) ---
 async function placeBet() {
     if (!currentUser) return alert("Войдите в аккаунт");
     if (!els.betInput) return;
@@ -215,12 +252,9 @@ async function placeBet() {
     const limits = ROOMS[activeRoom];
 
     if (isNaN(amount) || amount < 1) return alert("Некорректная сумма");
-    
-    // Проверка лимитов для ПЕРВОЙ ставки
-    // (Для доп. ставок можно разрешить меньше, но сумма должна быть в пределах. Пока упростим)
     if (amount > currentBalance) return alert("Недостаточно средств");
 
-    // Ищем настоящий ID документа
+    // Загрузка данных пользователя для аватарки
     const userQ = query(collection(db, "users"), where("username", "==", currentUser));
     const userSnap = await getDocs(userQ);
     
@@ -230,7 +264,7 @@ async function placeBet() {
     const userData = userSnap.docs[0].data();
     const avatar = userData.customization?.avatar || 'assets/avatars/orange_cat_ava.png';
 
-    // Оптимистичное списание
+    // Списание баланса
     await updateBalance(-amount);
 
     try {
@@ -243,26 +277,22 @@ async function placeBet() {
             const rData = roomDoc.data();
             if (rData.status === 'rolling') throw "Раунд уже идет, подождите";
 
-            // --- ЛОГИКА СУММИРОВАНИЯ ---
             let players = rData.players || [];
             let playerIndex = players.findIndex(p => p.username === currentUser);
             
-            // Проверка лимитов комнаты на ОБЩУЮ сумму
             let newTotalBet = amount;
             if (playerIndex !== -1) {
                 newTotalBet += players[playerIndex].amount;
             }
             
-            // Валидация (если нужно строго следовать лимитам комнаты)
-            // if (newTotalBet > limits.max) throw `Максимальная ставка в комнате ${limits.max} RUB`;
+            // ВАЛИДАЦИЯ МИНИМУМА (Только если это первая ставка или сумма меньше минимума)
+            // Мы позволяем докидывать сколько угодно, но первая ставка должна быть >= min
+            if (playerIndex === -1 && amount < limits.min) throw `Минимальная ставка ${limits.min} RUB`;
 
             if (playerIndex !== -1) {
-                // Игрок уже есть - обновляем сумму и аватар (на случай если сменил)
                 players[playerIndex].amount = newTotalBet;
-                players[playerIndex].avatar = avatar; // Обновляем аватарку
+                players[playerIndex].avatar = avatar; 
             } else {
-                // Новый игрок
-                if (amount < limits.min) throw `Минимальная ставка ${limits.min} RUB`;
                 players.push({
                     username: currentUser,
                     amount: amount,
@@ -274,10 +304,9 @@ async function placeBet() {
             
             let updates = {
                 pot: newPot,
-                players: players // Перезаписываем весь массив
+                players: players 
             };
 
-            // Проверка таймера (если игроков >= 2)
             if (players.length >= 2 && rData.status === 'waiting') {
                 updates.status = 'countdown';
                 const future = new Date();
@@ -291,7 +320,7 @@ async function placeBet() {
 
     } catch (e) {
         console.error(e);
-        await updateBalance(amount); // Возврат
+        await updateBalance(amount); // Возврат средств
         const msg = typeof e === 'string' ? e : (e.message || "Ошибка");
         if(msg !== "Раунд уже идет, подождите") alert(msg);
     }
@@ -322,13 +351,9 @@ async function tryResolveWinner(data) {
             const commission = totalPot * 0.10;
             const winAmount = totalPot - commission;
 
-            // Генерация билетов на основе ОБЩИХ ставок
             let tickets = [];
             let currentTicket = 0;
             
-            // Важно: порядок игроков должен быть детерминированным для всех клиентов
-            // Сортируем игроков по имени или ставке для консистентности, 
-            // хотя транзакция выполняется на сервере, так что порядок в массиве БД - истина.
             rData.players.forEach(p => {
                 tickets.push({ 
                     username: p.username, 
@@ -351,11 +376,6 @@ async function tryResolveWinner(data) {
                     chance: ((winnerObj.end - winnerObj.start) / totalPot) * 100
                 }
             });
-            
-            // Начисление (упрощенно по username, в идеале по ID)
-            // Но т.к. мы ищем по username в placeBet, тут тоже можно найти через query
-            // Но внутри транзакции сложнее. Оставим начисление клиенту-победителю в spinTape
-            // или отдельным процессом.
         });
     } catch(e) {}
 }
@@ -371,14 +391,11 @@ function spinTape(winner, players) {
     const TOTAL_CARDS = 105;
     const CARD_WIDTH = 90; 
 
-    // Создаем взвешенный массив для ленты (чтобы чаще мелькали те, кто больше поставил)
     let displayPool = [];
     players.forEach(p => {
-        // Добавляем игрока в пул пропорционально ставке (минимум 1 раз)
-        // Например, на каждые 100р + 1 раз
         let count = Math.ceil(p.amount / (currentRoundData.pot / 50)); 
         if (count < 1) count = 1;
-        if (count > 20) count = 20; // Ограничитель
+        if (count > 20) count = 20; 
         for(let k=0; k<count; k++) displayPool.push(p);
     });
 
@@ -392,8 +409,7 @@ function spinTape(winner, players) {
         
         const div = document.createElement('div');
         div.className = 'tape-card';
-        // Если это победитель - золотая рамка
-        if (player.username === winner.username) div.classList.add('rare-3'); // Зеленая
+        if (player.username === winner.username) div.classList.add('rare-3'); 
         else div.classList.add('rare-1');
         
         div.innerHTML = `<img src="${player.avatar || 'assets/avatars/orange_cat_ava.png'}">`;

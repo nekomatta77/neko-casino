@@ -814,3 +814,382 @@
     text-shadow: 0 0 10px rgba(0, 210, 106, 0.5);
     margin-top: 5px;
 }
+/* =========================================
+   JACKPOT REDESIGN (ORDER & AESTHETICS)
+   ========================================= */
+
+/* 1. КОНТЕЙНЕР (Включаем Flexbox для смены порядка) */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Устанавливаем порядок элементов */
+.jackpot-rooms { order: 1; }
+.jackpot-info-panel { order: 2; }
+.jackpot-tape-wrapper { order: 3; }
+#jackpot-winner-display { order: 4; }
+
+/* --- МЕНЯЕМ МЕСТАМИ СПИСОК И СТАВКУ --- */
+/* Список игроков теперь ВЫШЕ (order 5) */
+.jackpot-players-section { 
+    order: 5; 
+    margin-bottom: 0; 
+}
+
+/* Панель ставок теперь НИЖЕ (order 6) */
+.jackpot-controls { 
+    order: 6; 
+}
+
+
+/* 2. ЭСТЕТИКА ПАНЕЛИ СТАВОК (INDIGO STYLE) */
+.jackpot-controls {
+    /* Глубокий темный фон с градиентом */
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго рамка */
+    border-radius: 20px !important; /* Сильное скругление */
+    padding: 25px 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    margin-top: 0 !important;
+}
+
+/* Заголовок "Сумма ставки" */
+.jackpot-controls .keno-bet-input-header {
+    color: #FFFFFF !important;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* Обертка поля ввода */
+.jackpot-controls .keno-input-wrapper {
+    background-color: #15171C !important; /* Очень темный фон */
+    border: 1px solid #373D49 !important;
+    border-radius: 12px !important;
+    height: 55px; /* Чуть выше для удобства */
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Эффект фокуса на поле ввода */
+.jackpot-controls .keno-input-wrapper:focus-within {
+    border-color: #4F46E5 !important; /* Индиго */
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.25);
+}
+
+/* Само поле ввода */
+#jackpot-bet-input {
+    background: transparent !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.5em !important;
+    font-weight: 800;
+    text-align: left;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    outline: none !important;
+}
+
+/* Знак валюты */
+.jackpot-controls .currency-icon {
+    color: #4F46E5 !important;
+    font-weight: 900;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+/* Кнопки множителей (1/2, x2) */
+.jp-mult-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important;
+    border: 1px solid rgba(79, 70, 229, 0.4) !important;
+    color: #A5B4FC !important; /* Светлый индиго */
+    border-radius: 10px !important;
+    padding: 0 15px !important;
+    font-weight: 800 !important;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 55px; /* Высота как у инпута */
+    min-width: 50px;
+}
+
+.jp-mult-btn:hover {
+    background-color: #4F46E5 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+
+/* Быстрые кнопки (+10, +50, MAX) */
+.jackpot-quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.jackpot-quick-amounts button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.jackpot-quick-amounts button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.jackpot-quick-amounts button[data-amt="max"] {
+    background-color: rgba(245, 166, 35, 0.15); /* Оранжевый оттенок */
+    color: #F5A623;
+    border-color: rgba(245, 166, 35, 0.4);
+}
+.jackpot-quick-amounts button[data-amt="max"]:hover {
+    background-color: #F5A623;
+    color: #1E1B4B;
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.4);
+}
+
+/* Отображение шанса */
+#jackpot-chance-display {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 800;
+    color: #A5B4FC !important; /* Светлый индиго */
+    font-size: 1.1em;
+    text-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+    background-color: rgba(0,0,0,0.2);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+/* Главная кнопка "Внести в банк" */
+#jackpot-place-bet {
+    background: linear-gradient(90deg, #4F46E5, #6366F1) !important;
+    box-shadow: 0 4px 0 #3730A3 !important;
+    border-radius: 12px;
+    height: 55px;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #FFFFFF !important;
+    font-weight: 900;
+    transition: all 0.2s;
+}
+#jackpot-place-bet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #3730A3, 0 0 20px rgba(79, 70, 229, 0.4) !important;
+}
+#jackpot-place-bet:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #3730A3 !important;
+}
+
+
+/* 3. СТИЛИ СПИСКА ИГРОКОВ (СОВРЕМЕННЫЙ ДИЗАЙН) */
+.jackpot-players-section {
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    margin-top: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.jp-section-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.jp-section-header span {
+    font-weight: 800;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.jp-count-badge {
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.jp-players-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* Строка игрока */
+.jp-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.jp-player-row:last-child { border-bottom: none; }
+
+/* Подсветка себя */
+.jp-player-row.is-me {
+    background-color: rgba(79, 70, 229, 0.15);
+    border-left: 4px solid #4F46E5;
+}
+
+.jp-row-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Аватарка с процентом */
+.jp-avatar-wrap {
+    position: relative;
+    width: 42px;
+    height: 42px;
+}
+
+.jp-player-ava {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.jp-percent-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -8px;
+    background-color: #2E3035;
+    border: 1px solid #4F46E5;
+    color: #FFFFFF;
+    font-size: 0.65em;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.jp-name {
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.95em;
+}
+
+.jp-bet {
+    color: #00D26A; /* Зеленый для денег */
+    font-weight: 800;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.1em;
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.3);
+}
+/* =========================================
+   JACKPOT FIXES (ORDER & NEW BUTTONS)
+   ========================================= */
+
+/* 1. ПОРЯДОК ЭЛЕМЕНТОВ (СПИСОК ВНИЗУ) */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ставка выше (order 5) */
+.jackpot-controls {
+    order: 5 !important;
+    margin-bottom: 20px !important;
+}
+
+/* Список игроков ниже (order 6) */
+.jackpot-players-section {
+    order: 6 !important;
+    margin-top: 0 !important;
+}
+
+/* 2. НОВЫЙ ДИЗАЙН КНОПОК MIN/MAX (INDIGO) */
+.jackpot-quick-amounts.two-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две равные кнопки */
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important; /* Полупрозрачный индиго */
+    border: 2px solid var(--color-primary) !important; /* Индиго рамка */
+    color: var(--color-primary) !important; /* Индиго текст */
+    border-radius: 12px;
+    padding: 12px 0;
+    font-weight: 800;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.jp-quick-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+}
+
+.jp-quick-btn:active {
+    transform: translateY(1px);
+}
+
+/* 3. КНОПКИ x2 и 1/2 (Цвет Индиго) */
+.jp-mult-btn {
+    background-color: #1E1B4B !important; /* Темный фон */
+    border: 1px solid var(--color-primary) !important;
+    color: #FFFFFF !important;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.jp-mult-btn:hover {
+    background-color: var(--color-primary) !important;
+}
+
+/* 4. СПИСОК ИГРОКОВ (Фикс визуального бага если он прилип) */
+.jackpot-players-section {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+}
