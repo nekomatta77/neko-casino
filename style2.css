@@ -216,3 +216,22 @@
     width: 24px;
     height: 24px;
 }
+/* --- СТИЛЬ ДЛЯ ИКОНКИ БАЛАНСА (FISH) --- */
+.balance-icon {
+    width: 20px; /* Размер иконки */
+    height: 20px;
+    object-fit: contain;
+    vertical-align: middle; /* Выравнивание по центру текста */
+    margin-left: 6px; /* Отступ от цифр */
+    margin-bottom: 3px; /* Небольшая коррекция по высоте */
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); /* Легкое свечение */
+    display: inline-block;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .balance-icon {
+        width: 18px;
+        height: 18px;
+    }
+}

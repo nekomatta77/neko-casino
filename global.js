@@ -1,5 +1,5 @@
 /*
- * GLOBAL.JS - VERSION 7.1 (STABLE PKCE FIX)
+ * GLOBAL.JS - VERSION 7.1 (STABLE PKCE FIX) WITH FISH BALANCE ANIMATION
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -29,6 +29,10 @@ export let currentUser = null;
 export let currentBalance = 0.00;
 export let currentRank = 'None Rang'; 
 let localWagerBalance = 0.00; 
+
+// ПЕРЕМЕННЫЕ ДЛЯ АНИМАЦИИ БАЛАНСА
+let displayedBalance = 0.00; 
+let balanceAnimFrame = null;
 
 export const MINES_GRID_SIZE = 25; 
 
@@ -927,8 +931,39 @@ export function showSection(sectionId) {
     }, 0);
 }
 
-function updateUI() {
+// Функция отрисовки баланса с иконкой
+function renderBalance(value) {
     const balanceElements = document.querySelectorAll('#balance-amount, #mobile-profile-balance, #profile-balance-amount');
+    // HTML иконки рыбки
+    const iconHtml = `<img src="assets/fish_balance.svg" class="balance-icon" alt="Fish">`;
+    
+    balanceElements.forEach(el => {
+        // Вставляем число + иконку
+        el.innerHTML = value.toFixed(2) + iconHtml;
+    });
+}
+
+// Функция плавной анимации (Lerp)
+function animateBalance() {
+    const diff = currentBalance - displayedBalance;
+    
+    // Если разница очень мала, останавливаем анимацию и ставим точное значение
+    if (Math.abs(diff) < 0.01) {
+        displayedBalance = currentBalance;
+        renderBalance(displayedBalance);
+        cancelAnimationFrame(balanceAnimFrame);
+        balanceAnimFrame = null;
+        return;
+    }
+    
+    // Плавное приближение (скорость 15% от разницы за кадр)
+    displayedBalance += diff * 0.15;
+    renderBalance(displayedBalance);
+    
+    balanceAnimFrame = requestAnimationFrame(animateBalance);
+}
+
+function updateUI() {
     const usernameElements = document.querySelectorAll('#username-display, #mobile-profile-name, #profile-username');
     const profileBox = document.getElementById('header-profile-box');
     const notifBox = document.getElementById('header-notif-box'); 
@@ -936,7 +971,13 @@ function updateUI() {
     const adminSidebarLink = document.getElementById('admin-sidebar-link');
 
     if (currentUser) {
-        balanceElements.forEach(el => el.textContent = currentBalance.toFixed(2) + ' RUB');
+        // --- ЗАПУСК АНИМАЦИИ БАЛАНСА ---
+        // Если анимация не запущена, запускаем её
+        if (!balanceAnimFrame) {
+            animateBalance();
+        }
+        // -------------------------------
+
         usernameElements.forEach(el => el.textContent = currentUser);
         document.body.classList.add('logged-in');
         document.body.classList.remove('logged-out');
@@ -950,7 +991,10 @@ function updateUI() {
             if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
         }
     } else {
-        balanceElements.forEach(el => el.textContent = '0.00');
+        // Сброс баланса для гостя
+        displayedBalance = 0.00;
+        renderBalance(0.00);
+        
         usernameElements.forEach(el => el.textContent = 'Гость');
         document.body.classList.add('logged-out');
         document.body.classList.remove('logged-in');
@@ -960,12 +1004,6 @@ function updateUI() {
         if (adminSidebarLink) adminSidebarLink.classList.add('hidden');
     }
 }
-
-// ... (начало файла без изменений)
-
-// ... (начало файла без изменений)
-
-// ... (начало файла без изменений)
 
 // ===============================================
 // VK AUTH LISTENER (AUTO HANDLE REDIRECT)
