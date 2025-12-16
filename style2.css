@@ -1334,3 +1334,26 @@
 .lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
     transform: translate(-50%, -50%) scale(1.15) rotate(-5deg) !important;
 }
+/* =========================================
+   JACKPOT CARD SETTINGS (Вставьте в конец style2.css)
+   ========================================= */
+
+:root {
+    /* Настройки размера и позиции для Jackpot */
+    --img-size-jackpot: 110px; /* <--- МЕНЯЙТЕ РАЗМЕР ЗДЕСЬ (больше/меньше) */
+    --img-x-jackpot: 0px;      /* Сдвиг вправо/влево (например, 10px или -10px) */
+    --img-y-jackpot: 0px;      /* Сдвиг вниз/вверх */
+}
+
+/* Применяем настройки к картинке кота на карточке Jackpot */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: var(--img-size-jackpot) !important;
+    width: auto !important;
+    /* Центрирование + Индивидуальный сдвиг */
+    transform: translate(calc(-50% + var(--img-x-jackpot)), calc(-50% + var(--img-y-jackpot))) !important;
+}
+
+/* Эффект увеличения при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-jackpot)), calc(-50% + var(--img-y-jackpot))) scale(1.1) !important;
+}

@@ -11244,7 +11244,6 @@ body::before {
     transform: translate(calc(-50% + var(--img-x-wheel)), calc(-50% + var(--img-y-wheel))) scale(1.1) !important;
 }
 
-
 /* Название игры */
 .game-card-panel {
     position: absolute;

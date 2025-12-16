@@ -278,7 +278,7 @@ const ACTIVE_GAMES_CONFIG = {
     'coin': { name: 'Coinflip', icon: 'assets/coin_icon.png' },
     'sleepy': { name: 'Sleepy Cat', icon: 'assets/sleepy_icon.png' },
     'wheel': { name: 'Wheel', icon: 'assets/wheel_icon.png' },
-    'jackpot': { name: 'Jackpot', icon: 'assets/jackpot_cat.png' } // <-- CONFIG JACKPOT
+    'jackpot': { name: 'Jackpot', icon: 'assets/jackpot_icon.png' } // <-- UPDATED ICON for nav/stats
 };
 
 const ALLOWED_STATS_GAMES = ['dice', 'mines', 'keno', 'jackpot'];
