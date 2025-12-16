@@ -1,5 +1,5 @@
 /*
- * GLOBAL.JS - VERSION 7.1 (STABLE PKCE FIX) WITH FISH BALANCE ANIMATION
+ * GLOBAL.JS - VERSION 7.2 (With currentUserData Export)
  */
 
 // --- 1. Инициализация Firebase (CDN) ---
@@ -26,6 +26,7 @@ const db = getFirestore(app);
 
 // --- Глобальные переменные ---
 export let currentUser = null;
+export let currentUserData = null; // <--- НОВАЯ ПЕРЕМЕННАЯ (Хранит объект юзера целиком)
 export let currentBalance = 0.00;
 export let currentRank = 'None Rang'; 
 let localWagerBalance = 0.00; 
@@ -131,6 +132,7 @@ export async function setCurrentUser(username) {
         } else {
             localStorage.removeItem('nekoUserSession');
             currentUser = null;
+            currentUserData = null; // Сброс данных
             currentBalance = 0.00;
             currentRank = 'None Rang';
             localWagerBalance = 0.00;
@@ -196,6 +198,7 @@ export async function fetchUser(username, updateGlobal = false) {
         const data = userDoc.data();
 
         if (updateGlobal && data) {
+            currentUserData = data; // <--- СОХРАНЯЕМ ДАННЫЕ ЮЗЕРА ГЛОБАЛЬНО
             currentBalance = parseFloat(data.balance || 0);
             currentRank = data.rank || 'None Rang';
             localWagerBalance = Math.max(0, parseFloat(data.wager_balance || 0));
@@ -445,6 +448,12 @@ export async function activatePromocode(code) {
 // ==========================================
 // 4. УПРАВЛЕНИЕ БАЛАНСОМ И ВЕЙДЖЕРОМ
 // ==========================================
+
+// --- НОВАЯ ФУНКЦИЯ ДЛЯ МОМЕНТАЛЬНОГО ОБНОВЛЕНИЯ БАЛАНСА (БЕЗ ЗАПИСИ В БД) ---
+export function updateVisualBalance(amount) {
+    currentBalance += amount;
+    updateUI();
+}
 
 export async function updateBalance(amount, wagerToAdd = 0) {
     if (!currentUser) return;

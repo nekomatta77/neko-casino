@@ -1,11 +1,11 @@
 /*
- * jackpot.js - UPDATED (Fix 400 Error + Limits)
+ * jackpot.js - UPDATED (Instant Bets & Working Avatar)
  */
 import { 
     getFirestore, doc, onSnapshot, runTransaction, 
     setDoc, increment, query, where, getDocs, collection, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { currentUser, currentBalance, updateBalance, fetchUser } from './global.js';
+import { currentUser, currentBalance, updateBalance, fetchUser, updateVisualBalance, currentUserData } from './global.js';
 
 const db = getFirestore();
 
@@ -33,7 +33,6 @@ const els = {
     chanceDisplay: document.getElementById('jackpot-chance-display'),
     winnerDisplay: document.getElementById('jackpot-winner-display'),
     roomBtns: document.querySelectorAll('.room-btn'),
-    // Новые селекторы для кнопок
     multBtns: document.querySelectorAll('.jp-mult-btn'), // x2, 1/2
     quickBtns: document.querySelectorAll('.jp-quick-btn'), // Min, Max
     totalPlayers: document.getElementById('jackpot-total-players')
@@ -242,7 +241,7 @@ function startLocalTimer(endTime) {
     countdownInterval = setInterval(update, 1000);
 }
 
-// --- ГЛАВНАЯ ФУНКЦИЯ СТАВКИ (ИСПРАВЛЕНА ОШИБКА 400) ---
+// --- ГЛАВНАЯ ФУНКЦИЯ СТАВКИ (OPTIMISTIC UI FIXED) ---
 async function placeBet() {
     if (!currentUser) return alert("Войдите в аккаунт");
     if (!els.betInput) return;
@@ -252,25 +251,64 @@ async function placeBet() {
 
     if (isNaN(amount) || amount < 0.01) return alert("Некорректная сумма");
     
-    // Проверка баланса (локальная, быстрая)
+    // Проверка баланса (локальная)
     if (amount > currentBalance) return alert("Недостаточно средств");
 
-    // Загрузка данных пользователя для аватарки
-    const userQ = query(collection(db, "users"), where("username", "==", currentUser));
-    const userSnap = await getDocs(userQ);
+    // --- 1. ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ UI (МОМЕНТАЛЬНО) ---
     
-    if (userSnap.empty) return alert("Пользователь не найден");
-    
-    const userRef = userSnap.docs[0].ref; 
-    const userData = userSnap.docs[0].data();
-    // Берем аватар из профиля или ставим дефолтный
-    const avatar = (userData.customization && userData.customization.avatar) ? userData.customization.avatar : 'assets/avatars/orange_cat_ava.png';
+    // Снимаем визуально баланс (БЕЗ запроса к БД)
+    updateVisualBalance(-amount);
 
-    // ВАЖНО: Убрано предварительное списание updateBalance(-amount), 
-    // чтобы избежать ошибки 400 при одновременной записи.
+    // ПОЛУЧАЕМ АВАТАРКУ ИЗ currentUserData (Глобальная переменная)
+    let optimisticAvatar = 'assets/avatars/orange_cat_ava.png';
+    
+    if (currentUserData) {
+        // Приоритет: Кастомный аватар -> Основной аватар
+        if (currentUserData.customization && currentUserData.customization.avatar) {
+            optimisticAvatar = currentUserData.customization.avatar;
+        } else if (currentUserData.avatar) {
+            optimisticAvatar = currentUserData.avatar;
+        }
+    }
+
+    // Сохраняем предыдущее состояние для отката
+    const previousPot = currentRoundData?.pot || 0;
+    const previousPlayers = currentRoundData?.players ? [...currentRoundData.players] : [];
+    
+    // Формируем оптимистичный список игроков
+    let optimisticPlayers = JSON.parse(JSON.stringify(previousPlayers)); // Deep copy
+    const myIndex = optimisticPlayers.findIndex(p => p.username === currentUser);
+    
+    if (myIndex !== -1) {
+        optimisticPlayers[myIndex].amount += amount;
+    } else {
+        optimisticPlayers.push({
+            username: currentUser,
+            amount: amount,
+            avatar: optimisticAvatar // Используем полученный аватар
+        });
+    }
+
+    // Рендерим новый список и банк НЕМЕДЛЕННО
+    const optimisticPot = previousPot + amount;
+    if(els.potAmount) els.potAmount.innerHTML = optimisticPot.toFixed(2);
+    renderPlayers(optimisticPlayers, optimisticPot);
+
+    // ---------------------------------------------------
 
     try {
         const roomRef = doc(db, 'jackpot_rooms', activeRoom);
+
+        // Получаем реальные данные пользователя для транзакции (для надежности на сервере)
+        const userQ = query(collection(db, "users"), where("username", "==", currentUser));
+        const userSnap = await getDocs(userQ);
+        
+        if (userSnap.empty) throw "Пользователь не найден";
+        
+        const userRef = userSnap.docs[0].ref; 
+        const userData = userSnap.docs[0].data();
+        // Используем аватар из БД для транзакции (чтобы записать наверняка правильно)
+        const dbAvatar = (userData.customization && userData.customization.avatar) ? userData.customization.avatar : optimisticAvatar;
 
         await runTransaction(db, async (transaction) => {
             // 1. Читаем данные комнаты
@@ -280,11 +318,13 @@ async function placeBet() {
             const rData = roomDoc.data();
             if (rData.status === 'rolling') throw "Раунд уже идет, подождите";
 
-            // 2. Читаем актуальный баланс пользователя ВНУТРИ транзакции (для надежности)
+            // 2. Читаем актуальный баланс пользователя ВНУТРИ транзакции (из БД)
             const freshUserDoc = await transaction.get(userRef);
             if (!freshUserDoc.exists()) throw "User not found";
             const freshBalance = freshUserDoc.data().balance || 0;
 
+            // Важно: проверяем баланс из БД. 
+            // Так как мы сняли деньги только визуально, в БД они еще есть.
             if (freshBalance < amount) throw "Недостаточно средств";
 
             let players = rData.players || [];
@@ -296,27 +336,23 @@ async function placeBet() {
                 newTotalBet += players[playerIndex].amount;
             }
             
-            // --- ЛОГИКА ЛИМИТОВ (Задача 3) ---
-            
-            // Проверка МИНИМУМА (только для входа, если игрок еще не ставил)
+            // --- ЛОГИКА ЛИМИТОВ ---
             if (playerIndex === -1 && amount < limits.min) {
                 throw `Минимальная ставка ${limits.min} RUB`;
             }
-
-            // Проверка МАКСИМУМА (общая сумма ставок игрока не должна превышать лимит комнаты)
             if (newTotalBet > limits.max) {
-                throw `Лимит комнаты "${activeRoom.toUpperCase()}": до ${limits.max} RUB на игрока. Вы уже поставили: ${playerIndex !== -1 ? players[playerIndex].amount.toFixed(2) : 0}`;
+                throw `Лимит комнаты "${activeRoom.toUpperCase()}": до ${limits.max} RUB на игрока.`;
             }
-            // --------------------------------
+            // ---------------------
 
             if (playerIndex !== -1) {
                 players[playerIndex].amount = newTotalBet;
-                players[playerIndex].avatar = avatar; 
+                players[playerIndex].avatar = dbAvatar; 
             } else {
                 players.push({
                     username: currentUser,
                     amount: amount,
-                    avatar: avatar
+                    avatar: dbAvatar
                 });
             }
 
@@ -337,12 +373,18 @@ async function placeBet() {
 
             // Выполняем запись
             transaction.update(roomRef, updates);
-            // Списываем баланс здесь!
+            // Списываем баланс в БД!
             transaction.update(userRef, { balance: increment(-amount) }); 
         });
 
     } catch (e) {
         console.error("Ошибка ставки:", e);
+        // --- ОТКАТ ИЗМЕНЕНИЙ (ROLLBACK) ---
+        updateVisualBalance(+amount); // Возвращаем визуально деньги
+        if(els.potAmount) els.potAmount.innerHTML = previousPot.toFixed(2);
+        renderPlayers(previousPlayers, previousPot); // Возвращаем старый список
+        // ----------------------------------
+
         const msg = typeof e === 'string' ? e : (e.message || "Ошибка сервера");
         if(msg !== "Раунд уже идет, подождите") alert(msg);
     }
