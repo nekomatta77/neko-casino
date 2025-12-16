@@ -1,5 +1,5 @@
 /*
- * jackpot.js - UPDATED (Instant Bets & Working Avatar)
+ * jackpot.js - FINAL (Fixed Alignment & Responsive Hourglass)
  */
 import { 
     getFirestore, doc, onSnapshot, runTransaction, 
@@ -133,19 +133,50 @@ function switchRoom(roomName) {
     });
 }
 
+// --- ГЛАВНЫЙ СБРОС ИНТЕРФЕЙСА ---
 function resetUI() {
+    // 1. Сброс ленты и установка стадии ожидания
     if (els.tapeTrack) {
-        els.tapeTrack.innerHTML = '';
+        els.tapeTrack.classList.remove('spinning');
         els.tapeTrack.style.transition = 'none';
         els.tapeTrack.style.transform = 'translateX(0)';
-        els.tapeTrack.classList.remove('spinning');
+        
+        // !!! ПРИОРИТЕТНОЕ ВЫРАВНИВАНИЕ !!!
+        // Принудительно ставим flex и ширину 100%, чтобы центрировать часы
+        els.tapeTrack.style.display = 'flex';
+        els.tapeTrack.style.width = '100%'; 
+        els.tapeTrack.style.justifyContent = 'center';
+        els.tapeTrack.style.alignItems = 'center';
+        
+        // Вставляем песочные часы
+        els.tapeTrack.innerHTML = `
+            <div class="jackpot-waiting-visual">
+                <div class="hourglass-icon"></div>
+                <div class="jackpot-waiting-text">Ожидание...</div>
+            </div>
+        `;
     }
-    if (els.winnerDisplay) els.winnerDisplay.classList.add('hidden');
+
+    // 2. Сброс модалки победителя
+    if (els.winnerDisplay) {
+        els.winnerDisplay.classList.add('hidden');
+        document.getElementById('jp-winner-name').textContent = '...';
+        document.getElementById('jp-winner-sum').textContent = '+0.00';
+    }
+
+    // 3. Сброс текстов и таймеров
     if (els.statusText) els.statusText.textContent = "Ожидание...";
     if (els.timerText) els.timerText.textContent = "20";
     if (els.playersList) els.playersList.innerHTML = '';
     if (els.potAmount) els.potAmount.innerHTML = '0.00';
+    if (els.totalPlayers) els.totalPlayers.textContent = '0';
+    if (els.chanceDisplay) els.chanceDisplay.textContent = 'Ваш шанс: 0%';
+    
+    // Сброс цвета таймера
     if (els.timerCircle) els.timerCircle.style.borderColor = "#F5A623";
+    
+    // Остановка таймера
+    if(countdownInterval) clearInterval(countdownInterval);
 }
 
 function handleRoundUpdate(data) {
@@ -186,10 +217,32 @@ function renderPlayers(players, totalPot) {
     if (!els.playersList) return;
     els.playersList.innerHTML = '';
     
-    let myBet = 0;
-    
     if(els.totalPlayers) els.totalPlayers.textContent = players.length;
 
+    // --- ЛОГИКА ОТОБРАЖЕНИЯ ЧАСОВ В ЛЕНТЕ ---
+    if (players.length === 0) {
+        // Если игроков нет, показываем часы и фиксируем ширину
+        if (els.tapeTrack && !els.tapeTrack.classList.contains('spinning')) {
+            els.tapeTrack.style.width = '100%';
+            els.tapeTrack.style.justifyContent = 'center';
+            
+            els.tapeTrack.innerHTML = `
+                <div class="jackpot-waiting-visual">
+                    <div class="hourglass-icon"></div>
+                    <div class="jackpot-waiting-text">Ждем игроков...</div>
+                </div>
+            `;
+        }
+    } else {
+        // Если игроки появились, очищаем ленту от часов (готовим к игре)
+        if (els.tapeTrack && els.tapeTrack.querySelector('.jackpot-waiting-visual')) {
+            els.tapeTrack.innerHTML = '';
+            // Здесь ширину не сбрасываем, сбросим в spinTape, чтобы лента не дергалась
+        }
+    }
+    // ----------------------------------------
+
+    let myBet = 0;
     const sorted = [...players].sort((a,b) => b.amount - a.amount);
 
     sorted.forEach(p => {
@@ -241,7 +294,7 @@ function startLocalTimer(endTime) {
     countdownInterval = setInterval(update, 1000);
 }
 
-// --- ГЛАВНАЯ ФУНКЦИЯ СТАВКИ (OPTIMISTIC UI FIXED) ---
+// --- ГЛАВНАЯ ФУНКЦИЯ СТАВКИ ---
 async function placeBet() {
     if (!currentUser) return alert("Войдите в аккаунт");
     if (!els.betInput) return;
@@ -250,20 +303,13 @@ async function placeBet() {
     const limits = ROOMS[activeRoom];
 
     if (isNaN(amount) || amount < 0.01) return alert("Некорректная сумма");
-    
-    // Проверка баланса (локальная)
     if (amount > currentBalance) return alert("Недостаточно средств");
 
-    // --- 1. ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ UI (МОМЕНТАЛЬНО) ---
-    
-    // Снимаем визуально баланс (БЕЗ запроса к БД)
+    // --- ОПТИМИСТИЧНОЕ ОБНОВЛЕНИЕ UI ---
     updateVisualBalance(-amount);
 
-    // ПОЛУЧАЕМ АВАТАРКУ ИЗ currentUserData (Глобальная переменная)
     let optimisticAvatar = 'assets/avatars/orange_cat_ava.png';
-    
     if (currentUserData) {
-        // Приоритет: Кастомный аватар -> Основной аватар
         if (currentUserData.customization && currentUserData.customization.avatar) {
             optimisticAvatar = currentUserData.customization.avatar;
         } else if (currentUserData.avatar) {
@@ -271,12 +317,10 @@ async function placeBet() {
         }
     }
 
-    // Сохраняем предыдущее состояние для отката
     const previousPot = currentRoundData?.pot || 0;
     const previousPlayers = currentRoundData?.players ? [...currentRoundData.players] : [];
     
-    // Формируем оптимистичный список игроков
-    let optimisticPlayers = JSON.parse(JSON.stringify(previousPlayers)); // Deep copy
+    let optimisticPlayers = JSON.parse(JSON.stringify(previousPlayers));
     const myIndex = optimisticPlayers.findIndex(p => p.username === currentUser);
     
     if (myIndex !== -1) {
@@ -285,11 +329,10 @@ async function placeBet() {
         optimisticPlayers.push({
             username: currentUser,
             amount: amount,
-            avatar: optimisticAvatar // Используем полученный аватар
+            avatar: optimisticAvatar 
         });
     }
 
-    // Рендерим новый список и банк НЕМЕДЛЕННО
     const optimisticPot = previousPot + amount;
     if(els.potAmount) els.potAmount.innerHTML = optimisticPot.toFixed(2);
     renderPlayers(optimisticPlayers, optimisticPot);
@@ -298,8 +341,6 @@ async function placeBet() {
 
     try {
         const roomRef = doc(db, 'jackpot_rooms', activeRoom);
-
-        // Получаем реальные данные пользователя для транзакции (для надежности на сервере)
         const userQ = query(collection(db, "users"), where("username", "==", currentUser));
         const userSnap = await getDocs(userQ);
         
@@ -307,43 +348,35 @@ async function placeBet() {
         
         const userRef = userSnap.docs[0].ref; 
         const userData = userSnap.docs[0].data();
-        // Используем аватар из БД для транзакции (чтобы записать наверняка правильно)
         const dbAvatar = (userData.customization && userData.customization.avatar) ? userData.customization.avatar : optimisticAvatar;
 
         await runTransaction(db, async (transaction) => {
-            // 1. Читаем данные комнаты
             const roomDoc = await transaction.get(roomRef);
             if (!roomDoc.exists()) throw "Комната не найдена";
             
             const rData = roomDoc.data();
             if (rData.status === 'rolling') throw "Раунд уже идет, подождите";
 
-            // 2. Читаем актуальный баланс пользователя ВНУТРИ транзакции (из БД)
             const freshUserDoc = await transaction.get(userRef);
             if (!freshUserDoc.exists()) throw "User not found";
             const freshBalance = freshUserDoc.data().balance || 0;
 
-            // Важно: проверяем баланс из БД. 
-            // Так как мы сняли деньги только визуально, в БД они еще есть.
             if (freshBalance < amount) throw "Недостаточно средств";
 
             let players = rData.players || [];
             let playerIndex = players.findIndex(p => p.username === currentUser);
             
-            // Расчет новой общей ставки игрока
             let newTotalBet = amount;
             if (playerIndex !== -1) {
                 newTotalBet += players[playerIndex].amount;
             }
             
-            // --- ЛОГИКА ЛИМИТОВ ---
             if (playerIndex === -1 && amount < limits.min) {
                 throw `Минимальная ставка ${limits.min} RUB`;
             }
             if (newTotalBet > limits.max) {
                 throw `Лимит комнаты "${activeRoom.toUpperCase()}": до ${limits.max} RUB на игрока.`;
             }
-            // ---------------------
 
             if (playerIndex !== -1) {
                 players[playerIndex].amount = newTotalBet;
@@ -363,7 +396,6 @@ async function placeBet() {
                 players: players 
             };
 
-            // Запуск таймера, если 2 игрока
             if (players.length >= 2 && rData.status === 'waiting') {
                 updates.status = 'countdown';
                 const future = new Date();
@@ -371,19 +403,16 @@ async function placeBet() {
                 updates.endTime = future; 
             }
 
-            // Выполняем запись
             transaction.update(roomRef, updates);
-            // Списываем баланс в БД!
             transaction.update(userRef, { balance: increment(-amount) }); 
         });
 
     } catch (e) {
         console.error("Ошибка ставки:", e);
-        // --- ОТКАТ ИЗМЕНЕНИЙ (ROLLBACK) ---
-        updateVisualBalance(+amount); // Возвращаем визуально деньги
+        // ROLLBACK
+        updateVisualBalance(+amount); 
         if(els.potAmount) els.potAmount.innerHTML = previousPot.toFixed(2);
-        renderPlayers(previousPlayers, previousPot); // Возвращаем старый список
-        // ----------------------------------
+        renderPlayers(previousPlayers, previousPot); 
 
         const msg = typeof e === 'string' ? e : (e.message || "Ошибка сервера");
         if(msg !== "Раунд уже идет, подождите") alert(msg);
@@ -444,12 +473,20 @@ async function tryResolveWinner(data) {
     } catch(e) {}
 }
 
+// --- ВРАЩЕНИЕ РУЛЕТКИ ---
 function spinTape(winner, players) {
     const tape = els.tapeTrack;
     if (!tape) return;
     
-    tape.classList.add('spinning');
+    // --- ВАЖНО: СБРОС ВЫРАВНИВАНИЯ ДЛЯ ПРОКРУТКИ ---
+    // Убираем flex-center и ширину 100%, чтобы лента могла растянуться в длину
     tape.innerHTML = '';
+    tape.style.width = ''; 
+    tape.style.justifyContent = '';
+    tape.style.display = 'flex'; // Оставляем flex, но без center
+    // ---------------------------------------------
+    
+    tape.classList.add('spinning');
 
     const WIN_INDEX = 80;
     const TOTAL_CARDS = 105;
@@ -457,7 +494,6 @@ function spinTape(winner, players) {
 
     let displayPool = [];
     players.forEach(p => {
-        // Чтобы было больше карточек у тех, кто больше поставил
         let count = Math.ceil(p.amount / (currentRoundData.pot / 50)); 
         if (count < 1) count = 1;
         if (count > 20) count = 20; 
@@ -508,7 +544,12 @@ function spinTape(winner, players) {
             } catch(e) {}
         }
         
-        setTimeout(() => resetRoundInDB(), 5000);
+        // Через 5 секунд ПОЛНЫЙ СБРОС (возвращаем часы)
+        setTimeout(() => {
+            resetRoundInDB();
+            resetUI(); 
+        }, 5000);
+
     }, 6500);
 }
 

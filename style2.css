@@ -1357,3 +1357,148 @@
 .lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
     transform: translate(calc(-50% + var(--img-x-jackpot)), calc(-50% + var(--img-y-jackpot))) scale(1.1) !important;
 }
+/* =========================================
+   JACKPOT WAITING STATE (RESPONSIVE FIX)
+   ========================================= */
+
+/* Контейнер: занимает всю высоту ленты и центрирует контент */
+.jackpot-waiting-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 140px; /* Стандартная высота для ПК */
+    animation: fadeIn 0.5s ease;
+    /* Гарантируем, что элемент не сожмется */
+    flex-shrink: 0; 
+}
+
+/* Иконка часов (Контейнер) */
+.hourglass-icon {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    /* Плавная анимация вращения */
+    animation: hourglassSpin 3s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Треугольники часов (Верх и Низ) */
+.hourglass-icon::before,
+.hourglass-icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+/* Верхняя колба (Индиго) */
+.hourglass-icon::before {
+    top: 0;
+    border-width: 25px 20px 0 20px; /* Высота 25px, Ширина 40px */
+    border-color: var(--color-primary) transparent transparent transparent;
+    filter: drop-shadow(0 0 5px rgba(79, 70, 229, 0.6));
+}
+
+/* Нижняя колба (Оранжевая/Золотая) */
+.hourglass-icon::after {
+    bottom: 0;
+    border-width: 0 20px 25px 20px;
+    border-color: transparent transparent var(--color-orange) transparent;
+    filter: drop-shadow(0 0 5px rgba(245, 166, 35, 0.6));
+}
+
+/* Текст "Ожидание" */
+.jackpot-waiting-text {
+    margin-top: 15px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 800;
+    font-size: 1.2em;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    animation: pulseText 2s infinite;
+}
+
+/* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
+@media (max-width: 768px) {
+    
+    /* Уменьшаем высоту контейнера, чтобы не растягивал ленту */
+    .jackpot-waiting-visual {
+        min-height: 110px; /* Компактная высота */
+    }
+
+    /* Уменьшаем размер иконки */
+    .hourglass-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Пересчитываем треугольники под размер 36px */
+    .hourglass-icon::before {
+        border-width: 18px 14px 0 14px; /* Высота 18px, половина ширины 14px */
+    }
+    .hourglass-icon::after {
+        border-width: 0 14px 18px 14px;
+    }
+
+    /* Уменьшаем текст и отступы */
+    .jackpot-waiting-text {
+        font-size: 0.9em;
+        margin-top: 8px;
+    }
+}
+
+/* --- АНИМАЦИИ --- */
+@keyframes hourglassSpin {
+    0% { transform: rotate(0deg); }
+    45% { transform: rotate(0deg); } /* Пауза */
+    50% { transform: rotate(180deg); } /* Переворот */
+    95% { transform: rotate(180deg); } /* Пауза перевернутым */
+    100% { transform: rotate(360deg); } /* Возврат */
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+/* Выравнивание блока ожидания */
+.jackpot-waiting-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Центрируем по горизонтали */
+    justify-content: center; /* Центрируем по вертикали */
+    width: 100%;             /* Занимаем всю доступную ширину */
+    height: 100%;            /* Занимаем всю высоту ленты */
+    min-height: 140px;       /* Минимальная высота для ПК */
+    margin: 0 auto;          /* На всякий случай */
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .jackpot-waiting-visual {
+        min-height: 110px; /* Высота поменьше для телефонов */
+    }
+    
+    .hourglass-icon {
+        width: 35px; /* Иконка поменьше */
+        height: 35px;
+    }
+    
+    .hourglass-icon::before {
+        border-width: 18px 14px 0 14px; /* Коррекция треугольника */
+    }
+    .hourglass-icon::after {
+        border-width: 0 14px 18px 14px; /* Коррекция треугольника */
+    }
+}
