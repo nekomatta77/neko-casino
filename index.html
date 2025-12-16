@@ -86,22 +86,26 @@
             
         </header>
         
-        <div class="mini-games-nav-container hidden" id="top-game-nav">
-            <nav class="mini-games-nav">
-                <div class="mini-games-nav-item" data-target="dice-game">
-                    <img src="assets/dice_icon.png" alt="Dice" class="nav-game-icon"> Dice
-                </div>
-                <div class="mini-games-nav-item" data-target="mines-game">
-                    <img src="assets/mine_icon.png" alt="Mines" class="nav-game-icon"> Mines
-                </div>
-                <div class="mini-games-nav-item" data-target="keno-game">
-                    <img src="assets/keno_icon.png" alt="Keno" class="nav-game-icon"> Keno
-                </div>
-                <div class="mini-games-nav-item" data-target="jackpot-game">
-                    <img src="assets/jackpot_cat.png" alt="Jackpot" class="nav-game-icon"> Jackpot
-                </div>
-            </nav>
-        </div>
+      <div class="mini-games-nav-container hidden" id="top-game-nav">
+    <nav class="mini-games-nav">
+    <div class="mini-games-nav-item" data-target="dice-game">
+        <img src="assets/dice_icon.png" alt="Dice" class="nav-game-icon"> 
+        <span class="nav-game-name">Dice</span>
+    </div>
+    <div class="mini-games-nav-item" data-target="mines-game">
+        <img src="assets/mine_icon.png" alt="Mines" class="nav-game-icon"> 
+        <span class="nav-game-name">Mines</span>
+    </div>
+    <div class="mini-games-nav-item" data-target="keno-game">
+        <img src="assets/keno_icon.png" alt="Keno" class="nav-game-icon"> 
+        <span class="nav-game-name">Keno</span>
+    </div>
+    <div class="mini-games-nav-item" data-target="jackpot-game">
+        <img src="assets/jackpot_icon.png" alt="Jackpot" class="nav-game-icon"> 
+        <span class="nav-game-name">Jackpot</span>
+    </div>
+</nav>
+</div>
         <main class="content-area">
             
             <section id="lobby" class="page-section active full-width-lobby">
@@ -747,12 +751,10 @@
                             </div>
                         </div>
 
-                        <div class="jackpot-quick-amounts">
-                            <button data-amt="10">+10</button>
-                            <button data-amt="50">+50</button>
-                            <button data-amt="100">+100</button>
-                            <button data-amt="max">MAX</button>
-                        </div>
+                        <div class="jackpot-quick-amounts two-buttons">
+    <button class="jp-quick-btn" data-action="min">MIN</button>
+    <button class="jp-quick-btn" data-action="max">MAX</button>
+</div>
                         
                         <div id="jackpot-chance-display" class="chance-display" style="color: #4338CA;">
                             Ваш шанс: 0%

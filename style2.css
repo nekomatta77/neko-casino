@@ -1502,3 +1502,260 @@
         border-width: 0 14px 18px 14px; /* Коррекция треугольника */
     }
 }
+/* --- КОМПАКТНЫЙ JACKPOT (Вставьте в style2.css, заменив старые стили) --- */
+
+/* 1. Контейнер: делаем уже */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Меньше отступы между блоками */
+    max-width: 500px; /* Было 600-800px */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 2. Инфо-панель (Банк и Таймер): компактнее */
+.jackpot-info-panel {
+    padding: 12px 20px; /* Уменьшено */
+    border-radius: 12px;
+}
+
+.pot-label {
+    font-size: 0.8em;
+    margin-bottom: 2px;
+}
+
+.pot-amount {
+    font-size: 1.6em; /* Уменьшено с 2.2em */
+}
+
+/* Таймер поменьше */
+.timer-circle {
+    width: 40px;  /* Было 50px */
+    height: 40px; /* Было 50px */
+    font-size: 1.2em;
+    border-width: 2px;
+}
+
+/* 3. Лента рулетки (САМОЕ ВАЖНОЕ) */
+.jackpot-tape-wrapper {
+    height: 90px; /* Уменьшено с 120px */
+    border-radius: 10px;
+}
+
+/* Карточка в ленте */
+.tape-card {
+    width: 60px;  /* Было 80px */
+    height: 60px; /* Было 80px */
+    margin: 0 5px; /* Отступы по 5px с каждой стороны (Итого ширина шага = 70px) */
+    border-radius: 6px;
+}
+
+/* Стрелка указатель (адаптируем под новый размер) */
+.jackpot-pointer {
+    width: 3px;
+}
+.jackpot-pointer::before {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #F5A623;
+    left: -6.5px;
+}
+.jackpot-pointer::after {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid #F5A623;
+    left: -6.5px;
+}
+
+/* 4. Панель управления (Ставки) */
+.jackpot-controls {
+    padding: 15px !important; /* Было 25px */
+    border-radius: 16px !important;
+}
+
+.jackpot-controls .keno-input-wrapper {
+    height: 45px; /* Было 55px */
+    border-radius: 10px !important;
+}
+
+#jackpot-bet-input {
+    font-size: 1.2em !important; /* Чуть меньше */
+}
+
+.jp-mult-btn {
+    height: 45px; /* Было 55px */
+    min-width: 45px;
+    padding: 0 10px !important;
+    font-size: 0.9em !important;
+}
+
+/* Быстрые кнопки */
+.jackpot-quick-amounts {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.jackpot-quick-amounts button, .jp-quick-btn {
+    padding: 8px 0;
+    font-size: 0.85em;
+}
+
+/* Список игроков */
+.jp-player-row {
+    padding: 8px 10px;
+}
+.jp-avatar-wrap {
+    width: 36px;
+    height: 36px;
+}
+.jp-bet {
+    font-size: 1em;
+}
+/* --- НОВЫЕ КНОПКИ MIN / MAX JACKPOT (В style2.css) --- */
+
+/* Сетка для двух кнопок */
+.jackpot-quick-amounts.two-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две равные колонки */
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Общий стиль для кнопок MIN и MAX */
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15); /* Прозрачный индиго */
+    border: 1px solid #4F46E5;
+    color: #A5B4FC;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-weight: 800;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Ховер эффект */
+.jp-quick-btn:hover {
+    background-color: #4F46E5;
+    color: white;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Нажатие */
+.jp-quick-btn:active {
+    transform: translateY(1px);
+}
+/* --- СТИЛИ ДЛЯ КАРТОЧЕК В ЛЕНТЕ (Вставьте в style2.css) --- */
+
+/* 1. Сама карточка - теперь колонка */
+.tape-card {
+    /* Размеры берем из вашего текущего конфига (60px для компактного или 80px для обычного) */
+    /* width и height уже заданы, тут добавляем layout */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important; /* Отступ между фото и процентом */
+    background-color: #2E3035;
+    border-radius: 10px;
+    border: 2px solid #373D49; /* Базовая рамка */
+    position: relative;
+    overflow: hidden; /* Чтобы ничего не торчало */
+}
+
+/* 2. Контейнер для аватарки */
+.tape-avatar-box {
+    width: 38px; /* Чуть меньше самой карточки */
+    height: 38px;
+    border-radius: 50%; /* Круглая аватарка */
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.15); /* Тонкая обводка внутри */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    flex-shrink: 0; /* Не сжимать */
+}
+
+.tape-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 3. Текст с шансом */
+.tape-chance-badge {
+    font-size: 0.7em; /* Мелкий шрифт */
+    font-weight: 800;
+    color: #FFF;
+    background: rgba(0, 0, 0, 0.4); /* Полупрозрачная подложка */
+    padding: 1px 5px;
+    border-radius: 4px;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    z-index: 2;
+}
+
+/* Цвета рамок (можно оставить старые, но убедитесь, что они применяются к .tape-card) */
+.tape-card.rare-1 { border-color: #4F46E5; } /* Индиго */
+.tape-card.rare-2 { border-color: #F5A623; } /* Золото */
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 10px rgba(0, 210, 106, 0.4); }
+/* --- Индивидуальный размер иконки Jackpot в меню --- */
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-icon {
+    height: 2.2em !important; /* Увеличьте это значение (стандарт: 1.4em) */
+    transform: scale(1.2);    /* Дополнительное увеличение масштаба, если нужно */
+}
+
+/* Опционально: поправить положение, если иконка стала слишком большой */
+.mini-games-nav-item[data-target="jackpot-game"] {
+    gap: 3px; /* Чуть уменьшить отступ до текста, если иконка широкая */
+}
+/* --- НАСТРОЙКИ МЕНЮ МИНИ-ИГР (Вставьте в style2.css) --- */
+
+/* 1. Настройка контейнера кнопки */
+.mini-games-nav-item {
+    display: flex;
+    align-items: center; /* Центрирование по вертикали */
+    justify-content: center; /* Центрирование по горизонтали */
+    gap: 8px; /* Базовое расстояние между иконкой и текстом */
+}
+
+/* 2. Настройка ИКОНКИ (перемещение) */
+.nav-game-icon {
+    position: relative;
+    /* Первое число - сдвиг по X (вправо/влево)
+       Второе число - сдвиг по Y (вниз/вверх)
+    */
+    transform: translate(0px, 0px); 
+    
+    /* Пример сдвига: */
+    /* transform: translate(2px, -1px); -> сдвинет на 2px вправо и 1px вверх */
+}
+
+/* 3. Настройка ТЕКСТА (размер и перемещение) */
+.nav-game-name {
+    position: relative;
+    font-weight: 700; /* Жирность */
+    
+    /* --- РАЗМЕР ТЕКСТА --- */
+    font-size: 1.1em; /* Меняйте это значение (было ~1em) */
+    
+    /* --- ПЕРЕМЕЩЕНИЕ ТЕКСТА --- */
+    /* Сдвиг отдельно от иконки */
+    transform: translate(-6px, 0px);
+}
+
+/* --- (Опционально) ИНДИВИДУАЛЬНЫЕ НАСТРОЙКИ ДЛЯ КАЖДОЙ ИГРЫ --- */
+
+/* Например, если нужно подвинуть текст только у Jackpot: */
+/*
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-name {
+    transform: translate(0px, 2px); 
+    font-size: 1.2em;
+}
+
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-icon {
+    transform: translate(-2px, 0px);
+}
+*/
