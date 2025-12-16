@@ -1193,3 +1193,144 @@
     background: linear-gradient(145deg, #1E1B4B, #23214A);
     border: 1px solid rgba(79, 70, 229, 0.3);
 }
+/* =========================================
+   JACKPOT REDESIGN (FINAL FIX)
+   ========================================= */
+
+/* 1. ГАРАНТИРУЕМ ПОРЯДОК: УЧАСТНИКИ ВНИЗУ */
+.jackpot-container {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Элементы управления ставкой (Input) - ВЫШЕ */
+.jackpot-controls {
+    order: 10 !important; /* Произвольный номер, но меньше чем у игроков */
+    margin-bottom: 20px !important;
+}
+
+/* Список игроков - В САМОМ НИЗУ */
+.jackpot-players-section {
+    order: 20 !important; /* Больше чем у Controls */
+    margin-top: 0 !important;
+}
+
+/* 2. НОВЫЙ ДИЗАЙН КНОПОК MIN/MAX (Цвет Индиго) */
+.jackpot-quick-amounts.two-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Две равные кнопки */
+    gap: 15px !important;
+    margin-top: 15px !important;
+    margin-bottom: 20px !important;
+}
+
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important; /* Полупрозрачный индиго */
+    border: 2px solid var(--color-primary) !important; /* Индиго рамка */
+    color: var(--color-primary) !important; /* Индиго текст */
+    border-radius: 12px !important;
+    padding: 12px 0 !important;
+    font-weight: 800 !important;
+    font-size: 1em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-transform: uppercase !important;
+}
+
+.jp-quick-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+.jp-quick-btn:active {
+    transform: translateY(1px) !important;
+}
+
+/* 3. ДИЗАЙН КНОПОК x2 и 1/2 (Цвет Индиго) */
+.jp-mult-btn {
+    background-color: #1E1B4B !important; /* Темный фон */
+    border: 1px solid var(--color-primary) !important;
+    color: #FFFFFF !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    /* Убедимся что их видно */
+    min-width: 50px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jp-mult-btn:hover {
+    background-color: var(--color-primary) !important;
+}
+
+/* 4. СТИЛЬ СПИСКА ИГРОКОВ (Фикс прилипания) */
+.jackpot-players-section {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+/* --- JACKPOT CARD STYLING --- */
+.lobby-game-wrapper[data-game-type="jackpot"] .lobby-game-card {
+    /* Золотисто-оранжевый градиент с ледяным блеском */
+    background-image: 
+        linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%), /* Светло-оранжевый фон */
+        linear-gradient(135deg, #FFFFFF 0%, #FFD700 25%, #FFA500 50%, #FFD700 75%, #FFFFFF 100%) !important; /* Золотая обводка */
+}
+
+/* Настройка позиции кота Джекпота */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: 100px !important; /* Чуть меньше, чтобы влез */
+    transform: translate(-50%, -50%) scale(1.0) !important;
+    top: 50% !important;
+}
+
+/* Эффект при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-5deg) !important; /* Легкий поворот */
+}
+
+/* --- JACKPOT CARD ICE STYLE --- */
+
+/* Фон и обводка - Ледяная тема */
+.lobby-game-wrapper[data-game-type="jackpot"] .lobby-game-card {
+    /* Ледяной градиент: Белый -> Голубой -> Синий -> Голубой -> Белый */
+    background-image: 
+        linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%), /* Внутренний фон (оставляем теплым для кота) */
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important; /* Ледяная обводка */
+}
+
+/* Ледяной уголок */
+.lobby-game-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    background-size: 200% 200% !important;
+    animation: ice-shimmer 4s ease infinite !important;
+    border-top-right-radius: 20px;
+    z-index: 10;
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    box-shadow: none !important;
+}
+
+/* Настройка позиции кота (оставляем без изменений или корректируем при необходимости) */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: 100px !important; 
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* Эффект при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-5deg) !important;
+}

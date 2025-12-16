@@ -1,5 +1,5 @@
 /*
- * jackpot.js - UPDATED (Buttons Fix, Min/Max Logic)
+ * jackpot.js - UPDATED (Fix 400 Error + Limits)
  */
 import { 
     getFirestore, doc, onSnapshot, runTransaction, 
@@ -96,8 +96,6 @@ function handleControlAction(action) {
             break;
         case 'max':
             // Максимум = либо баланс, либо лимит комнаты (что меньше)
-            // Но обычно в джекпоте MAX это просто ва-банк (баланс)
-            // Если нужно ограничить комнатой: Math.min(currentBalance, roomLimits.max)
             newVal = currentBalance; 
             break;
     }
@@ -244,6 +242,7 @@ function startLocalTimer(endTime) {
     countdownInterval = setInterval(update, 1000);
 }
 
+// --- ГЛАВНАЯ ФУНКЦИЯ СТАВКИ (ИСПРАВЛЕНА ОШИБКА 400) ---
 async function placeBet() {
     if (!currentUser) return alert("Войдите в аккаунт");
     if (!els.betInput) return;
@@ -251,7 +250,9 @@ async function placeBet() {
     const amount = parseFloat(els.betInput.value);
     const limits = ROOMS[activeRoom];
 
-    if (isNaN(amount) || amount < 1) return alert("Некорректная сумма");
+    if (isNaN(amount) || amount < 0.01) return alert("Некорректная сумма");
+    
+    // Проверка баланса (локальная, быстрая)
     if (amount > currentBalance) return alert("Недостаточно средств");
 
     // Загрузка данных пользователя для аватарки
@@ -262,32 +263,51 @@ async function placeBet() {
     
     const userRef = userSnap.docs[0].ref; 
     const userData = userSnap.docs[0].data();
-    const avatar = userData.customization?.avatar || 'assets/avatars/orange_cat_ava.png';
+    // Берем аватар из профиля или ставим дефолтный
+    const avatar = (userData.customization && userData.customization.avatar) ? userData.customization.avatar : 'assets/avatars/orange_cat_ava.png';
 
-    // Списание баланса
-    await updateBalance(-amount);
+    // ВАЖНО: Убрано предварительное списание updateBalance(-amount), 
+    // чтобы избежать ошибки 400 при одновременной записи.
 
     try {
         const roomRef = doc(db, 'jackpot_rooms', activeRoom);
 
         await runTransaction(db, async (transaction) => {
+            // 1. Читаем данные комнаты
             const roomDoc = await transaction.get(roomRef);
             if (!roomDoc.exists()) throw "Комната не найдена";
             
             const rData = roomDoc.data();
             if (rData.status === 'rolling') throw "Раунд уже идет, подождите";
 
+            // 2. Читаем актуальный баланс пользователя ВНУТРИ транзакции (для надежности)
+            const freshUserDoc = await transaction.get(userRef);
+            if (!freshUserDoc.exists()) throw "User not found";
+            const freshBalance = freshUserDoc.data().balance || 0;
+
+            if (freshBalance < amount) throw "Недостаточно средств";
+
             let players = rData.players || [];
             let playerIndex = players.findIndex(p => p.username === currentUser);
             
+            // Расчет новой общей ставки игрока
             let newTotalBet = amount;
             if (playerIndex !== -1) {
                 newTotalBet += players[playerIndex].amount;
             }
             
-            // ВАЛИДАЦИЯ МИНИМУМА (Только если это первая ставка или сумма меньше минимума)
-            // Мы позволяем докидывать сколько угодно, но первая ставка должна быть >= min
-            if (playerIndex === -1 && amount < limits.min) throw `Минимальная ставка ${limits.min} RUB`;
+            // --- ЛОГИКА ЛИМИТОВ (Задача 3) ---
+            
+            // Проверка МИНИМУМА (только для входа, если игрок еще не ставил)
+            if (playerIndex === -1 && amount < limits.min) {
+                throw `Минимальная ставка ${limits.min} RUB`;
+            }
+
+            // Проверка МАКСИМУМА (общая сумма ставок игрока не должна превышать лимит комнаты)
+            if (newTotalBet > limits.max) {
+                throw `Лимит комнаты "${activeRoom.toUpperCase()}": до ${limits.max} RUB на игрока. Вы уже поставили: ${playerIndex !== -1 ? players[playerIndex].amount.toFixed(2) : 0}`;
+            }
+            // --------------------------------
 
             if (playerIndex !== -1) {
                 players[playerIndex].amount = newTotalBet;
@@ -307,6 +327,7 @@ async function placeBet() {
                 players: players 
             };
 
+            // Запуск таймера, если 2 игрока
             if (players.length >= 2 && rData.status === 'waiting') {
                 updates.status = 'countdown';
                 const future = new Date();
@@ -314,14 +335,15 @@ async function placeBet() {
                 updates.endTime = future; 
             }
 
+            // Выполняем запись
             transaction.update(roomRef, updates);
+            // Списываем баланс здесь!
             transaction.update(userRef, { balance: increment(-amount) }); 
         });
 
     } catch (e) {
-        console.error(e);
-        await updateBalance(amount); // Возврат средств
-        const msg = typeof e === 'string' ? e : (e.message || "Ошибка");
+        console.error("Ошибка ставки:", e);
+        const msg = typeof e === 'string' ? e : (e.message || "Ошибка сервера");
         if(msg !== "Раунд уже идет, подождите") alert(msg);
     }
 }
@@ -393,6 +415,7 @@ function spinTape(winner, players) {
 
     let displayPool = [];
     players.forEach(p => {
+        // Чтобы было больше карточек у тех, кто больше поставил
         let count = Math.ceil(p.amount / (currentRoundData.pot / 50)); 
         if (count < 1) count = 1;
         if (count > 20) count = 20; 
