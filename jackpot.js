@@ -142,7 +142,12 @@ function resetUI() {
         els.tapeTrack.style.transform = 'translateX(0)';
         
         // !!! ПРИОРИТЕТНОЕ ВЫРАВНИВАНИЕ !!!
-        // Принудительно ставим flex и ширину 100%, чтобы центрировать часы
+        
+        // 1. Убираем padding-left, который задан в CSS для рулетки (50%)
+        // Иначе контент будет смещен вправо от центра
+        els.tapeTrack.style.paddingLeft = '0'; 
+
+        // 2. Принудительно ставим flex и ширину 100%, чтобы центрировать часы
         els.tapeTrack.style.display = 'flex';
         els.tapeTrack.style.width = '100%'; 
         els.tapeTrack.style.justifyContent = 'center';
@@ -221,8 +226,10 @@ function renderPlayers(players, totalPot) {
 
     // --- ЛОГИКА ОТОБРАЖЕНИЯ ЧАСОВ В ЛЕНТЕ ---
     if (players.length === 0) {
-        // Если игроков нет, показываем часы и фиксируем ширину
+        // Если игроков нет, показываем часы
         if (els.tapeTrack && !els.tapeTrack.classList.contains('spinning')) {
+            // Применяем те же фиксы выравнивания, что и в resetUI
+            els.tapeTrack.style.paddingLeft = '0';
             els.tapeTrack.style.width = '100%';
             els.tapeTrack.style.justifyContent = 'center';
             
@@ -237,7 +244,7 @@ function renderPlayers(players, totalPot) {
         // Если игроки появились, очищаем ленту от часов (готовим к игре)
         if (els.tapeTrack && els.tapeTrack.querySelector('.jackpot-waiting-visual')) {
             els.tapeTrack.innerHTML = '';
-            // Здесь ширину не сбрасываем, сбросим в spinTape, чтобы лента не дергалась
+            // Стили здесь не сбрасываем, они сбросятся в spinTape перед вращением
         }
     }
     // ----------------------------------------
@@ -483,6 +490,10 @@ function spinTape(winner, players) {
     tape.innerHTML = '';
     tape.style.width = ''; 
     tape.style.justifyContent = '';
+    
+    // !!! ВАЖНО: Возвращаем padding-left (сбрасывая inline-стиль), чтобы работал CSS
+    tape.style.paddingLeft = ''; 
+
     tape.style.display = 'flex'; // Оставляем flex, но без center
     // ---------------------------------------------
     
