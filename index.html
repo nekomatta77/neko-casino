@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CashCat</title>
     
-    <link rel="stylesheet" href="style.css?v=2.7">
+    <link rel="stylesheet" href="style.css?v=2.8">
     <link rel="stylesheet" href="style2.css?v=7.9">   
     <script src="https://unpkg.com/@vkid/sdk@2.6.2/dist-sdk/umd/index.js"></script>
     </head>
@@ -13,9 +13,10 @@
 
     <div id="falling-snow-container"></div>
 
-    <div id="loader-overlay">
+<div id="loader-overlay">
         <div class="loader-content">
-            <svg class="drawing-cat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            
+            <svg class="drawing-cat" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="margin-bottom: 15px;">
                 <g class="cat-lines">
                     <line x1="8.5" y1="4.5" x2="8.5" y2="5"></line>
                     <line x1="11.5" y1="4.5" x2="11.5" y2="5"></line>
@@ -26,7 +27,11 @@
                     <polyline points="9.5,7 10,6.5 10.5,7"></polyline>
                 </g>
             </svg>
-            <div class="loader-text">Loading</div>
+            
+            <div class="typing-wrapper">
+                <div class="typing-logo">CashCat</div>
+            </div>
+            
         </div>
     </div>
 
@@ -1593,6 +1598,7 @@
             <div class="wallet-tabs">
                 <button class="wallet-tab active" data-target="wallet-deposit-content">Пополнение</button>
                 <button class="wallet-tab" data-target="wallet-withdrawal-content">Вывод</button>
+                <button class="wallet-tab" data-target="wallet-history-content">История</button>
             </div>
 
             <div class="wallet-tab-content active" id="wallet-deposit-content">
@@ -1652,16 +1658,21 @@
                 <button id="wallet-withdrawal-button" class="auth-button blue-button full-width">Вывести</button>
             </div>
             
-            <div class="wallet-history-container" id="deposit-history-container">
-                <h4>История пополнений</h4>
-                <ul id="deposit-history-list" class="per-game-history-list">
+            <div class="wallet-tab-content" id="wallet-history-content">
+                <div class="wallet-subtabs">
+                    <button class="wallet-subtab active" data-target="history-deposits">Пополнения</button>
+                    <button class="wallet-subtab" data-target="history-withdrawals">Выводы</button>
+                </div>
+
+                <div class="wallet-subtab-content active" id="history-deposits">
+                    <ul id="deposit-history-list" class="per-game-history-list">
                     </ul>
-            </div>
-            
-            <div class="wallet-history-container hidden" id="withdrawal-history-container">
-                <h4>История выводов</h4>
-                <ul id="withdrawal-history-list" class="per-game-history-list">
+                </div>
+
+                <div class="wallet-subtab-content" id="history-withdrawals">
+                    <ul id="withdrawal-history-list" class="per-game-history-list">
                     </ul>
+                </div>
             </div>
 
         </div>

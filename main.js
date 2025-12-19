@@ -575,7 +575,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sessionStorage.removeItem('justLoggedIn');
             }, 1000);
         }
+// --- ЛОГИКА ВКЛАДОК КОШЕЛЬКА (ВКЛЮЧАЯ ИСТОРИЮ) ---
+    const walletTabs = document.querySelectorAll('.wallet-tab');
+    walletTabs.forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            const targetId = e.currentTarget.getAttribute('data-target');
+            if (!targetId) return;
 
+            // 1. Убираем active у всех вкладок
+            walletTabs.forEach(t => t.classList.remove('active'));
+            // 2. Ставим active нажатой
+            e.currentTarget.classList.add('active');
+
+            // 3. Скрываем все контенты
+            document.querySelectorAll('.wallet-tab-content').forEach(c => c.classList.remove('active'));
+            // 4. Показываем нужный
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.classList.add('active');
+        });
+    });
+
+    // --- ЛОГИКА ПОДВКЛАДОК ИСТОРИИ КОШЕЛЬКА ---
+    const walletSubtabs = document.querySelectorAll('.wallet-subtab');
+    walletSubtabs.forEach(subtab => {
+        subtab.addEventListener('click', (e) => {
+            const targetId = e.currentTarget.getAttribute('data-target');
+            if (!targetId) return;
+
+            // Находим родительский контейнер кнопок, чтобы переключить класс active только внутри него
+            const container = e.currentTarget.closest('.wallet-subtabs');
+            container.querySelectorAll('.wallet-subtab').forEach(t => t.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+
+            // Находим родительский контейнер контента (вкладка истории)
+            const contentParent = document.getElementById('wallet-history-content');
+            contentParent.querySelectorAll('.wallet-subtab-content').forEach(c => c.classList.remove('active'));
+            
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.classList.add('active');
+        });
+    });
         // --- КНОПКИ В ИНТЕРФЕЙСЕ ---
         const backBtn = document.getElementById('pp-back-button');
         if (backBtn) backBtn.addEventListener('click', () => { showSection('lobby'); });
