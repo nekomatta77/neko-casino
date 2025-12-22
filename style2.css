@@ -1,1 +1,50 @@
-/*ПИШИ СТИЛЬ ЗДЕСЬ
+/* =========================================
+   ИСПРАВЛЕНИЕ: MINES (САПЁР) НА iOS
+   ========================================= */
+
+/* 1. Фикс контейнера сетки */
+.mines-grid, .mines-field {
+    /* Гарантируем, что сетка не "гуляет" */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* 2. Фикс самой ячейки (мины) */
+.mine-cell, .mines-item {
+    /* Исправляет исчезновение границ и скруглений на iPhone */
+    -webkit-mask-image: -webkit-radial-gradient(white, black);
+    mask-image: radial-gradient(white, black);
+    
+    /* Жесткая фиксация пропорций, чтобы ячейка не сплющивалась */
+    aspect-ratio: 1 / 1 !important; 
+    
+    /* Запрет на изменение размера при появлении картинки */
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* 3. Фикс картинки внутри (бомба/алмаз) */
+.mine-cell img, .mines-item img {
+    /* Абсолютное позиционирование, чтобы картинка не раздвигала границы */
+    position: absolute !important;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    max-width: 80% !important; /* Ограничиваем размер иконки */
+    max-height: 80% !important;
+    width: auto !important;
+    height: auto !important;
+    
+    pointer-events: none; /* Клик проходит сквозь картинку */
+}
+
+/* 4. Если рамка исчезает при "активном" состоянии (открытая ячейка) */
+.mine-cell.active, .mine-cell.open {
+    /* Принудительная перерисовка границы */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); /* Легкая внутренняя рамка */
+    transform: translateZ(0);
+}
