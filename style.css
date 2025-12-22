@@ -15189,3 +15189,2067 @@ input:focus, button:focus { outline: none !important; box-shadow: none !importan
     transform: scale(1.3); /* Чуть больше */
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.8); /* Свечение */
 }
+/* =========================================
+   ИСПРАВЛЕНИЕ: КНОПКИ ВХОД / РЕГИСТРАЦИЯ
+   ========================================= */
+
+/* Анимация переливания (Purple Shimmer) */
+@keyframes btn-purple-shimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Применяем стили конкретно к комбинации классов, чтобы перебить style.css */
+.guest-btn.login-btn, 
+.guest-btn.register-btn {
+    /* 1. ФИОЛЕТОВЫЙ ФОН С ГРАДИЕНТОМ (Сам паддинг/тело кнопки) */
+    background-image: linear-gradient(
+        270deg, 
+        #4F46E5, /* Indigo (основной) */
+        #7C3AED, /* Violet (яркий центр) */
+        #6366F1, /* Light Indigo (светлый блик) */
+        #4F46E5  /* Indigo */
+    ) !important;
+    
+    background-size: 200% 200% !important; /* Увеличиваем фон для анимации */
+    animation: btn-purple-shimmer 3s ease infinite !important; /* Анимация движения */
+    
+    /* 2. БЕЛЫЙ ТЕКСТ */
+    color: #FFFFFF !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    font-size: 0.9em !important;
+    letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2); /* Легкая тень текста для читаемости */
+    
+    /* 3. ФОРМА И ОТСТУПЫ */
+    border: none !important;
+    border-radius: 12px !important; /* Скругленные углы */
+    padding: 10px 0 !important; /* Отступы внутри кнопки */
+    width: 100%; /* На всю ширину контейнера (если нужно) */
+    
+    /* 4. ТЕНИ И СВЕЧЕНИЕ */
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.3), /* Верхний блик (стекло) */
+        0 4px 15px rgba(79, 70, 229, 0.4) !important; /* Внешнее фиолетовое свечение */
+        
+    position: relative;
+    overflow: hidden; /* Чтобы блик не выходил за рамки */
+    z-index: 1;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+/* Эффект "Глянца" (Блик на верхней половине) */
+.guest-btn.login-btn::before,
+.guest-btn.register-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50%; /* Занимает верхнюю половину */
+    background: linear-gradient(
+        to bottom, 
+        rgba(255, 255, 255, 0.2) 0%, 
+        rgba(255, 255, 255, 0.0) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Ховер (Наведение) */
+.guest-btn.login-btn:hover,
+.guest-btn.register-btn:hover {
+    transform: translateY(-2px) !important; /* Приподнимаем */
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6) !important; /* Усиливаем свечение */
+    filter: brightness(1.1); /* Делаем чуть ярче */
+}
+
+/* Актив (Нажатие) */
+.guest-btn.login-btn:active,
+.guest-btn.register-btn:active {
+    transform: translateY(1px) !important; /* Вдавливаем */
+    box-shadow: 0 2px 5px rgba(124, 58, 237, 0.4) !important;
+}
+/* =========================================
+   СИСТЕМА УВЕДОМЛЕНИЙ (STYLE2.CSS)
+   ========================================= */
+
+.notif-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Базовый стиль уведомления (Прочитанное) */
+.notif-item {
+    padding: 12px 15px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 4px !important;
+    cursor: pointer !important; /* Курсор указывает, что можно нажать */
+    transition: all 0.2s ease !important;
+    
+    /* Прочитанное становится чуть прозрачным */
+    opacity: 0.6;
+    background-color: transparent;
+    border-left: 3px solid transparent !important;
+}
+
+/* Стиль НОВОГО уведомления (Непрочитанное) */
+.notif-item.new {
+    opacity: 1 !important;
+    background-color: rgba(79, 70, 229, 0.15) !important; /* Легкий Индиго фон */
+    border-left: 3px solid #4F46E5 !important; /* Индиго полоска слева */
+}
+
+/* Ховер эффект */
+.notif-item:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Заголовок уведомления */
+.notif-title {
+    font-size: 0.95em !important;
+    font-weight: 800 !important;
+    color: #FFFFFF !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Текст уведомления */
+.notif-text {
+    font-size: 0.85em !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    line-height: 1.3;
+}
+
+/* Время */
+.notif-time {
+    font-size: 0.7em !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    align-self: flex-end;
+    margin-top: 4px;
+}
+
+/* Скроллбар для списка */
+.notif-list::-webkit-scrollbar {
+    width: 4px;
+}
+.notif-list::-webkit-scrollbar-thumb {
+    background-color: #4F46E5;
+    border-radius: 4px;
+}
+/* =========================================
+   GUEST LOCK ANIMATION (ТРЯСКА КНОПОК)
+   ========================================= */
+
+@keyframes shake-lock {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-5px) rotate(-3deg); }
+    40% { transform: translateX(5px) rotate(3deg); }
+    60% { transform: translateX(-5px) rotate(-3deg); }
+    80% { transform: translateX(5px) rotate(3deg); }
+}
+
+.shake-btn {
+    animation: shake-lock 0.4s ease-in-out !important;
+    /* Усиливаем внимание красной обводкой на момент тряски (опционально) */
+    box-shadow: 0 0 15px rgba(255, 85, 85, 0.6) !important; 
+}
+/* Стили для соц. входа */
+.auth-divider {
+    text-align: center;
+    margin: 15px 0;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+    position: relative;
+}
+
+.auth-divider::before, .auth-divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: var(--color-border);
+}
+.auth-divider::before { left: 0; }
+.auth-divider::after { right: 0; }
+
+.auth-social-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.tg-auth-btn {
+    background: rgba(42, 171, 238, 0.15);
+    color: #2AABEE;
+}
+
+.tg-auth-btn:hover {
+    background: rgba(42, 171, 238, 0.25);
+}
+
+.tg-auth-btn img {
+    width: 24px;
+    height: 24px;
+}
+/* --- СТИЛЬ ДЛЯ ИКОНКИ БАЛАНСА (FISH) --- */
+.balance-icon {
+    width: 20px; /* Размер иконки */
+    height: 20px;
+    object-fit: contain;
+    vertical-align: middle; /* Выравнивание по центру текста */
+    margin-left: 6px; /* Отступ от цифр */
+    margin-bottom: 3px; /* Небольшая коррекция по высоте */
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4)); /* Легкое свечение */
+    display: inline-block;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .balance-icon {
+        width: 18px;
+        height: 18px;
+    }
+}
+/* --- JACKPOT STYLES --- */
+
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Комнаты */
+.jackpot-rooms {
+    display: flex;
+    gap: 10px;
+    background-color: var(--color-sidebar);
+    padding: 5px;
+    border-radius: 12px;
+}
+
+.room-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.room-btn .room-name {
+    font-weight: 900;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+}
+
+.room-btn .room-limit {
+    font-size: 0.75em;
+    color: var(--color-text-light);
+    opacity: 0.6;
+}
+
+.room-btn.active {
+    background-color: var(--color-primary);
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+}
+.room-btn.active .room-limit { opacity: 0.9; }
+
+/* Инфо панель (Банк и Таймер) */
+.jackpot-info-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #1E1B4B, #312E81);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+}
+
+.jackpot-pot-box {
+    display: flex;
+    flex-direction: column;
+}
+.pot-label {
+    font-size: 0.9em;
+    color: #A5B4FC;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.pot-amount {
+    font-size: 2em;
+    font-weight: 900;
+    color: #00D26A; /* Зеленый */
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.4);
+}
+
+.jackpot-timer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.timer-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid #F5A623;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #FFF;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.2);
+}
+.timer-status {
+    font-size: 0.8em;
+    color: rgba(255,255,255,0.7);
+}
+
+/* ЛЕНТА (TAPE) */
+.jackpot-tape-wrapper {
+    position: relative;
+    height: 120px;
+    background-color: #15171C;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid var(--color-border-dark);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+}
+
+.jackpot-pointer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background-color: #F5A623;
+    transform: translateX(-50%);
+    z-index: 10;
+    box-shadow: 0 0 10px #F5A623;
+}
+/* Стрелочка сверху */
+.jackpot-pointer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 15px solid #F5A623;
+}
+/* Стрелочка снизу */
+.jackpot-pointer::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -8px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 15px solid #F5A623;
+}
+
+.jackpot-tape-track {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding-left: 50%; /* Начинаем с центра */
+    /* transition управляется через JS для анимации */
+}
+
+.tape-card {
+    width: 80px;
+    height: 80px;
+    margin: 0 5px;
+    background-color: #2E3035;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.tape-card img {
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    object-fit: cover;
+}
+/* Рамки для карточек в ленте (по цвету игрока или рандом) */
+.tape-card.rare-1 { border-color: #818CF8; box-shadow: 0 0 10px rgba(129, 140, 248, 0.3); }
+.tape-card.rare-2 { border-color: #F5A623; box-shadow: 0 0 10px rgba(245, 166, 35, 0.3); }
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 10px rgba(0, 210, 106, 0.3); }
+
+/* Победитель */
+#jackpot-winner-display {
+    background: rgba(0, 210, 106, 0.1);
+    border: 1px solid #00D26A;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+    animation: popIn 0.3s;
+}
+#jackpot-winner-display .win-amount {
+    font-size: 1.5em;
+    color: #00D26A;
+    margin-top: 5px;
+}
+
+/* Кнопки быстрых ставок */
+.jackpot-quick-amounts {
+    display: flex;
+    gap: 5px;
+}
+.jackpot-quick-amounts button {
+    background-color: var(--color-sidebar);
+    border: 1px solid var(--color-border-dark);
+    color: var(--color-text-light);
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 0.8em;
+    cursor: pointer;
+}
+.jackpot-quick-amounts button:hover {
+    background-color: var(--color-border-dark);
+}
+
+/* Список игроков */
+.jp-player-row {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.jp-player-ava {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.jp-player-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.jp-name { font-weight: bold; font-size: 0.9em; color: #FFF; }
+.jp-bet { color: #00D26A; font-weight: bold; }
+.jp-chance { font-weight: bold; color: #F5A623; }
+/* --- JACKPOT STYLES (UPDATED) --- */
+
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Комнаты */
+.jackpot-rooms {
+    display: flex;
+    gap: 8px;
+    background-color: #15171C; /* Темный фон */
+    padding: 6px;
+    border-radius: 14px;
+    border: 1px solid var(--color-border-dark);
+}
+
+.room-btn {
+    flex: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 10px 5px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.2s;
+    color: rgba(255,255,255,0.5);
+}
+
+.room-btn .room-name {
+    font-weight: 900;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.room-btn .room-limit {
+    font-size: 0.7em;
+    margin-top: 2px;
+}
+
+.room-btn.active {
+    background: linear-gradient(135deg, #4F46E5, #6366F1); /* Indigo */
+    color: #FFF;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+}
+.room-btn.active .room-limit { color: rgba(255,255,255,0.8); }
+
+/* Инфо панель */
+.jackpot-info-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border-radius: 16px;
+    padding: 20px 25px;
+    border: 1px solid rgba(79, 70, 229, 0.4);
+    box-shadow: 0 0 25px rgba(79, 70, 229, 0.15);
+}
+
+.jackpot-pot-box {
+    display: flex;
+    flex-direction: column;
+}
+.pot-label {
+    font-size: 0.8em;
+    color: #A5B4FC; /* Светлый индиго */
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+.pot-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+.pot-amount {
+    font-size: 2.2em;
+    font-weight: 900;
+    color: #00D26A; /* Зеленый */
+    text-shadow: 0 0 15px rgba(0, 210, 106, 0.3);
+    line-height: 1;
+}
+.jackpot-pot-box .currency {
+    color: #FFF;
+    font-weight: 700;
+    font-size: 1em;
+}
+
+.jackpot-timer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.timer-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 3px solid #F5A623;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6em;
+    font-weight: 900;
+    color: #FFF;
+    margin-bottom: 5px;
+    background-color: rgba(0,0,0,0.3);
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    transition: border-color 0.3s;
+}
+.timer-status {
+    font-size: 0.75em;
+    color: rgba(255,255,255,0.6);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Лента */
+.jackpot-tape-wrapper {
+    position: relative;
+    height: 130px;
+    background-color: #0F1020; /* Почти черный */
+    border-radius: 16px;
+    overflow: hidden;
+    border: 2px solid #373D49;
+    box-shadow: inset 0 0 40px #000;
+    margin-bottom: 5px;
+}
+
+.jackpot-pointer {
+    position: absolute;
+    top: 0; bottom: 0; left: 50%;
+    width: 3px;
+    background-color: #F5A623;
+    transform: translateX(-50%);
+    z-index: 10;
+    box-shadow: 0 0 15px #F5A623;
+}
+.jackpot-pointer::before, .jackpot-pointer::after {
+    content: ''; position: absolute; left: -9px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+}
+.jackpot-pointer::before { top: 0; border-top: 15px solid #F5A623; }
+.jackpot-pointer::after { bottom: 0; border-bottom: 15px solid #F5A623; }
+
+.jackpot-tape-track {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    padding-left: 50%;
+    will-change: transform;
+}
+
+.tape-card {
+    width: 90px;
+    height: 90px;
+    margin: 0 4px;
+    background-color: #2E3035;
+    border-radius: 12px;
+    border: 3px solid #373D49;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.tape-card img {
+    width: 100%; height: 100%;
+    border-radius: 9px;
+    object-fit: cover;
+}
+.tape-card.rare-1 { border-color: #4F46E5; } /* Indigo */
+.tape-card.rare-2 { border-color: #F5A623; } /* Gold */
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 15px rgba(0,210,106,0.4); z-index: 2; }
+
+/* Участники (Новый стиль) */
+.jackpot-players-section {
+    background-color: #1E1B4B; /* Dark Blue */
+    border: 1px solid #373D49;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.jp-section-header {
+    background-color: rgba(0,0,0,0.2);
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-weight: 800;
+    color: #FFF;
+    font-size: 0.9em;
+    text-transform: uppercase;
+}
+
+.jp-count-badge {
+    background-color: #4F46E5;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.jp-players-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.jp-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+}
+.jp-player-row:last-child { border-bottom: none; }
+
+/* Подсветка "Это я" */
+.jp-player-row.is-me {
+    background: rgba(79, 70, 229, 0.1); /* Индиго фон */
+    border-left: 3px solid #4F46E5;
+}
+
+.jp-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.jp-avatar-wrap {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+.jp-player-ava {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 2px solid #373D49;
+    object-fit: cover;
+}
+.jp-percent-badge {
+    position: absolute;
+    bottom: -5px; right: -5px;
+    background-color: #2E3035;
+    color: #FFF;
+    font-size: 0.65em;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.jp-name {
+    font-weight: 700;
+    color: #FFF;
+    font-size: 0.95em;
+}
+
+.jp-bet {
+    font-weight: 800;
+    color: #00D26A;
+    font-size: 1em;
+}
+
+/* Контролы (Input) */
+.jackpot-controls {
+    margin-top: 5px;
+    background-color: #2E3035; /* Темный фон панели */
+}
+
+.jackpot-quick-amounts button {
+    background-color: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.8);
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.jackpot-quick-amounts button:hover {
+    background-color: #4F46E5;
+    border-color: #4F46E5;
+    color: #FFF;
+}
+
+.chance-display {
+    text-align: center;
+    margin: 10px 0;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+/* Победитель */
+#jackpot-winner-display {
+    background: linear-gradient(135deg, #1E1B4B, #0F1020);
+    border: 2px solid #00D26A;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 15px;
+    box-shadow: 0 0 30px rgba(0, 210, 106, 0.3);
+    animation: popIn 0.4s;
+}
+.winner-congrats {
+    font-size: 0.9em;
+    color: #00D26A;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.winner-card {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+#jp-winner-name {
+    font-size: 1.5em;
+    color: #FFF;
+    font-weight: 900;
+}
+.winner-stats {
+    font-size: 0.9em;
+    color: rgba(255,255,255,0.6);
+}
+.highlight { color: #F5A623; font-weight: bold; }
+.win-amount {
+    font-size: 1.8em;
+    color: #00D26A;
+    font-weight: 900;
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.5);
+    margin-top: 5px;
+}
+/* =========================================
+   JACKPOT REDESIGN (ORDER & AESTHETICS)
+   ========================================= */
+
+/* 1. КОНТЕЙНЕР (Включаем Flexbox для смены порядка) */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Устанавливаем порядок элементов */
+.jackpot-rooms { order: 1; }
+.jackpot-info-panel { order: 2; }
+.jackpot-tape-wrapper { order: 3; }
+#jackpot-winner-display { order: 4; }
+
+/* --- МЕНЯЕМ МЕСТАМИ СПИСОК И СТАВКУ --- */
+/* Список игроков теперь ВЫШЕ (order 5) */
+.jackpot-players-section { 
+    order: 5; 
+    margin-bottom: 0; 
+}
+
+/* Панель ставок теперь НИЖЕ (order 6) */
+.jackpot-controls { 
+    order: 6; 
+}
+
+
+/* 2. ЭСТЕТИКА ПАНЕЛИ СТАВОК (INDIGO STYLE) */
+.jackpot-controls {
+    /* Глубокий темный фон с градиентом */
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important; /* Индиго рамка */
+    border-radius: 20px !important; /* Сильное скругление */
+    padding: 25px 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    margin-top: 0 !important;
+}
+
+/* Заголовок "Сумма ставки" */
+.jackpot-controls .keno-bet-input-header {
+    color: #FFFFFF !important;
+    font-size: 0.9em;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+}
+
+/* Обертка поля ввода */
+.jackpot-controls .keno-input-wrapper {
+    background-color: #15171C !important; /* Очень темный фон */
+    border: 1px solid #373D49 !important;
+    border-radius: 12px !important;
+    height: 55px; /* Чуть выше для удобства */
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Эффект фокуса на поле ввода */
+.jackpot-controls .keno-input-wrapper:focus-within {
+    border-color: #4F46E5 !important; /* Индиго */
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.25);
+}
+
+/* Само поле ввода */
+#jackpot-bet-input {
+    background: transparent !important;
+    border: none !important;
+    color: #FFFFFF !important;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.5em !important;
+    font-weight: 800;
+    text-align: left;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    outline: none !important;
+}
+
+/* Знак валюты */
+.jackpot-controls .currency-icon {
+    color: #4F46E5 !important;
+    font-weight: 900;
+    font-size: 1.2em;
+    margin-right: 10px;
+}
+
+/* Кнопки множителей (1/2, x2) */
+.jp-mult-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important;
+    border: 1px solid rgba(79, 70, 229, 0.4) !important;
+    color: #A5B4FC !important; /* Светлый индиго */
+    border-radius: 10px !important;
+    padding: 0 15px !important;
+    font-weight: 800 !important;
+    cursor: pointer;
+    transition: all 0.2s;
+    height: 55px; /* Высота как у инпута */
+    min-width: 50px;
+}
+
+.jp-mult-btn:hover {
+    background-color: #4F46E5 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+
+/* Быстрые кнопки (+10, +50, MAX) */
+.jackpot-quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.jackpot-quick-amounts button {
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 0;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 700;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.jackpot-quick-amounts button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #FFFFFF;
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.jackpot-quick-amounts button[data-amt="max"] {
+    background-color: rgba(245, 166, 35, 0.15); /* Оранжевый оттенок */
+    color: #F5A623;
+    border-color: rgba(245, 166, 35, 0.4);
+}
+.jackpot-quick-amounts button[data-amt="max"]:hover {
+    background-color: #F5A623;
+    color: #1E1B4B;
+    box-shadow: 0 0 10px rgba(245, 166, 35, 0.4);
+}
+
+/* Отображение шанса */
+#jackpot-chance-display {
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 800;
+    color: #A5B4FC !important; /* Светлый индиго */
+    font-size: 1.1em;
+    text-shadow: 0 0 15px rgba(79, 70, 229, 0.3);
+    background-color: rgba(0,0,0,0.2);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+}
+
+/* Главная кнопка "Внести в банк" */
+#jackpot-place-bet {
+    background: linear-gradient(90deg, #4F46E5, #6366F1) !important;
+    box-shadow: 0 4px 0 #3730A3 !important;
+    border-radius: 12px;
+    height: 55px;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #FFFFFF !important;
+    font-weight: 900;
+    transition: all 0.2s;
+}
+#jackpot-place-bet:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #3730A3, 0 0 20px rgba(79, 70, 229, 0.4) !important;
+}
+#jackpot-place-bet:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #3730A3 !important;
+}
+
+
+/* 3. СТИЛИ СПИСКА ИГРОКОВ (СОВРЕМЕННЫЙ ДИЗАЙН) */
+.jackpot-players-section {
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    margin-top: 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.jp-section-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.jp-section-header span {
+    font-weight: 800;
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.jp-count-badge {
+    background-color: #4F46E5;
+    color: #FFFFFF;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.jp-players-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+/* Строка игрока */
+.jp-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s;
+}
+
+.jp-player-row:last-child { border-bottom: none; }
+
+/* Подсветка себя */
+.jp-player-row.is-me {
+    background-color: rgba(79, 70, 229, 0.15);
+    border-left: 4px solid #4F46E5;
+}
+
+.jp-row-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Аватарка с процентом */
+.jp-avatar-wrap {
+    position: relative;
+    width: 42px;
+    height: 42px;
+}
+
+.jp-player-ava {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.jp-percent-badge {
+    position: absolute;
+    bottom: -6px;
+    right: -8px;
+    background-color: #2E3035;
+    border: 1px solid #4F46E5;
+    color: #FFFFFF;
+    font-size: 0.65em;
+    padding: 1px 5px;
+    border-radius: 6px;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.jp-name {
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 0.95em;
+}
+
+.jp-bet {
+    color: #00D26A; /* Зеленый для денег */
+    font-weight: 800;
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.1em;
+    text-shadow: 0 0 10px rgba(0, 210, 106, 0.3);
+}
+/* =========================================
+   JACKPOT FIXES (ORDER & NEW BUTTONS)
+   ========================================= */
+
+/* 1. ПОРЯДОК ЭЛЕМЕНТОВ (СПИСОК ВНИЗУ) */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ставка выше (order 5) */
+.jackpot-controls {
+    order: 5 !important;
+    margin-bottom: 20px !important;
+}
+
+/* Список игроков ниже (order 6) */
+.jackpot-players-section {
+    order: 6 !important;
+    margin-top: 0 !important;
+}
+
+/* 2. НОВЫЙ ДИЗАЙН КНОПОК MIN/MAX (INDIGO) */
+.jackpot-quick-amounts.two-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две равные кнопки */
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important; /* Полупрозрачный индиго */
+    border: 2px solid var(--color-primary) !important; /* Индиго рамка */
+    color: var(--color-primary) !important; /* Индиго текст */
+    border-radius: 12px;
+    padding: 12px 0;
+    font-weight: 800;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.jp-quick-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+}
+
+.jp-quick-btn:active {
+    transform: translateY(1px);
+}
+
+/* 3. КНОПКИ x2 и 1/2 (Цвет Индиго) */
+.jp-mult-btn {
+    background-color: #1E1B4B !important; /* Темный фон */
+    border: 1px solid var(--color-primary) !important;
+    color: #FFFFFF !important;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.jp-mult-btn:hover {
+    background-color: var(--color-primary) !important;
+}
+
+/* 4. СПИСОК ИГРОКОВ (Фикс визуального бага если он прилип) */
+.jackpot-players-section {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #1E1B4B, #23214A);
+    border: 1px solid rgba(79, 70, 229, 0.3);
+}
+/* =========================================
+   JACKPOT REDESIGN (FINAL FIX)
+   ========================================= */
+
+/* 1. ГАРАНТИРУЕМ ПОРЯДОК: УЧАСТНИКИ ВНИЗУ */
+.jackpot-container {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Элементы управления ставкой (Input) - ВЫШЕ */
+.jackpot-controls {
+    order: 10 !important; /* Произвольный номер, но меньше чем у игроков */
+    margin-bottom: 20px !important;
+}
+
+/* Список игроков - В САМОМ НИЗУ */
+.jackpot-players-section {
+    order: 20 !important; /* Больше чем у Controls */
+    margin-top: 0 !important;
+}
+
+/* 2. НОВЫЙ ДИЗАЙН КНОПОК MIN/MAX (Цвет Индиго) */
+.jackpot-quick-amounts.two-buttons {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Две равные кнопки */
+    gap: 15px !important;
+    margin-top: 15px !important;
+    margin-bottom: 20px !important;
+}
+
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15) !important; /* Полупрозрачный индиго */
+    border: 2px solid var(--color-primary) !important; /* Индиго рамка */
+    color: var(--color-primary) !important; /* Индиго текст */
+    border-radius: 12px !important;
+    padding: 12px 0 !important;
+    font-weight: 800 !important;
+    font-size: 1em !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    text-transform: uppercase !important;
+}
+
+.jp-quick-btn:hover {
+    background-color: var(--color-primary) !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+.jp-quick-btn:active {
+    transform: translateY(1px) !important;
+}
+
+/* 3. ДИЗАЙН КНОПОК x2 и 1/2 (Цвет Индиго) */
+.jp-mult-btn {
+    background-color: #1E1B4B !important; /* Темный фон */
+    border: 1px solid var(--color-primary) !important;
+    color: #FFFFFF !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: background 0.2s !important;
+    /* Убедимся что их видно */
+    min-width: 50px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jp-mult-btn:hover {
+    background-color: var(--color-primary) !important;
+}
+
+/* 4. СТИЛЬ СПИСКА ИГРОКОВ (Фикс прилипания) */
+.jackpot-players-section {
+    border-radius: 20px !important;
+    overflow: hidden !important;
+    background: linear-gradient(145deg, #1E1B4B, #23214A) !important;
+    border: 1px solid rgba(79, 70, 229, 0.3) !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+/* --- JACKPOT CARD STYLING --- */
+.lobby-game-wrapper[data-game-type="jackpot"] .lobby-game-card {
+    /* Золотисто-оранжевый градиент с ледяным блеском */
+    background-image: 
+        linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%), /* Светло-оранжевый фон */
+        linear-gradient(135deg, #FFFFFF 0%, #FFD700 25%, #FFA500 50%, #FFD700 75%, #FFFFFF 100%) !important; /* Золотая обводка */
+}
+
+/* Настройка позиции кота Джекпота */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: 100px !important; /* Чуть меньше, чтобы влез */
+    transform: translate(-50%, -50%) scale(1.0) !important;
+    top: 50% !important;
+}
+
+/* Эффект при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-5deg) !important; /* Легкий поворот */
+}
+
+/* --- JACKPOT CARD ICE STYLE --- */
+
+/* Фон и обводка - Ледяная тема */
+.lobby-game-wrapper[data-game-type="jackpot"] .lobby-game-card {
+    /* Ледяной градиент: Белый -> Голубой -> Синий -> Голубой -> Белый */
+    background-image: 
+        linear-gradient(135deg, #FFF7ED 0%, #FFEDD5 100%), /* Внутренний фон (оставляем теплым для кота) */
+        linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important; /* Ледяная обводка */
+}
+
+/* Ледяной уголок */
+.lobby-game-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--ice-white) 0%, var(--ice-light) 25%, var(--ice-deep) 50%, var(--ice-light) 75%, var(--ice-white) 100%) !important;
+    background-size: 200% 200% !important;
+    animation: ice-shimmer 4s ease infinite !important;
+    border-top-right-radius: 20px;
+    z-index: 10;
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    box-shadow: none !important;
+}
+
+/* Настройка позиции кота (оставляем без изменений или корректируем при необходимости) */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: 100px !important; 
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* Эффект при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(-50%, -50%) scale(1.15) rotate(-5deg) !important;
+}
+/* =========================================
+   JACKPOT CARD SETTINGS (Вставьте в конец style2.css)
+   ========================================= */
+
+:root {
+    /* Настройки размера и позиции для Jackpot */
+    --img-size-jackpot: 110px; /* <--- МЕНЯЙТЕ РАЗМЕР ЗДЕСЬ (больше/меньше) */
+    --img-x-jackpot: 0px;      /* Сдвиг вправо/влево (например, 10px или -10px) */
+    --img-y-jackpot: 0px;      /* Сдвиг вниз/вверх */
+}
+
+/* Применяем настройки к картинке кота на карточке Jackpot */
+.lobby-game-wrapper[data-game-type="jackpot"] .game-card-cat {
+    height: var(--img-size-jackpot) !important;
+    width: auto !important;
+    /* Центрирование + Индивидуальный сдвиг */
+    transform: translate(calc(-50% + var(--img-x-jackpot)), calc(-50% + var(--img-y-jackpot))) !important;
+}
+
+/* Эффект увеличения при наведении */
+.lobby-game-wrapper[data-game-type="jackpot"]:hover .game-card-cat {
+    transform: translate(calc(-50% + var(--img-x-jackpot)), calc(-50% + var(--img-y-jackpot))) scale(1.1) !important;
+}
+/* =========================================
+   JACKPOT WAITING STATE (RESPONSIVE FIX)
+   ========================================= */
+
+/* Контейнер: занимает всю высоту ленты и центрирует контент */
+.jackpot-waiting-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 140px; /* Стандартная высота для ПК */
+    animation: fadeIn 0.5s ease;
+    /* Гарантируем, что элемент не сожмется */
+    flex-shrink: 0; 
+}
+
+/* Иконка часов (Контейнер) */
+.hourglass-icon {
+    width: 50px;
+    height: 50px;
+    position: relative;
+    /* Плавная анимация вращения */
+    animation: hourglassSpin 3s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+/* Треугольники часов (Верх и Низ) */
+.hourglass-icon::before,
+.hourglass-icon::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+/* Верхняя колба (Индиго) */
+.hourglass-icon::before {
+    top: 0;
+    border-width: 25px 20px 0 20px; /* Высота 25px, Ширина 40px */
+    border-color: var(--color-primary) transparent transparent transparent;
+    filter: drop-shadow(0 0 5px rgba(79, 70, 229, 0.6));
+}
+
+/* Нижняя колба (Оранжевая/Золотая) */
+.hourglass-icon::after {
+    bottom: 0;
+    border-width: 0 20px 25px 20px;
+    border-color: transparent transparent var(--color-orange) transparent;
+    filter: drop-shadow(0 0 5px rgba(245, 166, 35, 0.6));
+}
+
+/* Текст "Ожидание" */
+.jackpot-waiting-text {
+    margin-top: 15px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 800;
+    font-size: 1.2em;
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    animation: pulseText 2s infinite;
+}
+
+/* --- АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ --- */
+@media (max-width: 768px) {
+    
+    /* Уменьшаем высоту контейнера, чтобы не растягивал ленту */
+    .jackpot-waiting-visual {
+        min-height: 110px; /* Компактная высота */
+    }
+
+    /* Уменьшаем размер иконки */
+    .hourglass-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    /* Пересчитываем треугольники под размер 36px */
+    .hourglass-icon::before {
+        border-width: 18px 14px 0 14px; /* Высота 18px, половина ширины 14px */
+    }
+    .hourglass-icon::after {
+        border-width: 0 14px 18px 14px;
+    }
+
+    /* Уменьшаем текст и отступы */
+    .jackpot-waiting-text {
+        font-size: 0.9em;
+        margin-top: 8px;
+    }
+}
+
+/* --- АНИМАЦИИ --- */
+@keyframes hourglassSpin {
+    0% { transform: rotate(0deg); }
+    45% { transform: rotate(0deg); } /* Пауза */
+    50% { transform: rotate(180deg); } /* Переворот */
+    95% { transform: rotate(180deg); } /* Пауза перевернутым */
+    100% { transform: rotate(360deg); } /* Возврат */
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+/* Выравнивание блока ожидания */
+.jackpot-waiting-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;     /* Центрируем по горизонтали */
+    justify-content: center; /* Центрируем по вертикали */
+    width: 100%;             /* Занимаем всю доступную ширину */
+    height: 100%;            /* Занимаем всю высоту ленты */
+    min-height: 140px;       /* Минимальная высота для ПК */
+    margin: 0 auto;          /* На всякий случай */
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 768px) {
+    .jackpot-waiting-visual {
+        min-height: 110px; /* Высота поменьше для телефонов */
+    }
+    
+    .hourglass-icon {
+        width: 35px; /* Иконка поменьше */
+        height: 35px;
+    }
+    
+    .hourglass-icon::before {
+        border-width: 18px 14px 0 14px; /* Коррекция треугольника */
+    }
+    .hourglass-icon::after {
+        border-width: 0 14px 18px 14px; /* Коррекция треугольника */
+    }
+}
+/* --- КОМПАКТНЫЙ JACKPOT (Вставьте в style2.css, заменив старые стили) --- */
+
+/* 1. Контейнер: делаем уже */
+.jackpot-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Меньше отступы между блоками */
+    max-width: 500px; /* Было 600-800px */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* 2. Инфо-панель (Банк и Таймер): компактнее */
+.jackpot-info-panel {
+    padding: 12px 20px; /* Уменьшено */
+    border-radius: 12px;
+}
+
+.pot-label {
+    font-size: 0.8em;
+    margin-bottom: 2px;
+}
+
+.pot-amount {
+    font-size: 1.6em; /* Уменьшено с 2.2em */
+}
+
+/* Таймер поменьше */
+.timer-circle {
+    width: 40px;  /* Было 50px */
+    height: 40px; /* Было 50px */
+    font-size: 1.2em;
+    border-width: 2px;
+}
+
+/* 3. Лента рулетки (САМОЕ ВАЖНОЕ) */
+.jackpot-tape-wrapper {
+    height: 90px; /* Уменьшено с 120px */
+    border-radius: 10px;
+}
+
+/* Карточка в ленте */
+.tape-card {
+    width: 60px;  /* Было 80px */
+    height: 60px; /* Было 80px */
+    margin: 0 5px; /* Отступы по 5px с каждой стороны (Итого ширина шага = 70px) */
+    border-radius: 6px;
+}
+
+/* Стрелка указатель (адаптируем под новый размер) */
+.jackpot-pointer {
+    width: 3px;
+}
+.jackpot-pointer::before {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid #F5A623;
+    left: -6.5px;
+}
+.jackpot-pointer::after {
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 10px solid #F5A623;
+    left: -6.5px;
+}
+
+/* 4. Панель управления (Ставки) */
+.jackpot-controls {
+    padding: 15px !important; /* Было 25px */
+    border-radius: 16px !important;
+}
+
+.jackpot-controls .keno-input-wrapper {
+    height: 45px; /* Было 55px */
+    border-radius: 10px !important;
+}
+
+#jackpot-bet-input {
+    font-size: 1.2em !important; /* Чуть меньше */
+}
+
+.jp-mult-btn {
+    height: 45px; /* Было 55px */
+    min-width: 45px;
+    padding: 0 10px !important;
+    font-size: 0.9em !important;
+}
+
+/* Быстрые кнопки */
+.jackpot-quick-amounts {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.jackpot-quick-amounts button, .jp-quick-btn {
+    padding: 8px 0;
+    font-size: 0.85em;
+}
+
+/* Список игроков */
+.jp-player-row {
+    padding: 8px 10px;
+}
+.jp-avatar-wrap {
+    width: 36px;
+    height: 36px;
+}
+.jp-bet {
+    font-size: 1em;
+}
+/* --- НОВЫЕ КНОПКИ MIN / MAX JACKPOT (В style2.css) --- */
+
+/* Сетка для двух кнопок */
+.jackpot-quick-amounts.two-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Две равные колонки */
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Общий стиль для кнопок MIN и MAX */
+.jp-quick-btn {
+    background-color: rgba(79, 70, 229, 0.15); /* Прозрачный индиго */
+    border: 1px solid #4F46E5;
+    color: #A5B4FC;
+    border-radius: 10px;
+    padding: 10px 0;
+    font-weight: 800;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Ховер эффект */
+.jp-quick-btn:hover {
+    background-color: #4F46E5;
+    color: white;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Нажатие */
+.jp-quick-btn:active {
+    transform: translateY(1px);
+}
+/* --- СТИЛИ ДЛЯ КАРТОЧЕК В ЛЕНТЕ (Вставьте в style2.css) --- */
+
+/* 1. Сама карточка - теперь колонка */
+.tape-card {
+    /* Размеры берем из вашего текущего конфига (60px для компактного или 80px для обычного) */
+    /* width и height уже заданы, тут добавляем layout */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important; /* Отступ между фото и процентом */
+    background-color: #2E3035;
+    border-radius: 10px;
+    border: 2px solid #373D49; /* Базовая рамка */
+    position: relative;
+    overflow: hidden; /* Чтобы ничего не торчало */
+}
+
+/* 2. Контейнер для аватарки */
+.tape-avatar-box {
+    width: 38px; /* Чуть меньше самой карточки */
+    height: 38px;
+    border-radius: 50%; /* Круглая аватарка */
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.15); /* Тонкая обводка внутри */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    flex-shrink: 0; /* Не сжимать */
+}
+
+.tape-avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 3. Текст с шансом */
+.tape-chance-badge {
+    font-size: 0.7em; /* Мелкий шрифт */
+    font-weight: 800;
+    color: #FFF;
+    background: rgba(0, 0, 0, 0.4); /* Полупрозрачная подложка */
+    padding: 1px 5px;
+    border-radius: 4px;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    z-index: 2;
+}
+
+/* Цвета рамок (можно оставить старые, но убедитесь, что они применяются к .tape-card) */
+.tape-card.rare-1 { border-color: #4F46E5; } /* Индиго */
+.tape-card.rare-2 { border-color: #F5A623; } /* Золото */
+.tape-card.rare-3 { border-color: #00D26A; box-shadow: 0 0 10px rgba(0, 210, 106, 0.4); }
+/* --- Индивидуальный размер иконки Jackpot в меню --- */
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-icon {
+    height: 2.2em !important; /* Увеличьте это значение (стандарт: 1.4em) */
+    transform: scale(1.2);    /* Дополнительное увеличение масштаба, если нужно */
+}
+
+/* Опционально: поправить положение, если иконка стала слишком большой */
+.mini-games-nav-item[data-target="jackpot-game"] {
+    gap: 3px; /* Чуть уменьшить отступ до текста, если иконка широкая */
+}
+/* --- НАСТРОЙКИ МЕНЮ МИНИ-ИГР (Вставьте в style2.css) --- */
+
+/* 1. Настройка контейнера кнопки */
+.mini-games-nav-item {
+    display: flex;
+    align-items: center; /* Центрирование по вертикали */
+    justify-content: center; /* Центрирование по горизонтали */
+    gap: 8px; /* Базовое расстояние между иконкой и текстом */
+}
+
+/* 2. Настройка ИКОНКИ (перемещение) */
+.nav-game-icon {
+    position: relative;
+    /* Первое число - сдвиг по X (вправо/влево)
+       Второе число - сдвиг по Y (вниз/вверх)
+    */
+    transform: translate(0px, 0px); 
+    
+    /* Пример сдвига: */
+    /* transform: translate(2px, -1px); -> сдвинет на 2px вправо и 1px вверх */
+}
+
+/* 3. Настройка ТЕКСТА (размер и перемещение) */
+.nav-game-name {
+    position: relative;
+    font-weight: 700; /* Жирность */
+    
+    /* --- РАЗМЕР ТЕКСТА --- */
+    font-size: 1.1em; /* Меняйте это значение (было ~1em) */
+    
+    /* --- ПЕРЕМЕЩЕНИЕ ТЕКСТА --- */
+    /* Сдвиг отдельно от иконки */
+    transform: translate(-6px, 0px);
+}
+
+/* --- (Опционально) ИНДИВИДУАЛЬНЫЕ НАСТРОЙКИ ДЛЯ КАЖДОЙ ИГРЫ --- */
+
+/* Например, если нужно подвинуть текст только у Jackpot: */
+/*
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-name {
+    transform: translate(0px, 2px); 
+    font-size: 1.2em;
+}
+
+.mini-games-nav-item[data-target="jackpot-game"] .nav-game-icon {
+    transform: translate(-2px, 0px);
+}
+*/
+/* --- СТИЛЬ ИСТОРИИ КОШЕЛЬКА (INDIGO THEME) --- */
+
+/* 1. Контейнер переключателей */
+.wallet-subtabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    /* Полупрозрачный темно-синий фон подложки */
+    background-color: rgba(30, 27, 75, 0.4); 
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px solid rgba(79, 70, 229, 0.15);
+}
+
+/* 2. Кнопка подвкладки */
+.wallet-subtab {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Неактивное состояние: цвет индиго-текста */
+    background-color: transparent; 
+    color: #A5B4FC; /* Светло-сиреневый текст */
+}
+
+.wallet-subtab:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    color: #fff;
+}
+
+.wallet-subtab.active {
+    /* Активное состояние: Яркий Индиго градиент */
+    background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); /* Свечение */
+}
+
+/* 3. Контейнер списка */
+.wallet-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 5px; /* Отступ под скролл */
+    /* Тонкий скроллбар в цвет темы */
+    scrollbar-width: thin;
+    scrollbar-color: #4F46E5 rgba(30, 27, 75, 0.2);
+}
+
+.wallet-history-list::-webkit-scrollbar {
+    width: 4px;
+}
+.wallet-history-list::-webkit-scrollbar-thumb {
+    background-color: #4338CA;
+    border-radius: 4px;
+}
+.wallet-history-list::-webkit-scrollbar-track {
+    background-color: rgba(30, 27, 75, 0.2);
+}
+
+/* 4. Карточка транзакции */
+.wallet-txn-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    
+    /* Темный стеклянный эффект с оттенком синего */
+    background: linear-gradient(145deg, rgba(49, 46, 129, 0.2), rgba(30, 27, 75, 0.4));
+    border: 1px solid rgba(67, 56, 202, 0.25); /* Тонкая рамка */
+    border-radius: 12px;
+    
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.wallet-txn-item:hover {
+    transform: translateY(-2px); /* Легкий подъем */
+    border-color: #4F46E5; /* Подсветка рамки при наведении */
+    background: linear-gradient(145deg, rgba(49, 46, 129, 0.3), rgba(30, 27, 75, 0.5));
+}
+
+.wallet-txn-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.wallet-txn-system {
+    font-weight: 700;
+    color: #fff;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wallet-txn-date {
+    font-size: 0.8em;
+    color: #818CF8; /* Приглушенный индиго */
+}
+
+.wallet-txn-right {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+}
+
+.wallet-txn-amount {
+    font-size: 1.1em;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+/* Цвета сумм: Зеленый неон и Белый */
+.wallet-txn-amount.plus { color: #34D399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.2); } 
+.wallet-txn-amount.minus { color: #E0E7FF; }
+
+.wallet-txn-status {
+    font-size: 0.7em;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Статусы под темную тему */
+.status-success { 
+    background-color: rgba(16, 185, 129, 0.15); 
+    color: #34D399; 
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.status-pending { 
+    background-color: rgba(245, 158, 11, 0.15); 
+    color: #FBBF24; 
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.status-error { 
+    background-color: rgba(239, 68, 68, 0.15); 
+    color: #F87171; 
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Заглушка */
+.wallet-empty-msg {
+    text-align: center;
+    padding: 40px;
+    color: #6366F1;
+    font-style: normal;
+    font-size: 0.95em;
+    opacity: 0.7;
+}
+/* --- АНИМАЦИЯ ЗАГРУЗОЧНОГО ЭКРАНА (UPDATED) --- */
+
+:root {
+    /* Единое время для синхронизации */
+    --loader-duration: 2.5s; 
+    /* Цвет Индиго */
+    --loader-color: #4F46E5; 
+}
+
+.typing-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 5px; /* Чуть уменьшил, чтобы кот был ближе */
+}
+
+.typing-logo {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 2.5rem;
+    
+    /* 1. Цвет Индиго */
+    color: var(--loader-color);
+    
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid var(--loader-color); /* Курсор тоже индиго */
+    width: 0;
+    
+    /* 2. Синхронизация времени (var(--loader-duration)) */
+    animation: 
+        typing var(--loader-duration) steps(7, end) forwards,
+        blink-caret 0.75s step-end infinite;
+}
+
+/* Переопределяем анимацию кота, чтобы она длилась ровно столько же, сколько текст */
+.cat-lines line, 
+.cat-lines polyline {
+    stroke: var(--loader-color); /* (Опционально) Кот тоже станет индиго */
+    animation: draw-cat var(--loader-duration) ease-in-out forwards !important;
+    stroke-dasharray: 100; /* Базовое значение для прорисовки */
+    stroke-dashoffset: 100;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 7ch; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: var(--loader-color); }
+}
+
+@keyframes draw-cat {
+  to { stroke-dashoffset: 0; }
+}
+/* =========================================
+   СЛАЙДЕР В ЛОББИ (1024x434) - ИСПРАВЛЕНО ДЛЯ iOS
+   ========================================= */
+.lobby-slider-container {
+    width: 100%;
+    max-width: 1000px; /* Ограничиваем ширину на десктопе */
+    
+    /* Соотношение сторон (высота подстраивается авто) */
+    aspect-ratio: 1024 / 434;
+    
+    margin: 0 auto 20px; /* Центрируем и отступ снизу */
+    border-radius: 20px;
+    
+    position: relative; /* Для позиционирования точек */
+    
+    /* Тень для объема */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    
+    /* Запрещаем выделение текста при свайпе */
+    user-select: none;
+    -webkit-user-select: none;
+    
+    /* Важно для мобилок: разрешаем вертикальный скролл страницы */
+    touch-action: pan-y;
+    
+    /* --- ИСПРАВЛЕНИЕ iOS --- */
+    overflow: hidden; /* Обрезаем всё лишнее */
+    transform: translateZ(0); /* Включаем аппаратное ускорение */
+    -webkit-transform: translateZ(0);
+    /* Этот хак чинит скругление углов (border-radius) на iPhone */
+    -webkit-mask-image: -webkit-radial-gradient(white, black); 
+}
+
+.lobby-slider-track {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    cursor: grab; /* Курсор "лапка" */
+    
+    /* Плавность при переключении кнопками/точками */
+    transition: transform 0.4s ease-out;
+}
+
+/* Класс при перетаскивании */
+.lobby-slider-track.dragging {
+    cursor: grabbing;
+    transition: none !important;
+}
+
+.lobby-slide {
+    /* --- ИСПРАВЛЕНИЕ iOS --- */
+    /* Обязательно указываем явную ширину, иначе Safari может схлопнуть слайд */
+    width: 100%; 
+    min-width: 100%;
+    height: 100%;
+    flex-shrink: 0; /* Запрещаем сжатие */
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-content {
+    width: 100%;
+    height: 100%;
+    /* Дополнительная страховка для скругления */
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.slide-content img {
+    width: 100%;
+    height: 100%;
+    
+    /* cover = заполнить всю рамку (может обрезать края, если пропорции не совпадают).
+       Если хотите, чтобы картинка влезала ЦЕЛИКОМ, замените на 'contain' */
+    object-fit: cover; 
+    
+    border-radius: 20px;
+    display: block;
+    pointer-events: none;
+    
+    /* --- ИСПРАВЛЕНИЕ iOS --- */
+    /* Заставляет картинку не превышать ширину контейнера */
+    max-width: 100%; 
+}
