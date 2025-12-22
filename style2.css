@@ -72,3 +72,71 @@
     margin-bottom: 4px; /* Чуть приподнимем визуально */
     filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.4));
 }
+/* =========================================
+   ИСПРАВЛЕНИЕ ИСТОРИИ (MINES + KENO)
+   ========================================= */
+
+/* --- ОБЩИЙ КОНТЕЙНЕР --- */
+.visual-grid-container {
+    display: grid !important;
+    gap: 5px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+}
+
+/* --- СТИЛИ ДЛЯ MINES (25 ячеек = 5x5) --- */
+.visual-grid-container.mines-visual {
+    grid-template-columns: repeat(5, 1fr) !important;
+    max-width: 400px !important; /* Ограничиваем ширину, чтобы не было гигантов */
+}
+
+/* Ячейка Mines */
+.visual-grid-container.mines-visual .visual-cell {
+    position: relative !important;
+    aspect-ratio: 1 / 1 !important;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Картинки внутри Mines (строго по центру) */
+.visual-grid-container.mines-visual .visual-cell img {
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 65% !important;
+    height: 65% !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+}
+
+/* --- СТИЛИ ДЛЯ KENO (40 ячеек = 8 колонок x 5 рядов) --- */
+.visual-grid-container.keno-visual {
+    grid-template-columns: repeat(8, 1fr) !important; /* 8 ячеек в ряд */
+    max-width: 500px !important;
+}
+
+/* Ячейка Keno */
+.visual-grid-container.keno-visual .visual-cell {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    aspect-ratio: 1 / 1 !important;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    font-size: 0.8em !important;
+    font-weight: bold;
+    color: rgba(255,255,255,0.7);
+    position: relative;
+}
+
+/* Активная ячейка Keno (выпавшая или выбранная) */
+.visual-grid-container.keno-visual .visual-cell.hit,
+.visual-grid-container.keno-visual .visual-cell.miss,
+.visual-grid-container.keno-visual .visual-cell.drawn-history {
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
