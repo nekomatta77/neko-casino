@@ -690,6 +690,44 @@
 
             <section id="jackpot-game" class="page-section hidden">
                 <div class="jackpot-container">
+
+                    <button id="jackpot-help-btn" class="jackpot-help-btn" title="Правила игры">
+        ?
+    </button>
+
+    <div id="jackpot-help-modal" class="user-modal-overlay hidden">
+        <div class="user-modal-content wallet-modal-content help-modal-size">
+            <div class="wallet-header">
+                <h3 style="color: #fff;">Правила Jackpot</h3>
+                <button class="wallet-modal-close" id="jackpot-help-close" style="color: #fff;">&times;</button>
+            </div>
+            
+            <div class="jackpot-rules-content">
+                <div class="rule-item">
+                    <span class="rule-icon">1</span>
+                    <p>Выберите комнату (Low, Medium или High) в зависимости от суммы вашей ставки.</p>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-icon">2</span>
+                    <p>Сделайте ставку. Чем больше сумма ставки, тем выше ваш % на победу.</p>
+                </div>
+                <div class="rule-item">
+                    <span class="rule-icon">3</span>
+                    <p>Игра начнется автоматически, когда наберется минимум 2 участника.</p>
+                </div>
+                
+                <div class="commission-alert warning-red">
+    <div class="alert-icon-wrap">
+        <img src="assets/bell.svg" alt="Warning" width="32" height="32">
+    </div>
+    <div class="alert-text">
+        <strong>Важное напоминание</strong>
+        <span>Комиссия сервиса с выигрыша составляет 10%.</span>
+    </div>
+</div>
+            </div>
+        </div>
+    </div>
                     
                     <div class="jackpot-rooms">
                         <button class="room-btn active" data-room="low">

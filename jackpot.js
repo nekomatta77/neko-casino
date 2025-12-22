@@ -1,5 +1,5 @@
 /*
- * jackpot.js - FIXED SYNC (Inline Styles Enforcement)
+ * jackpot.js - FINAL VERSION (Help Button + Yellow Line Fix)
  */
 import { 
     getFirestore, doc, onSnapshot, runTransaction, 
@@ -117,6 +117,30 @@ export function initJackpot() {
         });
     }
 
+    // 6. Логика кнопки помощи (Правила)
+    const helpBtn = document.getElementById('jackpot-help-btn');
+    const helpModal = document.getElementById('jackpot-help-modal');
+    const helpClose = document.getElementById('jackpot-help-close');
+
+    if (helpBtn && helpModal && helpClose) {
+        // Открыть
+        helpBtn.addEventListener('click', () => {
+            helpModal.classList.remove('hidden');
+        });
+
+        // Закрыть по крестику
+        helpClose.addEventListener('click', () => {
+            helpModal.classList.add('hidden');
+        });
+
+        // Закрыть по клику вне окна
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) {
+                helpModal.classList.add('hidden');
+            }
+        });
+    }
+
     switchRoom('low');
 }
 
@@ -184,6 +208,9 @@ function switchRoom(roomName) {
 }
 
 function resetUI() {
+    // --- FIX: СКРЫВАЕМ ЛИНИЮ ПРИ ОЖИДАНИИ ---
+    if (els.tapeWrapper) els.tapeWrapper.classList.add('is-waiting');
+
     if (els.tapeTrack) {
         els.tapeTrack.classList.remove('spinning');
         els.tapeTrack.style.transition = 'none';
@@ -244,6 +271,9 @@ function handleRoundUpdate(data) {
         if (els.timerText) els.timerText.textContent = "0";
         if(countdownInterval) clearInterval(countdownInterval); 
         
+        // --- FIX: ПОКАЗЫВАЕМ ЛИНИЮ ДЛЯ ПРОКРУТКИ ---
+        if (els.tapeWrapper) els.tapeWrapper.classList.remove('is-waiting');
+
         if (!data.winner) {
             tryResolveWinner(data);
         } else {
@@ -353,11 +383,14 @@ function startLocalTimer(endTime) {
 }
 
 // =========================================================
-// ОСНОВНОЙ ФИКС РАССИНХРОНИЗАЦИИ
+// ОСНОВНОЙ ФИКС РАССИНХРОНИЗАЦИИ + ФИКС ЛИНИИ
 // =========================================================
 function spinTape(winner, players) {
     const tape = els.tapeTrack;
     if (!tape) return;
+
+    // --- FIX: УБЕДИМСЯ ЧТО ЛИНИЯ ВИДНА ПРИ ПРОКРУТКЕ ---
+    if (els.tapeWrapper) els.tapeWrapper.classList.remove('is-waiting');
     
     // Сброс контейнера
     tape.innerHTML = '';

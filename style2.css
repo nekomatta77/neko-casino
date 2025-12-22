@@ -140,3 +140,164 @@
 .visual-grid-container.keno-visual .visual-cell.drawn-history {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* --- КНОПКА ПОМОЩИ JACKPOT (INDIGO STYLE) --- */
+.jackpot-container {
+    position: relative; /* Важно для позиционирования кнопки */
+}
+
+.jackpot-help-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    background-color: #4F46E5; /* Индиго */
+    color: #FFFFFF;
+    border: none;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    /* Небольшой отступ от края, чтобы не прилипало */
+    margin-top: -10px; 
+    margin-right: -5px;
+}
+
+.jackpot-help-btn:hover {
+    transform: scale(1.1);
+    background-color: #6366F1; /* Светлее при наведении */
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.8);
+}
+
+/* Стили контента модалки правил */
+.help-modal-size {
+    max-width: 450px !important;
+}
+
+.jackpot-rules-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 10px;
+    color: #FFFFFF; /* Белый текст */
+}
+
+.rule-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    font-size: 0.95em;
+    line-height: 1.4;
+    opacity: 0.9;
+}
+
+.rule-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(79, 70, 229, 0.2); /* Прозрачный индиго */
+    color: #4F46E5;
+    border: 1px solid #4F46E5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.85em;
+}
+
+/* Блок с комиссией */
+.commission-alert {
+    margin-top: 10px;
+    background: linear-gradient(145deg, rgba(79, 70, 229, 0.1), rgba(30, 27, 75, 0.4));
+    border: 1px solid #4F46E5;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.alert-icon {
+    font-size: 1.5em;
+}
+
+.alert-text {
+    display: flex;
+    flex-direction: column;
+}
+
+.alert-text strong {
+    color: #F5A623; /* Оранжевый акцент для важности */
+    font-size: 1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.alert-text span {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+/* Адаптация кнопки для мобильных, если нужно */
+@media (max-width: 768px) {
+    .jackpot-help-btn {
+        top: 5px;
+        right: 5px;
+        margin: 0;
+    }
+}
+/* --- КРАСНОЕ УВЕДОМЛЕНИЕ (COMMISSION) --- */
+.commission-alert.warning-red {
+    margin-top: 15px;
+    /* Красноватый градиент, подходящий под темную тему */
+    background: linear-gradient(145deg, rgba(220, 38, 38, 0.15), rgba(69, 10, 10, 0.4));
+    border: 1px solid #EF4444; /* Ярко-красная обводка */
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1);
+}
+
+.commission-alert.warning-red strong {
+    color: #EF4444; /* Красный заголовок */
+    font-size: 1em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+    display: block;
+}
+
+.commission-alert.warning-red span {
+    color: #FECACA; /* Светло-красный текст */
+    font-size: 0.9em;
+}
+
+/* Анимация покачивания для колокольчика */
+.alert-icon-wrap img {
+    filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.5));
+    animation: bellShake 3s infinite;
+}
+
+@keyframes bellShake {
+    0%, 100% { transform: rotate(0); }
+    10%, 30% { transform: rotate(15deg); }
+    20%, 40% { transform: rotate(-15deg); }
+    50% { transform: rotate(0); }
+}
+
+/* --- СКРЫТИЕ ЖЕЛТОЙ ЛИНИИ ПРИ ОЖИДАНИИ --- */
+/* Когда у обертки есть класс .is-waiting, скрываем центральную линию (::before/::after) */
+.jackpot-tape-wrapper.is-waiting::before,
+.jackpot-tape-wrapper.is-waiting::after {
+    display: none !important;
+    opacity: 0 !important;
+}
