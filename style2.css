@@ -301,3 +301,69 @@
     display: none !important;
     opacity: 0 !important;
 }
+
+/* === FIX: Скрытие желтой линии в режиме ожидания === */
+.jackpot-tape-wrapper.is-waiting .jackpot-pointer {
+    display: none !important;
+}
+/* === FIX: Яркое выделение выбранной платежной системы === */
+.wallet-method-button.active {
+    /* Яркая золотая/оранжевая рамка */
+    border: 2px solid #F5A623 !important; 
+    
+    /* Сильное свечение (Glow) */
+    box-shadow: 0 0 20px rgba(245, 166, 35, 0.6) !important; 
+    
+    /* Слегка подсвечиваем фон внутри кнопки */
+    background-color: rgba(245, 166, 35, 0.15) !important; 
+    
+    /* Немного увеличиваем кнопку для акцента */
+    transform: translateY(-3px) scale(1.02) !important; 
+    
+    /* Убеждаемся, что она поверх остальных */
+    z-index: 5; 
+}
+/* === FIX: Отступы и стиль платежных методов === */
+
+/* 1. Добавляем пространство сверху и вокруг кнопок */
+.wallet-methods {
+    margin-top: 25px !important; /* Отступ от верхних вкладок (было слишком близко) */
+    padding: 10px 5px !important; /* Место для теней, чтобы не обрезались */
+    gap: 15px !important; /* Расстояние между самими кнопками */
+    display: flex;
+    justify-content: center;
+}
+
+/* 2. Делаем активную кнопку аккуратной (убрали увеличение) */
+.wallet-method-button.active {
+    /* Рамка остается заметной */
+    border: 2px solid #F5A623 !important; 
+    
+    /* Свечение чуть мягче */
+    box-shadow: 0 0 15px rgba(245, 166, 35, 0.5) !important; 
+    
+    /* Фон */
+    background-color: rgba(245, 166, 35, 0.15) !important; 
+    
+    /* УБРАЛИ scale(1.02), теперь кнопка не будет "вылезать" и казаться огромной */
+    transform: none !important; 
+    
+    z-index: 5; 
+}
+/* === FIX: Аккуратный стиль активной платежки === */
+.wallet-method-button.active {
+    /* 1. Рамка чуть тоньше и изящнее */
+    border: 1.5px solid #F5A623 !important; 
+    
+    /* 2. Тень с "отрицательным спредом" (-2px) убирает жирность по краям, 
+          оставляя только мягкий ореол */
+    box-shadow: 0 4px 12px -2px rgba(245, 166, 35, 0.45) !important; 
+    
+    /* 3. Очень легкая подсветка фона */
+    background-color: rgba(245, 166, 35, 0.08) !important; 
+    
+    /* 4. Легкий подъем, без изменения размера */
+    transform: translateY(-2px) !important; 
+    
+    z-index: 5; 
+}
