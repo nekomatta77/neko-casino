@@ -1,0 +1,25 @@
+[debug] [2026-01-11T17:21:21.432Z] ----------------------------------------------------------------------
+[debug] [2026-01-11T17:21:21.437Z] Command:       E:\node\node.exe C:\Users\Aleksey\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-01-11T17:21:21.438Z] CLI Version:   15.2.1
+[debug] [2026-01-11T17:21:21.438Z] Platform:      win32
+[debug] [2026-01-11T17:21:21.438Z] Node Version:  v24.11.1
+[debug] [2026-01-11T17:21:21.438Z] Time:          Mon Jan 12 2026 01:21:21 GMT+0800 (Иркутск, стандартное время)
+[debug] [2026-01-11T17:21:21.438Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\Aleksey\nekos
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] 
