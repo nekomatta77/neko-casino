@@ -367,3 +367,77 @@
     
     z-index: 5; 
 }
+/* =========================================
+   AESTHETIC QUEST ICONS (NEON CHECKBOXES)
+   ========================================= */
+
+/* 1. Базовый контейнер иконки */
+.quest-status-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%; /* Круглая форма */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Скрываем старый текст (точки ●/○), который ставит JS */
+    font-size: 0 !important; 
+    color: transparent !important;
+    
+    /* Базовый стиль (для неактивного) */
+    background: rgba(255, 255, 255, 0.05); /* Полупрозрачный фон */
+    border: 2px solid rgba(255, 255, 255, 0.15); /* Тусклая рамка */
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); /* Внутренняя тень */
+    
+    flex-shrink: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистая анимация */
+    position: relative;
+}
+
+/* 2. Состояние: ОЖИДАНИЕ (Pending) */
+.quest-status-icon.status-pending {
+    opacity: 0.6;
+}
+
+/* 3. Состояние: ВЫПОЛНЕНО (Success) */
+.quest-status-icon.status-success {
+    /* Градиентный зеленый фон */
+    background: linear-gradient(135deg, #00D699 0%, #00A878 100%);
+    border-color: #00D699; /* Яркая рамка */
+    opacity: 1;
+    transform: scale(1.1); /* Чуть увеличиваем при успехе */
+    
+    /* Красивое неоновое свечение */
+    box-shadow: 0 0 15px rgba(0, 214, 153, 0.5), 
+                inset 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+/* 4. Рисуем галочку внутри (через CSS) */
+.quest-status-icon.status-success::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    
+    /* Белая линия галочки */
+    border: solid white;
+    border-width: 0 2px 2px 0; 
+    
+    /* Поворачиваем, чтобы получить галочку */
+    transform: rotate(45deg) translate(-1px, -1px);
+    display: block;
+    
+    /* Анимация появления галочки */
+    animation: checkmarkPop 0.3s ease-out forwards;
+}
+
+/* Анимация для галочки */
+@keyframes checkmarkPop {
+    from {
+        opacity: 0;
+        transform: rotate(45deg) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(45deg) scale(1);
+    }
+}
