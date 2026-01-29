@@ -441,3 +441,96 @@
         transform: rotate(45deg) scale(1);
     }
 }
+/* --- СТИЛЬ ЗАГРУЗКИ (FINAL: Indigo Drawing + Static Text) --- */
+
+/* 1. Скрываем старые линии (если остались в HTML) */
+.cat-lines { display: none; }
+
+/* 2. Настройки контейнера кота */
+.drawing-cat {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+    overflow: visible; 
+}
+
+/* 3. Анимация самого кота */
+.drawing-cat path, 
+.drawing-cat circle {
+    fill: transparent;       /* Сначала пусто внутри */
+    stroke: #4F46E5;         /* Цвет контура (Индиго) */
+    stroke-width: 12px;       /* ЖИРНАЯ ЛИНИЯ */
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    
+    stroke-dasharray: 3000;
+    stroke-dashoffset: 3000;
+    
+    /* Последовательность анимаций:
+       1. drawLines - рисует контур (2.5 сек)
+       2. fillColor - заливает цветом (начинается на 2.2 сек)
+       3. gentlePulse - кот начинает дышать (начинается на 3 сек) 
+    */
+    animation: 
+        drawLines 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards,
+        fillColor 0.8s ease-out 2.2s forwards,
+        gentlePulse 2s infinite ease-in-out 3s; 
+}
+
+/* 4. Текст CoolCat (Без пульсации, только появление) */
+.typing-logo.simple-fade {
+    /* Сбрасываем старые стили */
+    border-right: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    width: auto !important;
+    animation: none !important;
+
+    /* Шрифт */
+    font-family: 'Fredoka', sans-serif;
+    font-size: 2.5em;
+    font-weight: 800;
+    
+    /* Градиент Индиго */
+    background: linear-gradient(90deg, #4F46E5, #818CF8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    
+    opacity: 0; /* Изначально скрыт */
+    
+    /* Анимация: только плавное появление (один раз) */
+    animation: fadeInText 1s ease-out 1s forwards !important;
+}
+
+/* --- КЛЮЧЕВЫЕ КАДРЫ (KEYFRAMES) --- */
+
+/* Рисование линии */
+@keyframes drawLines {
+    to { stroke-dashoffset: 0; }
+}
+
+/* Заливка цветом и удаление обводки */
+@keyframes fillColor {
+    from { fill: transparent; }
+    to { 
+        fill: #4F46E5; 
+        stroke: transparent; 
+    }
+}
+
+/* Появление текста */
+@keyframes fadeInText {
+    0% { opacity: 0; transform: translateY(15px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Пульсация (применяется ТОЛЬКО к коту) */
+@keyframes gentlePulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { 
+        transform: scale(1.05); 
+        filter: drop-shadow(0 0 15px rgba(79, 70, 229, 0.4)); 
+    }
+    100% { transform: scale(1); opacity: 1; }
+}
